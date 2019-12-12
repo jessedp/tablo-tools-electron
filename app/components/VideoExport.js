@@ -1,0 +1,204 @@
+import React, { Component } from 'react';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Modal from 'react-bootstrap/Modal';
+import Alert from 'react-bootstrap/Alert';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import { readableDuration } from '../utils/utils';
+import Title from './Title';
+
+type Props = { airing: null };
+
+const beginTime = '0:00/0:00';
+
+/** TODO: exportInc is used as a counter and state
+ * and should be split accordingly */
+
+export default class VideoExport extends Component<Props> {
+  props: Props;
+
+  constructor() {
+    super();
+    this.state = {
+      opened: false,
+      exportInc: -1,
+      exportLbl: beginTime
+    };
+
+    this.toggle = this.toggle.bind(this);
+    this.show = this.show.bind(this);
+    this.processVideo = this.processVideo.bind(this);
+    this.updateProgress = this.updateProgress.bind(this);
+    this.cancelProcess = this.cancelProcess.bind(this);
+  }
+
+  componentWillUnmount() {
+    const { airing } = this.props;
+    airing.cancelVideoProcess();
+    this.setState({});
+  }
+
+  show() {
+    this.setState({
+      opened: true
+    });
+  }
+
+  toggle() {
+    const { opened } = this.state;
+    this.setState({
+      opened: !opened
+    });
+  }
+
+  async processVideo() {
+    const { airing } = this.props;
+
+    this.setState({
+      opened: true,
+      exportInc: 0,
+      exportLbl: beginTime
+    });
+    await airing.processVideo(this.updateProgress);
+  }
+
+  async cancelProcess() {
+    const { airing } = this.props;
+    const { exportInc } = this.state;
+    if (exportInc !== -2) {
+      airing.cancelVideoProcess();
+    }
+    await this.setState({
+      exportInc: -1,
+      exportLbl: beginTime,
+      opened: false
+    });
+  }
+
+  updateProgress(progress) {
+    const { airing } = this.props;
+
+    if (progress.finished) {
+      this.setState({
+        exportInc: -2,
+        exportLbl: 'Complete'
+      });
+    } else {
+      const label = `${progress.timemark} / ${readableDuration(
+        airing.videoDetails.duration
+      )}`;
+      this.setState({
+        exportInc: progress.percent,
+        exportLbl: label
+      });
+    }
+  }
+
+  render() {
+    const { airing } = this.props;
+    const { opened, exportInc, exportLbl } = this.state;
+
+    return (
+      <>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          onClick={this.show}
+          title="Export Video"
+        >
+          <span className="fa fa-cogs" />
+        </Button>
+
+        <Modal
+          size="lg"
+          show={opened}
+          onHide={this.cancelProcess}
+          animation={false}
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Exporting:</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row>
+              <Col>
+                <Title airing={airing} />
+              </Col>
+            </Row>
+            <Row>
+              <Col>{airing.exportFile}</Col>
+            </Row>
+            <Row>
+              <Col>
+                <ExportProgress
+                  process={this.processVideo}
+                  inc={exportInc}
+                  lbl={exportLbl}
+                />
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <ExportButton
+              inc={exportInc}
+              cancel={this.cancelProcess}
+              process={this.processVideo}
+            />
+          </Modal.Footer>
+        </Modal>
+      </>
+    );
+  }
+}
+
+/**
+ * @return {string}
+ */
+function ExportButton(prop) {
+  const { inc, cancel, process } = prop;
+
+  if (inc === -2) {
+    return (
+      <Button variant="success" onClick={cancel}>
+        Done
+      </Button>
+    );
+  }
+  if (inc === -1) {
+    return (
+      <Button variant="primary" onClick={process}>
+        Export
+      </Button>
+    );
+  }
+
+  return (
+    <Button variant="secondary" onClick={cancel}>
+      Cancel
+    </Button>
+  );
+}
+
+function ExportProgress(data) {
+  const { inc, lbl, process } = data;
+
+  if (inc === -1) {
+    return (
+      <Button variant="primary" onClick={process}>
+        Start Export
+      </Button>
+    );
+  }
+  if (inc === -2) {
+    return <Alert variant="success">Finished!</Alert>;
+  }
+
+  const pctLbl = `${Math.round(inc)} %`;
+  return (
+    <>
+      <ProgressBar animated max="100" now={inc} label={pctLbl} />
+      <span className="d-flex justify-content-center">{lbl}</span>
+    </>
+  );
+}
