@@ -8,12 +8,10 @@
 
 ## Run
 
-Hopefully it finds its way into a place you normally click to run stuff and you do that.
-
-Start the app in the `dev` environment. This starts the renderer process in [**hot-module-replacement**](https://webpack.js.org/guides/hmr-react/) mode and starts a webpack dev server that sends hot updates to the renderer process:
+Hopefully after install it finds its way into a place you normally click to run stuff and you then do that.
 
 # Development
-You probably don't care about this.
+You probably don't care about anything below here.
 
 #### Packaging
 
