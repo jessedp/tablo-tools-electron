@@ -20,7 +20,8 @@ export default class Incomplete extends Component<Props> {
 
   constructor() {
     super();
-    this.pDTO = null;
+    this.percentDragTimeout = null;
+    this.percentDragSearchTimeout = null;
 
     this.initialState = {
       percent: 100,
@@ -52,24 +53,21 @@ export default class Incomplete extends Component<Props> {
   }
 
   async percentChange(event) {
-    // console.log('pC event', event);
     await this.setStateStore({ percent: event.target.value });
-    // this.search();
   }
 
   percentDrag(event) {
-    // this.search();
-    // event.preventDefault();
-    // console.log(event);
     if (!event) return;
     const slider = event.srcElement;
 
-    if (this.pDTO) {
-      clearTimeout(this.pDTO);
+    if (this.percentDragSearchTimeout) {
+      clearTimeout(this.percentDragSearchTimeout);
     }
-    // console.log('pD event srcEl', slider);
+
+    if (this.percentDragTimeout) {
+      clearTimeout(this.percentDragTimeout);
+    }
     const sliderPos = slider.value / slider.max;
-    // console.log('sliderPos', sliderPos);
 
     // blah, figure out the math of this :/
     let xShim = 0;
@@ -87,9 +85,14 @@ export default class Incomplete extends Component<Props> {
 
     const xPos = Math.round(slider.clientWidth * sliderPos) + xShim;
 
-    this.pDTO = setTimeout(async () => {
+    this.percentDragTimeout = setTimeout(async () => {
       if (xPos) await this.setStateStore({ percentLoc: xPos });
     }, 10);
+
+    this.percentDragSearchTimeout = setTimeout(async () => {
+      this.search();
+    }, 1000);
+
   }
 
   async search() {
@@ -105,29 +108,12 @@ export default class Incomplete extends Component<Props> {
       ['limit', -1]
     ]);
     console.log(`total recs: ${recs.length}`);
-    // recs = recs.filter((rec) => !rec.episode.tms_id.startsWith('SH') );
+
     recs = recs.filter(
       rec => rec.airing_details.duration * pct > rec.video_details.duration
     );
 
     console.log(`filtered recs: ${recs.length}`);
-    /**
-    const dupeRecs = {};
-    recs.forEach((rec)=>{
-      const key = rec.episode.tms_id;
-      if (!(key in dupeRecs)){
-        dupeRecs[key] = [];
-      }
-      dupeRecs[key].push(rec)
-
-    });
-
-    console.log(`dupes recs: ${Object.keys(dupeRecs).length}`);
-    const dupeRecKeys = Object.keys(dupeRecs).filter( (key)=> dupeRecs[key].length > 1 );
-    console.log(`dupes recs > 1: ${dupeRecKeys.length}`);
-     */
-
-    // recs = [];
 
     const result = [];
 
