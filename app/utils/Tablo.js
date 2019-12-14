@@ -13,7 +13,7 @@ const srvInfo = store.get('last_device');
 const config = JSON.parse(localStorage.getItem('AppConfig'));
 
 let ip = srvInfo.local_address;
-if (config.enableIpOverride) {
+if (config && config.enableIpOverride) {
   ip = config.overrideIp;
 }
 
