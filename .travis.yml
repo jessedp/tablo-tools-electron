@@ -1,92 +1,81 @@
 matrix:
   allow_failures:
-    - os: windows
+  - os: windows
   include:
-    - os: osx
-      language: node_js
-      node_js:
-        - node
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-
-    - os: linux
-      language: node_js
-      node_js:
-        - node
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc-multilib
-            - g++-8
-            - g++-multilib
-            - icnsutils
-            - graphicsmagick
-            - xz-utils
-            - xorriso
-            - rpm
-
-    - os: windows
-      language: node_js
-      node_js:
-        - node
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-
+  - os: osx
+    language: node_js
+    node_js:
+    - node
+    env:
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+  - os: linux
+    language: node_js
+    node_js:
+    - node
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - gcc-multilib
+        - g++-8
+        - g++-multilib
+        - icnsutils
+        - graphicsmagick
+        - xz-utils
+        - xorriso
+        - rpm
+  - os: windows
+    language: node_js
+    node_js:
+    - node
+    env:
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 before_cache:
-  - rm -rf $HOME/.cache/electron-builder/wine
-
+- rm -rf $HOME/.cache/electron-builder/wine
 cache:
   yarn: true
   directories:
-    - node_modules
-    - $(npm config get prefix)/lib/node_modules
-    - flow-typed
-    - $HOME/.cache/electron
-    - $HOME/.cache/electron-builder
-
+  - node_modules
+  - "$(npm config get prefix)/lib/node_modules"
+  - flow-typed
+  - "$HOME/.cache/electron"
+  - "$HOME/.cache/electron-builder"
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="g++-8"; fi
-
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="g++-8"; fi
 install:
-  - yarn --ignore-engines
-  # On Linux, initialize "virtual display". See before_script
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      /sbin/start-stop-daemon \
-      --start \
-      --quiet \
-      --pidfile /tmp/custom_xvfb_99.pid \
-      --make-pidfile \
-      --background \
-      --exec /usr/bin/Xvfb \
-      -- :99 -ac -screen 0 1280x1024x16
-    else
-      :
-    fi
-
+- yarn --ignore-engines
+- |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    /sbin/start-stop-daemon \
+    --start \
+    --quiet \
+    --pidfile /tmp/custom_xvfb_99.pid \
+    --make-pidfile \
+    --background \
+    --exec /usr/bin/Xvfb \
+    -- :99 -ac -screen 0 1280x1024x16
+  else
+    :
+  fi
 before_script:
-  # On Linux, create a "virtual display". This allows browsers to work properly
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
-
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
 script:
-  - yarn package-ci
-  - yarn lint
-  - yarn flow
-  # HACK: Temporarily ignore `yarn test` on linux
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn test; fi
-  - yarn build-e2e
-  - yarn test-e2e
+- yarn package-ci
+- yarn lint
+- yarn flow
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn test; fi
+- yarn build-e2e
+- yarn test-e2e
 
 deploy:
   provider: releases
   api_key:
-    secure: "g7USjPc5LsR7eKPS8noK7wTVIwANN1vkeVQN7rTdoQsrJoCWS544Flm0iWkePmVsVgx45ei2nJvn+FvEeQ8j8Ro/tZzmRjdn+e84QEIcKkWh2cgRlNN2PTUD+0L4D1G476vkQ/c66+rtlaFvhkZud7FQufQUdsB5QnT2uZLkwO/g9bxHiHgyqTCo/+PsmFpDl47kD3dzYIXESfFNVtfEwEot6NmN+3fDLw5kKlzeVzgqPRQIAxof8OmjTeaRTv5aG36cWeVmN/+mZyUlkdt4cXziRDOYPi7KrEnL+BKEp/dx1G7P0pDwTo4o0f75bjfi/MGmQadnE9/TAVUud9XpBi9RgBiq0tk5sha0L8Ds4usWUnDjf1cVYxn9vLT1OIeLwPqS5YxlV+7ahQ2wTlUNew4FXL3/gtTO9WAP8Gy8KDzVy+LX1tGRkuGxjDZx7Diwts557cV3PlOajuhJDBDFE17gvpnrJ7KRQ2Dw8BKOpYqCK4V7WI56uNFPNylgXzH25LIGdMWFo4YZtQ/LhdjUZ7s4mPe8IvUCfgw9vy3FbhWK2osK21+7P+ZgmNITHlaEmiKsdct5txwOb53lx6o0AARtKH7mzPFkTdwlbu4qXBvd7STnNu4R6bLMG3lJWTE+22ZtAylHQKCC9Z4CnQLes2ITAHf7HnWgwC2LLwFYLSc="
+    secure: qRaqHuhrOthX++faQQbZo2PoTAyuPBqWRY9uB0iqvu3sL8unp3vBupgBVhr1K/j9ZqWoJnlQXU+iPWz86ieAIITjXfpdOCnIfrmlfIUdYOXpt/2cfdBSrKRAMkHsplXzWVO2tMLj0TWCj8WdetKlU/AE/CmcytQG1gIdQXQEBTaYhM9LOb3xSRnrbgsWDNMKyqIw3Q8ShxQoT9QHAx0URA6+BsjxZgt6Y33zmXr7P8jYHtf97waYbrk0lPtvK5TpBf8+WchlUXKZZucQnAIZzzjS1Yllc+TM4rPUNVb+9Qv5iqv4HR93jRkIs1fRUmFAv5XO3QZsiquHDx0Zp9ZZiG7A9AVo1Vb02t93HLDe76rFq0At7sQoc8qv4FHIz1csrd4oNjA6ELn/DGQFwIaITMGUNQHnSgbDpu1bIDuW4jHLTMFPrrsPaX+/Q1KYG4fOL9b0lfQ+3UJKIBHf01Y+3xdkBYzyZpbTc8wHCRS+UpITjf/M2LP6dHeEKBgd0IIsHp6RkrnteBvnF15/uxw4De1Al3HzHpNPVxzCR6qKOs3JHmwRRxp2QPsPwu688F3ZyowhRqNQSUpWnr7OtmE7Kb0FHyA6NY/EBWSNxNtyZ1u3REi9I4UR0VzWEhUZu9xm4dwpqZFWhYs0aGBUF1w3cxs4Ik/UNHiKU+HT1tABSFc=
   file:
     - release/TabloTools*.AppImage
     - release/TabloTools Setup*.exe
