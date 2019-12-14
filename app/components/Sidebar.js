@@ -1,3 +1,5 @@
+/** This is poorly named - the SideBar is actually the TopBar * */
+
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -31,6 +33,10 @@ export default class Sidebar extends Component<Props> {
     };
     await checkConn();
     setInterval(await checkConn, 10000);
+  }
+
+  async setView(view){
+    await this.setState({ current: view});
   }
 
   async setHome() {
