@@ -82,3 +82,15 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn test; fi
   - yarn build-e2e
   - yarn test-e2e
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "g7USjPc5LsR7eKPS8noK7wTVIwANN1vkeVQN7rTdoQsrJoCWS544Flm0iWkePmVsVgx45ei2nJvn+FvEeQ8j8Ro/tZzmRjdn+e84QEIcKkWh2cgRlNN2PTUD+0L4D1G476vkQ/c66+rtlaFvhkZud7FQufQUdsB5QnT2uZLkwO/g9bxHiHgyqTCo/+PsmFpDl47kD3dzYIXESfFNVtfEwEot6NmN+3fDLw5kKlzeVzgqPRQIAxof8OmjTeaRTv5aG36cWeVmN/+mZyUlkdt4cXziRDOYPi7KrEnL+BKEp/dx1G7P0pDwTo4o0f75bjfi/MGmQadnE9/TAVUud9XpBi9RgBiq0tk5sha0L8Ds4usWUnDjf1cVYxn9vLT1OIeLwPqS5YxlV+7ahQ2wTlUNew4FXL3/gtTO9WAP8Gy8KDzVy+LX1tGRkuGxjDZx7Diwts557cV3PlOajuhJDBDFE17gvpnrJ7KRQ2Dw8BKOpYqCK4V7WI56uNFPNylgXzH25LIGdMWFo4YZtQ/LhdjUZ7s4mPe8IvUCfgw9vy3FbhWK2osK21+7P+ZgmNITHlaEmiKsdct5txwOb53lx6o0AARtKH7mzPFkTdwlbu4qXBvd7STnNu4R6bLMG3lJWTE+22ZtAylHQKCC9Z4CnQLes2ITAHf7HnWgwC2LLwFYLSc="
+  file:
+    - release/TabloTools*.AppImage
+    - release/TabloTools Setup*.exe
+    - release/TabloTools-0.0.1-mac.zip
+  skip_cleanup: true
+  on:
+    tags: true
