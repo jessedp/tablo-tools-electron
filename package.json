@@ -104,7 +104,7 @@
     "publish": {
       "provider": "github",
       "owner": "jessedp",
-      "repo": "tablo-tools",
+      "repo": "tablo-tools-electron",
       "private": false
     }
   },
