@@ -4,7 +4,8 @@
 
 ## Install
 
-- TBD (should be a native installer)
+Best of luck if you try one, but there are 
+[native app installers](https://github.com/jessedp/tablo-tools-electron/releases) you can try.
 
 ## Run
 
