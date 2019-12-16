@@ -9,6 +9,12 @@
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/git/.*
 
+<PROJECT_ROOT>/app/reducers/index.js
+<PROJECT_ROOT>/app/store/configureStore.js
+<PROJECT_ROOT>/app/store/configureStore.prod.js
+
+
+
 [include]
 
 [libs]
