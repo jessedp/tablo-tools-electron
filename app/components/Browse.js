@@ -11,20 +11,26 @@ import Incomplete from './Incomplete';
 import Shows from './Shows';
 
 type Props = {};
+type State = { view: number };
 
 const VIEW_SEARCH = 1;
 const VIEW_INCOMPLETE = 2;
 const VIEW_SHOWS = 3;
-export default class Browse extends Component<Props> {
+
+export default class Browse extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
 
     this.initialState = { view: VIEW_SEARCH };
-    const storedState = JSON.parse(localStorage.getItem('BrowseState'));
+    const storedState = JSON.parse(localStorage.getItem('BrowseState') || "");
 
-    this.state = storedState || this.initialState;
+    this.state = Object.assign(this.initialState, storedState);
 
     this.viewSearch = this.viewSearch.bind(this);
     this.viewIncomplete = this.viewIncomplete.bind(this);
@@ -35,29 +41,32 @@ export default class Browse extends Component<Props> {
     // await this.search();
   }
 
-  async setStateStore(...args) {
+  async setStateStore(...args: Array<Object>) {
     const values = args[0];
     await this.setState(values);
     const cleanState = this.state;
-    delete cleanState.display;
     localStorage.setItem('BrowseState', JSON.stringify(cleanState));
   }
 
-  async viewSearch() {
+  viewSearch = async () => {
     await this.setStateStore({ view: VIEW_SEARCH });
-  }
+  };
 
-  async viewIncomplete() {
+  viewIncomplete = async () => {
     await this.setStateStore({ view: VIEW_INCOMPLETE });
-  }
+  };
 
-  async viewShows() {
+  viewShows = async () => {
     await this.setStateStore({ view: VIEW_SHOWS });
-  }
+  };
 
   render() {
     const { view } = this.state;
-    let { incBtnClass, searchBtnClass, showBtnClass } = 'h3';
+    const baseClass = 'h3';
+    let incBtnClass = baseClass;
+    let searchBtnClass = baseClass;
+    let showBtnClass = baseClass;
+
     switch (view) {
       case VIEW_INCOMPLETE:
         incBtnClass += ' active  ';

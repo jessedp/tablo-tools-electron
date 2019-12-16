@@ -16,11 +16,24 @@ import Airing from '../utils/Airing';
 import EpisodeSlim from './EpisodeSlim';
 import { asyncForEach } from '../utils/utils';
 import TabloImage from './TabloImage';
+import Show from "../utils/Show";
 
-type Props = { show: null };
+type Props = { show: Show };
+type State = {
+  episodes: Object,
+  seasons: Object,
+  alertType: string,
+  alertTxt: string,
+  selSeason: null,
+  seasonRefs: Object
+};
 
-export default class EpisodeList extends Component<Props> {
+export default class EpisodeList extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
@@ -31,7 +44,7 @@ export default class EpisodeList extends Component<Props> {
       alertType: '',
       alertTxt: '',
       selSeason: null,
-      setSeasonRefs: []
+      seasonRefs: []
     };
 
     this.state = this.initialState;
@@ -45,16 +58,17 @@ export default class EpisodeList extends Component<Props> {
     await this.search();
   }
 
-  setSeasonRefs(refs) {
+  /* :: setSeasonRefs: () => void */
+  setSeasonRefs(refs: Object) {
     console.log('created season refs', refs.length);
     this.setState({ seasonRefs: refs });
   }
 
-  selectSeason(season) {
+  /* :: selectSeason: (season: string) => void */
+  selectSeason(season: string) {
     const { seasonRefs } = this.state;
     console.log('selected season', season);
 
-    // console.log('ref idx', seasonRefs.indexOf(season));
     if (season === 'top') {
       window.scrollTo(0, 0);
     } else {
@@ -64,6 +78,7 @@ export default class EpisodeList extends Component<Props> {
     }
   }
 
+  /* :: search: () => void */
   async search() {
     const { show } = this.props;
 
@@ -124,11 +139,9 @@ export default class EpisodeList extends Component<Props> {
       objRecs.forEach(airing => {
         result[airing.episode.season_number].push(
           <EpisodeSlim
-            search=""
-            doDelete=""
             key={airing.object_id}
             airing={airing}
-          />
+           doDelete={()=>{}}/>
         );
       });
     }

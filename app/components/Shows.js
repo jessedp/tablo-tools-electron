@@ -8,43 +8,50 @@ import EpisodeList from './EpisodeList';
 import Show from '../utils/Show';
 
 type Props = {};
+type State = {
+  view: number,
+  show: Show
+};
 
 const VIEW_SHOWS = 1;
 const VIEW_EPISODES = 2;
 
-export default class Shows extends Component<Props> {
+export default class Shows extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
 
-    this.initialState = { view: VIEW_SHOWS, show: null };
+    this.initialState = { view: VIEW_SHOWS, show: new Show};
 
-    const storedState = JSON.parse(localStorage.getItem('ShowsState'));
+    const storedState = JSON.parse(localStorage.getItem('ShowsState') || "");
     if (storedState.show) {
       storedState.show = new Show(storedState.show);
     }
 
-    this.state = storedState || this.initialState;
+    this.state = Object.assign(this.initialState, storedState);
     this.viewShows = this.viewShows.bind(this);
     this.viewEpisodes = this.viewEpisodes.bind(this);
   }
 
-  async setStateStore(...args) {
+  async setStateStore(...args: Array<Object>) {
     const values = args[0];
     await this.setState(values);
     const cleanState = this.state;
-    delete cleanState.display;
     localStorage.setItem('ShowsState', JSON.stringify(cleanState));
   }
 
-  viewShows() {
-    this.setStateStore({ view: VIEW_SHOWS, show: null });
-  }
+  viewShows = async () => {
+    await this.setStateStore({ view: VIEW_SHOWS, show: null });
+  };
 
-  async viewEpisodes(show) {
+  viewEpisodes = async(show: Show) => {
     await this.setStateStore({ view: VIEW_EPISODES, show });
-  }
+  };
 
   render() {
     const { view, show } = this.state;

@@ -18,9 +18,23 @@ import Recording from './Recording';
 import Airing from '../utils/Airing';
 
 type Props = {};
+type State = {
+  searchValue: string,
+  queryValue: string,
+  typeFilter: string,
+  stateFilter: string,
+  watchedFilter: string,
+  alertType: string,
+  alertTxt: string,
+  display: Object
+};
 
-export default class Search extends Component<Props> {
+export default class Search extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
@@ -33,9 +47,9 @@ export default class Search extends Component<Props> {
       watchedFilter: 'all',
       alertType: '',
       alertTxt: '',
-      display: ''
+      display: {}
     };
-    const storedState = JSON.parse(localStorage.getItem('SearchState'));
+    const storedState = JSON.parse(localStorage.getItem('SearchState') || "");
 
     this.state = Object.assign(this.initialState, storedState);
 
@@ -54,16 +68,16 @@ export default class Search extends Component<Props> {
     await this.search();
   }
 
-  async delete() {
+  delete = async () => {
     await this.search();
-  }
+  };
 
-  async resetSearch() {
+  resetSearch = async () => {
     await this.setStateStore(this.initialState);
     this.search();
-  }
+  };
 
-  async setStateStore(...args) {
+  async setStateStore(...args: Array<Object>) {
     const values = args[0];
     await this.setState(values);
     const cleanState = this.state;
@@ -71,42 +85,44 @@ export default class Search extends Component<Props> {
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
-  async stateChange(event) {
-    await this.setStateStore({ stateFilter: event.target.value });
+
+  stateChange = async(event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setStateStore({ stateFilter: event.currentTarget.value });
     this.search();
-  }
+  };
 
-  async typeChange(event) {
-    await this.setStateStore({ typeFilter: event.target.value });
+  typeChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setStateStore({ typeFilter: event.currentTarget.value });
     this.search();
-  }
+  };
 
-  async watchedChange(event) {
-    await this.setStateStore({ watchedFilter: event.target.value });
+  watchedChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setStateStore({ watchedFilter: event.currentTarget.value });
     this.search();
-  }
+  };
 
-  searchChange(event) {
-    this.setStateStore({ searchValue: event.target.value });
-  }
+  searchChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setStateStore({ searchValue: event.currentTarget.value });
+  };
 
-  searchKeyPressed(event) {
+
+  searchKeyPressed = async (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      await this.search();
+    }
+  };
+
+  queryChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setStateStore({ queryValue: event.currentTarget.value });
+  };
+
+  queryKeyPressed = async (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       this.search();
     }
-  }
+  };
 
-  queryChange(event) {
-    this.setStateStore({ queryValue: event.target.value });
-  }
-
-  queryKeyPressed(event) {
-    if (event.key === 'Enter') {
-      this.search();
-    }
-  }
-
-  async search() {
+  search = async () => {
     const {
       searchValue,
       queryValue,

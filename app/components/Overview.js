@@ -20,9 +20,15 @@ const Store = require('electron-store');
 const store = new Store();
 
 type Props = {};
+type State = {
+  device: Object,
+  lastDevice: Object
+};
 
-export default class Overview extends Component<Props> {
+export default class Overview extends Component<Props, State> {
   props: Props;
+
+  state: State;
 
   info: null;
 

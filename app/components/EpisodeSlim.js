@@ -7,25 +7,25 @@ import Container from 'react-bootstrap/Container';
 
 import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
+import Airing from "../utils/Airing";
 
-type Props = { doDelete: () => {}, airing: null };
+type Props = { doDelete: () => void, airing: Airing };
 
 export default class EpisodeSlim extends Component<Props> {
   props: Props;
 
-  constructor(props) {
+  constructor(props: Props) {
     super();
-    this.state = {};
     this.props = props;
 
     this.deleteAiring = this.deleteAiring.bind(this);
   }
 
-  async deleteAiring() {
+  deleteAiring = async () => {
     const { airing, doDelete } = this.props;
     await airing.delete();
     doDelete();
-  }
+  };
 
   render() {
     const { airing } = this.props;

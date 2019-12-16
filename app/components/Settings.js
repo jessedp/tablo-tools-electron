@@ -14,9 +14,23 @@ import { isValidIp } from '../utils/utils';
 import { updateApi } from '../utils/Tablo';
 
 type Props = {};
+type State = {
+  episodePath: string,
+  moviePath: string,
+  eventPath: string,
+  enableIpOverride: boolean,
+  overrideIp: string,
+  enableExportData: boolean,
+  exportDataPath: string,
+  saveStatus: ?Array<string>
+};
 
-export default class Settings extends Component<Props> {
+export default class Settings extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
@@ -29,10 +43,10 @@ export default class Settings extends Component<Props> {
       overrideIp: '',
       enableExportData: false,
       exportDataPath: `${os.tmpdir()}/tablo-data/`,
-      saveStatus: null
+      saveStatus: []
     };
 
-    const storedState = JSON.parse(localStorage.getItem('AppConfig'));
+    const storedState = JSON.parse(localStorage.getItem('AppConfig') || "");
 
     this.state = Object.assign(this.initialState, storedState);
 
@@ -54,7 +68,7 @@ export default class Settings extends Component<Props> {
   }
    */
 
-  saveConfig() {
+  saveConfig = () => {
     const cleanState = this.state;
     delete cleanState.saveStatus;
     const invalid = [];
@@ -70,35 +84,35 @@ export default class Settings extends Component<Props> {
       localStorage.setItem('AppConfig', JSON.stringify(cleanState));
       updateApi();
     }
-  }
+  };
 
-  toggleIpOverride(evt) {
-    this.setState({ enableIpOverride: evt.target.checked });
-  }
+  toggleIpOverride = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ enableIpOverride: event.currentTarget.checked });
+  };
 
-  setOverrideIp(evt) {
-    this.setState({ overrideIp: evt.target.value });
-  }
+  setOverrideIp = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ overrideIp: event.currentTarget.value });
+  };
 
-  toggleDataExport(evt) {
-    this.setState({ enableExportData: evt.target.checked });
-  }
+  toggleDataExport = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ enableExportData: event.currentTarget.checked });
+  };
 
-  setExportDataPath(evt) {
-    this.setState({ exportDataPath: evt.target.value });
-  }
+  setExportDataPath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ exportDataPath: event.currentTarget.value });
+  };
 
-  setEpisodePath(evt) {
-    this.setState({ episodePath: evt.target.value });
-  }
+  setEpisodePath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ episodePath: event.currentTarget.value });
+  };
 
-  setMoviePath(evt) {
-    this.setState({ moviePath: evt.target.value });
-  }
+  setMoviePath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ moviePath: event.currentTarget.value });
+  };
 
-  setEventPath(evt) {
-    this.setState({ eventPath: evt.target.value });
-  }
+  setEventPath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ eventPath: event.currentTarget.value });
+  };
 
   render() {
     const {

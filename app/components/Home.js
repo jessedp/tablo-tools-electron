@@ -14,11 +14,17 @@ import Discovery from './Discovery';
 import { writeToFile } from '../utils/utils';
 
 type Props = {};
+type State = {
+  device: Object,
+  showDbTable: boolean
+};
 
-export default class Home extends Component<Props> {
+export default class Home extends Component<Props, State> {
   props: Props;
 
-  info: null;
+  state: State;
+
+  info: string;
 
   constructor() {
     super();
@@ -41,14 +47,16 @@ export default class Home extends Component<Props> {
     this.setState({ device: this.info });
   }
 
-  showDbTable(show) {
+  /* :: showDbTable: (show: boolean) => void */
+  showDbTable(show: boolean) {
     const { showDbTable } = this.state;
     if (show !== showDbTable) {
       this.setState({ showDbTable: show });
     }
   }
 
-  updateDevice(dev) {
+  /* :: updateDevice: (dev: Object) => void */
+  updateDevice(dev: Object) {
     this.setState({ device: dev });
   }
 

@@ -13,15 +13,24 @@ import { ShowDb } from '../utils/db';
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
 
-type Props = { viewEpisodes: () => {} };
+type Props = { viewEpisodes: (show: Show) => {} };
+type State = {
+  display: Array<Object>,
+  alertType: string,
+  alertTxt: string
+};
 
-export default class ShowsList extends Component<Props> {
+export default class ShowsList extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
 
   constructor() {
     super();
 
-    this.initialState = { display: '', alertType: '', alertTxt: '' };
+    this.initialState = { display: [], alertType: '', alertTxt: '' };
 
     this.state = this.initialState;
 
@@ -32,7 +41,7 @@ export default class ShowsList extends Component<Props> {
     await this.search();
   }
 
-  async search() {
+  search = async () => {
     const { viewEpisodes } = this.props;
     const query = {};
 
@@ -41,7 +50,7 @@ export default class ShowsList extends Component<Props> {
     const objRecs = [];
 
     recs.forEach(rec => {
-      const show = Show.create(rec);
+      const show = new Show(rec);
       objRecs.push(show);
     });
 
@@ -58,13 +67,13 @@ export default class ShowsList extends Component<Props> {
       await this.setState({ alertType: 'danger', alertTxt: 'No shows found' });
     } else {
       this.setState({
-        display: (
-          <Container>
+        display: [
+          <Container key="spinner">
             <Row className="pl-lg-5">
               <Spinner animation="grow" variant="info" />
             </Row>
           </Container>
-        )
+        ]
       });
 
       await this.setState({
@@ -73,7 +82,7 @@ export default class ShowsList extends Component<Props> {
       });
 
       objRecs.forEach(show => {
-        console.log(show);
+        // console.log(show);
         if (show.series) {
           result.push(
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events
@@ -96,7 +105,7 @@ export default class ShowsList extends Component<Props> {
       });
     }
     await this.setState({ display: result });
-  }
+  };
 
   render() {
     const { alertType, alertTxt, display } = this.state;

@@ -15,12 +15,16 @@ const Store = require('electron-store');
 
 const store = new Store();
 
-type Props = { updateDevice: () => {} };
+type Props = { updateDevice: (info: Object) => void } ;
+type State = {
+  discovery: string,
+  lastDevice: Object
+};
 
-export default class Discovery extends Component<Props> {
+export default class Discovery extends Component<Props, State> {
   props: Props;
 
-  info: null;
+  state: State;
 
   constructor() {
     super();
@@ -29,6 +33,7 @@ export default class Discovery extends Component<Props> {
     this.discover = this.discover.bind(this);
   }
 
+  /* :: discover: () => void */
   async discover() {
     let device = await Api.discover();
     // TODO: this is roughly where we should allow selecting one of
@@ -44,7 +49,7 @@ export default class Discovery extends Component<Props> {
       const { updateDevice } = this.props;
       updateDevice(info);
       setTimeout(() => {
-        this.setState({ discovery: null });
+        this.setState({ discovery: '' });
       }, 3000);
       this.setState({ discovery: 'success', lastDevice: info });
       store.set('last_device', info);

@@ -14,9 +14,21 @@ import Recording from './Recording';
 import Airing from '../utils/Airing';
 
 type Props = {};
+type State = {
+  percent: number,
+  alertType: string,
+  alertTxt: string,
+  display: Object,
+  percentLoc: number
+};
 
-export default class Incomplete extends Component<Props> {
+export default class Incomplete extends Component<Props, State> {
   props: Props;
+
+  state: State;
+
+  initialState: State;
+
 
   constructor() {
     super();
@@ -31,12 +43,11 @@ export default class Incomplete extends Component<Props> {
       percentLoc: 0
     };
 
-    const storedState = JSON.parse(localStorage.getItem('IncompleteState'));
+    const storedState = JSON.parse(localStorage.getItem('IncompleteState') || '');
 
     this.state = Object.assign(this.initialState, storedState);
 
     this.search = this.search.bind(this);
-    this.percentChange = this.percentChange.bind(this);
     this.percentDrag = this.percentDrag.bind(this);
   }
 
@@ -44,7 +55,12 @@ export default class Incomplete extends Component<Props> {
     await this.search();
   }
 
-  async setStateStore(...args) {
+  percentDragTimeout: ?TimeoutID = null;
+
+  percentDragSearchTimeout: ?TimeoutID = null;
+
+
+  async setStateStore(...args: Array<Object>) {
     const values = args[0];
     await this.setState(values);
     const cleanState = this.state;
@@ -52,13 +68,13 @@ export default class Incomplete extends Component<Props> {
     localStorage.setItem('IncompleteState', JSON.stringify(cleanState));
   }
 
-  async percentChange(event) {
-    await this.setStateStore({ percent: event.target.value });
-  }
 
-  percentDrag(event) {
+  percentDrag = (event: SyntheticDragEvent<HTMLInputElement>) =>  {
     if (!event) return;
-    const slider = event.srcElement;
+
+    this.setStateStore({ percent: event.currentTarget.value });
+
+    const slider = event.currentTarget;
 
     if (this.percentDragSearchTimeout) {
       clearTimeout(this.percentDragSearchTimeout);
@@ -67,7 +83,7 @@ export default class Incomplete extends Component<Props> {
     if (this.percentDragTimeout) {
       clearTimeout(this.percentDragTimeout);
     }
-    const sliderPos = slider.value / slider.max;
+    const sliderPos = parseInt(slider.value,10) / parseInt(slider.max,10);
 
     // blah, figure out the math of this :/
     let xShim = 0;
@@ -93,9 +109,9 @@ export default class Incomplete extends Component<Props> {
       this.search();
     }, 1000);
 
-  }
+  };
 
-  async search() {
+  search = async () => {
     const { percent } = this.state;
     const pct = percent / 100;
 
@@ -107,13 +123,11 @@ export default class Incomplete extends Component<Props> {
       ['sort', { 'airing_details.datetime': -1 }],
       ['limit', -1]
     ]);
-    console.log(`total recs: ${recs.length}`);
 
     recs = recs.filter(
       rec => rec.airing_details.duration * pct > rec.video_details.duration
     );
 
-    console.log(`filtered recs: ${recs.length}`);
 
     const result = [];
 
@@ -142,7 +156,7 @@ export default class Incomplete extends Component<Props> {
         result.push(
           <Recording
             search={this.search}
-            doDelete={this.search}
+            doDelete={()=>{}}
             key={airing.object_id}
             airing={airing}
           />
@@ -150,7 +164,7 @@ export default class Incomplete extends Component<Props> {
       });
     }
     await this.setState({ display: result });
-  }
+  };
 
   render() {
     const { percent, alertType, alertTxt, display } = this.state;
@@ -189,9 +203,7 @@ export default class Incomplete extends Component<Props> {
                 step="1"
                 value={percent}
                 title={pctLabel}
-                /* eslint-disable-next-line no-restricted-globals */
-                onDrag={this.percentDrag(event)}
-                onChange={this.percentChange}
+                onChange={this.percentDrag}
               />
             </label>
             <span

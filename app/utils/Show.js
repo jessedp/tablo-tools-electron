@@ -1,4 +1,5 @@
 // @flow
+import { TabloImage, ShowCounts } from "../reducers/types";
 
 export const SERIES = 'episode';
 export const MOVIE = 'movie';
@@ -6,7 +7,55 @@ export const EVENT = 'event';
 export const PROGRAM = 'program';
 
 export default class Show {
-  constructor(data) {
+  // eslint-disable-next-line camelcase
+  object_id: number;
+
+  path: string;
+
+
+  showCounts: ShowCounts;
+
+  // eslint-disable-next-line camelcase
+  show_counts: ShowCounts;
+
+  // eslint-disable-next-line camelcase
+  thumbnail_image: TabloImage;
+
+  // eslint-disable-next-line camelcase
+  background_image: TabloImage;
+
+  plot: string;
+
+  /** TODO: make these proper types :/ */
+  episode: Object;
+
+  series: Object;
+
+  // eslint-disable-next-line camelcase
+  series_path: string;
+
+  movie: Object;
+
+  // eslint-disable-next-line camelcase
+  movie_path: string;
+
+  event: Object;
+
+  sport: Object;
+
+  // eslint-disable-next-line camelcase
+  sport_path: string;
+
+  // eslint-disable-next-line camelcase
+  program_path: string;
+
+  // eslint-disable-next-line camelcase
+  user_info: Object;
+
+  userInfo: Object;
+
+
+  constructor(data: Object) {
     Object.assign(this, data);
     this.showCounts = this.show_counts;
     delete this.show_counts;
@@ -15,36 +64,6 @@ export default class Show {
     delete this.user_info;
   }
 
-  static create(data) {
-    const airing = new Show(data);
-
-    // const docs = await ShowDb.asyncFind( { 'path': airing.typePath });
-
-    // Slow and now batch, so do this later when we actually need it
-    // For now.
-    // await airing.watch();
-    /**
-    let piece = [];
-    switch (airing.type) {
-      case SERIES:
-        piece = docs[0].series;
-        break;
-      case MOVIE:
-        piece = docs[0].movie;
-        break;
-      case EVENT:
-        piece = docs[0].sport;
-        break;
-      case PROGRAM:
-      default:
-        console.log('PROGRAM type - who knows if this will work');
-        piece = docs[0].program;
-        break;
-    }
-    airing.show = piece;
-        */
-    return airing;
-  }
 
   get id() {
     return this.object_id;

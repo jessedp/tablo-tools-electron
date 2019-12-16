@@ -2,17 +2,12 @@
 import React, { Component } from 'react';
 
 import TabloImage from './TabloImage';
-import { SERIES, MOVIE, EVENT, PROGRAM } from '../utils/Show';
+import Show, { SERIES, MOVIE, EVENT, PROGRAM } from '../utils/Show';
 
-type Props = { show: [] };
+type Props = { show: Show };
 
 export default class ShowCover extends Component<Props> {
   props: Props;
-
-  constructor() {
-    super();
-    this.nope = '';
-  }
 
   render() {
     const { show } = this.props;

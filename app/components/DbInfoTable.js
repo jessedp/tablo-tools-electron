@@ -7,11 +7,24 @@ import { RecDb, recDbStats } from '../utils/db';
 
 type Props = {};
 
-export default class DbInfoTable extends Component<Props> {
+type State = {
+  recTotal: number,
+  watched: number,
+  finished: number,
+  failed: number,
+  recording: number,
+  typeEpisode: number,
+  typeMovie: number,
+  typeEvent: number
+};
+
+export default class DbInfoTable extends Component<Props, State> {
   props: Props;
 
-  constructor() {
-    super();
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
     this.state = {
       recTotal: 0,
       watched: 0,
@@ -23,6 +36,7 @@ export default class DbInfoTable extends Component<Props> {
       typeEvent: 0
     };
   }
+
 
   async componentDidMount() {
     const recTotal = await RecDb.asyncCount({});

@@ -1,7 +1,8 @@
 // @flow
 import React, { Component } from 'react';
+import Airing from "../utils/Airing";
 
-type Props = { airing: null };
+type Props = { airing: Airing };
 
 export default class AiringStatus extends Component<Props> {
   props: Props;

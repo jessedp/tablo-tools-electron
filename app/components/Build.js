@@ -15,14 +15,22 @@ import { RecDb, ShowDb, recDbCreated, recDbStats } from '../utils/db';
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
 
-type Props = { showDbTable: () => {} };
+type Props = { showDbTable: (show: boolean) => void };
+type State = {
+  loading: number,
+  status: Array<Object>,
+  airingInc: number,
+  airingMax: number
+};
 
 const STATE_NONE = 0;
 const STATE_LOADING = 1;
 const STATE_FINISH = 2;
 
-export default class Build extends Component<Props> {
+export default class Build extends Component<Props, State> {
   props: Props;
+
+  state: State;
 
   constructor() {
     super();
@@ -35,7 +43,7 @@ export default class Build extends Component<Props> {
     this.build = this.build.bind(this);
   }
 
-  async build() {
+  build = async () => {
     const { showDbTable } = this.props;
 
     showDbTable(false);
@@ -77,9 +85,9 @@ export default class Build extends Component<Props> {
     console.log(`${cnt.length} SHOW records added`);
 
     await this.setState({ loading: STATE_FINISH, status });
-    localStorage.setItem('LastDbBuild', new Date());
+    localStorage.setItem('LastDbBuild', new Date().toISOString());
     showDbTable(true);
-  }
+  };
 
   loading() {
     const { loading, status, airingMax, airingInc } = this.state;

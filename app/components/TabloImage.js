@@ -3,7 +3,7 @@ import Image from 'react-bootstrap/Image';
 
 import Api from '../utils/Tablo';
 
-type Props = { imageId: '', maxHeight: null };
+type Props = { imageId: string, maxHeight: ?number };
 
 export default class TabloImage extends Component<Props> {
   props: Props;

@@ -1,12 +1,16 @@
 // @flow
 import ffmpeg from 'ffmpeg-static';
-import * as FfmpegCommand from 'fluent-ffmpeg';
+
+// import * as FfmpegCommand from 'fluent-ffmpeg';
 
 import fs from 'fs';
 
 import { readableDuration } from './utils';
 import { RecDb, ShowDb } from './db';
 import Api from './Tablo';
+import Show from "./Show";
+
+const FfmpegCommand = require('fluent-ffmpeg');
 
 const SERIES = 'episode';
 const MOVIE = 'movie';
@@ -17,22 +21,76 @@ const cmd = new FfmpegCommand();
 let outFile = '';
 
 export default class Airing {
-  constructor(data) {
+  episode: Object;
+
+  // eslint-disable-next-line camelcase
+  object_id: number;
+
+  // eslint-disable-next-line camelcase
+  airing_details: Object;
+
+  airingDetails: Object;
+
+  // eslint-disable-next-line camelcase
+  video_details: Object;
+
+  videoDetails: Object;
+
+  // eslint-disable-next-line camelcase
+  snapshot_image: Object;
+
+  snapshotImage: Object;
+
+  // eslint-disable-next-line camelcase
+  user_info: Object;
+
+  userInfo: Object;
+
+  show: Show;
+
+  cachedWatch: Object;
+
+  path: string;
+
+  _id: number;
+
+  event: Object;
+
+  // eslint-disable-next-line camelcase
+  movie_airing: Object;
+
+  // eslint-disable-next-line camelcase
+  program_path: string;
+
+  // eslint-disable-next-line camelcase
+  sport_path: string;
+
+  // eslint-disable-next-line camelcase
+  movie_path: string;
+
+  // eslint-disable-next-line camelcase
+  event_path: string;
+
+  // eslint-disable-next-line camelcase
+  series_path: string;
+
+
+  constructor(data: Object) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
     delete this.airing_details;
     this.videoDetails = this.video_details;
     delete this.video_details;
-    this.snanpshotImage = this.snapshot_image;
+    this.snapshotImage = this.snapshot_image;
     delete this.snapshot_image;
     this.userInfo = this.user_info;
     delete this.user_info;
 
-    this.show = {};
+    // this.show = null;
     this.cachedWatch = null;
   }
 
-  static async create(data) {
+  static async create(data: Object) {
     const airing = new Airing(data);
 
     const docs = await ShowDb.asyncFind({ path: airing.typePath });
@@ -199,9 +257,9 @@ export default class Airing {
   }
 
   get image() {
-    const { snanpshotImage } = this;
-    if (snanpshotImage && snanpshotImage.image_id) {
-      return snanpshotImage.image_id;
+    const { snapshotImage } = this;
+    if (snapshotImage && snapshotImage.image_id) {
+      return snapshotImage.image_id;
     }
     return null;
   }
@@ -227,7 +285,7 @@ export default class Airing {
   }
 
   get exportPath() {
-    const config = JSON.parse(localStorage.getItem('AppConfig'));
+    const config = JSON.parse(localStorage.getItem('AppConfig') || "");
     switch (this.type) {
       case SERIES:
         return config.episodePath;
@@ -282,7 +340,7 @@ export default class Airing {
     }
   }
 
-  async processVideo(callback = null) {
+  async processVideo(callback: Function = null) {
     // const { _id, path } = this;
     console.log('processVideo');
 
@@ -290,7 +348,7 @@ export default class Airing {
 
     const ffmpegPath1 = ffmpeg.path
       ? ffmpeg.path.replace('app.asar', 'app.asar.unpacked')
-      : false;
+      : '';
     const ffmpegPath2 = ffmpegPath1.replace(
       '/dist/',
       '/node_modules/ffmpeg-static/'

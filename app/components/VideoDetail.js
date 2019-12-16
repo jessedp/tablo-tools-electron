@@ -5,7 +5,8 @@ import Alert from 'react-bootstrap/Alert';
 
 import { boolStr, readableBytes, readableDuration } from '../utils/utils';
 
-type Props = { details: null };
+/** TODO: make VideoDetails type */
+type Props = { details: Object };
 
 export default class VideoDetail extends Component<Props> {
   props: Props;
@@ -50,9 +51,11 @@ export default class VideoDetail extends Component<Props> {
   }
 }
 
+/**
+ * @return {string}
+ */
 function Error(prop) {
   const { error } = prop.detail;
-  console.log('Video Error', error);
   if (!error) return '';
   return (
     <Alert variant="warning">
@@ -64,9 +67,11 @@ function Error(prop) {
   );
 }
 
+/**
+ * @return {string}
+ */
 function CommercialSkip(prop) {
   const { comskip } = prop.detail;
-  console.log(comskip);
   if (!comskip) return '';
   return (
     <h6>

@@ -15,13 +15,17 @@ import AiringStatus from './AiringStatus';
 
 import styles from './Episode.css';
 import VideoExport from './VideoExport';
+import Airing from "../utils/Airing";
 
-type Props = { doDelete: () => {}, airing: null };
+type Props = { doDelete: () => ?Promise<any>, airing: Airing };
+type State = { recOverviewOpen: boolean };
 
-export default class Episode extends Component<Props> {
+export default class Episode extends Component<Props, State> {
   props: Props;
 
-  constructor(props) {
+  state: State;
+
+  constructor(props: Props) {
     super();
     this.state = { recOverviewOpen: false };
     this.props = props;
@@ -31,6 +35,7 @@ export default class Episode extends Component<Props> {
     this.processVideo = this.processVideo.bind(this);
   }
 
+  /* :: toggleRecOverview: () => void */
   toggleRecOverview() {
     const { recOverviewOpen } = this.state;
     this.setState({
@@ -38,11 +43,13 @@ export default class Episode extends Component<Props> {
     });
   }
 
+  /* :: processVideo: () => void */
   async processVideo() {
     const { airing } = this.props;
     await airing.processVideo();
   }
 
+  /* :: deleteAiring: () => void */
   async deleteAiring() {
     const { airing, doDelete } = this.props;
     await airing.delete();
