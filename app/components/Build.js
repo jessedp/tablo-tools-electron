@@ -23,6 +23,7 @@ type State = {
   airingMax: number
 };
 
+
 const STATE_NONE = 0;
 const STATE_LOADING = 1;
 const STATE_FINISH = 2;
@@ -54,8 +55,8 @@ export default class Build extends Component<Props, State> {
     this.setState({ airingMax: total });
 
     const recs = await Api.getRecordings({
-      callback: txt => {
-        this.setState({ airingInc: txt });
+      callback: val => {
+        this.setState({ airingInc: val });
       }
     });
 
@@ -95,8 +96,23 @@ export default class Build extends Component<Props, State> {
     if (loading === STATE_NONE) {
       return '';
     }
+
+    let progressVariant = 'info';
+
     if (loading === STATE_LOADING) {
-      const airingPct = `${Math.round((airingInc / airingMax) * 100)}%`;
+      const pct = Math.round((airingInc / airingMax) * 100);
+      console.log('loading pct', pct);
+      const airingPct = `${pct}%`;
+      if (pct < 25) {
+        progressVariant = 'danger';
+      } else if (pct < 50) {
+        progressVariant = 'warning';
+      } else if (pct < 75) {
+        progressVariant = 'info';
+      } else {
+        progressVariant = 'success';
+      }
+
       return (
         <Container>
           <h6 className="p-3">Finding Recordings...</h6>
@@ -105,7 +121,7 @@ export default class Build extends Component<Props, State> {
             max={airingMax}
             now={airingInc}
             label={airingPct}
-            variant="info"
+            variant={progressVariant}
           />
           {airingInc === airingMax ? (
             <div>
