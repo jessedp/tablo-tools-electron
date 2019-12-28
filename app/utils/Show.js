@@ -24,6 +24,9 @@ export default class Show {
   // eslint-disable-next-line camelcase
   background_image: TabloImage;
 
+  // eslint-disable-next-line camelcase
+  cover_image: TabloImage;
+
   plot: string;
 
   /** TODO: make these proper types :/ */
@@ -169,18 +172,24 @@ export default class Show {
   }
 
   get thumbnail() {
+    let set = null;
     switch (this.type) {
       case SERIES:
-        return this.series.thumbnail_image.image_id;
+        set = this.series.thumbnail_image; break;
+        // return this.series.thumbnail_image.image_id;
       case MOVIE:
-        return this.movie.thumbnail_image.image_id;
+        set = this.movie.thumbnail_image; break;
+        // return this.movie.thumbnail_image.image_id;
       case EVENT:
-        return this.sport.thumbnail_image.image_id;
+        set = this.sport.thumbnail_image; break;
+        // return this.sport.thumbnail_image.image_id;
       default:
         return 0;
     }
+    if (!set) return 0;
+    return set.image_id;
   }
-
+  
   get cover() {
     switch (this.type) {
       case SERIES:
