@@ -26,7 +26,7 @@ type State = {
   watchedFilter: string,
   alertType: string,
   alertTxt: string,
-  display: Object
+  display: Array<Object>
 };
 
 export default class Search extends Component<Props, State> {
@@ -47,8 +47,9 @@ export default class Search extends Component<Props, State> {
       watchedFilter: 'all',
       alertType: '',
       alertTxt: '',
-      display: {}
+      display: []
     };
+
     const storedState = JSON.parse(localStorage.getItem('SearchState') || "");
 
     this.state = Object.assign(this.initialState, storedState);
@@ -102,6 +103,7 @@ export default class Search extends Component<Props, State> {
   };
 
   searchChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    if (!event.currentTarget.value) return;
     this.setStateStore({ searchValue: event.currentTarget.value });
   };
 
@@ -203,7 +205,7 @@ export default class Search extends Component<Props, State> {
       });
     }
     await this.setState({ display: result });
-  }
+  };
 
   render() {
     const {
