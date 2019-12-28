@@ -189,7 +189,7 @@ export default class Show {
     if (!set) return 0;
     return set.image_id;
   }
-  
+
   get cover() {
     switch (this.type) {
       case SERIES:

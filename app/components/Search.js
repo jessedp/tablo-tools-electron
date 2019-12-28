@@ -82,7 +82,7 @@ export default class Search extends Component<Props, State> {
     const values = args[0];
     await this.setState(values);
     const cleanState = this.state;
-    delete cleanState.display;
+    cleanState.display = [];
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
@@ -178,13 +178,13 @@ export default class Search extends Component<Props, State> {
       });
     } else {
       this.setState({
-        display: (
+        display: [(
           <Container>
             <Row className="pl-lg-5">
               <Spinner animation="grow" variant="info" />
             </Row>
           </Container>
-        )
+        )]
       });
       // console.log(`total: ${recs.length}`);
       // result.push(<Alert variant="info" key="recfnd">{recs.length} recordings found</Alert>);
