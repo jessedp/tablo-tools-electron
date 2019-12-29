@@ -1,56 +1,50 @@
 matrix:
-  allow_failures:
-  - os: windows
   include:
-  - os: osx
-    language: node_js
-    node_js:
-    - node
-    env:
-    - ELECTRON_CACHE=$HOME/.cache/electron
-    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-  - os: linux
-    language: node_js
-    node_js:
-    - node
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - gcc-multilib
-        - g++-8
-        - g++-multilib
-        - icnsutils
-        - graphicsmagick
-        - xz-utils
-        - xorriso
-        - rpm
-  - os: windows
-    language: node_js
-    node_js:
-    - node
-    env:
-    - ELECTRON_CACHE=$HOME/.cache/electron
-    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+    - os: osx
+      language: node_js
+      node_js:
+        - node
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+    - os: linux
+      language: node_js
+      node_js:
+        - node
+      services:
+        - xvfb
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - gcc-multilib
+            - g++-8
+            - g++-multilib
+            - icnsutils
+            - graphicsmagick
+            - xz-utils
+            - xorriso
+            - rpm
 
 before_cache:
-- rm -rf $HOME/.cache/electron-builder/wine
+  - rm -rf $HOME/.cache/electron-builder/wine
 
 cache:
   yarn: true
   directories:
-  - node_modules
-  - "$(npm config get prefix)/lib/node_modules"
-  - flow-typed
-  - "$HOME/.cache/electron"
-  - "$HOME/.cache/electron-builder"
+    - node_modules
+    - $(npm config get prefix)/lib/node_modules
+    - flow-typed
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="g++-8"; fi
 
 install:
   - yarn --ignore-engines
+  # On Linux, initialize "virtual display". See before_script
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       /sbin/start-stop-daemon \
@@ -65,18 +59,16 @@ install:
       :
     fi
 
-services:
-  - xvfb
-
 before_script:
+  # On Linux, create a "virtual display". This allows browsers to work properly
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
 
 script:
   - yarn package-ci
   - yarn lint
   - yarn flow
+  # HACK: Temporarily ignore `yarn test` on linux
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn test; fi
   - yarn build-e2e
   - yarn test-e2e

@@ -19,14 +19,11 @@ module.exports = api => {
   const development = api.env(developmentEnvironments);
 
   return {
-    sourceType: 'unambiguous',
     presets: [
       [
         require('@babel/preset-env'),
         {
           targets: { electron: require('electron/package.json').version }
-          // useBuiltIns: 'usage',
-          // corejs: 3,
         }
       ],
       require('@babel/preset-flow'),
