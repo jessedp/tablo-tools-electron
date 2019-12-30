@@ -23,8 +23,6 @@ type State = {
 export default class ShowsList extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   initialState: State;
 
   constructor() {

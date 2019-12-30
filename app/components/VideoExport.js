@@ -8,7 +8,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import { readableDuration } from '../utils/utils';
 import Title from './Title';
 
-type Props = { airing: null };
+type Props = { airing: Airing };
 
 const beginTime = '0:00/0:00';
 

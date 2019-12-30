@@ -16,7 +16,7 @@ export default class App extends React.Component<Props> {
   render() {
     const { children } = this.props;
     return (
-      <React.Fragment>
+      <>
         <Container style={{ width: '100%', maxWidth: '100%' }} className="m-0">
           <Row>
             <Col className="ml-0 pl-0">
@@ -27,7 +27,7 @@ export default class App extends React.Component<Props> {
             <Col>{children}</Col>
           </Row>
         </Container>
-      </React.Fragment>
+      </>
     );
   }
 }

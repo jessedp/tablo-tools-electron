@@ -16,7 +16,7 @@ import Airing from '../utils/Airing';
 import EpisodeSlim from './EpisodeSlim';
 import { asyncForEach } from '../utils/utils';
 import TabloImage from './TabloImage';
-import Show from "../utils/Show";
+import Show from '../utils/Show';
 
 type Props = { show: Show };
 type State = {
@@ -30,8 +30,6 @@ type State = {
 
 export default class EpisodeList extends Component<Props, State> {
   props: Props;
-
-  state: State;
 
   initialState: State;
 
@@ -49,22 +47,20 @@ export default class EpisodeList extends Component<Props, State> {
 
     this.state = this.initialState;
 
-    this.search = this.search.bind(this);
-    this.selectSeason = this.selectSeason.bind(this);
-    this.setSeasonRefs = this.setSeasonRefs.bind(this);
+    (this: any).search = this.search.bind(this);
+    (this: any).selectSeason = this.selectSeason.bind(this);
+    (this: any).setSeasonRefs = this.setSeasonRefs.bind(this);
   }
 
   async componentDidMount() {
     await this.search();
   }
 
-  /* :: setSeasonRefs: () => void */
   setSeasonRefs(refs: Object) {
     console.log('created season refs', refs.length);
     this.setState({ seasonRefs: refs });
   }
 
-  /* :: selectSeason: (season: string) => void */
   selectSeason(season: string) {
     const { seasonRefs } = this.state;
     console.log('selected season', season);
@@ -78,7 +74,6 @@ export default class EpisodeList extends Component<Props, State> {
     }
   }
 
-  /* :: search: () => void */
   async search() {
     const { show } = this.props;
 
@@ -141,7 +136,8 @@ export default class EpisodeList extends Component<Props, State> {
           <EpisodeSlim
             key={airing.object_id}
             airing={airing}
-           doDelete={()=>{}}/>
+            doDelete={() => {}}
+          />
         );
       });
     }

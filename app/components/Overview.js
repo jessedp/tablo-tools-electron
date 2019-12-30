@@ -28,8 +28,6 @@ type State = {
 export default class Overview extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   info: null;
 
   constructor() {

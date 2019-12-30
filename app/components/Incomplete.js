@@ -25,10 +25,7 @@ type State = {
 export default class Incomplete extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   initialState: State;
-
 
   constructor() {
     super();
@@ -43,7 +40,9 @@ export default class Incomplete extends Component<Props, State> {
       percentLoc: 0
     };
 
-    const storedState = JSON.parse(localStorage.getItem('IncompleteState') || '');
+    const storedState = JSON.parse(
+      localStorage.getItem('IncompleteState') || ''
+    );
 
     this.state = Object.assign(this.initialState, storedState);
 
@@ -59,7 +58,6 @@ export default class Incomplete extends Component<Props, State> {
 
   percentDragSearchTimeout: ?TimeoutID = null;
 
-
   async setStateStore(...args: Array<Object>) {
     const values = args[0];
     await this.setState(values);
@@ -68,8 +66,7 @@ export default class Incomplete extends Component<Props, State> {
     localStorage.setItem('IncompleteState', JSON.stringify(cleanState));
   }
 
-
-  percentDrag = (event: SyntheticDragEvent<HTMLInputElement>) =>  {
+  percentDrag = (event: SyntheticDragEvent<HTMLInputElement>) => {
     if (!event) return;
 
     this.setStateStore({ percent: event.currentTarget.value });
@@ -83,7 +80,7 @@ export default class Incomplete extends Component<Props, State> {
     if (this.percentDragTimeout) {
       clearTimeout(this.percentDragTimeout);
     }
-    const sliderPos = parseInt(slider.value,10) / parseInt(slider.max,10);
+    const sliderPos = parseInt(slider.value, 10) / parseInt(slider.max, 10);
 
     // blah, figure out the math of this :/
     let xShim = 0;
@@ -108,7 +105,6 @@ export default class Incomplete extends Component<Props, State> {
     this.percentDragSearchTimeout = setTimeout(async () => {
       this.search();
     }, 1000);
-
   };
 
   search = async () => {
@@ -127,7 +123,6 @@ export default class Incomplete extends Component<Props, State> {
     recs = recs.filter(
       rec => rec.airing_details.duration * pct > rec.video_details.duration
     );
-
 
     const result = [];
 
@@ -156,7 +151,7 @@ export default class Incomplete extends Component<Props, State> {
         result.push(
           <Recording
             search={this.search}
-            doDelete={()=>{}}
+            doDelete={() => {}}
             key={airing.object_id}
             airing={airing}
           />

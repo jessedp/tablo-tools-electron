@@ -19,16 +19,14 @@ const VIEW_EPISODES = 2;
 export default class Shows extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   initialState: State;
 
   constructor() {
     super();
 
-    this.initialState = { view: VIEW_SHOWS, show: new Show};
+    this.initialState = { view: VIEW_SHOWS, show: new Show() };
 
-    const storedState = JSON.parse(localStorage.getItem('ShowsState') || "");
+    const storedState = JSON.parse(localStorage.getItem('ShowsState') || '');
     if (storedState.show) {
       storedState.show = new Show(storedState.show);
     }
@@ -49,7 +47,7 @@ export default class Shows extends Component<Props, State> {
     await this.setStateStore({ view: VIEW_SHOWS, show: null });
   };
 
-  viewEpisodes = async(show: Show) => {
+  viewEpisodes = async (show: Show) => {
     await this.setStateStore({ view: VIEW_EPISODES, show });
   };
 

@@ -22,17 +22,19 @@ type State = {
 export default class Home extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   info: string;
+
+  // showDbTable: (show: boolean) => void;
+
+  // updateDevice: (dev: Object) => void;
 
   constructor() {
     super();
     // const lastDevice = store.get('last_device');
     this.state = { device: {}, showDbTable: true };
     // this.discover = this.discover.bind(this);
-    this.showDbTable = this.showDbTable.bind(this);
-    this.updateDevice = this.updateDevice.bind(this);
+    (this: any).showDbTable = this.showDbTable.bind(this);
+    (this: any).updateDevice = this.updateDevice.bind(this);
   }
 
   async componentDidMount() {
@@ -47,7 +49,6 @@ export default class Home extends Component<Props, State> {
     this.setState({ device: this.info });
   }
 
-  /* :: showDbTable: (show: boolean) => void */
   showDbTable(show: boolean) {
     const { showDbTable } = this.state;
     if (show !== showDbTable) {
@@ -55,7 +56,6 @@ export default class Home extends Component<Props, State> {
     }
   }
 
-  /* :: updateDevice: (dev: Object) => void */
   updateDevice(dev: Object) {
     this.setState({ device: dev });
   }

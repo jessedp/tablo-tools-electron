@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Tablo Tools</title>
 
     <link
@@ -12,19 +12,16 @@
     />
 
     <script>
-      (function() {
-        if (!process.env.HOT) {
-
+      (() => {
+        if (!process.env.START_HOT) {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = './dist/style.css';
           // HACK: Writing the script path should be done with webpack
           document.getElementsByTagName('head')[0].appendChild(link);
         }
-      }());
+      })();
     </script>
-
-
   </head>
   <body>
     <div id="root"></div>
@@ -41,8 +38,8 @@
         // Dynamically insert the bundled app script in the renderer process
         const port = process.env.PORT || 1212;
         scripts.push(
-          (process.env.HOT)
-            ? 'http://localhost:' + port + '/dist/renderer.dev.js'
+          process.env.START_HOT
+            ? `http://localhost:${port}/dist/renderer.dev.js`
             : './dist/renderer.prod.js'
         );
 
@@ -53,18 +50,20 @@
         );
       }
 
-
       // navigator.serviceWorker.register('cache-assets.js', { scope: './' })
-      navigator.serviceWorker.register('cache-assets.js', { scope: './*' })
+      navigator.serviceWorker
+        .register('cache-assets.js', { scope: './*' })
         .then(navigator.serviceWorker.ready)
         .then(function() {
-          console.log('service worker registered')
+          console.log('service worker registered');
         })
         .catch(function(error) {
-          console.log('error when registering service worker', error, arguments)
+          console.log(
+            'error when registering service worker',
+            error,
+            arguments
+          );
         });
-
-
     </script>
   </body>
 </html>

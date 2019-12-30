@@ -14,7 +14,6 @@ export type Dispatch = ReduxDispatch<Action>;
 
 export type Store = ReduxStore<GetState, Action>;
 
-
 export type TabloImage = {
   image_id: number,
   has_title: boolean

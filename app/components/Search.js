@@ -32,8 +32,6 @@ type State = {
 export default class Search extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   initialState: State;
 
   constructor() {
@@ -50,7 +48,7 @@ export default class Search extends Component<Props, State> {
       display: []
     };
 
-    const storedState = JSON.parse(localStorage.getItem('SearchState') || "");
+    const storedState = JSON.parse(localStorage.getItem('SearchState') || '');
 
     this.state = Object.assign(this.initialState, storedState);
 
@@ -86,8 +84,7 @@ export default class Search extends Component<Props, State> {
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
-
-  stateChange = async(event: SyntheticEvent<HTMLInputElement>) => {
+  stateChange = async (event: SyntheticEvent<HTMLInputElement>) => {
     await this.setStateStore({ stateFilter: event.currentTarget.value });
     this.search();
   };
@@ -107,8 +104,9 @@ export default class Search extends Component<Props, State> {
     this.setStateStore({ searchValue: event.currentTarget.value });
   };
 
-
-  searchKeyPressed = async (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
+  searchKeyPressed = async (
+    event: SyntheticKeyboardEvent<HTMLInputElement>
+  ) => {
     if (event.key === 'Enter') {
       await this.search();
     }
@@ -178,13 +176,13 @@ export default class Search extends Component<Props, State> {
       });
     } else {
       this.setState({
-        display: [(
+        display: [
           <Container>
             <Row className="pl-lg-5">
               <Spinner animation="grow" variant="info" />
             </Row>
           </Container>
-        )]
+        ]
       });
       // console.log(`total: ${recs.length}`);
       // result.push(<Alert variant="info" key="recfnd">{recs.length} recordings found</Alert>);
