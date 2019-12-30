@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import routes from '../constants/routes';
+import routes from '../constants/routes.json';
 import Api, { checkConnection } from '../utils/Tablo';
 import tabloLogo from '../../resources/tablo_logo.png';
 
@@ -35,8 +35,8 @@ export default class Sidebar extends Component<Props> {
     setInterval(await checkConn, 10000);
   }
 
-  async setView(view){
-    await this.setState({ current: view});
+  async setView(view) {
+    await this.setState({ current: view });
   }
 
   async setHome() {

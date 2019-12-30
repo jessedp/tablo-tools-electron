@@ -1,9 +1,13 @@
 // @flow
 import React, { Component } from 'react';
 import Episode from './Episode';
-import Airing from "../utils/Airing";
+import Airing from '../utils/Airing';
 
-type Props = { airing: Airing, doDelete: () => ?Promise<any>, search: () => ?Promise<any> };
+type Props = {
+  airing: Airing,
+  doDelete: () => ?Promise<any>,
+  search: () => ?Promise<any>
+};
 
 export default class Recording extends Component<Props> {
   props: Props;

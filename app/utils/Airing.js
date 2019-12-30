@@ -8,7 +8,7 @@ import fs from 'fs';
 import { readableDuration } from './utils';
 import { RecDb, ShowDb } from './db';
 import Api from './Tablo';
-import Show from "./Show";
+import Show from './Show';
 
 const FfmpegCommand = require('fluent-ffmpeg');
 
@@ -73,7 +73,6 @@ export default class Airing {
 
   // eslint-disable-next-line camelcase
   series_path: string;
-
 
   constructor(data: Object) {
     Object.assign(this, data);
@@ -252,7 +251,7 @@ export default class Airing {
   }
 
   get thumbnail() {
-    if (!this.show.thumbnail_image){
+    if (!this.show.thumbnail_image) {
       console.log(this.show);
       return { image_id: 0 };
     }
@@ -288,7 +287,7 @@ export default class Airing {
   }
 
   get exportPath() {
-    const config = JSON.parse(localStorage.getItem('AppConfig') || "");
+    const config = JSON.parse(localStorage.getItem('AppConfig') || '');
     switch (this.type) {
       case SERIES:
         return config.episodePath;

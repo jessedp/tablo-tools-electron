@@ -39,6 +39,7 @@ export async function checkConnection() {
   // console.log('in checkConnection');
 
   // const connIp = '127.0.0.1';
+  if (!Api.device || !Api.device.private_ip) return;
   const connIp = Api.device.private_ip;
 
   // console.log('connIp', connIp);

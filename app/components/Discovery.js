@@ -15,7 +15,7 @@ const Store = require('electron-store');
 
 const store = new Store();
 
-type Props = { updateDevice: (info: Object) => void } ;
+type Props = { updateDevice: (info: Object) => void };
 type State = {
   discovery: string,
   lastDevice: Object
@@ -24,16 +24,13 @@ type State = {
 export default class Discovery extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   constructor() {
     super();
     const lastDevice = store.get('last_device');
     this.state = { discovery: '', lastDevice };
-    this.discover = this.discover.bind(this);
+    (this: any).discover = this.discover.bind(this);
   }
 
-  /* :: discover: () => void */
   async discover() {
     let device = await Api.discover();
     // TODO: this is roughly where we should allow selecting one of

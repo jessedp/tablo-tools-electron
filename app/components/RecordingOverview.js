@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 import { boolStr } from '../utils/utils';
 import VideoDetail from './VideoDetail';
-import Airing from "../utils/Airing";
+import Airing from '../utils/Airing';
 
 type Props = { airing: Airing };
 

@@ -23,15 +23,12 @@ type State = {
   airingMax: number
 };
 
-
 const STATE_NONE = 0;
 const STATE_LOADING = 1;
 const STATE_FINISH = 2;
 
 export default class Build extends Component<Props, State> {
   props: Props;
-
-  state: State;
 
   constructor() {
     super();
@@ -101,7 +98,7 @@ export default class Build extends Component<Props, State> {
 
     if (loading === STATE_LOADING) {
       const pct = Math.round((airingInc / airingMax) * 100);
-      console.log('loading pct', pct);
+      // console.log('loading pct', pct);
       const airingPct = `${pct}%`;
       if (pct < 25) {
         progressVariant = 'danger';

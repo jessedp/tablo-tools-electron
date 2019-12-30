@@ -1,5 +1,5 @@
 // @flow
-import { TabloImage, ShowCounts } from "../reducers/types";
+import { TabloImage, ShowCounts } from '../reducers/types';
 
 export const SERIES = 'episode';
 export const MOVIE = 'movie';
@@ -11,7 +11,6 @@ export default class Show {
   object_id: number;
 
   path: string;
-
 
   showCounts: ShowCounts;
 
@@ -57,7 +56,6 @@ export default class Show {
 
   userInfo: Object;
 
-
   constructor(data: Object) {
     Object.assign(this, data);
     this.showCounts = this.show_counts;
@@ -66,7 +64,6 @@ export default class Show {
     this.userInfo = this.user_info;
     delete this.user_info;
   }
-
 
   get id() {
     return this.object_id;
@@ -175,14 +172,17 @@ export default class Show {
     let set = null;
     switch (this.type) {
       case SERIES:
-        set = this.series.thumbnail_image; break;
-        // return this.series.thumbnail_image.image_id;
+        set = this.series.thumbnail_image;
+        break;
+      // return this.series.thumbnail_image.image_id;
       case MOVIE:
-        set = this.movie.thumbnail_image; break;
-        // return this.movie.thumbnail_image.image_id;
+        set = this.movie.thumbnail_image;
+        break;
+      // return this.movie.thumbnail_image.image_id;
       case EVENT:
-        set = this.sport.thumbnail_image; break;
-        // return this.sport.thumbnail_image.image_id;
+        set = this.sport.thumbnail_image;
+        break;
+      // return this.sport.thumbnail_image.image_id;
       default:
         return 0;
     }

@@ -21,8 +21,6 @@ type State = {
 export default class DbInfoTable extends Component<Props, State> {
   props: Props;
 
-  state: State;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -36,7 +34,6 @@ export default class DbInfoTable extends Component<Props, State> {
       typeEvent: 0
     };
   }
-
 
   async componentDidMount() {
     const recTotal = await RecDb.asyncCount({});

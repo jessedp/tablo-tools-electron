@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 
 import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
-import Airing from "../utils/Airing";
+import Airing from '../utils/Airing';
 
 type Props = { doDelete: () => void, airing: Airing };
 

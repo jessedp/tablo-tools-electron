@@ -7,7 +7,8 @@ import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
 
 export default {
-  externals: [...Object.keys(externals || {}),
+  externals: [
+    ...Object.keys(externals || {}),
     { 'electron-debug': 'electron-debug' },
     { 'fluent-ffmpeg': 'fluent-ffmpeg' }
   ],
@@ -39,9 +40,9 @@ export default {
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [
-              path.join(__dirname, '..', 'app'),
-              path.join(__dirname, '..', 'node_modules')
-             ]
+      path.join(__dirname, '..', 'app'),
+      path.join(__dirname, '..', 'node_modules')
+    ]
   },
 
   plugins: [

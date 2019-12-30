@@ -2,15 +2,13 @@
 import React, { Component } from 'react';
 import { Player } from 'video-react';
 import HLSSource from './HLSSource';
-import Airing from "../utils/Airing";
+import Airing from '../utils/Airing';
 
 type Props = { airing: Airing };
 type State = { url: string };
 
 export default class MyPlayer extends Component<Props, State> {
   props: Props;
-
-  state: State;
 
   constructor() {
     super();

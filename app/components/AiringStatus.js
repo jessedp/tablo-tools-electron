@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import Airing from "../utils/Airing";
+import Airing from '../utils/Airing';
 
 type Props = { airing: Airing };
 
