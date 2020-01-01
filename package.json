@@ -1,7 +1,7 @@
 {
   "name": "tablo-tools",
-  "productName": "tablo-tools",
   "version": "0.0.4",
+  "productName": "tablo-tools",
   "description": "Tools for messing with your Tablo DVR",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -285,7 +285,7 @@
     "npm": ">=4.x",
     "yarn": ">=0.21.3"
   },
-  "browserslist": "electron 1.6",
+  "browserslist": ["electron 1.6"],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
