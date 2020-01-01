@@ -6,6 +6,8 @@ platform:
 environment:
   matrix:
     - nodejs_version: '12'
+  GH_TOKEN:
+    - secure: VciXijaX2Y1wm1xhhBCu1XHe8RmDN2Hjcsc8fQgrTNDG/Zqy71DWEyH13KniqmQd
 
 cache:
   - '%LOCALAPPDATA%/Yarn'
