@@ -7,11 +7,7 @@ import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
 
 export default {
-  externals: [
-    ...Object.keys(externals || {}),
-    { 'electron-debug': 'electron-debug' },
-    { 'fluent-ffmpeg': 'fluent-ffmpeg' }
-  ],
+  externals: [...Object.keys(externals || {})],
 
   module: {
     rules: [
@@ -36,18 +32,19 @@ export default {
 
   /**
    * Determine the array of extensions that should be used to resolve modules.
+   *
+   *    path.join(__dirname, '..', 'app'), 'node_modules')
+   *    path.join(__dirname, '..', 'app'), 'node_modules']
    */
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    modules: [
-      path.join(__dirname, '..', 'app'),
-      path.join(__dirname, '..', 'node_modules')
-    ]
+    modules: [path.join(__dirname, '..'), 'node_modules']
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      FLUENTFFMPEG_COV: false
     }),
 
     new webpack.NamedModulesPlugin()
