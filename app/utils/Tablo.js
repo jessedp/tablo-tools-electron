@@ -12,7 +12,11 @@ const srvInfo = store.get('last_device');
 
 const config = JSON.parse(localStorage.getItem('AppConfig'));
 
-let ip = srvInfo.local_address;
+let ip;
+if (srvInfo) {
+  ip = srvInfo.local_address;
+}
+
 if (config && config.enableIpOverride) {
   ip = config.overrideIp;
 }

@@ -151,12 +151,13 @@ export default class Sidebar extends Component<Props> {
 function StatusBar(prop) {
   const { pingStatus } = prop;
 
+  let ip = '';
+  if (Api.device) {
+    ip = Api.device.private_ip;
+  }
   return (
     <>
-      <span className="d-inline text-muted smaller pr-2">
-        {' '}
-        {Api.device.private_ip}
-      </span>
+      <span className="d-inline text-muted smaller pr-2"> {ip}</span>
       <i className={`d-inline fa fa-circle ${pingStatus}`} />
     </>
   );
