@@ -26,7 +26,7 @@ export default class Shows extends Component<Props, State> {
 
     this.initialState = { view: VIEW_SHOWS, show: new Show() };
 
-    const storedState = JSON.parse(localStorage.getItem('ShowsState') || '');
+    const storedState = JSON.parse(localStorage.getItem('ShowsState') || '{}');
     if (storedState.show) {
       storedState.show = new Show(storedState.show);
     }

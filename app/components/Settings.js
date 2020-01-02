@@ -44,7 +44,7 @@ export default class Settings extends Component<Props, State> {
       saveStatus: []
     };
 
-    const storedState = JSON.parse(localStorage.getItem('AppConfig') || '');
+    const storedState = JSON.parse(localStorage.getItem('AppConfig') || '{}');
 
     this.state = Object.assign(this.initialState, storedState);
 

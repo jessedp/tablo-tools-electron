@@ -48,7 +48,7 @@ export default class Search extends Component<Props, State> {
       display: []
     };
 
-    const storedState = JSON.parse(localStorage.getItem('SearchState') || '');
+    const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
 
     this.state = Object.assign(this.initialState, storedState);
 

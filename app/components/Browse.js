@@ -26,7 +26,7 @@ export default class Browse extends Component<Props, State> {
     super();
 
     this.initialState = { view: VIEW_SEARCH };
-    const storedState = JSON.parse(localStorage.getItem('BrowseState') || '');
+    const storedState = JSON.parse(localStorage.getItem('BrowseState') || '{}');
 
     this.state = Object.assign(this.initialState, storedState);
 
