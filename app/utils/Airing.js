@@ -287,7 +287,8 @@ export default class Airing {
   }
 
   get exportPath() {
-    const config = JSON.parse(localStorage.getItem('AppConfig'));
+    // TODO: need to init the config on first startup!
+    const config = JSON.parse(localStorage.getItem('AppConfig') || '{}');
     switch (this.type) {
       case SERIES:
         return config.episodePath;
