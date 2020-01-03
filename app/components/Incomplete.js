@@ -41,7 +41,7 @@ export default class Incomplete extends Component<Props, State> {
     };
 
     const storedState = JSON.parse(
-      localStorage.getItem('IncompleteState') || ''
+      localStorage.getItem('IncompleteState') || '{}'
     );
 
     this.state = Object.assign(this.initialState, storedState);
