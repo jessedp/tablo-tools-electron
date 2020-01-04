@@ -33,7 +33,7 @@ export default class Incomplete extends Component<Props, State> {
     this.percentDragSearchTimeout = null;
 
     this.initialState = {
-      percent: 100,
+      percent: 90,
       alertType: '',
       alertTxt: '',
       display: '',
