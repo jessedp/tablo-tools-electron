@@ -177,15 +177,14 @@ export default class Search extends Component<Props, State> {
     } else {
       this.setState({
         display: [
-          <Container>
+          <Container key="spinner">
             <Row className="pl-lg-5">
               <Spinner animation="grow" variant="info" />
             </Row>
           </Container>
         ]
       });
-      // console.log(`total: ${recs.length}`);
-      // result.push(<Alert variant="info" key="recfnd">{recs.length} recordings found</Alert>);
+
       await this.setState({
         alertType: 'info',
         alertTxt: `${recs.length} recordings found`
