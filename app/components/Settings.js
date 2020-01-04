@@ -10,10 +10,8 @@ import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import Table from 'react-bootstrap/Table';
 import { isValidIp } from '../utils/utils';
 import { updateApi } from '../utils/Tablo';
-import { recFile, showFile } from '../utils/db';
 
 type Props = {};
 type State = {
@@ -216,19 +214,6 @@ export default class Settings extends Component<Props, State> {
           <Button variant="primary" type="button" onClick={this.saveConfig}>
             Save
           </Button>
-        </Row>
-        <Row className="pt-5">
-          <h3>Internal Settings</h3>
-          <Table>
-            <tr>
-              <th>Recording DB</th>
-              <td>{recFile}</td>
-            </tr>
-            <tr>
-              <th>Show DB</th>
-              <td>{showFile}</td>
-            </tr>
-          </Table>
         </Row>
       </Container>
     );
