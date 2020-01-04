@@ -306,18 +306,15 @@ export default class Airing {
   async watch() {
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
-      console.log('Watch Path', watchPath);
       const data = await Api.post({ path: watchPath });
       // TODO: better local/forward rewrites (probably elsewhere)
-      if (Api.device.ip === '127.0.0.1') {
+      if (Api.device.private_ip === '127.0.0.1') {
         const re = new RegExp(
           '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}'
         );
         data.playlist_url = data.playlist_url.replace(re, '127.0.0.1:8888');
-        console.log('Watch data', data);
       }
       this.cachedWatch = data;
-      console.log(this.cachedWatch);
     }
     return this.cachedWatch;
   }
@@ -352,11 +349,12 @@ export default class Airing {
     const ffmpegPath1 = ffmpeg.path
       ? ffmpeg.path.replace('app.asar', 'app.asar.unpacked')
       : '';
+
     const ffmpegPath2 = ffmpegPath1.replace(
-      '/dist/',
+      '/app/',
       '/node_modules/ffmpeg-static/'
     );
-    console.log(`ffmpeg path : ${ffmpegPath2}`);
+
     FfmpegCommand.setFfmpegPath(ffmpegPath2);
     const watchPath = await this.watch();
     console.log(watchPath);
@@ -384,13 +382,13 @@ export default class Airing {
         }
       })
       .on('error', err => {
-        console.debug(`An error occurred: ${err}`);
+        console.log(`An error occurred: ${err}`);
       })
       .on('stderr', stderrLine => {
-        console.debug(`Stderr output: ${stderrLine}`);
+        console.log(`Stderr output: ${stderrLine}`);
       })
       .on('progress', progress => {
-        console.debug(`Processing: ${progress.percent}% done`);
+        console.log(`Processing: ${progress.percent}% done`);
         if (typeof callback === 'function') {
           callback(progress);
         }
