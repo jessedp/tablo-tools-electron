@@ -43,7 +43,7 @@ export default class Build extends Component<Props, State> {
     this.build = this.build.bind(this);
   }
 
-  async componentDidMount(): void {
+  async componentDidMount(): * {
     const total = await recDbStats();
     await this.setState({ recCount: total });
   }
