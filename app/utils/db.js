@@ -1,19 +1,24 @@
 import { formatDistanceToNow } from 'date-fns';
 
-const fs = require('fs');
-const { app } = require('electron').remote;
+const path = require('path');
 
 const { AsyncNedb } = require('nedb-async');
 
-export const recFile = `${app.getPath('userData')}/recordings.db`;
-export const showFile = `${app.getPath('userData')}/show.db`;
+const electron = require('electron');
 
-export function recDbStats() {
+const dataDir = (electron.app || electron.remote.app).getPath('userData');
+export const recFile = path.join(dataDir, 'recordings.db');
+export const showFile = path.join(dataDir, 'show.db');
+
+export async function recDbStats() {
+  return RecDb.asyncCount({});
+  /**
   let stats = {};
   if (fs.existsSync(recFile) === true) {
     stats = fs.statSync(recFile);
   }
   return stats;
+   * */
 }
 
 export function recDbCreated() {
@@ -30,25 +35,13 @@ export function recDbCreatedDisp() {
   return lastBuild;
 }
 
-/**
-function recDbCreated old kinda
-
- /**
- let stats = {};
- if (fs.existsSync(recFile) === true) {
-    stats = fs.statSync(recFile);
-  }
- * */
-/**
-const { mtime = null, size = 0 } = recDbStats();
-
-let mtimeDisp = "Never";
-if (mtime && size > 0) {
-  // mtimeDisp = `${mtime.toLocaleDateString()} at ${mtime.toLocaleTimeString()}`;
-  mtimeDisp = formatDistanceToNow(mtime, new Date());
-}
-return mtimeDisp;
-   * */
-
-export const RecDb = new AsyncNedb({ filename: recFile, autoload: true });
-export const ShowDb = new AsyncNedb({ filename: showFile, autoload: true });
+export const RecDb = new AsyncNedb({
+  filename: recFile,
+  autoload: true,
+  inMemoryOnly: false
+});
+export const ShowDb = new AsyncNedb({
+  filename: showFile,
+  autoload: true,
+  inMemoryOnly: false
+});

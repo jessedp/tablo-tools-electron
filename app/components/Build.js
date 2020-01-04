@@ -20,7 +20,8 @@ type State = {
   loading: number,
   status: Array<Object>,
   airingInc: number,
-  airingMax: number
+  airingMax: number,
+  recCount: number
 };
 
 const STATE_NONE = 0;
@@ -36,9 +37,15 @@ export default class Build extends Component<Props, State> {
       loading: STATE_NONE,
       status: [],
       airingInc: 0,
-      airingMax: 1
+      airingMax: 1,
+      recCount: 0
     };
     this.build = this.build.bind(this);
+  }
+
+  async componentDidMount(): void {
+    const total = await recDbStats();
+    await this.setState({ recCount: total });
   }
 
   build = async () => {
@@ -66,7 +73,6 @@ export default class Build extends Component<Props, State> {
     await ShowDb.asyncRemove({}, { multi: true });
 
     console.log(`${cnt} old records removed`);
-    // status.push(`${cnt} old records removed`);
     cnt = await RecDb.asyncInsert(recs);
     console.log(`${cnt.length} records added`);
     status.push(`${cnt.length} recordings found.`);
@@ -151,7 +157,7 @@ export default class Build extends Component<Props, State> {
   }
 
   render() {
-    const { loading } = this.state;
+    const { loading, recCount } = this.state;
     const { showDbTable } = this.props;
 
     return (
@@ -159,7 +165,11 @@ export default class Build extends Component<Props, State> {
         <Row>
           <Col className="d-flex align-items-center">
             {loading !== STATE_LOADING ? (
-              <BuildTitle showDbTable={showDbTable} build={this.build} />
+              <BuildTitle
+                recCount={recCount}
+                showDbTable={showDbTable}
+                build={this.build}
+              />
             ) : (
               ''
             )}
@@ -172,9 +182,9 @@ export default class Build extends Component<Props, State> {
 }
 
 function BuildTitle(prop) {
-  const { build, showDbTable } = prop;
+  const { build, recCount } = prop;
 
-  if (recDbStats().size) {
+  if (recCount) {
     return (
       <>
         <span>
@@ -187,7 +197,7 @@ function BuildTitle(prop) {
     );
   }
 
-  showDbTable(false);
+  // showDbTable(false);
 
   return (
     <>

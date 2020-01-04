@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 
 import Alert from 'react-bootstrap/Alert';
-import { RecDb, recDbStats } from '../utils/db';
+import { RecDb } from '../utils/db';
 
 type Props = {};
 
@@ -12,7 +12,7 @@ export default class ComskipDetails extends Component<Props> {
 
   constructor() {
     super();
-    this.state = { skipStats: {}, skipErrors: {} };
+    this.state = { skipStats: {}, skipErrors: {}, recCount: 0 };
   }
 
   async componentDidMount(): void {
@@ -36,13 +36,14 @@ export default class ComskipDetails extends Component<Props> {
         }
       }
     });
-    await this.setState({ skipStats, skipErrors });
+
+    await this.setState({ recCount: recs.length, skipStats, skipErrors });
   }
 
   render() {
-    const { skipStats, skipErrors } = this.state;
+    const { recCount, skipStats, skipErrors } = this.state;
 
-    if (!recDbStats().size)
+    if (!recCount)
       return (
         <Alert variant="light" className="p-2 m-0">
           No recordings loaded yet.

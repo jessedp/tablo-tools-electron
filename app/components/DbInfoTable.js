@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 
-import { RecDb, recDbStats } from '../utils/db';
+import { RecDb } from '../utils/db';
 
 type Props = {};
 
@@ -81,7 +81,7 @@ export default class DbInfoTable extends Component<Props, State> {
 
     const headStyle = { width: '40%' };
 
-    if (!recDbStats().size)
+    if (!recTotal)
       return (
         <Alert variant="light" className="p-2 m-0">
           No recordings loaded yet.
