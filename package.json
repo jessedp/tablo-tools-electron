@@ -1,6 +1,6 @@
 {
   "name": "tablo-tools",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "productName": "tablo-tools",
   "description": "Tools for messing with your Tablo DVR",
   "scripts": {
@@ -258,7 +258,7 @@
     "electron-store": "^5.0.0",
     "electron-updater": "^4.2.0",
     "eslint-plugin-react-hooks": "^2.2.0",
-    "ffmpeg-static": "^2.7.0",
+    "ffmpeg-static": "^3.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "history": "^4.10.1",
     "hls.js": "^0.12.4",
@@ -285,7 +285,9 @@
     "npm": ">=4.x",
     "yarn": ">=0.21.3"
   },
-  "browserslist": ["electron 1.6"],
+  "browserslist": [
+    "electron 1.6"
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
