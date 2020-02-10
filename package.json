@@ -69,6 +69,12 @@
       "main.prod.js",
       "main.prod.js.map",
       "package.json"
+      ],
+    "extraResources": [
+      "node_modules/ffmpeg-static-electron/*",
+      "node_modules/ffmpeg-static-electron/bin/${os}/${arch}/ffmpeg",
+      "node_modules/ffmpeg-static-electron/index.js",
+      "node_modules/ffmpeg-static-electron/package.json"
     ],
     "dmg": {
       "contents": [
@@ -258,7 +264,7 @@
     "electron-store": "^5.0.0",
     "electron-updater": "^4.2.0",
     "eslint-plugin-react-hooks": "^2.2.0",
-    "ffmpeg-static": "^3.0.0",
+    "ffmpeg-static-electron": "https://github.com/jessedp/ffmpeg-static-electron/#c4a104ebb995ab33635588a9894797f6232b638f",
     "fluent-ffmpeg": "^2.1.2",
     "history": "^4.10.1",
     "hls.js": "^0.12.4",
