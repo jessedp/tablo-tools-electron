@@ -1,6 +1,6 @@
 {
   "name": "tablo-tools",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "productName": "tablo-tools",
   "description": "Tools for messing with your Tablo DVR",
   "scripts": {
@@ -69,7 +69,7 @@
       "main.prod.js",
       "main.prod.js.map",
       "package.json"
-      ],
+    ],
     "extraResources": [
       "node_modules/ffmpeg-static-electron/*",
       "node_modules/ffmpeg-static-electron/bin/${os}/${arch}/ffmpeg",
