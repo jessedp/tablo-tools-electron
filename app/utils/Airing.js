@@ -1,7 +1,5 @@
 // @flow
-import ffmpeg from 'ffmpeg-static';
-
-// import * as FfmpegCommand from 'fluent-ffmpeg';
+import ffmpeg from 'ffmpeg-static-electron';
 
 import fs from 'fs';
 
@@ -9,6 +7,8 @@ import { readableDuration } from './utils';
 import { RecDb, ShowDb } from './db';
 import Api from './Tablo';
 import Show from './Show';
+
+// const ffmpeg = require('ffmpeg-static');
 
 const FfmpegCommand = require('fluent-ffmpeg');
 
@@ -270,19 +270,19 @@ export default class Airing {
     const { showTitle } = this;
 
     const EXT = 'mp4';
-    const path = this.exportPath;
+    const outPath = this.exportPath;
     let season = '';
     switch (this.type) {
       case SERIES:
-        return `${path}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
+        return `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
       case MOVIE:
-        return `${path}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
+        return `${outPath}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
       case EVENT:
         if (this.event.season) season = `${this.event.season} - `;
-        return `${path}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
+        return `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
       default:
         console.error('Unknown type exportFile', this);
-        return `${path}/${this.title}`;
+        return `${outPath}/${this.title}`;
     }
   }
 
@@ -341,40 +341,61 @@ export default class Airing {
   }
 
   async processVideo(callback: Function = null) {
-    // const { _id, path } = this;
     console.log('processVideo');
+    console.log('ffmpeg', ffmpeg);
+    console.log('ffmpeg.path', ffmpeg.path);
 
-    console.log(`path : ${ffmpeg.path}`);
+    const ffmpegPath = ffmpeg.path;
 
-    const ffmpegPath1 = ffmpeg.path
-      ? ffmpeg.path.replace('app.asar', 'app.asar.unpacked')
-      : '';
+    console.log('ffmpegPath', ffmpegPath);
 
-    const ffmpegPath2 = ffmpegPath1.replace(
+    let ffmpegPath2 = ffmpegPath.replace(
       '/app/',
-      '/node_modules/ffmpeg-static/'
+      '/node_modules/ffmpeg-static-electron/'
     );
 
-    FfmpegCommand.setFfmpegPath(ffmpegPath2);
-    const watchPath = await this.watch();
-    console.log(watchPath);
-    console.log(watchPath.playlist_url);
+    // $FlowFixMe  dirty, but flow complains about process.resourcesPath
+    const prodPath = `${process.resourcesPath}/node_modules/ffmpeg-static-electron/bin/`;
 
+    const ffmpegOpts = [
+      '-c copy',
+      '-y' // overwrite existing files
+    ];
+
+    // In true prod (not yarn build/start), ffmpeg is built into resources dir
+    if (process.env.NODE_ENV === 'production' && fs.existsSync(prodPath)) {
+      ffmpegPath2 = ffmpegPath2.replace(/^\/bin\//, prodPath);
+    } else {
+      // otherwise we can hit the node_modules dir
+      ffmpegPath2 = ffmpegPath2.replace(
+        /^\/bin\//,
+        './node_modules/ffmpeg-static-electron/bin/'
+      );
+      // verbosity log level
+      ffmpegOpts.push('-v 40');
+    }
+
+    console.log(`ffmpegPath2 : ${ffmpegPath2}`);
+
+    FfmpegCommand.setFfmpegPath(ffmpegPath2);
+
+    const watchPath = await this.watch();
     const input = watchPath.playlist_url;
+
     // const input = '/tmp/test_ys_p1.mp4';
-    outFile = '/tmp/test.mp4';
+    // outFile = '/tmp/test.mp4';
+
+    outFile = this.exportFile;
+    const outPath = outFile.slice(0, outFile.lastIndexOf('/') + 1);
+
+    console.log('exporting to path:', outPath);
+    console.log('exporting to file:', outFile);
+    fs.mkdirSync(outPath, { recursive: true });
+
     cmd
       .input(input)
       .output(outFile)
-      .addOutputOptions([
-        '-c copy',
-        // '-f segment',
-        // '-segment_time 60',
-        // '-segment_wrap 2',
-        // '-reset_timestamps 1',
-        '-y',
-        '-v 40'
-      ])
+      .addOutputOptions(ffmpegOpts)
       .on('end', () => {
         console.log('Finished processing');
         if (typeof callback === 'function') {
@@ -392,7 +413,8 @@ export default class Airing {
         if (typeof callback === 'function') {
           callback(progress);
         }
-      })
-      .run();
+      });
+
+    cmd.run();
   }
 }
