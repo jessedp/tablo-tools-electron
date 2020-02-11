@@ -2,6 +2,7 @@
 import ffmpeg from 'ffmpeg-static-electron';
 
 import fs from 'fs';
+import * as fsPath from 'path';
 
 import { readableDuration } from './utils';
 import { RecDb, ShowDb } from './db';
@@ -270,19 +271,39 @@ export default class Airing {
     const { showTitle } = this;
 
     const EXT = 'mp4';
-    const outPath = this.exportPath;
+    let outPath = this.exportPath;
     let season = '';
     switch (this.type) {
       case SERIES:
-        return `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
+        // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
+        outPath = fsPath.join(
+          outPath,
+          showTitle,
+          `Season ${this.seasonNum}`,
+          `${showTitle} - ${this.episodeNum}.${EXT}`
+        );
+        return outPath;
       case MOVIE:
-        return `${outPath}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
+        // `${outPath}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
+        outPath = fsPath.join(
+          outPath,
+          `${this.title} - ${this.movie_airing.release_year}.${EXT}`
+        );
+        return outPath;
       case EVENT:
         if (this.event.season) season = `${this.event.season} - `;
-        return `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
+        // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
+        outPath = fsPath.join(
+          outPath,
+          this.showTitle,
+          `${season}${this.eventTitle}.${EXT}`
+        );
+        return outPath;
       default:
         console.error('Unknown type exportFile', this);
-        return `${outPath}/${this.title}`;
+        // `${outPath}/${this.title}`;
+        outPath = fsPath.join(outPath, this.title);
+        return outPath;
     }
   }
 
@@ -364,7 +385,7 @@ export default class Airing {
 
     // In true prod (not yarn build/start), ffmpeg is built into resources dir
     if (process.env.NODE_ENV === 'production' && fs.existsSync(prodPath)) {
-      ffmpegPath2 = ffmpegPath2.replace(/^\/bin\//, prodPath);
+      ffmpegPath2 = ffmpegPath2.replace(/^[/|\\]bin/, prodPath);
     } else {
       // otherwise we can hit the node_modules dir
       ffmpegPath2 = ffmpegPath2.replace(
