@@ -49,8 +49,8 @@ export default class Search extends Component<Props, State> {
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
-
-    this.state = Object.assign(this.initialState, storedState);
+    const initialStateCopy = { ...this.initialState };
+    this.state = Object.assign(initialStateCopy, storedState);
 
     this.search = this.search.bind(this);
     this.stateChange = this.stateChange.bind(this);
@@ -100,8 +100,8 @@ export default class Search extends Component<Props, State> {
   };
 
   searchChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    if (!event.currentTarget.value) return;
-    this.setStateStore({ searchValue: event.currentTarget.value });
+    if (!event.currentTarget.value && event.currentTarget.value !== '') return;
+    await this.setStateStore({ searchValue: event.currentTarget.value });
   };
 
   searchKeyPressed = async (
@@ -113,7 +113,7 @@ export default class Search extends Component<Props, State> {
   };
 
   queryChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setStateStore({ queryValue: event.currentTarget.value });
+    await this.setStateStore({ queryValue: event.currentTarget.value });
   };
 
   queryKeyPressed = async (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
