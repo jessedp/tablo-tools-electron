@@ -278,8 +278,6 @@ export default class Airing {
         // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
         outPath = fsPath.join(
           outPath,
-          showTitle,
-          `Season ${this.seasonNum}`,
           `${showTitle} - ${this.episodeNum}.${EXT}`
         );
         return outPath;
@@ -293,11 +291,7 @@ export default class Airing {
       case EVENT:
         if (this.event.season) season = `${this.event.season} - `;
         // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
-        outPath = fsPath.join(
-          outPath,
-          this.showTitle,
-          `${season}${this.eventTitle}.${EXT}`
-        );
+        outPath = fsPath.join(outPath, `${season}${this.eventTitle}.${EXT}`);
         return outPath;
       default:
         console.error('Unknown type exportFile', this);
@@ -308,15 +302,24 @@ export default class Airing {
   }
 
   get exportPath() {
+    const { showTitle } = this;
+
     // TODO: need to init the config on first startup!
     const config = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+    let outPath = '';
     switch (this.type) {
       case SERIES:
-        return config.episodePath;
+        outPath = fsPath.join(
+          config.episodePath,
+          showTitle,
+          `Season ${this.seasonNum}`
+        );
+        return outPath;
       case MOVIE:
         return config.moviePath;
       case EVENT:
-        return config.eventPath;
+        outPath = fsPath.join(config.eventPath, this.showTitle);
+        return outPath;
       case PROGRAM:
         return config.exportDataPath;
       default:
@@ -411,6 +414,7 @@ export default class Airing {
 
     console.log('exporting to path:', outPath);
     console.log('exporting to file:', outFile);
+
     fs.mkdirSync(outPath, { recursive: true });
 
     cmd
