@@ -1,5 +1,6 @@
 // @flow
-import ffmpeg from 'ffmpeg-static-electron';
+// import ffmpeg from 'ffmpeg-static-electron';
+import ffmpeg from 'ffmpeg-static-electron-jdp';
 
 import fs from 'fs';
 import * as fsPath from 'path';
@@ -375,11 +376,11 @@ export default class Airing {
 
     let ffmpegPath2 = ffmpegPath.replace(
       '/app/',
-      '/node_modules/ffmpeg-static-electron/'
+      '/node_modules/ffmpeg-static-electron-jdp/'
     );
 
     // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-    const prodPath = `${process.resourcesPath}/node_modules/ffmpeg-static-electron/bin/`;
+    const prodPath = `${process.resourcesPath}/node_modules/ffmpeg-static-electron-jdp/bin/`;
 
     const ffmpegOpts = [
       '-c copy',
@@ -393,7 +394,7 @@ export default class Airing {
       // otherwise we can hit the node_modules dir
       ffmpegPath2 = ffmpegPath2.replace(
         /^\/bin\//,
-        './node_modules/ffmpeg-static-electron/bin/'
+        './node_modules/ffmpeg-static-electron-jdp/bin/'
       );
       // verbosity log level
       ffmpegOpts.push('-v 40');

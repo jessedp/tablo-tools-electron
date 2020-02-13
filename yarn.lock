@@ -6534,9 +6534,10 @@ fd-slicer@~1.0.1:
   dependencies:
     pend "~1.2.0"
 
-"ffmpeg-static-electron@https://github.com/jessedp/ffmpeg-static-electron/#c4a104ebb995ab33635588a9894797f6232b638f":
-  version "2.0.0"
-  resolved "https://github.com/jessedp/ffmpeg-static-electron/#c4a104ebb995ab33635588a9894797f6232b638f"
+ffmpeg-static-electron-jdp@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ffmpeg-static-electron-jdp/-/ffmpeg-static-electron-jdp-2.0.1.tgz#815b2be01a9fd19e212b85af9f78aff0c653291d"
+  integrity sha512-se7RLvgjXa2cRI25dEw355DJ8EQCdEV0gY82wmb90uJbl7rT9PNP19o+iKj81drU4QxPNNvHEV1HpT0xMdaUhA==
 
 figgy-pudding@^3.5.1:
   version "3.5.1"
