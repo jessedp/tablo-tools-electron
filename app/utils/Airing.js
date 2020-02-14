@@ -411,7 +411,7 @@ export default class Airing {
     // outFile = '/tmp/test.mp4';
 
     outFile = this.exportFile;
-    const outPath = outFile.slice(0, outFile.lastIndexOf('/') + 1);
+    const outPath = this.exportPath;
 
     console.log('exporting to path:', outPath);
     console.log('exporting to file:', outFile);
