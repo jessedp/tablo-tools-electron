@@ -11,6 +11,12 @@ export async function asyncForEach(array, callback) {
    */
 }
 
+export function timeStrToSeconds(str) {
+  const arr = str.split(':');
+  const retVal = +arr[0] * 60 * 60 + +arr[1] * 60 + +arr[2];
+  return retVal;
+}
+
 export function readableDuration(duration) {
   const date = new Date(null);
   date.setSeconds(duration);
