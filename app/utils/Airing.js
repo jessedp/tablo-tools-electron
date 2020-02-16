@@ -10,6 +10,7 @@ import { RecDb, ShowDb } from './db';
 import Api from './Tablo';
 import Show from './Show';
 
+const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
 
 const FfmpegCommand = require('fluent-ffmpeg');
@@ -142,16 +143,21 @@ export default class Airing {
   }
 
   get title() {
+    let retVal;
     switch (this.type) {
       case SERIES:
-        return this.episodeTitle;
+        retVal = this.episodeTitle;
+        break;
       case EVENT:
-        return this.eventTitle;
+        retVal = this.eventTitle;
+        break;
       case MOVIE:
-        return this.movieTitle;
+        retVal = this.movieTitle;
+        break;
       default:
-        return '';
+        retVal = '';
     }
+    return sanitize(retVal);
   }
 
   get eventTitle() {
@@ -279,7 +285,7 @@ export default class Airing {
         // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
         outPath = fsPath.join(
           outPath,
-          `${showTitle} - ${this.episodeNum}.${EXT}`
+          `${sanitize(showTitle)} - ${this.episodeNum}.${EXT}`
         );
         return outPath;
       case MOVIE:
@@ -292,7 +298,7 @@ export default class Airing {
       case EVENT:
         if (this.event.season) season = `${this.event.season} - `;
         // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
-        outPath = fsPath.join(outPath, `${season}${this.eventTitle}.${EXT}`);
+        outPath = fsPath.join(outPath, `${season}${this.title}.${EXT}`);
         return outPath;
       default:
         console.error('Unknown type exportFile', this);
@@ -312,7 +318,7 @@ export default class Airing {
       case SERIES:
         outPath = fsPath.join(
           config.episodePath,
-          showTitle,
+          sanitize(showTitle),
           `Season ${this.seasonNum}`
         );
         return outPath;
@@ -373,29 +379,61 @@ export default class Airing {
     const ffmpegPath = ffmpeg.path;
 
     console.log('ffmpegPath', ffmpegPath);
-
-    let ffmpegPath2 = ffmpegPath.replace(
+    let ffmpegPath2;
+    /** In dev, the prod path gets returned, so "fix" that * */
+    // *nix
+    ffmpegPath2 = ffmpegPath.replace(
       '/app/',
       '/node_modules/ffmpeg-static-electron-jdp/'
     );
 
+    if (ffmpegPath2 === ffmpegPath) {
+      // win
+      ffmpegPath2 = ffmpegPath.replace(
+        '\\app\\',
+        '\\node_modules\\ffmpeg-static-electron-jdp\\'
+      );
+    }
+    console.log('after "app" replacements', ffmpegPath2);
+
     // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-    const prodPath = `${process.resourcesPath}/node_modules/ffmpeg-static-electron-jdp/bin/`;
+    const resourcePath = `${process.resourcesPath}`;
+
+    const psuedoProdPath = resourcePath.replace(
+      '/electron/dist/resources',
+      '/ffmpeg-static-electron-jdp/bin'
+    );
+    console.log('resourcePath', resourcePath);
+    console.log('prodPath', psuedoProdPath);
 
     const ffmpegOpts = [
       '-c copy',
       '-y' // overwrite existing files
     ];
 
+    console.log('env', process.env.NODE_ENV);
+    console.log('prodPath exists', fs.existsSync(psuedoProdPath));
     // In true prod (not yarn build/start), ffmpeg is built into resources dir
-    if (process.env.NODE_ENV === 'production' && fs.existsSync(prodPath)) {
-      ffmpegPath2 = ffmpegPath2.replace(/^[/|\\]bin/, prodPath);
+    if (process.env.NODE_ENV === 'production') {
+      const testStartPath = ffmpegPath2.replace(/^[/|\\]bin/, psuedoProdPath);
+      if (fs.existsSync(testStartPath)) {
+        console.log('START replacing ffmpegPath2 for prodPath', psuedoProdPath);
+        ffmpegPath2 = testStartPath;
+        console.log('START replaced prodPath for prod', ffmpegPath2);
+      } else {
+        console.log('PROD replacing ffmpegPath2 for prodPath', psuedoProdPath);
+        ffmpegPath2 = psuedoProdPath.replace(
+          /[/|\\]resources/,
+          `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+        );
+        console.log('PROD replaced prodPath for prod', ffmpegPath2);
+      }
     } else {
       // otherwise we can hit the node_modules dir
-      ffmpegPath2 = ffmpegPath2.replace(
-        /^\/bin\//,
-        './node_modules/ffmpeg-static-electron-jdp/bin/'
-      );
+      // ffmpegPath2 = ffmpegPath2.replace(
+      //  /^\/bin\//,
+      //  './node_modules/ffmpeg-static-electron-jdp/bin/'
+      // );
       // verbosity log level
       ffmpegOpts.push('-v 40');
     }
@@ -435,7 +473,6 @@ export default class Airing {
         console.log(`Stderr output: ${stderrLine}`);
       })
       .on('progress', progress => {
-        console.log(`Processing: ${progress.percent}% done`);
         if (typeof callback === 'function') {
           callback(progress);
         }
