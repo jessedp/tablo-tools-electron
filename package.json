@@ -283,6 +283,7 @@
     "react-sticky-el": "^1.1.0",
     "redux": "^4.0.4",
     "redux-thunk": "^2.3.0",
+    "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
     "tablo-api": "^0.3.0",
     "video-react": "^0.14.1"
