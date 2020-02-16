@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import { readableDuration } from '../utils/utils';
+import { timeStrToSeconds, readableDuration } from '../utils/utils';
 import Title from './Title';
 
 type Props = { airing: Airing };
@@ -85,11 +85,17 @@ export default class VideoExport extends Component<Props> {
         exportLbl: 'Complete'
       });
     } else {
+      // const pct = progress.percent  doesn't always work, so..
+      const pct = Math.round(
+        (timeStrToSeconds(progress.timemark) /
+          timeStrToSeconds(readableDuration(airing.videoDetails.duration))) *
+          100
+      );
       const label = `${progress.timemark} / ${readableDuration(
         airing.videoDetails.duration
       )}`;
       this.setState({
-        exportInc: progress.percent,
+        exportInc: pct,
         exportLbl: label
       });
     }
