@@ -73,9 +73,7 @@
     "extraResources": [
       "node_modules/ffmpeg-static-electron-jdp/*",
       "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/ffmpeg",
-      "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/ffmpeg.exe",
-      "node_modules/ffmpeg-static-electron-jdp/bin/win/x64}/ffmpeg.exe",
-      "node_modules/ffmpeg-static-electron-jdp/bin/win/ia32}/ffmpeg.exe",
+      "node_modules/ffmpeg-static-electron-jdp/bin/win/x64/*",
       "node_modules/ffmpeg-static-electron-jdp/index.js",
       "node_modules/ffmpeg-static-electron-jdp/package.json"
     ],
