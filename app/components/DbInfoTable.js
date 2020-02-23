@@ -93,7 +93,7 @@ export default class DbInfoTable extends Component<Props, State> {
         <Table striped bordered size="sm">
           <tbody>
             <tr>
-              <th style={headStyle}>Total Recordings </th>
+              <th style={headStyle}>Total</th>
               <td>{recTotal} </td>
             </tr>
             <tr>

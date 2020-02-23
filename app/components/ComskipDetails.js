@@ -60,18 +60,18 @@ export default class ComskipDetails extends Component<Props> {
                 <td>{skipStats.ready}</td>
               </tr>
               <tr>
-                <th>None:</th>
+                <th>Unknown:</th>
                 <td>{skipStats.none}</td>
               </tr>
               <tr>
-                <th>Error:</th>
+                <th>Errors:</th>
                 <td>
                   {skipStats.error}
                   {skipErrors ? (
                     <Table striped size="sm">
                       <tbody>
                         <tr>
-                          <th colSpan="2">Errors Types:</th>
+                          <th colSpan="2">Types of Errors:</th>
                         </tr>
                         <tr>
                           <td style={{ width: '40px' }}>

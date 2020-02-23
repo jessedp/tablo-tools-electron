@@ -22,8 +22,13 @@ type State = {
   overrideIp: string,
   enableExportData: boolean,
   exportDataPath: string,
-  saveStatus: ?Array<string>
+  saveState: number,
+  saveData: Array<string>
 };
+
+const SAVE_NONE = 0;
+const SAVE_FAIL = 1;
+const SAVE_SUCCESS = 2;
 
 export default class Settings extends Component<Props, State> {
   props: Props;
@@ -41,10 +46,13 @@ export default class Settings extends Component<Props, State> {
       overrideIp: '',
       enableExportData: false,
       exportDataPath: `${os.tmpdir()}/tablo-data/`,
-      saveStatus: []
+      saveState: SAVE_NONE,
+      saveData: []
     };
 
     const storedState = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+
+    storedState.saveState = SAVE_NONE;
 
     this.state = Object.assign(this.initialState, storedState);
 
@@ -65,23 +73,27 @@ export default class Settings extends Component<Props, State> {
    async componentDidMount() {
   }
    */
-
   saveConfig = () => {
     const cleanState = this.state;
-    delete cleanState.saveStatus;
+    cleanState.saveData = [];
     const invalid = [];
+    let result = SAVE_FAIL;
     if (cleanState.enableIpOverride) {
       if (!isValidIp(cleanState.overrideIp)) {
         invalid.push(`Invalid IP Address: ${cleanState.overrideIp}`);
       }
     }
-    // try to validate Export path??
-
-    this.setState({ saveStatus: invalid });
+    // try to validate Export paths?
     if (invalid.length === 0) {
       localStorage.setItem('AppConfig', JSON.stringify(cleanState));
       updateApi();
+      result = SAVE_SUCCESS;
+      setTimeout(() => {
+        this.setState({ saveState: SAVE_NONE });
+      }, 3000);
     }
+
+    this.setState({ saveState: result, saveData: [] });
   };
 
   toggleIpOverride = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -114,7 +126,8 @@ export default class Settings extends Component<Props, State> {
 
   render() {
     const {
-      saveStatus,
+      saveData,
+      saveState,
       enableIpOverride,
       overrideIp,
       enableExportData,
@@ -133,7 +146,7 @@ export default class Settings extends Component<Props, State> {
         </Row>
         <Row>
           <Col>
-            <SaveStatus invalid={saveStatus} />
+            <SaveStatus invalid={saveData} state={saveState} />
           </Col>
         </Row>
         <Row>
@@ -224,13 +237,14 @@ export default class Settings extends Component<Props, State> {
  * @return {string}
  */
 function SaveStatus(prop) {
-  const { invalid } = prop;
+  const { state, invalid } = prop;
 
-  if (invalid == null || invalid === 'undefined') return '';
+  if (state === SAVE_NONE) return '';
 
-  if (invalid.length === 0) {
+  if (state === SAVE_SUCCESS) {
     return <Alert variant="success">Settings Saved!</Alert>;
   }
+
   return (
     <Alert variant="danger">
       Errors occurred saving Settings!
