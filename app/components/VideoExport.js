@@ -113,7 +113,7 @@ export default class VideoExport extends Component<Props> {
           onClick={this.show}
           title="Export Video"
         >
-          <span className="fa fa-cogs" />
+          <span className="fa fa-download" />
         </Button>
 
         <Modal
