@@ -13,6 +13,8 @@
 
     <script>
       (() => {
+        // DISABLE security warnings
+        process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
         if (!process.env.START_HOT) {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
