@@ -1,7 +1,9 @@
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('fetch', event => {
+  // console.log('fetch event', event.request);
   if (event.request.url.indexOf(':8885/images/') > -1) {
     // console.log('in fetch listener', event.request.url);
+
     event.respondWith(
       caches.match(event.request).then(response => {
         // caches.match() always resolves
@@ -25,7 +27,7 @@ self.addEventListener('fetch', event => {
           })
           .catch(() => {
             console.error('fetch error!');
-            return '';
+            return ''; // there should be something better?
             // return caches.match('/sw-test/gallery/myLittleVader.jpg');
           });
       })
@@ -35,5 +37,10 @@ self.addEventListener('fetch', event => {
 
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open('assets').then(cache => cache.addAll([])));
+  console.log('INSTALL: open caches');
+  event.waitUntil(
+    caches.open('assets').then(cache => {
+      return cache.addAll([]);
+    })
+  );
 });
