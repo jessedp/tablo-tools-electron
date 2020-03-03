@@ -57,6 +57,7 @@ export default class Episode extends Component<Props, State> {
     // console.log(airing);
     // console.log(airing.cachedWatch );
     const classes = `border m-1 p-1 ${styles.box}`;
+    // console.log(airing.thumbnail);
 
     return (
       <Container className={classes}>
