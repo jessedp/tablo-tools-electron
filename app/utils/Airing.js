@@ -260,7 +260,7 @@ export default class Airing {
 
   get thumbnail() {
     if (!this.show.thumbnail_image) {
-      console.log(this.show);
+      // console.log(this.show);
       return { image_id: 0 };
     }
     return this.show.thumbnail_image.image_id;

@@ -296,6 +296,7 @@ export default class Search extends Component<Props, State> {
                   aria-label="Search..."
                   value={searchValue}
                   onChange={this.searchChange}
+                  type="text"
                 />
 
                 <InputGroup.Append>
@@ -308,31 +309,12 @@ export default class Search extends Component<Props, State> {
                   </Button>
                 </InputGroup.Append>
               </InputGroup>
-
-              <InputGroup
-                className="mb-3"
-                size="sm"
-                value={queryValue}
-                onKeyPress={this.queryKeyPressed}
-                onChange={this.queryChange}
-              >
-                <FormControl
-                  placeholder="Enter query..."
-                  aria-label="Enter query..."
-                  value={queryValue}
-                  onChange={this.queryChange}
-                />
-
-                <InputGroup.Append>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={this.search}
-                  >
-                    Query!
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
+              <DbQueryField
+                queryValue={queryValue}
+                search={this.search}
+                queryChange={this.queryChange}
+                queryKeyPressed={this.queryKeyPressed}
+              />
             </Form>
           </Col>
         </Row>
@@ -343,6 +325,39 @@ export default class Search extends Component<Props, State> {
         </Row>
         <Row className="m-1 mb-4">{display}</Row>
       </>
+    );
+  }
+}
+
+function DbQueryField(prop) {
+  const { queryValue, search, queryChange, queryKeyPressed } = prop;
+
+  return <> </>;
+
+  // eslint-disable-next-line no-unreachable
+  if (process.env.NODE_ENV !== 'production') {
+    return (
+      <InputGroup
+        className="mb-3"
+        size="sm"
+        value={queryValue}
+        onKeyPress={queryKeyPressed}
+        onChange={queryChange}
+      >
+        <FormControl
+          placeholder="Enter query..."
+          aria-label="Enter query..."
+          value={queryValue}
+          onChange={queryChange}
+          type="text"
+        />
+
+        <InputGroup.Append>
+          <Button size="sm" variant="outline-secondary" onClick={search}>
+            Query!
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
     );
   }
 }
