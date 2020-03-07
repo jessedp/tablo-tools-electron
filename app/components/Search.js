@@ -362,9 +362,6 @@ export default class Search extends Component<Props, State> {
 function DbQueryField(prop) {
   const { queryValue, search, queryChange, queryKeyPressed } = prop;
 
-  return <> </>;
-
-  // eslint-disable-next-line no-unreachable
   if (process.env.NODE_ENV !== 'production') {
     return (
       <InputGroup
@@ -390,4 +387,5 @@ function DbQueryField(prop) {
       </InputGroup>
     );
   }
+  return <> </>;
 }
