@@ -64,6 +64,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
   - yarn install
+  - yarn add ffmpeg-static-electron-jdp --force
 
 script:
   - yarn package-ci
