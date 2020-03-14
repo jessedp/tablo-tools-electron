@@ -286,7 +286,7 @@
     "redux-thunk": "^2.3.0",
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
-    "tablo-api": "^0.3.0",
+    "tablo-api": "^0.3.2",
     "video-react": "^0.14.1"
   },
   "devEngines": {
