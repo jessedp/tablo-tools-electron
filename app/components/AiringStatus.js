@@ -7,16 +7,14 @@ type Props = { airing: Airing };
 export default class AiringStatus extends Component<Props> {
   props: Props;
 
-  /**
-  constructor(props){
-    super();
-    // console.log(props.airing);
-  }
-   */
-
   airingState() {
     const { airing } = this.props;
     const { videoDetails } = airing;
+    const { comskip } = videoDetails;
+
+    if (comskip.state === 'ready') {
+      return '';
+    }
 
     switch (videoDetails.state) {
       case 'failed':
@@ -72,6 +70,11 @@ export default class AiringStatus extends Component<Props> {
   recording() {
     const { airing } = this.props;
     const { videoDetails } = airing;
+    const { comskip } = videoDetails;
+
+    if (comskip.state === 'ready') {
+      return '';
+    }
 
     if (videoDetails.clean) {
       return (
@@ -96,6 +99,12 @@ export default class AiringStatus extends Component<Props> {
     const { airing } = this.props;
     const { airingDetails } = airing;
     const { videoDetails } = airing;
+    const { comskip } = videoDetails;
+
+    if (comskip.state === 'ready') {
+      return '';
+    }
+
     const pct = Math.ceil(
       (videoDetails.duration / airingDetails.duration) * 100
     );
@@ -153,7 +162,7 @@ export default class AiringStatus extends Component<Props> {
     if (comskip.state === 'ready') {
       return (
         <i
-          className="fa fa-fast-forward p-1"
+          className="fa fa-check-circle p-1"
           style={{ color: 'forestgreen' }}
           title="Commercial Skip ready"
         />
@@ -163,18 +172,16 @@ export default class AiringStatus extends Component<Props> {
     const title = `Commercial Skip unavailable (${comskip.error})`;
     return (
       <i
-        className="fa fa-fast-forward p-1"
+        className="fa fa-times-circle p-1"
         style={{ color: 'red' }}
         title={title}
       />
     );
-    // comskip.state
   }
 
   uploading() {
     const { airing } = this.props;
     const { videoDetails } = airing;
-    // const { comskip } = videoDetails;
 
     if (videoDetails.uploading) {
       return (
