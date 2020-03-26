@@ -224,6 +224,7 @@
     "jest": "^24.9.0",
     "lint-staged": "^9.5.0",
     "mini-css-extract-plugin": "^0.8.0",
+    "minimist": "^1.2.5",
     "node-sass": "^4.13.0",
     "opencollective-postinstall": "^2.0.2",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
@@ -286,8 +287,11 @@
     "redux-thunk": "^2.3.0",
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
-    "tablo-api": "^0.3.0",
+    "tablo-api": "^0.3.3",
     "video-react": "^0.14.1"
+  },
+  "resolutions": {
+    "minimist": "^1.2.5"
   },
   "devEngines": {
     "node": ">=7.x",

@@ -24,6 +24,7 @@ type State = {
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
+  comskipFilter: string,
   alertType: string,
   alertTxt: string,
   display: Array<Object>
@@ -43,6 +44,7 @@ export default class Search extends Component<Props, State> {
       typeFilter: 'any',
       stateFilter: 'any',
       watchedFilter: 'all',
+      comskipFilter: 'any',
       alertType: '',
       alertTxt: '',
       display: []
@@ -56,6 +58,7 @@ export default class Search extends Component<Props, State> {
     this.stateChange = this.stateChange.bind(this);
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
+    this.comskipChange = this.comskipChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
     this.queryChange = this.queryChange.bind(this);
@@ -99,6 +102,11 @@ export default class Search extends Component<Props, State> {
     this.search();
   };
 
+  comskipChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setStateStore({ comskipFilter: event.currentTarget.value });
+    this.search();
+  };
+
   searchChange = async (event: SyntheticEvent<HTMLInputElement>) => {
     if (!event.currentTarget.value && event.currentTarget.value !== '') return;
     await this.setStateStore({ searchValue: event.currentTarget.value });
@@ -128,7 +136,8 @@ export default class Search extends Component<Props, State> {
       queryValue,
       stateFilter,
       typeFilter,
-      watchedFilter
+      watchedFilter,
+      comskipFilter
     } = this.state;
 
     const result = [];
@@ -161,6 +170,10 @@ export default class Search extends Component<Props, State> {
 
       if (watchedFilter !== 'all') {
         query['user_info.watched'] = watchedFilter === 'yes';
+      }
+
+      if (comskipFilter !== 'any') {
+        query['video_details.comskip.state'] = comskipFilter;
       }
     }
     // console.log('Query', query);
@@ -211,6 +224,7 @@ export default class Search extends Component<Props, State> {
       stateFilter,
       typeFilter,
       watchedFilter,
+      comskipFilter,
       alertType,
       alertTxt,
       display
@@ -282,6 +296,22 @@ export default class Search extends Component<Props, State> {
                     <option>no</option>
                   </Form.Control>
                 </InputGroup>
+
+                <InputGroup className="" size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>comskip:</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <Form.Control
+                    as="select"
+                    value={comskipFilter}
+                    aria-describedby="btnState"
+                    onChange={this.comskipChange}
+                  >
+                    <option>any</option>
+                    <option>ready</option>
+                    <option>error</option>
+                  </Form.Control>
+                </InputGroup>
               </ButtonGroup>
 
               <InputGroup
@@ -296,6 +326,7 @@ export default class Search extends Component<Props, State> {
                   aria-label="Search..."
                   value={searchValue}
                   onChange={this.searchChange}
+                  type="text"
                 />
 
                 <InputGroup.Append>
@@ -308,31 +339,12 @@ export default class Search extends Component<Props, State> {
                   </Button>
                 </InputGroup.Append>
               </InputGroup>
-
-              <InputGroup
-                className="mb-3"
-                size="sm"
-                value={queryValue}
-                onKeyPress={this.queryKeyPressed}
-                onChange={this.queryChange}
-              >
-                <FormControl
-                  placeholder="Enter query..."
-                  aria-label="Enter query..."
-                  value={queryValue}
-                  onChange={this.queryChange}
-                />
-
-                <InputGroup.Append>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={this.search}
-                  >
-                    Query!
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
+              <DbQueryField
+                queryValue={queryValue}
+                search={this.search}
+                queryChange={this.queryChange}
+                queryKeyPressed={this.queryKeyPressed}
+              />
             </Form>
           </Col>
         </Row>
@@ -345,4 +357,35 @@ export default class Search extends Component<Props, State> {
       </>
     );
   }
+}
+
+function DbQueryField(prop) {
+  const { queryValue, search, queryChange, queryKeyPressed } = prop;
+
+  if (process.env.NODE_ENV !== 'production') {
+    return (
+      <InputGroup
+        className="mb-3"
+        size="sm"
+        value={queryValue}
+        onKeyPress={queryKeyPressed}
+        onChange={queryChange}
+      >
+        <FormControl
+          placeholder="Enter query..."
+          aria-label="Enter query..."
+          value={queryValue}
+          onChange={queryChange}
+          type="text"
+        />
+
+        <InputGroup.Append>
+          <Button size="sm" variant="outline-secondary" onClick={search}>
+            Query!
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
+    );
+  }
+  return <> </>;
 }
