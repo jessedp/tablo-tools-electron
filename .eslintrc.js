@@ -1,5 +1,9 @@
 module.exports = {
   extends: 'erb',
+  rules: {
+    /** done solely for checkboxRef in Episode.js **/
+    'no-return-assign': 'off'
+  },
   settings: {
     'import/resolver': {
       webpack: {
