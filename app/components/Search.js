@@ -15,6 +15,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { RecDb } from '../utils/db';
 import { asyncForEach } from '../utils/utils';
 import Recording from './Recording';
+import ActionList from './ActionList';
 import Airing from '../utils/Airing';
 
 type Props = {};
@@ -26,7 +27,8 @@ type State = {
   watchedFilter: string,
   alertType: string,
   alertTxt: string,
-  display: Array<Object>
+  display: Array<Object>,
+  actionList: {}
 };
 
 export default class Search extends Component<Props, State> {
@@ -45,7 +47,8 @@ export default class Search extends Component<Props, State> {
       watchedFilter: 'all',
       alertType: '',
       alertTxt: '',
-      display: []
+      display: [],
+      actionList: {}
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
@@ -61,17 +64,39 @@ export default class Search extends Component<Props, State> {
     this.queryChange = this.queryChange.bind(this);
     this.queryKeyPressed = this.queryKeyPressed.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
+    this.addItem = this.addItem.bind(this);
+    this.delItem = this.delItem.bind(this);
   }
 
   async componentDidMount() {
     await this.search();
   }
 
+  addItem = (item: Airing) => {
+    const { actionList } = this.state;
+
+    if (!Object.keys(actionList).includes(item.object_id)) {
+      actionList[item.object_id] = item;
+      this.setState(actionList);
+    }
+  };
+
+  delItem = (item: Airing) => {
+    const { actionList } = this.state;
+
+    if (Object.keys(actionList).includes(item.object_id.toString())) {
+      delete actionList[item.object_id];
+      this.setState(actionList);
+    }
+  };
+
   delete = async () => {
     await this.search();
   };
 
   resetSearch = async () => {
+    // const state = this.initialState;
+    // delete state.actionList;
     await this.setStateStore(this.initialState);
     this.search();
   };
@@ -81,6 +106,7 @@ export default class Search extends Component<Props, State> {
     await this.setState(values);
     const cleanState = this.state;
     cleanState.display = [];
+    cleanState.actionList = {};
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
@@ -197,6 +223,8 @@ export default class Search extends Component<Props, State> {
             doDelete={this.search}
             key={airing.object_id}
             airing={airing}
+            addItem={this.addItem}
+            delItem={this.delItem}
           />
         );
       });
@@ -213,127 +241,135 @@ export default class Search extends Component<Props, State> {
       watchedFilter,
       alertType,
       alertTxt,
-      display
+      display,
+      actionList
     } = this.state;
 
     return (
       <>
         <Row>
-          <Col>
-            <Form>
-              <InputGroup size="sm" className="d-inline">
-                <Button
-                  className="mb-3 mr-3"
-                  size="sm"
-                  variant="outline-dark"
-                  onClick={this.resetSearch}
+          <Col md="8">
+            <InputGroup size="sm" className="d-inline">
+              <Button
+                className="mb-3 mr-3"
+                size="sm"
+                variant="outline-dark"
+                onClick={this.resetSearch}
+              >
+                reset
+              </Button>
+            </InputGroup>
+
+            <ButtonGroup size="sm" className="mb-3 mr-0 pr-0">
+              <InputGroup className="" size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>state:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  as="select"
+                  value={stateFilter}
+                  aria-describedby="btnState"
+                  onChange={this.stateChange}
                 >
-                  reset
-                </Button>
+                  <option>any</option>
+                  <option>finished</option>
+                  <option>failed</option>
+                  <option>recording</option>
+                </Form.Control>
               </InputGroup>
 
-              <ButtonGroup size="sm" className="mb-3 mr-0 pr-0">
-                <InputGroup className="" size="sm">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>state:</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <Form.Control
-                    as="select"
-                    value={stateFilter}
-                    aria-describedby="btnState"
-                    onChange={this.stateChange}
-                  >
-                    <option>any</option>
-                    <option>finished</option>
-                    <option>failed</option>
-                    <option>recording</option>
-                  </Form.Control>
-                </InputGroup>
+              <InputGroup className="" size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>type:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  as="select"
+                  value={typeFilter}
+                  aria-describedby="btnState"
+                  onChange={this.typeChange}
+                >
+                  <option>any</option>
+                  <option>episode</option>
+                  <option>movie</option>
+                  <option>sports</option>
+                </Form.Control>
+              </InputGroup>
 
-                <InputGroup className="" size="sm">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>type:</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <Form.Control
-                    as="select"
-                    value={typeFilter}
-                    aria-describedby="btnState"
-                    onChange={this.typeChange}
-                  >
-                    <option>any</option>
-                    <option>episode</option>
-                    <option>movie</option>
-                    <option>sports</option>
-                  </Form.Control>
-                </InputGroup>
-
-                <InputGroup className="" size="sm">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>watched:</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <Form.Control
-                    as="select"
-                    value={watchedFilter}
-                    aria-describedby="btnState"
-                    onChange={this.watchedChange}
-                  >
-                    <option>all</option>
-                    <option>yes</option>
-                    <option>no</option>
-                  </Form.Control>
-                </InputGroup>
-              </ButtonGroup>
-
-              <InputGroup
-                className="mb-3"
-                size="sm"
+              <InputGroup className="" size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>watched:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  as="select"
+                  value={watchedFilter}
+                  aria-describedby="btnState"
+                  onChange={this.watchedChange}
+                >
+                  <option>all</option>
+                  <option>yes</option>
+                  <option>no</option>
+                </Form.Control>
+              </InputGroup>
+            </ButtonGroup>
+          </Col>
+          <Col md="4" className="float-right">
+            <ActionDisplay actionList={actionList} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <InputGroup
+              className="mb-3"
+              size="sm"
+              value={searchValue}
+              onKeyPress={this.searchKeyPressed}
+              onChange={this.searchChange}
+            >
+              <FormControl
+                placeholder="Search..."
+                aria-label="Search..."
                 value={searchValue}
-                onKeyPress={this.searchKeyPressed}
                 onChange={this.searchChange}
-              >
-                <FormControl
-                  placeholder="Search..."
-                  aria-label="Search..."
-                  value={searchValue}
-                  onChange={this.searchChange}
-                />
+              />
 
-                <InputGroup.Append>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={this.search}
-                  >
-                    Search
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
-
-              <InputGroup
-                className="mb-3"
-                size="sm"
+              <InputGroup.Append>
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={this.search}
+                >
+                  Search
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <InputGroup
+              className="mb-3"
+              size="sm"
+              value={queryValue}
+              onKeyPress={this.queryKeyPressed}
+              onChange={this.queryChange}
+            >
+              <FormControl
+                placeholder="Enter query..."
+                aria-label="Enter query..."
                 value={queryValue}
-                onKeyPress={this.queryKeyPressed}
                 onChange={this.queryChange}
-              >
-                <FormControl
-                  placeholder="Enter query..."
-                  aria-label="Enter query..."
-                  value={queryValue}
-                  onChange={this.queryChange}
-                />
+              />
 
-                <InputGroup.Append>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={this.search}
-                  >
-                    Query!
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
-            </Form>
+              <InputGroup.Append>
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={this.search}
+                >
+                  Query!
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
           </Col>
         </Row>
         <Row>
@@ -345,4 +381,26 @@ export default class Search extends Component<Props, State> {
       </>
     );
   }
+}
+
+function ActionDisplay(prop) {
+  const { actionList } = prop;
+
+  const len = Object.keys(actionList).length;
+
+  let display = (
+    <h6 className="pt-1">
+      <span className="fa fa-file-video" /> &nbsp; {len} selected
+    </h6>
+  );
+
+  if (len > 0) {
+    display = <ActionList list={actionList} label={display} />;
+  }
+
+  return (
+    <div className="float-right">
+      <span className="badge badge-info">{display}</span>
+    </div>
+  );
 }

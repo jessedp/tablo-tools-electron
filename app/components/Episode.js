@@ -12,25 +12,55 @@ import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
+import Checkbox from './Checkbox';
 
 import styles from './Episode.css';
 import VideoExport from './VideoExport';
 import Airing from '../utils/Airing';
 
-type Props = { doDelete: () => ?Promise<any>, airing: Airing };
+type Props = {
+  doDelete: () => ?Promise<any>,
+  addItem: (item: Airing) => void,
+  delItem: (item: Airing) => void,
+  airing: Airing
+};
 type State = { recOverviewOpen: boolean };
 
 export default class Episode extends Component<Props, State> {
   props: Props;
+
+  // this is gross and has to be wrong
+  checkboxRef: Checkbox;
 
   constructor(props: Props) {
     super();
     this.state = { recOverviewOpen: false };
     this.props = props;
 
+    this.checkboxRef = React.createRef();
+
+    (this: any).toggleSelection = this.toggleSelection.bind(this);
     (this: any).toggleRecOverview = this.toggleRecOverview.bind(this);
     (this: any).deleteAiring = this.deleteAiring.bind(this);
     (this: any).processVideo = this.processVideo.bind(this);
+  }
+
+  toggleSelection() {
+    const { airing, addItem, delItem } = this.props;
+    // FIXME: gross, don't know if this is correct way to do this
+    if (
+      this.checkboxRef === null ||
+      !Object.prototype.hasOwnProperty.call(this.checkboxRef, 'state')
+    )
+      return;
+    const { state } = this.checkboxRef;
+    const { checked } = state;
+    // we get this value before it's set, so test is backwards
+    if (!checked) {
+      addItem(airing);
+    } else {
+      delItem(airing);
+    }
   }
 
   toggleRecOverview() {
@@ -54,10 +84,7 @@ export default class Episode extends Component<Props, State> {
   render() {
     const { airing } = this.props;
     const { recOverviewOpen } = this.state;
-    // console.log(airing);
-    // console.log(airing.cachedWatch );
-    const classes = `border m-1 p-1 ${styles.box}`;
-    // console.log(airing.thumbnail);
+    const classes = `m-1 pt-1 pb-1 border  ${styles.box}`;
 
     return (
       <Container className={classes}>
@@ -65,8 +92,15 @@ export default class Episode extends Component<Props, State> {
           <Col md="3">
             <TabloImage imageId={airing.thumbnail} />
           </Col>
-          <Col md="9">
+          <Col md="8">
             <Title airing={airing} />
+          </Col>
+          <Col md="1">
+            <Checkbox
+              checked={false}
+              ref={checkboxRef => (this.checkboxRef = checkboxRef)}
+              handleChange={this.toggleSelection}
+            />
           </Col>
         </Row>
         <Row>

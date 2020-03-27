@@ -6,15 +6,30 @@ import Airing from '../utils/Airing';
 type Props = {
   airing: Airing,
   doDelete: () => ?Promise<any>,
-  search: () => ?Promise<any>
+  search: () => ?Promise<any>,
+  addItem: (item: Airing) => void,
+  delItem: (item: Airing) => void
 };
 
 export default class Recording extends Component<Props> {
   props: Props;
 
-  render() {
-    const { airing, doDelete, search } = this.props;
+  defaultProps: {
+    addItem: (item: Airing) => void,
+    delItem: (item: Airing) => void
+  };
 
-    return <Episode airing={airing} doDelete={doDelete} search={search} />;
+  render() {
+    const { airing, doDelete, search, addItem, delItem } = this.props;
+
+    return (
+      <Episode
+        airing={airing}
+        doDelete={doDelete}
+        search={search}
+        addItem={addItem}
+        delItem={delItem}
+      />
+    );
   }
 }

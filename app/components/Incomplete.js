@@ -154,6 +154,8 @@ export default class Incomplete extends Component<Props, State> {
             doDelete={() => {}}
             key={airing.object_id}
             airing={airing}
+            addItem={() => {}}
+            delItem={() => {}}
           />
         );
       });
