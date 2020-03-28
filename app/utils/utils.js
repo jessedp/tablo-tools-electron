@@ -20,8 +20,8 @@ export function timeStrToSeconds(str) {
 export function readableDuration(duration) {
   const date = new Date(null);
   date.setSeconds(duration);
-  // TODO: whittle down the duration... and/or make it xH:yM:zS
-  return date.toISOString().substr(12, 7);
+  const str = date.toISOString().substr(12, 7);
+  return str.replace(/^0:/, '');
 }
 
 export function readableBytes(bytes) {
