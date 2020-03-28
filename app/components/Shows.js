@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 
 import ShowsList from './ShowsList';
-import EpisodeList from './EpisodeList';
+import EpisodeList from './RecordingList';
 import Show from '../utils/Show';
 
 type Props = {};

@@ -14,7 +14,7 @@ type Props = {
   view?: viewEnum
 };
 
-export default class EpisodeSlim extends Component<Props> {
+export default class RecordingSlim extends Component<Props> {
   props: Props;
 
   static defaultProps: {};
@@ -63,4 +63,4 @@ export default class EpisodeSlim extends Component<Props> {
     );
   }
 }
-EpisodeSlim.defaultProps = { view: 'episode' };
+RecordingSlim.defaultProps = { view: 'episode' };

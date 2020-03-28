@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
-import EpisodeSlim from './EpisodeSlim';
+import RecordingSlim from './RecordingSlim';
 
 type Props = { list: {}, label: any };
 type State = { show: boolean };
@@ -68,7 +68,7 @@ export default class ActionList extends Component<Props, State> {
           </Modal.Header>
           <Modal.Body>
             {Object.keys(list).map(item => (
-              <EpisodeSlim
+              <RecordingSlim
                 doDelete={() => {}}
                 airing={list[item]}
                 key={Math.floor(Math.random() * 1000)}

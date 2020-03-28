@@ -1,35 +1,158 @@
 // @flow
+
 import React, { Component } from 'react';
-import Episode from './Episode';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+
+import Title from './Title';
+import TabloImage from './TabloImage';
+import RecordingOverview from './RecordingOverview';
+import ConfirmDelete from './ConfirmDelete';
+import TabloVideoPlayer from './TabloVideoPlayer';
+import AiringStatus from './AiringStatus';
+import Checkbox from './Checkbox';
+
+import styles from './Recording.css';
+import VideoExport from './VideoExport';
 import Airing from '../utils/Airing';
 
 type Props = {
-  airing: Airing,
   doDelete: () => ?Promise<any>,
-  search: () => ?Promise<any>,
   addItem: (item: Airing) => void,
-  delItem: (item: Airing) => void
+  delItem: (item: Airing) => void,
+  airing: Airing
 };
+type State = { recOverviewOpen: boolean };
 
-export default class Recording extends Component<Props> {
+export default class Episode extends Component<Props, State> {
   props: Props;
 
-  defaultProps: {
-    addItem: (item: Airing) => void,
-    delItem: (item: Airing) => void
-  };
+  // this is gross and has to be wrong
+  checkboxRef: Checkbox;
+
+  constructor(props: Props) {
+    super();
+    this.state = { recOverviewOpen: false };
+    this.props = props;
+
+    this.checkboxRef = React.createRef();
+
+    (this: any).toggleSelection = this.toggleSelection.bind(this);
+    (this: any).toggleRecOverview = this.toggleRecOverview.bind(this);
+    (this: any).deleteAiring = this.deleteAiring.bind(this);
+    (this: any).processVideo = this.processVideo.bind(this);
+  }
+
+  toggleSelection() {
+    const { airing, addItem, delItem } = this.props;
+    // FIXME: gross, don't know if this is correct way to do this
+    if (
+      this.checkboxRef === null ||
+      !Object.prototype.hasOwnProperty.call(this.checkboxRef, 'state')
+    )
+      return;
+    const { state } = this.checkboxRef;
+    const { checked } = state;
+    // we get this value before it's set, so test is backwards
+    if (!checked) {
+      addItem(airing);
+    } else {
+      delItem(airing);
+    }
+  }
+
+  toggleRecOverview() {
+    const { recOverviewOpen } = this.state;
+    this.setState({
+      recOverviewOpen: !recOverviewOpen
+    });
+  }
+
+  async processVideo() {
+    const { airing } = this.props;
+    await airing.processVideo();
+  }
+
+  async deleteAiring() {
+    const { airing, doDelete } = this.props;
+    await airing.delete();
+    doDelete();
+  }
 
   render() {
-    const { airing, doDelete, search, addItem, delItem } = this.props;
+    const { airing } = this.props;
+    const { recOverviewOpen } = this.state;
+    const classes = `m-1 pt-1 pb-1 border  ${styles.box}`;
 
     return (
-      <Episode
-        airing={airing}
-        doDelete={doDelete}
-        search={search}
-        addItem={addItem}
-        delItem={delItem}
-      />
+      <Container className={classes}>
+        <Row>
+          <Col md="3">
+            <TabloImage imageId={airing.thumbnail} />
+          </Col>
+          <Col md="8">
+            <Title airing={airing} />
+          </Col>
+          <Col md="1">
+            <Checkbox
+              checked={false}
+              ref={checkboxRef => (this.checkboxRef = checkboxRef)}
+              handleChange={this.toggleSelection}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col md="auto">
+            <span className="smaller">
+              <b>Duration: </b>
+              {airing.actualDuration} of {airing.duration}
+              <br />
+            </span>
+          </Col>
+          <Col>
+            <AiringStatus airing={airing} />
+          </Col>
+        </Row>
+        <Row>
+          <Col md="auto">
+            {recOverviewOpen ? (
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={this.toggleRecOverview}
+              >
+                Recording details
+                <span className="pl-2 fa fa-arrow-up" />
+              </Button>
+            ) : (
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={this.toggleRecOverview}
+              >
+                Recording details
+                <span className="pl-2 fa fa-arrow-down" />
+              </Button>
+            )}
+          </Col>
+          <Col md="auto">
+            <TabloVideoPlayer airing={airing} />
+          </Col>
+          <Col md="auto">
+            <VideoExport airing={airing} />
+          </Col>
+          <Col md="auto">
+            <ConfirmDelete what={[airing]} onDelete={this.deleteAiring} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            {recOverviewOpen ? <RecordingOverview airing={airing} /> : ''}
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }

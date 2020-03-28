@@ -13,7 +13,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { RecDb } from '../utils/db';
 
 import Airing from '../utils/Airing';
-import EpisodeSlim from './EpisodeSlim';
+import RecordingSlim from './RecordingSlim';
 import { asyncForEach } from '../utils/utils';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
@@ -133,7 +133,7 @@ export default class EpisodeList extends Component<Props, State> {
 
       objRecs.forEach(airing => {
         result[airing.episode.season_number].push(
-          <EpisodeSlim
+          <RecordingSlim
             key={airing.object_id}
             airing={airing}
             doDelete={() => {}}
