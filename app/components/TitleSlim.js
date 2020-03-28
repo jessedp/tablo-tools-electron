@@ -1,3 +1,4 @@
+// @flow
 import React, { Component, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -6,12 +7,15 @@ import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import styles from './Title.css';
 import TabloImage from './TabloImage';
+import Airing from '../utils/Airing';
 
 export const viewEnum = PropTypes.oneOf('episode', 'show');
-type Props = { airing: null, view?: viewEnum };
+type Props = { airing: Airing, view?: viewEnum };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
+
+  static defaultProps: {};
 
   render() {
     const { airing, view } = this.props;
