@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
 import RecordingSlim from './RecordingSlim';
+import Airing from '../utils/Airing';
 
 type Props = { list: {}, label: any };
 type State = { show: boolean };
@@ -67,14 +68,19 @@ export default class ActionList extends Component<Props, State> {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {Object.keys(list).map(item => (
-              <RecordingSlim
-                doDelete={() => {}}
-                airing={list[item]}
-                key={Math.floor(Math.random() * 1000)}
-                view="show"
-              />
-            ))}
+            {Object.keys(list).map(item => {
+              let rec = list[item];
+              // do this in case we have unserialized Airing objects (no class)
+              rec = Object.assign(new Airing(), rec);
+              return (
+                <RecordingSlim
+                  doDelete={() => {}}
+                  airing={rec}
+                  key={Math.floor(Math.random() * 1000)}
+                  view="show"
+                />
+              );
+            })}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleClose}>
