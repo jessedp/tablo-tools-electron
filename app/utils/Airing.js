@@ -134,7 +134,8 @@ export default class Airing {
   get datetime() {
     const { airingDetails } = this;
     const dt = new Date(airingDetails.datetime);
-    return `${dt.toLocaleDateString()}  ${dt.toLocaleTimeString()}`;
+    const str = `${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}`;
+    return str.replace(/:00\s/, ' ');
   }
 
   get showTitle() {
