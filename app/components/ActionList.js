@@ -72,6 +72,7 @@ export default class ActionList extends Component<Props, State> {
                 doDelete={() => {}}
                 airing={list[item]}
                 key={Math.floor(Math.random() * 1000)}
+                view="show"
               />
             ))}
           </Modal.Body>

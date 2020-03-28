@@ -1,18 +1,40 @@
 import React, { Component, useState } from 'react';
+import PropTypes from 'prop-types';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import styles from './Title.css';
+import TabloImage from './TabloImage';
 
-type Props = { airing: null };
+export const viewEnum = PropTypes.oneOf('episode', 'show');
+type Props = { airing: null, view?: viewEnum };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
 
   render() {
-    const { airing } = this.props;
+    const { airing, view } = this.props;
 
+    if (view === 'show') {
+      return (
+        <Row style={{ fontSize: 'small' }}>
+          <Col md="2">
+            <TabloImage imageId={airing.thumbnail} maxHeight={100} />
+          </Col>
+          <Col md="3">
+            <b>{airing.show.title}</b> &nbsp;
+            <br />
+            <span className="smaller">{airing.datetime}</span>
+          </Col>
+          <Col md="7">
+            <Title title={airing.title} />
+            <Description description={airing.description} />
+          </Col>
+        </Row>
+      );
+    }
+    // if (view === 'episode')
     return (
       <Row style={{ fontSize: 'small' }}>
         <Col md="1">
@@ -20,25 +42,24 @@ export default class TitleSlim extends Component<Props> {
             Ep. {airing.episode.number}
           </Badge>
         </Col>
-        <Col md="4">
-          <span className="pl-2 smaller">{airing.datetime}</span>
+        <Col md="3">
+          <span className="smaller">{airing.datetime}</span>
         </Col>
-        <Col md="7">
-          <div className="">
-            {airing.title ? (
-              <span className="pl-3">
-                <b>{airing.title}</b>
-              </span>
-            ) : (
-              ''
-            )}
-
-            <Description description={airing.description} />
-          </div>
+        <Col md="8">
+          <Title title={airing.title} />
+          <Description description={airing.description} />
         </Col>
       </Row>
     );
   }
+}
+TitleSlim.defaultProps = { view: 'episode' };
+
+function Title(prop) {
+  const { title } = prop;
+  if (!title) return <></>;
+
+  return <b>{title}</b>;
 }
 
 function Description(prop) {
@@ -75,5 +96,5 @@ function Description(prop) {
       </>
     );
   }
-  return <>{showBtn}</>;
+  return showBtn;
 }
