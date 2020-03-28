@@ -4,6 +4,10 @@ import styled from 'styled-components';
 
 type Props = { checked: null, handleChange: any };
 
+export const CHECKBOX_NATURAL = 0;
+export const CHECKBOX_ON = 1;
+export const CHECKBOX_OFF = 2;
+
 export default class Checkbox extends Component<Props> {
   props: Props;
 
@@ -15,10 +19,15 @@ export default class Checkbox extends Component<Props> {
     this.state = { checked };
   }
 
-  toggle() {
-    console.log('cbox toggle called');
+  toggle(force = CHECKBOX_NATURAL) {
     const { checked } = this.state;
-    this.setState({ checked: !checked });
+    if (force === CHECKBOX_OFF) {
+      this.setState({ checked: false });
+    } else if (force === CHECKBOX_ON) {
+      this.setState({ checked: true });
+    } else {
+      this.setState({ checked: !checked });
+    }
   }
 
   handleCheckboxChange = event => {
