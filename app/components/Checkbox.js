@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 
-type Props = { checked: null, handleChange: any };
+type Props = { checked: number, handleChange: any };
 
 export const CHECKBOX_NATURAL = 0;
 export const CHECKBOX_ON = 1;
@@ -11,12 +11,12 @@ export const CHECKBOX_OFF = 2;
 export default class Checkbox extends Component<Props> {
   props: Props;
 
-  defaultProps: { checked: false, handleChange: () => {} };
+  defaultProps: { checked: CHECKBOX_OFF, handleChange: () => {} };
 
   constructor(props) {
     super();
     const { checked } = props;
-    this.state = { checked };
+    this.state = { checked: checked === CHECKBOX_ON };
   }
 
   toggle(force = CHECKBOX_NATURAL) {

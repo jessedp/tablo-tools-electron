@@ -9,7 +9,7 @@ import styles from './Title.css';
 import TabloImage from './TabloImage';
 import Airing from '../utils/Airing';
 
-export const viewEnum = PropTypes.oneOf('episode', 'show');
+export const viewEnum = PropTypes.oneOf(['episode', 'show']);
 type Props = { airing: Airing, view?: viewEnum };
 
 export default class TitleSlim extends Component<Props> {

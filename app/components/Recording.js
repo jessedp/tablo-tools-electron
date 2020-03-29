@@ -12,7 +12,7 @@ import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
-import Checkbox from './Checkbox';
+import Checkbox, { CHECKBOX_OFF } from './Checkbox';
 
 import styles from './Recording.css';
 import VideoExport from './VideoExport';
@@ -22,14 +22,17 @@ type Props = {
   doDelete: () => ?Promise<any>,
   addItem: (item: Airing) => void,
   delItem: (item: Airing) => void,
-  airing: Airing
+  airing: Airing,
+  checked?: number
 };
 type State = { recOverviewOpen: boolean };
 
-export default class Episode extends Component<Props, State> {
+export default class Recording extends Component<Props, State> {
   props: Props;
 
-  // this is gross and has to be wrong
+  static defaultProps: {};
+
+  // for 2 way interaction you're not supposed to do
   checkboxRef: Checkbox;
 
   constructor(props: Props) {
@@ -47,15 +50,18 @@ export default class Episode extends Component<Props, State> {
 
   toggleSelection() {
     const { airing, addItem, delItem } = this.props;
+
     // FIXME: gross, don't know if this is correct way to do this
     if (
       this.checkboxRef === null ||
       !Object.prototype.hasOwnProperty.call(this.checkboxRef, 'state')
     )
       return;
+
     const { state } = this.checkboxRef;
     const { checked } = state;
-    // we get this value before it's set, so test is backwards
+
+    // we get this value before it's set, so the test is backwards
     if (!checked) {
       addItem(airing);
     } else {
@@ -82,7 +88,7 @@ export default class Episode extends Component<Props, State> {
   }
 
   render() {
-    const { airing } = this.props;
+    const { airing, checked } = this.props;
     const { recOverviewOpen } = this.state;
     const classes = `m-1 pt-1 pb-1 border  ${styles.box}`;
 
@@ -97,7 +103,7 @@ export default class Episode extends Component<Props, State> {
           </Col>
           <Col md="1">
             <Checkbox
-              checked={false}
+              checked={checked}
               ref={checkboxRef => (this.checkboxRef = checkboxRef)}
               handleChange={this.toggleSelection}
             />
@@ -156,3 +162,6 @@ export default class Episode extends Component<Props, State> {
     );
   }
 }
+Recording.defaultProps = {
+  checked: CHECKBOX_OFF
+};
