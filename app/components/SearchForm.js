@@ -245,18 +245,35 @@ export default class Search extends Component<Props, State> {
     return (
       <>
         <Row>
-          <Col md="8">
-            <InputGroup size="sm" className="d-inline">
-              <Button
-                className="mb-3 mr-3"
-                size="sm"
-                variant="outline-dark"
-                onClick={this.resetSearch}
-              >
-                reset
-              </Button>
-            </InputGroup>
+          <Col md="4">
+            <InputGroup
+              className="mb-3"
+              size="sm"
+              value={searchValue}
+              onKeyPress={this.searchKeyPressed}
+              onChange={this.searchChange}
+            >
+              <FormControl
+                placeholder="Search..."
+                aria-label="Search..."
+                value={searchValue}
+                onChange={this.searchChange}
+                type="text"
+              />
 
+              <InputGroup.Append>
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={this.search}
+                >
+                  Search
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+
+          <Col md="8">
             <ButtonGroup size="sm" className="mb-3 mr-0 pr-0">
               <InputGroup className="" size="sm">
                 <InputGroup.Prepend>
@@ -311,35 +328,22 @@ export default class Search extends Component<Props, State> {
           </Col>
           <Col md="4" className="float-right" />
         </Row>
+
         <Row>
           <Col>
-            <InputGroup
-              className="mb-3"
-              size="sm"
-              value={searchValue}
-              onKeyPress={this.searchKeyPressed}
-              onChange={this.searchChange}
-            >
-              <FormControl
-                placeholder="Search..."
-                aria-label="Search..."
-                value={searchValue}
-                onChange={this.searchChange}
-                type="text"
-              />
-
-              <InputGroup.Append>
-                <Button
-                  size="sm"
-                  variant="outline-secondary"
-                  onClick={this.search}
-                >
-                  Search
-                </Button>
-              </InputGroup.Append>
-            </InputGroup>{' '}
+            <InputGroup size="sm" className="d-inline">
+              <Button
+                className="mb-3 mr-3"
+                size="xs"
+                variant="outline-dark"
+                onClick={this.resetSearch}
+              >
+                <span className="fa fa-recycle pr-1" /> reset
+              </Button>
+            </InputGroup>
           </Col>
         </Row>
+
         <Row>
           <Col md="6">
             <Alert variant={alertType}>{alertTxt}</Alert>
