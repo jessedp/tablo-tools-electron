@@ -25,7 +25,6 @@ type Props = {
 
 type State = {
   searchValue: string,
-  queryValue: string,
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
@@ -45,7 +44,6 @@ export default class Search extends Component<Props, State> {
 
     this.initialState = {
       searchValue: '',
-      queryValue: '',
       typeFilter: 'any',
       stateFilter: 'any',
       watchedFilter: 'all',
@@ -66,8 +64,6 @@ export default class Search extends Component<Props, State> {
     this.watchedChange = this.watchedChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
-    this.queryChange = this.queryChange.bind(this);
-    this.queryKeyPressed = this.queryKeyPressed.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
@@ -82,14 +78,15 @@ export default class Search extends Component<Props, State> {
 
   componentWillUnmount() {
     const cleanState = { ...this.state };
-    /**
-     cleanState.recordingRefs.forEach(record => {
-      delete record.ref;
-    });
-     * */
-    // delete cleanState.recordingRefs;
+    localStorage.setItem('SearchState', JSON.stringify(cleanState));
+  }
 
-    // console.log(cleanState);
+  setStateStore(...args: Array<Object>) {
+    const values = args[0];
+
+    this.setState(values);
+    const cleanState = this.state;
+
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
@@ -141,23 +138,9 @@ export default class Search extends Component<Props, State> {
   };
 
   resetSearch = async () => {
-    // const init = this.initialState;
-    // TODO: this may break
-    // init.actionList = {};
-    // delete init.recordingRefs;
-
     await this.setStateStore(this.initialState);
     await this.search();
   };
-
-  setStateStore(...args: Array<Object>) {
-    const values = args[0];
-
-    this.setState(values);
-    const cleanState = this.state;
-
-    localStorage.setItem('SearchState', JSON.stringify(cleanState));
-  }
 
   stateChange = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ stateFilter: event.currentTarget.value });
@@ -187,57 +170,36 @@ export default class Search extends Component<Props, State> {
     }
   };
 
-  queryChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setStateStore({ queryValue: event.currentTarget.value });
-  };
-
-  queryKeyPressed = async (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      this.search();
-    }
-  };
-
   search = async () => {
     const { actionList } = this.state;
     const { sendResults } = this.props;
 
-    const {
-      searchValue,
-      queryValue,
-      stateFilter,
-      typeFilter,
-      watchedFilter
-    } = this.state;
+    const { searchValue, stateFilter, typeFilter, watchedFilter } = this.state;
 
-    let query = {};
-    if (queryValue) {
-      // eslint-disable-next-line no-eval
-      query = eval(queryValue);
-    } else {
-      if (searchValue) {
-        const re = new RegExp(searchValue, 'i');
-        // query['airing_details.show_title'] =  { $regex: re };
-        query.$or = [
-          { 'airing_details.show_title': { $regex: re } },
-          { 'episode.title': { $regex: re } },
-          { 'episode.description': { $regex: re } },
-          { 'event.title': { $regex: re } },
-          { 'event.description': { $regex: re } }
-        ];
-      }
+    const query = {};
+    if (searchValue) {
+      const re = new RegExp(searchValue, 'i');
+      // query['airing_details.show_title'] =  { $regex: re };
+      query.$or = [
+        { 'airing_details.show_title': { $regex: re } },
+        { 'episode.title': { $regex: re } },
+        { 'episode.description': { $regex: re } },
+        { 'event.title': { $regex: re } },
+        { 'event.description': { $regex: re } }
+      ];
+    }
 
-      if (stateFilter !== 'any') {
-        query['video_details.state'] = stateFilter;
-      }
+    if (stateFilter !== 'any') {
+      query['video_details.state'] = stateFilter;
+    }
 
-      if (typeFilter !== 'any') {
-        const typeRe = new RegExp(typeFilter, 'i');
-        query.path = { $regex: typeRe };
-      }
+    if (typeFilter !== 'any') {
+      const typeRe = new RegExp(typeFilter, 'i');
+      query.path = { $regex: typeRe };
+    }
 
-      if (watchedFilter !== 'all') {
-        query['user_info.watched'] = watchedFilter === 'yes';
-      }
+    if (watchedFilter !== 'all') {
+      query['user_info.watched'] = watchedFilter === 'yes';
     }
 
     const recs = await RecDb.asyncFind(query, [
@@ -270,7 +232,6 @@ export default class Search extends Component<Props, State> {
   render() {
     const {
       searchValue,
-      queryValue,
       stateFilter,
       typeFilter,
       watchedFilter,
@@ -377,34 +338,6 @@ export default class Search extends Component<Props, State> {
                 </Button>
               </InputGroup.Append>
             </InputGroup>{' '}
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <InputGroup
-              className="mb-3"
-              size="sm"
-              value={queryValue}
-              onKeyPress={this.queryKeyPressed}
-              onChange={this.queryChange}
-            >
-              <FormControl
-                placeholder="Enter query..."
-                aria-label="Enter query..."
-                value={queryValue}
-                onChange={this.queryChange}
-              />
-
-              <InputGroup.Append>
-                <Button
-                  size="sm"
-                  variant="outline-secondary"
-                  onClick={this.search}
-                >
-                  Query!
-                </Button>
-              </InputGroup.Append>
-            </InputGroup>
           </Col>
         </Row>
         <Row>
