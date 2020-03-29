@@ -40,7 +40,7 @@ export default class ActionList extends Component<Props, State> {
     const { label, list } = this.props;
 
     return (
-      <div id={Math.floor(Math.random() * 1000)}>
+      <div id={Math.floor(Math.random() * 1000000)}>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <a
           onClick={this.handleShow}
@@ -76,7 +76,7 @@ export default class ActionList extends Component<Props, State> {
                 <RecordingSlim
                   doDelete={() => {}}
                   airing={rec}
-                  key={Math.floor(Math.random() * 1000)}
+                  key={Math.floor(Math.random() * 1000000)}
                   view="show"
                 />
               );

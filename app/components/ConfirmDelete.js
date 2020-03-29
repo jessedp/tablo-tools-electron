@@ -42,7 +42,7 @@ export default class ConfirmDelete extends Component<Props> {
     });
 
     return (
-      <div id={Math.floor(Math.random() * 1000)}>
+      <div id={Math.floor(Math.random() * 1000000)}>
         <Button
           size="sm"
           variant="danger"
@@ -67,7 +67,7 @@ export default class ConfirmDelete extends Component<Props> {
             Are you sure you want to delete:
             <br />
             {what.map(item => (
-              <Title airing={item} key={Math.floor(Math.random() * 1000)} />
+              <Title airing={item} key={Math.floor(Math.random() * 1000000)} />
             ))}
           </Modal.Body>
           <Modal.Footer>

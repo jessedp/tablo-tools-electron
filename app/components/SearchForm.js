@@ -15,6 +15,7 @@ import { asyncForEach } from '../utils/utils';
 import ActionList from './ActionList';
 import Airing from '../utils/Airing';
 import { CHECKBOX_OFF } from './Checkbox';
+import { showList } from './ShowsList';
 
 type Props = {
   sendResults: Object => void,
@@ -28,6 +29,7 @@ type State = {
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
+  showFilter: string,
   alertType: string,
   alertTxt: string,
   airingList: Array<Airing>,
@@ -39,6 +41,8 @@ export default class Search extends Component<Props, State> {
 
   initialState: State;
 
+  showsList: [];
+
   constructor() {
     super();
 
@@ -47,6 +51,7 @@ export default class Search extends Component<Props, State> {
       typeFilter: 'any',
       stateFilter: 'any',
       watchedFilter: 'all',
+      showFilter: '',
       alertType: '',
       alertTxt: '',
       airingList: [],
@@ -57,11 +62,13 @@ export default class Search extends Component<Props, State> {
     delete storedState.recordingRefs;
     const initialStateCopy = { ...this.initialState };
     this.state = Object.assign(initialStateCopy, storedState);
+    this.showsList = [];
 
     this.search = this.search.bind(this);
     this.stateChange = this.stateChange.bind(this);
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
+    this.showChange = this.showChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
@@ -73,7 +80,8 @@ export default class Search extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.search();
+    this.showsList = await showList();
+    await this.search();
   }
 
   componentWillUnmount() {
@@ -142,18 +150,23 @@ export default class Search extends Component<Props, State> {
     await this.search();
   };
 
-  stateChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ stateFilter: event.currentTarget.value });
+  stateChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ stateFilter: event.currentTarget.value });
     this.search();
   };
 
-  typeChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ typeFilter: event.currentTarget.value });
+  typeChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ typeFilter: event.currentTarget.value });
     this.search();
   };
 
-  watchedChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ watchedFilter: event.currentTarget.value });
+  watchedChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ watchedFilter: event.currentTarget.value });
+    this.search();
+  };
+
+  showChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ showFilter: event.currentTarget.value });
     this.search();
   };
 
@@ -174,7 +187,13 @@ export default class Search extends Component<Props, State> {
     const { actionList } = this.state;
     const { sendResults } = this.props;
 
-    const { searchValue, stateFilter, typeFilter, watchedFilter } = this.state;
+    const {
+      searchValue,
+      stateFilter,
+      typeFilter,
+      watchedFilter,
+      showFilter
+    } = this.state;
 
     const query = {};
     if (searchValue) {
@@ -201,6 +220,10 @@ export default class Search extends Component<Props, State> {
     if (watchedFilter !== 'all') {
       query['user_info.watched'] = watchedFilter === 'yes';
     }
+    if (showFilter !== '') {
+      query.series_path = showFilter;
+    }
+    // console.log(query);
 
     const recs = await RecDb.asyncFind(query, [
       ['sort', { 'airing_details.datetime': -1 }]
@@ -235,12 +258,13 @@ export default class Search extends Component<Props, State> {
       stateFilter,
       typeFilter,
       watchedFilter,
+      showFilter,
       alertType,
       alertTxt,
       actionList
     } = this.state;
 
-    // console.log('SearchForm render', airingList);
+    // console.log('SearchForm render');
 
     return (
       <>
@@ -322,6 +346,30 @@ export default class Search extends Component<Props, State> {
                   <option>all</option>
                   <option>yes</option>
                   <option>no</option>
+                </Form.Control>
+              </InputGroup>
+
+              <InputGroup className="" size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>by show:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  as="select"
+                  value={showFilter}
+                  aria-describedby="btnState"
+                  onChange={this.showChange}
+                >
+                  <option>all</option>
+                  {this.showsList.map(item => {
+                    return (
+                      <option
+                        key={`show-filter-${item.object_id}`}
+                        value={item.path}
+                      >
+                        {item.title}
+                      </option>
+                    );
+                  })}
                 </Form.Control>
               </InputGroup>
             </ButtonGroup>
