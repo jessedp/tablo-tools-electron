@@ -1,8 +1,12 @@
-import React, { Component, useState } from 'react';
+// @flow
+import React, { Component } from 'react';
 
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Airing from '../utils/Airing';
 import styles from './Title.css';
 
-type Props = { airing: null };
+type Props = { airing: Airing };
 
 export default class Title extends Component<Props> {
   props: Props;
@@ -35,38 +39,17 @@ export default class Title extends Component<Props> {
 }
 
 function Description(prop) {
-  const [show, setShow] = useState(false);
   const { description } = prop;
 
-  const classes = `btn p-0 ml-1 m-0 ${styles.descBtn}`;
-  const hideBtn = (
-    <button
-      type="button"
-      title="hide"
-      className={classes}
-      onClick={() => setShow(false)}
-    >
-      <span className="fa fa-arrow-left" />
-    </button>
+  const popover = (
+    <Popover id="popover-basic">
+      <Popover.Content>{description}</Popover.Content>
+    </Popover>
   );
 
-  const showBtn = (
-    <button
-      type="button"
-      title="show description"
-      className={classes}
-      onClick={() => setShow(true)}
-    >
-      <span className="fa fa-arrow-right" />
-    </button>
+  return (
+    <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+      <span className="fa fa-scroll pl-2" style={{ color: 'forestgreen' }} />
+    </OverlayTrigger>
   );
-  if (show) {
-    return (
-      <>
-        {hideBtn} <br />
-        {description}
-      </>
-    );
-  }
-  return <>{showBtn}</>;
 }
