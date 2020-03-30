@@ -13,19 +13,21 @@ export default class Title extends Component<Props> {
 
   render() {
     const { airing } = this.props;
+    let episodeNum = '';
+    if (airing.isEpisode) {
+      episodeNum = (
+        <span className={styles.smaller}>
+          <span className="pl-1"> ({airing.episodeNum})</span>
+        </span>
+      );
+    }
 
     return (
       <>
         <h6>
-          <div>
+          <div className="pb-1">
             {airing.datetime}
-            {airing.isEpisode ? (
-              <span className={styles.smaller}>
-                <span className="pl-1"> ({airing.episodeNum})</span>
-              </span>
-            ) : (
-              ''
-            )}
+            {episodeNum}
           </div>
           <b>
             {airing.showTitle}
@@ -49,7 +51,7 @@ function Description(prop) {
 
   return (
     <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
-      <span className="fa fa-scroll pl-2" style={{ color: 'forestgreen' }} />
+      <span className="fa fa-scroll pl-2" style={{ color: '#A9A9A9' }} />
     </OverlayTrigger>
   );
 }
