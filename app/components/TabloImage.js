@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import Image from 'react-bootstrap/Image';
 
@@ -5,8 +6,7 @@ import unknownImg from '../../resources/white-question-mark.png';
 
 import Api from '../utils/Tablo';
 
-// maxheight is not used!
-type Props = { imageId: string, maxHeight: number };
+type Props = { imageId: string, maxHeight?: number };
 
 export default class TabloImage extends Component<Props> {
   props: Props;
@@ -15,7 +15,7 @@ export default class TabloImage extends Component<Props> {
     const { imageId, maxHeight } = this.props;
     const host = Api.device.private_ip;
     const style = {};
-    if (maxHeight) {
+    if (maxHeight && maxHeight > 50) {
       style.maxHeight = maxHeight;
     }
     let url = unknownImg;
@@ -25,3 +25,6 @@ export default class TabloImage extends Component<Props> {
     return <Image style={style} src={url} fluid rounded />;
   }
 }
+TabloImage.defaultProps = {
+  maxHeight: 0
+};
