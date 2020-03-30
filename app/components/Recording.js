@@ -32,7 +32,7 @@ export default class Recording extends Component<Props, State> {
 
   static defaultProps: {};
 
-  // for 2 way interaction you're not supposed to do
+  // for 2 way interaction you're maybe not supposed to do for this reason
   checkboxRef: Checkbox;
 
   constructor(props: Props) {
@@ -90,7 +90,14 @@ export default class Recording extends Component<Props, State> {
   render() {
     const { airing, checked } = this.props;
     const { recOverviewOpen } = this.state;
-    const classes = `m-1 pt-1 pb-1 border  ${styles.box}`;
+    const classes = `m-1 pt-1 border ${styles.box}`;
+
+    let overviewClass = 'pl-2 fa ';
+    if (recOverviewOpen) {
+      overviewClass = `${overviewClass} fa-arrow-up`;
+    } else {
+      overviewClass = `${overviewClass} fa-arrow-down`;
+    }
 
     return (
       <Container className={classes}>
@@ -98,61 +105,58 @@ export default class Recording extends Component<Props, State> {
           <Col md="3">
             <TabloImage imageId={airing.thumbnail} />
           </Col>
-          <Col md="8">
-            <Title airing={airing} />
-          </Col>
-          <Col md="1">
-            <Checkbox
-              checked={checked}
-              ref={checkboxRef => (this.checkboxRef = checkboxRef)}
-              handleChange={this.toggleSelection}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col md="auto">
-            <span className="smaller">
-              <b>Duration: </b>
-              {airing.actualDuration} of {airing.duration}
-              <br />
-            </span>
-          </Col>
-          <Col>
-            <AiringStatus airing={airing} />
-          </Col>
-        </Row>
-        <Row>
-          <Col md="auto">
-            {recOverviewOpen ? (
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={this.toggleRecOverview}
-              >
-                Recording details
-                <span className="pl-2 fa fa-arrow-up" />
-              </Button>
-            ) : (
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={this.toggleRecOverview}
-              >
-                Recording details
-                <span className="pl-2 fa fa-arrow-down" />
-              </Button>
-            )}
-          </Col>
-          <Col md="auto">
-            <TabloVideoPlayer airing={airing} />
-          </Col>
-          <Col md="auto">
-            <VideoExport airing={airing} />
-          </Col>
-          <Col md="auto">
-            <ConfirmDelete what={[airing]} onDelete={this.deleteAiring} />
+          <Col md="9">
+            <Row>
+              <Col md="11" className="ml-0 mr-0 pl-0 pr-0">
+                <Title airing={airing} />
+              </Col>
+              <Col md="1" className="mr-0 pr-1">
+                <div className="float-right p-0 m-0">
+                  <Checkbox
+                    checked={checked}
+                    ref={checkboxRef => (this.checkboxRef = checkboxRef)}
+                    handleChange={this.toggleSelection}
+                  />
+                </div>
+              </Col>
+            </Row>
+
+            <Row className="mt-3">
+              <Col md="auto" className="ml-0 mr-0 pl-0 pr-0">
+                <span className="smaller">
+                  <b>Duration: </b>
+                  {airing.actualDuration} of {airing.duration}
+                  <br />
+                </span>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md="7" className="ml-0 pl-0 mr-0 pr-0">
+                <Button
+                  variant="outline-secondary"
+                  size="xs"
+                  onClick={this.toggleRecOverview}
+                >
+                  details
+                  <span className={overviewClass} />
+                </Button>
+                &nbsp;
+                <TabloVideoPlayer airing={airing} />
+                &nbsp;
+                <VideoExport airing={airing} />
+                &nbsp;
+                <ConfirmDelete what={[airing]} onDelete={this.deleteAiring} />
+              </Col>
+              <Col md="5" className="ml-0 pl-0 mr-0 pr-0">
+                <div className="float-right">
+                  <AiringStatus airing={airing} />
+                </div>
+              </Col>
+            </Row>
           </Col>
         </Row>
+
         <Row>
           <Col>
             {recOverviewOpen ? <RecordingOverview airing={airing} /> : ''}
