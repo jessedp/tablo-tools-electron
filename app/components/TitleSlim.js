@@ -1,16 +1,13 @@
 // @flow
 import React, { Component, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import styles from './Title.css';
-import TabloImage from './TabloImage';
 import Airing from '../utils/Airing';
 
-export const viewEnum = PropTypes.oneOf(['episode', 'show']);
-type Props = { airing: Airing, view?: viewEnum };
+type Props = { airing: Airing };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
@@ -18,27 +15,8 @@ export default class TitleSlim extends Component<Props> {
   static defaultProps: {};
 
   render() {
-    const { airing, view } = this.props;
+    const { airing } = this.props;
 
-    if (view === 'show') {
-      return (
-        <Row style={{ fontSize: 'small' }}>
-          <Col md="2">
-            <TabloImage imageId={airing.thumbnail} maxHeight={100} />
-          </Col>
-          <Col md="3">
-            <b>{airing.show.title}</b> &nbsp;
-            <br />
-            <span className="smaller">{airing.datetime}</span>
-          </Col>
-          <Col md="7">
-            <Title title={airing.title} />
-            <Description description={airing.description} />
-          </Col>
-        </Row>
-      );
-    }
-    // if (view === 'episode')
     return (
       <Row style={{ fontSize: 'small' }}>
         <Col md="1">
@@ -57,7 +35,6 @@ export default class TitleSlim extends Component<Props> {
     );
   }
 }
-TitleSlim.defaultProps = { view: 'episode' };
 
 function Title(prop) {
   const { title } = prop;
