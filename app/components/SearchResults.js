@@ -34,11 +34,6 @@ export default class SearchResults extends Component<Props, State> {
       airingList: []
     };
 
-    // const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
-    // delete storedState.recordingRefs;
-    // const initialStateCopy = { ...this.initialState };
-    // this.state = Object.assign(initialStateCopy, storedState);
-
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
     this.search = this.search.bind(this);

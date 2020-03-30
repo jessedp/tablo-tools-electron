@@ -12,7 +12,6 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 import { RecDb } from '../utils/db';
 import { asyncForEach } from '../utils/utils';
-import ActionList from './ActionList';
 import Airing from '../utils/Airing';
 import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
@@ -29,9 +28,12 @@ type State = {
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
+  view: string,
   showFilter: string,
-  alertType: string,
-  alertTxt: string,
+  alert: {
+    type: string,
+    text: string
+  },
   airingList: Array<Airing>,
   actionList: {}
 };
@@ -51,9 +53,9 @@ export default class Search extends Component<Props, State> {
       typeFilter: 'any',
       stateFilter: 'any',
       watchedFilter: 'all',
+      view: 'grid',
       showFilter: '',
-      alertType: '',
-      alertTxt: '',
+      alert: { type: '', text: '' },
       airingList: [],
       actionList: {}
     };
@@ -69,6 +71,7 @@ export default class Search extends Component<Props, State> {
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
     this.showChange = this.showChange.bind(this);
+    this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
@@ -80,8 +83,17 @@ export default class Search extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    const { view, actionList } = this.state;
     this.showsList = await showList();
-    await this.search();
+    const { length } = Object.keys(actionList);
+    if (view === 'selected' && length >= 0) {
+      this.setState({
+        alert: { type: 'light', text: `${length} recordings found` }
+      });
+      this.viewChange();
+    } else {
+      await this.search();
+    }
   }
 
   componentWillUnmount() {
@@ -97,6 +109,30 @@ export default class Search extends Component<Props, State> {
 
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
+
+  viewChange = async () => {
+    const { sendResults } = this.props;
+    const { actionList } = this.state;
+
+    if (Object.keys(actionList).length === 0) return;
+
+    const list = Object.keys(actionList).map(item => {
+      return Object.assign(new Airing(), actionList[item]);
+    });
+
+    // descending
+    const timeSort = (a, b) => {
+      if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
+      return -1;
+    };
+
+    list.sort((a, b) => timeSort(a, b));
+
+    this.setState({ view: 'selected' });
+
+    await sendResults({ loading: true });
+    sendResults({ loading: false, airingList: list, actionList });
+  };
 
   addItem = (item: Airing) => {
     const { actionList } = this.state;
@@ -184,7 +220,7 @@ export default class Search extends Component<Props, State> {
   };
 
   search = async () => {
-    const { actionList } = this.state;
+    const { actionList, view } = this.state;
     const { sendResults } = this.props;
 
     const {
@@ -220,10 +256,9 @@ export default class Search extends Component<Props, State> {
     if (watchedFilter !== 'all') {
       query['user_info.watched'] = watchedFilter === 'yes';
     }
-    if (showFilter !== '') {
+    if (showFilter !== '' && showFilter !== 'all') {
       query.series_path = showFilter;
     }
-    // console.log(query);
 
     const recs = await RecDb.asyncFind(query, [
       ['sort', { 'airing_details.datetime': -1 }]
@@ -232,14 +267,12 @@ export default class Search extends Component<Props, State> {
     const airingList = [];
     if (!recs || recs.length === 0) {
       await this.setState({
-        alertType: 'danger',
-        alertTxt: 'No records found'
+        alert: { type: 'danger', text: 'No records found' }
       });
     } else {
       sendResults({ loading: true });
       this.setState({
-        alertType: 'info',
-        alertTxt: `${recs.length} recordings found`
+        alert: { type: 'light', text: `${recs.length} recordings found` }
       });
 
       await asyncForEach(recs, async doc => {
@@ -248,7 +281,7 @@ export default class Search extends Component<Props, State> {
       });
     }
 
-    sendResults({ loading: false, airingList, actionList });
+    sendResults({ loading: false, view, airingList, actionList });
     this.setStateStore({ airingList });
   };
 
@@ -259,8 +292,7 @@ export default class Search extends Component<Props, State> {
       typeFilter,
       watchedFilter,
       showFilter,
-      alertType,
-      alertTxt,
+      alert,
       actionList
     } = this.state;
 
@@ -269,7 +301,7 @@ export default class Search extends Component<Props, State> {
     return (
       <>
         <Row>
-          <Col md="4">
+          <Col md="3">
             <InputGroup
               className="mb-3"
               size="sm"
@@ -296,8 +328,20 @@ export default class Search extends Component<Props, State> {
               </InputGroup.Append>
             </InputGroup>
           </Col>
+          <Col md="2" className="pt-1">
+            <InputGroup size="sm" className="d-inline">
+              <Button
+                className="mb-3 mr-3"
+                size="xs"
+                variant="outline-dark"
+                onClick={this.resetSearch}
+              >
+                <span className="fa fa-recycle pr-1" /> reset
+              </Button>
+            </InputGroup>
+          </Col>
 
-          <Col md="8">
+          <Col md="6">
             <ButtonGroup size="sm" className="mb-3 mr-0 pr-0">
               <InputGroup className="" size="sm">
                 <InputGroup.Prepend>
@@ -374,73 +418,40 @@ export default class Search extends Component<Props, State> {
               </InputGroup>
             </ButtonGroup>
           </Col>
-          <Col md="4" className="float-right" />
+        </Row>
+
+        <Row>
+          <Col md="2" className="">
+            <SelectedDisplay actionList={actionList} view={this.viewChange} />
+          </Col>
+          <Col className="ml-0 pl-0 pt-1">
+            <Button variant="outline-info" size="xs" onClick={this.selectAll}>
+              <span className="fa fa-plus pr-1" style={{ color: 'green' }} />
+              all
+            </Button>
+            &nbsp;
+            <Button variant="outline-info" size="xs" onClick={this.unselectAll}>
+              <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
+              all
+            </Button>
+            &nbsp;
+            <Button
+              variant="outline-danger"
+              size="xs"
+              onClick={this.emptyItems}
+            >
+              <span
+                className="fa fa-times-circle pr-1"
+                style={{ color: 'red' }}
+              />
+              empty
+            </Button>
+          </Col>
         </Row>
 
         <Row>
           <Col>
-            <InputGroup size="sm" className="d-inline">
-              <Button
-                className="mb-3 mr-3"
-                size="xs"
-                variant="outline-dark"
-                onClick={this.resetSearch}
-              >
-                <span className="fa fa-recycle pr-1" /> reset
-              </Button>
-            </InputGroup>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md="6">
-            <Alert variant={alertType}>{alertTxt}</Alert>
-          </Col>
-          <Col md="6">
-            <div className="float-right">
-              <Row>
-                <Col>
-                  <div className="float-right">
-                    <ActionDisplay actionList={actionList} />
-                  </div>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <Button
-                    variant="outline-info"
-                    size="xs"
-                    onClick={this.selectAll}
-                  >
-                    <span
-                      className="fa fa-plus pr-1"
-                      style={{ color: 'green' }}
-                    />
-                    all
-                  </Button>
-                  &nbsp;
-                  <Button
-                    variant="outline-info"
-                    size="xs"
-                    onClick={this.unselectAll}
-                  >
-                    <span
-                      className="fa fa-minus pr-1"
-                      style={{ color: 'red' }}
-                    />
-                    all
-                  </Button>
-                  &nbsp;
-                  <Button
-                    variant="outline-danger"
-                    size="xs"
-                    onClick={this.emptyItems}
-                  >
-                    empty
-                  </Button>
-                </Col>
-              </Row>
-            </div>
+            <Alert variant={alert.type}>{alert.text}</Alert>
           </Col>
         </Row>
       </>
@@ -448,24 +459,14 @@ export default class Search extends Component<Props, State> {
   }
 }
 
-function ActionDisplay(prop) {
-  const { actionList } = prop;
+function SelectedDisplay(prop) {
+  const { actionList, view } = prop;
 
   const len = Object.keys(actionList).length;
 
-  let display = (
-    <h6>
-      <span className="fa fa-file-video" /> &nbsp; {len} selected
-    </h6>
-  );
-
-  if (len > 0) {
-    display = <ActionList list={actionList} label={display} />;
-  }
-
   return (
-    <div>
-      <span className="badge badge-info pl-2 pr-2 pt-2">{display}</span>
-    </div>
+    <Button onClick={view} variant="outline-primary" style={{ width: '100px' }}>
+      <span className="fa fa-file-video" /> {len} selected
+    </Button>
   );
 }
