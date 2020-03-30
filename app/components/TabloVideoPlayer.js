@@ -30,9 +30,13 @@ export default class TabloVideoPlayer extends Component<Props> {
 
     return (
       <>
-        <Button variant="outline-secondary" size="sm" onClick={this.toggle}>
-          Play
-          <span className="pl-2 fa fa-play-circle">&nbsp;</span>
+        <Button
+          variant="outline-secondary"
+          size="xs"
+          onClick={this.toggle}
+          title="Play video"
+        >
+          <span className="fa fa-play-circle" />
         </Button>
 
         <Modal size="lg" show={opened} onHide={this.toggle} centered>

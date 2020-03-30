@@ -42,10 +42,10 @@ export default class ConfirmDelete extends Component<Props> {
     });
 
     return (
-      <div id={Math.floor(Math.random() * 1000000)}>
+      <span id={Math.floor(Math.random() * 1000000)}>
         <Button
-          size="sm"
-          variant="danger"
+          size="xs"
+          variant="outline-danger"
           onClick={this.handleShow}
           title="Delete"
         >
@@ -79,7 +79,7 @@ export default class ConfirmDelete extends Component<Props> {
             </Button>
           </Modal.Footer>
         </Modal>
-      </div>
+      </span>
     );
   }
 }

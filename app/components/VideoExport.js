@@ -109,7 +109,7 @@ export default class VideoExport extends Component<Props> {
       <>
         <Button
           variant="outline-secondary"
-          size="sm"
+          size="xs"
           onClick={this.show}
           title="Export Video"
         >
