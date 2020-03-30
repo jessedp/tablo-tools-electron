@@ -22,8 +22,7 @@ type Props = { show: Show };
 type State = {
   episodes: Object,
   seasons: Object,
-  alertType: string,
-  alertTxt: string,
+  count: number,
   selSeason: null,
   seasonRefs: Object
 };
@@ -39,8 +38,7 @@ export default class EpisodeList extends Component<Props, State> {
     this.initialState = {
       episodes: {},
       seasons: {},
-      alertType: '',
-      alertTxt: '',
+      count: 0,
       selSeason: null,
       seasonRefs: []
     };
@@ -111,10 +109,7 @@ export default class EpisodeList extends Component<Props, State> {
     });
 
     if (!objRecs || objRecs.length === 0) {
-      await this.setState({
-        alertType: 'danger',
-        alertTxt: 'No episodes found'
-      });
+      await this.setState({ count: 0 });
     } else {
       this.setState({
         episodes: (
@@ -124,11 +119,6 @@ export default class EpisodeList extends Component<Props, State> {
             </Row>
           </Container>
         )
-      });
-
-      await this.setState({
-        alertType: 'info',
-        alertTxt: `${objRecs.length} episodes found`
       });
 
       objRecs.forEach(airing => {
@@ -141,22 +131,35 @@ export default class EpisodeList extends Component<Props, State> {
         );
       });
     }
-    await this.setState({ episodes: result, seasons, seasonRefs: refs });
+    await this.setState({
+      episodes: result,
+      seasons,
+      seasonRefs: refs,
+      count: objRecs.length
+    });
   }
 
   render() {
-    const { alertType, alertTxt, episodes, seasons, seasonRefs } = this.state;
+    const { count, episodes, seasons, seasonRefs } = this.state;
     const { show } = this.props;
 
     return (
       <>
         <Row>
           <Col md="auto" className="ml-2">
-            <TabloImage imageId={show.thumbnail} maxHeight="100px" />
+            <TabloImage imageId={show.thumbnail} maxHeight="200" />
           </Col>
           <Col>
-            <h4>{show.title}</h4>
-            {episodes ? <Alert variant={alertType}>{alertTxt}</Alert> : ''}
+            <Row>
+              <Col md="auto">
+                <h4>{show.title}</h4>
+              </Col>
+              <Col>
+                <Badge className="p-2" variant="dark">
+                  {count} episode{count > 1 ? 's' : ''}
+                </Badge>
+              </Col>
+            </Row>
           </Col>
         </Row>
         <Row className="mb-4">
@@ -182,13 +185,13 @@ function FullList(prop) {
 
   Object.keys(seasons).forEach(key => {
     const refKey = `season-${key}`;
-
+    const count = episodes[key].length;
     output.push(
       <div className="pt-2" key={refKey} ref={seasonRefs[refKey]}>
         <Alert variant="light" key={refKey}>
           <span className="mr-3">Season {key}</span>
           <Badge className="p-2" variant="primary">
-            {episodes[key].length} episodes
+            {count} episode{count > 1 ? 's' : ''}
           </Badge>
         </Alert>
       </div>
