@@ -33,7 +33,8 @@ export default class Recording extends Component<Props, State> {
   static defaultProps: {};
 
   // for 2 way interaction you're maybe not supposed to do for this reason
-  checkboxRef: Checkbox;
+  // TODO: figure out the type.
+  checkboxRef: any;
 
   constructor(props: Props) {
     super();
@@ -58,7 +59,9 @@ export default class Recording extends Component<Props, State> {
     )
       return;
 
+    if (!this.checkboxRef) return;
     const { state } = this.checkboxRef;
+    if (!state) return;
     const { checked } = state;
 
     // we get this value before it's set, so the test is backwards

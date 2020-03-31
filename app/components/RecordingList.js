@@ -27,7 +27,7 @@ type State = {
   seasonRefs: Object
 };
 
-export default class EpisodeList extends Component<Props, State> {
+export default class RecordingList extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -147,7 +147,7 @@ export default class EpisodeList extends Component<Props, State> {
       <>
         <Row>
           <Col md="auto" className="ml-2">
-            <TabloImage imageId={show.thumbnail} maxHeight="200" />
+            <TabloImage imageId={show.thumbnail} maxHeight={200} />
           </Col>
           <Col>
             <Row>

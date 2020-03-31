@@ -1,21 +1,25 @@
+// @flow
 import React, { Component } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import Title from './Title';
+import Airing from '../utils/Airing';
 
-type Props = { what: [], onDelete: () => {} };
+type Props = { what: Array<Airing>, onDelete: () => {} };
+type State = { show: boolean };
 
-export default class ConfirmDelete extends Component<Props> {
+export default class ConfirmDelete extends Component<Props, State> {
   props: Props;
 
   constructor() {
     super();
     this.state = { show: false };
-    this.handleClose = this.handleClose.bind(this);
-    this.handleShow = this.handleShow.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
+
+    (this: any).handleShow = this.handleShow.bind(this);
+    (this: any).handleClose = this.handleClose.bind(this);
+    (this: any).handleDelete = this.handleDelete.bind(this);
   }
 
   handleClose() {

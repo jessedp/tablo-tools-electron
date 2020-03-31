@@ -6,10 +6,12 @@ import unknownImg from '../../resources/white-question-mark.png';
 
 import Api from '../utils/Tablo';
 
-type Props = { imageId: string, maxHeight?: number };
+type Props = { imageId: number, maxHeight?: number };
 
 export default class TabloImage extends Component<Props> {
   props: Props;
+
+  static defaultProps: {};
 
   render() {
     const { imageId, maxHeight } = this.props;

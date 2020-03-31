@@ -45,7 +45,7 @@ export default class Overview extends Component<Props, State> {
 
   render() {
     const { device, lastDevice } = this.state;
-    let checked;
+    let checked = '';
     if (lastDevice) {
       checked = new Date(lastDevice.checked);
     }

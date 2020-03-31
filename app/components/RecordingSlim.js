@@ -4,14 +4,13 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 
-import TitleSlim, { viewEnum } from './TitleSlim';
+import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
 
 type Props = {
   doDelete: () => void,
-  airing: Airing,
-  view?: viewEnum
+  airing: Airing
 };
 
 export default class RecordingSlim extends Component<Props> {
@@ -33,7 +32,7 @@ export default class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing, view } = this.props;
+    const { airing } = this.props;
 
     const classes = `border pb-1 mb-2 pt-1`;
 
@@ -41,7 +40,7 @@ export default class RecordingSlim extends Component<Props> {
       <Container className={classes}>
         <Row>
           <Col md="8">
-            <TitleSlim airing={airing} view={view} />
+            <TitleSlim airing={airing} />
           </Col>
           <Col md="4">
             <Row>
@@ -63,4 +62,3 @@ export default class RecordingSlim extends Component<Props> {
     );
   }
 }
-RecordingSlim.defaultProps = { view: 'episode' };

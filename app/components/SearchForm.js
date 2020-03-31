@@ -38,7 +38,7 @@ type State = {
   actionList: {}
 };
 
-export default class Search extends Component<Props, State> {
+export default class SearchForm extends Component<Props, State> {
   props: Props;
 
   initialState: State;

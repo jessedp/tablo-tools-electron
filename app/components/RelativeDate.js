@@ -1,9 +1,12 @@
+// @flow
 import React from 'react';
 
 import { formatDistanceToNow, format } from 'date-fns';
 
-export default function RelativeDate(prop) {
-  let { date } = prop;
+type Props = { date: string | Date | null };
+
+export default function RelativeDate(props: Props) {
+  let { date } = props;
   if (typeof date === 'string') {
     date = Date.parse(date);
   }

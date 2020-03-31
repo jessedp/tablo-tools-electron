@@ -1,25 +1,27 @@
+// @flow
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
 
-type Props = { checked: number, handleChange: any };
+type Props = { checked?: number, handleChange: any };
+type State = { checked: boolean };
 
 export const CHECKBOX_NATURAL = 0;
 export const CHECKBOX_ON = 1;
 export const CHECKBOX_OFF = 2;
 
-export default class Checkbox extends Component<Props> {
+export default class Checkbox extends Component<Props, State> {
   props: Props;
 
-  defaultProps: { checked: CHECKBOX_OFF, handleChange: () => {} };
+  static defaultProps: { checked: number };
 
-  constructor(props) {
+  constructor(props: Props) {
     super();
     const { checked } = props;
     this.state = { checked: checked === CHECKBOX_ON };
   }
 
-  toggle(force = CHECKBOX_NATURAL) {
+  toggle(force: number = CHECKBOX_NATURAL) {
     const { checked } = this.state;
     if (force === CHECKBOX_OFF) {
       this.setState({ checked: false });
@@ -30,8 +32,11 @@ export default class Checkbox extends Component<Props> {
     }
   }
 
-  handleCheckboxChange = event => {
-    this.setState({ checked: event.target.checked });
+  handleCheckboxChange = async (
+    event: SyntheticInputEvent<HTMLInputElement>
+  ) => {
+    const { checked } = event.target;
+    this.setState({ checked });
     const { handleChange } = this.props;
     handleChange(event.target);
   };
@@ -52,6 +57,9 @@ export default class Checkbox extends Component<Props> {
     );
   }
 }
+Checkbox.defaultProps = {
+  checked: CHECKBOX_OFF
+};
 
 // eslint-disable-next-line react/jsx-props-no-spreading,react/prop-types
 const FullCheckbox = ({ className, checked, ...props }) => (

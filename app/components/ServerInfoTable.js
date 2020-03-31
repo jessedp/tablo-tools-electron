@@ -1,16 +1,12 @@
+// @flow
 import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Table from 'react-bootstrap/Table';
 
-type Props = { device: [] };
+type Props = { device: Object };
 
 export default class ServerInfoTable extends Component<Props> {
   props: Props;
-
-  constructor() {
-    super();
-    this.state = {};
-  }
 
   render() {
     const { device } = this.props;
