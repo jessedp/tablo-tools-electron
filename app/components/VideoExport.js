@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -7,15 +8,17 @@ import Alert from 'react-bootstrap/Alert';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { timeStrToSeconds, readableDuration } from '../utils/utils';
 import Title from './Title';
+import Airing from '../utils/Airing';
 
 type Props = { airing: Airing };
+type State = { opened: boolean, exportInc: number, exportLbl: string };
 
 const beginTime = '0:00/0:00';
 
 /** TODO: exportInc is used as a counter and state
  * and should be split accordingly */
 
-export default class VideoExport extends Component<Props> {
+export default class VideoExport extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -26,11 +29,11 @@ export default class VideoExport extends Component<Props> {
       exportLbl: beginTime
     };
 
-    this.toggle = this.toggle.bind(this);
-    this.show = this.show.bind(this);
-    this.processVideo = this.processVideo.bind(this);
-    this.updateProgress = this.updateProgress.bind(this);
-    this.cancelProcess = this.cancelProcess.bind(this);
+    (this: any).toggle = this.toggle.bind(this);
+    (this: any).show = this.show.bind(this);
+    (this: any).processVideo = this.processVideo.bind(this);
+    (this: any).updateProgress = this.updateProgress.bind(this);
+    (this: any).cancelProcess = this.cancelProcess.bind(this);
   }
 
   componentWillUnmount() {
@@ -76,7 +79,7 @@ export default class VideoExport extends Component<Props> {
     });
   }
 
-  updateProgress(progress) {
+  updateProgress(progress: Object) {
     const { airing } = this.props;
 
     if (progress.finished) {
@@ -109,7 +112,7 @@ export default class VideoExport extends Component<Props> {
       <>
         <Button
           variant="outline-secondary"
-          size="sm"
+          size="xs"
           onClick={this.show}
           title="Export Video"
         >

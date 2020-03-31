@@ -1,12 +1,15 @@
+// @flow
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 
 import Modal from 'react-bootstrap/Modal';
 import MyPlayer from './MyPlayer';
+import Airing from '../utils/Airing';
 
-type Props = { airing: null };
+type Props = { airing: Airing };
+type State = { opened: boolean };
 
-export default class TabloVideoPlayer extends Component<Props> {
+export default class TabloVideoPlayer extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -14,7 +17,7 @@ export default class TabloVideoPlayer extends Component<Props> {
     this.state = {
       opened: false
     };
-    this.toggle = this.toggle.bind(this);
+    (this: any).toggle = this.toggle.bind(this);
   }
 
   toggle() {
@@ -30,9 +33,13 @@ export default class TabloVideoPlayer extends Component<Props> {
 
     return (
       <>
-        <Button variant="outline-secondary" size="sm" onClick={this.toggle}>
-          Play
-          <span className="pl-2 fa fa-play-circle">&nbsp;</span>
+        <Button
+          variant="outline-secondary"
+          size="xs"
+          onClick={this.toggle}
+          title="Play video"
+        >
+          <span className="fa fa-play-circle" />
         </Button>
 
         <Modal size="lg" show={opened} onHide={this.toggle} centered>

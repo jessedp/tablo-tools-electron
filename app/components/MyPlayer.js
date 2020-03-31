@@ -32,7 +32,7 @@ export default class MyPlayer extends Component<Props, State> {
     }
     return (
       <Player fluid width={300} height={240}>
-        <HLSSource isVideoChild src={url} />
+        <HLSSource isVideoChild src={url} video={{}} type="" />
       </Player>
     );
   }

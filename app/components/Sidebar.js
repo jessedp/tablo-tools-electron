@@ -1,3 +1,4 @@
+// @flow
 /** This is poorly named - the SideBar is actually the TopBar * */
 
 import React, { Component } from 'react';
@@ -12,17 +13,18 @@ import Api, { checkConnection } from '../utils/Tablo';
 import tabloLogo from '../../resources/tablo_logo.png';
 
 type Props = {};
+type State = { current: string, pingInd: boolean };
 
-export default class Sidebar extends Component<Props> {
+export default class Sidebar extends Component<Props, State> {
   props: Props;
 
   constructor() {
     super();
     this.state = { current: routes.HOME, pingInd: false };
-    this.setHome = this.setHome.bind(this);
-    this.setOvw = this.setOvw.bind(this);
-    this.setBrowse = this.setBrowse.bind(this);
-    this.setSettings = this.setSettings.bind(this);
+    (this: any).setHome = this.setHome.bind(this);
+    (this: any).setOvw = this.setOvw.bind(this);
+    (this: any).setBrowse = this.setBrowse.bind(this);
+    (this: any).setSettings = this.setSettings.bind(this);
   }
 
   async componentDidMount() {
@@ -35,7 +37,7 @@ export default class Sidebar extends Component<Props> {
     setInterval(await checkConn, 10000);
   }
 
-  async setView(view) {
+  async setView(view: string) {
     await this.setState({ current: view });
   }
 

@@ -41,24 +41,8 @@ export default class ShowsList extends Component<Props, State> {
 
   search = async () => {
     const { viewEpisodes } = this.props;
-    const query = {};
 
-    const recs = await ShowDb.asyncFind(query);
-
-    const objRecs = [];
-
-    recs.forEach(rec => {
-      const show = new Show(rec);
-      objRecs.push(show);
-    });
-
-    const titleSort = (a, b) => {
-      if (a.sortableTitle > b.sortableTitle) return 1;
-      return -1;
-    };
-
-    objRecs.sort((a, b) => titleSort(a, b));
-
+    const objRecs = await showList();
     const result = [];
 
     if (!objRecs || objRecs.length === 0) {
@@ -119,4 +103,26 @@ export default class ShowsList extends Component<Props, State> {
       </>
     );
   }
+}
+
+export async function showList() {
+  const query = {};
+
+  const recs = await ShowDb.asyncFind(query);
+
+  const objRecs = [];
+
+  recs.forEach(rec => {
+    const show = new Show(rec);
+    objRecs.push(show);
+  });
+
+  const titleSort = (a, b) => {
+    if (a.sortableTitle > b.sortableTitle) return 1;
+    return -1;
+  };
+
+  objRecs.sort((a, b) => titleSort(a, b));
+
+  return objRecs;
 }

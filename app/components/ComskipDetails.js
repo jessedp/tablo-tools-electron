@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 
 import Table from 'react-bootstrap/Table';
@@ -6,8 +7,13 @@ import Alert from 'react-bootstrap/Alert';
 import { RecDb } from '../utils/db';
 
 type Props = {};
+type State = {
+  skipStats: Object,
+  skipErrors: Object,
+  recCount: number
+};
 
-export default class ComskipDetails extends Component<Props> {
+export default class ComskipDetails extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -15,7 +21,7 @@ export default class ComskipDetails extends Component<Props> {
     this.state = { skipStats: {}, skipErrors: {}, recCount: 0 };
   }
 
-  async componentDidMount(): void {
+  async componentDidMount() {
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
     const recs = await RecDb.asyncFind({});
     const skipStats = {};

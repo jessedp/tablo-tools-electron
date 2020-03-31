@@ -1,13 +1,16 @@
+// @flow
 import React, { Component } from 'react';
 import Hls from 'hls.js';
 
-type Props = { src: null, video: { play: null }, type: null };
+type Props = { src: string, video: Object, type: string };
 
 export default class HLSSource extends Component<Props> {
   props: Props;
 
-  constructor(props, context) {
-    super(props, context);
+  hls: any;
+
+  constructor() {
+    super();
     this.hls = new Hls();
   }
 

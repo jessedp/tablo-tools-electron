@@ -1,21 +1,25 @@
+// @flow
 import React, { Component } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import Title from './Title';
+import Airing from '../utils/Airing';
 
-type Props = { what: [], onDelete: () => {} };
+type Props = { what: Array<Airing>, onDelete: () => {} };
+type State = { show: boolean };
 
-export default class ConfirmDelete extends Component<Props> {
+export default class ConfirmDelete extends Component<Props, State> {
   props: Props;
 
   constructor() {
     super();
     this.state = { show: false };
-    this.handleClose = this.handleClose.bind(this);
-    this.handleShow = this.handleShow.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
+
+    (this: any).handleShow = this.handleShow.bind(this);
+    (this: any).handleClose = this.handleClose.bind(this);
+    (this: any).handleDelete = this.handleDelete.bind(this);
   }
 
   handleClose() {
@@ -42,10 +46,10 @@ export default class ConfirmDelete extends Component<Props> {
     });
 
     return (
-      <div id={Math.floor(Math.random() * 1000)}>
+      <span id={Math.floor(Math.random() * 1000000)}>
         <Button
-          size="sm"
-          variant="danger"
+          size="xs"
+          variant="outline-danger"
           onClick={this.handleShow}
           title="Delete"
         >
@@ -67,7 +71,7 @@ export default class ConfirmDelete extends Component<Props> {
             Are you sure you want to delete:
             <br />
             {what.map(item => (
-              <Title airing={item} key={Math.floor(Math.random() * 1000)} />
+              <Title airing={item} key={Math.floor(Math.random() * 1000000)} />
             ))}
           </Modal.Body>
           <Modal.Footer>
@@ -79,7 +83,7 @@ export default class ConfirmDelete extends Component<Props> {
             </Button>
           </Modal.Footer>
         </Modal>
-      </div>
+      </span>
     );
   }
 }

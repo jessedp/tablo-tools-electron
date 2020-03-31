@@ -1,11 +1,13 @@
+// @flow
 import React, { Component } from 'react';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import Description from './Description';
+import Airing from '../utils/Airing';
 
-type Props = { airing: null };
+type Props = { airing: Airing };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
@@ -20,23 +22,21 @@ export default class TitleSlim extends Component<Props> {
             Ep. {airing.episode.number}
           </Badge>
         </Col>
-        <Col md="4">
-          <span className="pl-2 smaller">{airing.datetime}</span>
+        <Col md="3">
+          <span className="smaller">{airing.datetime}</span>
         </Col>
-        <Col md="7">
-          <div className="">
-            {airing.title ? (
-              <span className="pl-3">
-                <b>{airing.title}</b>
-              </span>
-            ) : (
-              ''
-            )}
-
-            <Description description={airing.description} />
-          </div>
+        <Col md="8">
+          <Title title={airing.title} />
+          <Description description={airing.description} />
         </Col>
       </Row>
     );
   }
+}
+
+function Title(prop) {
+  const { title } = prop;
+  if (!title) return <></>;
+
+  return <b>{title}</b>;
 }

@@ -1,40 +1,23 @@
-import React, { useState } from 'react';
+// @flow
+import React from 'react';
 
-import styles from './Title.css';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
-export default function Description(prop) {
-  const [show, setShow] = useState(false);
+type Prop = { description: string };
+
+export default function Description(prop: Prop) {
   const { description } = prop;
 
-  const classes = `btn p-0 ml-1 m-0 ${styles.descBtn}`;
-  const hideBtn = (
-    <button
-      type="button"
-      title="hide"
-      className={classes}
-      onClick={() => setShow(false)}
-    >
-      <span className="fa fa-arrow-left" />
-    </button>
+  const popover = (
+    <Popover id="popover-basic">
+      <Popover.Content>{description}</Popover.Content>
+    </Popover>
   );
 
-  const showBtn = (
-    <button
-      type="button"
-      title="show description"
-      className={classes}
-      onClick={() => setShow(true)}
-    >
-      <span className="fa fa-arrow-right" />
-    </button>
+  return (
+    <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+      <span className="fa fa-scroll pl-2" style={{ color: '#A9A9A9' }} />
+    </OverlayTrigger>
   );
-  if (show) {
-    return (
-      <>
-        {hideBtn} <br />
-        {description}
-      </>
-    );
-  }
-  return <>{showBtn}</>;
 }

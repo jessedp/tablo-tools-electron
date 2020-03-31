@@ -1,28 +1,32 @@
+// @flow
 import React, { Component } from 'react';
-import Description from './Description';
 
+import Description from './Description';
+import Airing from '../utils/Airing';
 import styles from './Title.css';
 
-type Props = { airing: null };
+type Props = { airing: Airing };
 
 export default class Title extends Component<Props> {
   props: Props;
 
   render() {
     const { airing } = this.props;
+    let episodeNum = '';
+    if (airing.isEpisode) {
+      episodeNum = (
+        <span className={styles.smaller}>
+          <span className="pl-1"> ({airing.episodeNum})</span>
+        </span>
+      );
+    }
 
     return (
       <>
         <h6>
-          <div>
+          <div className="pb-1">
             {airing.datetime}
-            {airing.isEpisode ? (
-              <span className={styles.smaller}>
-                <span className="pl-1"> ({airing.episodeNum})</span>
-              </span>
-            ) : (
-              ''
-            )}
+            {episodeNum}
           </div>
           <b>
             {airing.showTitle}
