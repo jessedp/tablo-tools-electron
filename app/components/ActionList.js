@@ -41,9 +41,11 @@ export default class ActionList extends Component<Props, State> {
 
     return (
       <div id={Math.floor(Math.random() * 1000000)}>
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <a
           onClick={this.handleShow}
+          onKeyDown={this.handleShow}
+          role="button"
+          tabIndex="0"
           style={{
             cursor: 'pointer',
             hover: { 'text-decoration': 'underline' }
