@@ -15,7 +15,7 @@ import { RecDb, ShowDb, recDbCreated, recDbStats } from '../utils/db';
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
 
-type Props = { showDbTable: (show: boolean) => void };
+type Props = { showDbTable: (show: boolean) => void, view?: string };
 type State = {
   loading: number,
   status: Array<Object>,
@@ -30,6 +30,8 @@ const STATE_FINISH = 2;
 
 export default class Build extends Component<Props, State> {
   props: Props;
+
+  static defaultProps = { view: 'progress' };
 
   constructor() {
     super();
@@ -93,7 +95,7 @@ export default class Build extends Component<Props, State> {
     showDbTable(true);
   };
 
-  loading() {
+  loadingProgress() {
     const { loading, status, airingMax, airingInc } = this.state;
 
     if (loading === STATE_NONE) {
@@ -156,10 +158,52 @@ export default class Build extends Component<Props, State> {
     }
   }
 
+  loadingSpinner() {
+    const { loading, airingMax, airingInc } = this.state;
+
+    if (loading === STATE_NONE) {
+      return '';
+    }
+
+    let progressVariant = 'text-info';
+
+    if (loading === STATE_LOADING) {
+      const pct = Math.round((airingInc / airingMax) * 100);
+      // console.log('loading pct', pct);
+      // const airingPct = `${pct}%`;
+      if (pct < 25) {
+        progressVariant = 'badge-danger';
+      } else if (pct < 50) {
+        progressVariant = 'badge-warning';
+      } else if (pct < 75) {
+        progressVariant = 'badge-info';
+      } else {
+        progressVariant = 'badge-success';
+      }
+      const cubeClass = `sk-folding-cube ${progressVariant}`;
+
+      return (
+        <div className={cubeClass}>
+          <div className="sk-cube1 sk-cube" />
+          <div className="sk-cube2 sk-cube" />
+          <div className="sk-cube4 sk-cube" />
+          <div className="sk-cube3 sk-cube" />
+        </div>
+      );
+    }
+    if (loading === STATE_FINISH) {
+      return <></>;
+    }
+  }
+
   render() {
     const { loading, recCount } = this.state;
-    const { showDbTable } = this.props;
+    const { showDbTable, view } = this.props;
 
+    if (view === 'spinner') {
+      return <>{this.loadingSpinner()}</>;
+    }
+    // progress
     return (
       <Container>
         <Row>
@@ -175,7 +219,7 @@ export default class Build extends Component<Props, State> {
             )}
           </Col>
         </Row>
-        {this.loading()}
+        {this.loadingProgress()}
       </Container>
     );
   }
@@ -196,8 +240,6 @@ function BuildTitle(prop) {
       </>
     );
   }
-
-  // showDbTable(false);
 
   return (
     <>

@@ -64,12 +64,11 @@ export default class ShowsList extends Component<Props, State> {
       });
 
       objRecs.forEach(show => {
-        // console.log(show);
         if (show.series) {
           result.push(
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events
             <Button
               onClick={() => viewEpisodes(show)}
+              onKeyDown={() => viewEpisodes(show)}
               variant="light"
               className="align-content-center"
               key={show.id}

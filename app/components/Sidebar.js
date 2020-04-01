@@ -1,6 +1,5 @@
 // @flow
 /** This is poorly named - the SideBar is actually the TopBar * */
-
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -9,32 +8,23 @@ import Image from 'react-bootstrap/Image';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import routes from '../constants/routes.json';
-import Api, { checkConnection } from '../utils/Tablo';
 import tabloLogo from '../../resources/tablo_logo.png';
+import PingStatus from './PingStatus';
+import DbStatus from './DbStatus';
 
 type Props = {};
-type State = { current: string, pingInd: boolean };
+type State = { current: string };
 
 export default class Sidebar extends Component<Props, State> {
   props: Props;
 
   constructor() {
     super();
-    this.state = { current: routes.HOME, pingInd: false };
+    this.state = { current: routes.HOME };
     (this: any).setHome = this.setHome.bind(this);
     (this: any).setOvw = this.setOvw.bind(this);
     (this: any).setBrowse = this.setBrowse.bind(this);
     (this: any).setSettings = this.setSettings.bind(this);
-  }
-
-  async componentDidMount() {
-    const checkConn = async () => {
-      const test = await checkConnection();
-      //  console.log('conn: ', test);
-      this.setState({ pingInd: test });
-    };
-    await checkConn();
-    setInterval(await checkConn, 10000);
   }
 
   async setView(view: string) {
@@ -58,7 +48,7 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   render() {
-    const { current, pingInd } = this.state;
+    const { current } = this.state;
 
     const baseClass = '';
     let homeBtnClass = baseClass;
@@ -79,11 +69,6 @@ export default class Sidebar extends Component<Props, State> {
       case routes.BROWSE:
       default:
         browseBtnClass = 'active';
-    }
-
-    let pingStatus = 'text-danger';
-    if (pingInd) {
-      pingStatus = 'text-success';
     }
 
     return (
@@ -126,8 +111,11 @@ export default class Sidebar extends Component<Props, State> {
             </LinkContainer>
           </ButtonGroup>
         </Col>
+        <Col md="auto" className="float-right mt-1 smaller pt-1">
+          <DbStatus />
+        </Col>
         <Col md="auto" className="float-right mt-1">
-          <StatusBar pingStatus={pingStatus} />
+          <PingStatus />
         </Col>
         <Col md="auto" className="float-right">
           <LinkContainer
@@ -148,19 +136,4 @@ export default class Sidebar extends Component<Props, State> {
       </Row>
     );
   }
-}
-
-function StatusBar(prop) {
-  const { pingStatus } = prop;
-
-  let ip = '';
-  if (Api.device) {
-    ip = Api.device.private_ip;
-  }
-  return (
-    <>
-      <span className="d-inline text-muted smaller pr-2"> {ip}</span>
-      <i className={`d-inline fa fa-circle ${pingStatus}`} />
-    </>
-  );
 }

@@ -19,6 +19,7 @@ type State = {
   moviePath: string,
   eventPath: string,
   enableIpOverride: boolean,
+  autoRebuild: boolean,
   overrideIp: string,
   enableExportData: boolean,
   exportDataPath: string,
@@ -43,6 +44,7 @@ export default class Settings extends Component<Props, State> {
       moviePath: `${os.homedir()}/TabloRecordings/Movies`,
       eventPath: `${os.homedir()}/TabloRecordings/Events`,
       enableIpOverride: false,
+      autoRebuild: true,
       overrideIp: '',
       enableExportData: false,
       exportDataPath: `${os.tmpdir()}/tablo-data/`,
@@ -61,6 +63,7 @@ export default class Settings extends Component<Props, State> {
     this.setEventPath = this.setEventPath.bind(this);
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
+    this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
     this.setOverrideIp = this.setOverrideIp.bind(this);
 
     this.toggleDataExport = this.toggleDataExport.bind(this);
@@ -69,12 +72,8 @@ export default class Settings extends Component<Props, State> {
     this.saveConfig = this.saveConfig.bind(this);
   }
 
-  /**
-   async componentDidMount() {
-  }
-   */
   saveConfig = () => {
-    const cleanState = this.state;
+    const cleanState = { ...this.state };
     cleanState.saveData = [];
     const invalid = [];
     let result = SAVE_FAIL;
@@ -83,7 +82,8 @@ export default class Settings extends Component<Props, State> {
         invalid.push(`Invalid IP Address: ${cleanState.overrideIp}`);
       }
     }
-    // try to validate Export paths?
+
+    // TODO:  try to validate Export paths?
     if (invalid.length === 0) {
       localStorage.setItem('AppConfig', JSON.stringify(cleanState));
       updateApi();
@@ -98,6 +98,10 @@ export default class Settings extends Component<Props, State> {
 
   toggleIpOverride = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ enableIpOverride: event.currentTarget.checked });
+  };
+
+  toggleAutoRebuild = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ autoRebuild: event.currentTarget.checked });
   };
 
   setOverrideIp = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -129,6 +133,7 @@ export default class Settings extends Component<Props, State> {
       saveData,
       saveState,
       enableIpOverride,
+      autoRebuild,
       overrideIp,
       enableExportData,
       exportDataPath,
@@ -186,6 +191,20 @@ export default class Settings extends Component<Props, State> {
             </Form.Row>
 
             <Form.Row>
+              <Form.Group controlId="autoRebuild">
+                <Form.Check
+                  checked={autoRebuild}
+                  className="pr-2"
+                  onChange={this.toggleAutoRebuild}
+                  type="checkbox"
+                  label="Enable automatically rebuilding local database?"
+                />
+              </Form.Group>
+            </Form.Row>
+
+            <Alert variant="warning">Advanced</Alert>
+
+            <Form.Row>
               <Form.Group controlId="overrideIp">
                 <Form.Check
                   checked={enableIpOverride}
@@ -212,6 +231,9 @@ export default class Settings extends Component<Props, State> {
                   type="checkbox"
                   label="Export Tablo Data?"
                 />
+                <span className="smaller">
+                  Writes out the raw JSON received from the Tablo to files.
+                </span>
                 <Form.Control
                   value={exportDataPath}
                   type="text"
