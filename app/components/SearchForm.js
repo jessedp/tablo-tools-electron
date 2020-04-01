@@ -28,11 +28,13 @@ type State = {
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
-  view: string,
   showFilter: string,
+  comskipFilter: string,
+  view: string,
   alert: {
     type: string,
-    text: string
+    text: string,
+    match: string
   },
   airingList: Array<Airing>,
   actionList: {}
@@ -53,9 +55,10 @@ export default class SearchForm extends Component<Props, State> {
       typeFilter: 'any',
       stateFilter: 'any',
       watchedFilter: 'all',
+      comskipFilter: 'all',
       view: 'grid',
       showFilter: '',
-      alert: { type: '', text: '' },
+      alert: { type: '', text: '', match: '' },
       airingList: [],
       actionList: {}
     };
@@ -83,12 +86,12 @@ export default class SearchForm extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { view, actionList } = this.state;
+    const { view, actionList, alert } = this.state;
     this.showsList = await showList();
     const { length } = Object.keys(actionList);
     if (view === 'selected' && length >= 0) {
       this.setState({
-        alert: { type: 'light', text: `${length} recordings found` }
+        alert: { type: 'light', text: alert.text, match: alert.match }
       });
       this.viewChange();
     } else {
@@ -201,6 +204,11 @@ export default class SearchForm extends Component<Props, State> {
     this.search();
   };
 
+  comskipChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ comskipFilter: event.currentTarget.value });
+    this.search();
+  };
+
   showChange = async (event: SyntheticEvent<HTMLInputElement>) => {
     await this.setState({ showFilter: event.currentTarget.value });
     this.search();
@@ -228,10 +236,13 @@ export default class SearchForm extends Component<Props, State> {
       stateFilter,
       typeFilter,
       watchedFilter,
+      comskipFilter,
       showFilter
     } = this.state;
 
     const query = {};
+    const steps = [];
+
     if (searchValue) {
       const re = new RegExp(searchValue, 'i');
       // query['airing_details.show_title'] =  { $regex: re };
@@ -242,22 +253,66 @@ export default class SearchForm extends Component<Props, State> {
         { 'event.title': { $regex: re } },
         { 'event.description': { $regex: re } }
       ];
+
+      steps.push({
+        type: 'search',
+        value: searchValue,
+        text: `where title or description contains "${searchValue}`
+      });
     }
 
     if (stateFilter !== 'any') {
       query['video_details.state'] = stateFilter;
+
+      steps.push({
+        type: 'state',
+        value: stateFilter,
+        text: `are ${stateFilter}`
+      });
     }
 
     if (typeFilter !== 'any') {
       const typeRe = new RegExp(typeFilter, 'i');
       query.path = { $regex: typeRe };
+
+      steps.push({
+        type: 'type',
+        value: typeFilter,
+        text: `is ${typeFilter}`
+      });
     }
 
     if (watchedFilter !== 'all') {
       query['user_info.watched'] = watchedFilter === 'yes';
+      steps.push({
+        type: 'watched',
+        value: stateFilter,
+        text: `are ${watchedFilter ? 'watched' : 'not watched'}`
+      });
     }
+
+    if (comskipFilter !== 'all') {
+      let text = 'comskip is not ready';
+      if (comskipFilter === 'ready') {
+        query['video_details.comskip.state'] = 'ready';
+        text = 'comskip is ready';
+      } else {
+        query['video_details.comskip.state'] = { $ne: 'ready' };
+      }
+      steps.push({
+        type: 'comskip',
+        value: stateFilter,
+        text
+      });
+    }
+
     if (showFilter !== '' && showFilter !== 'all') {
       query.series_path = showFilter;
+      steps.push({
+        type: 'show',
+        value: showFilter,
+        text: `show is`
+      });
     }
 
     const recs = await RecDb.asyncFind(query, [
@@ -265,14 +320,29 @@ export default class SearchForm extends Component<Props, State> {
     ]);
 
     const airingList = [];
+    let description = '';
+    const match = makeMatchDescription(steps);
+
+    if (steps.length > 0) {
+      description = 'matching:';
+    }
+
     if (!recs || recs.length === 0) {
+      description = `No records found ${description}`;
       await this.setState({
-        alert: { type: 'danger', text: 'No records found' }
+        alert: { type: 'danger', text: description, match }
       });
     } else {
       sendResults({ loading: true });
+
+      description = `${recs.length} recordings found ${description}`;
+
       this.setState({
-        alert: { type: 'light', text: `${recs.length} recordings found` }
+        alert: {
+          type: 'light',
+          text: description,
+          match
+        }
       });
 
       await asyncForEach(recs, async doc => {
@@ -291,12 +361,13 @@ export default class SearchForm extends Component<Props, State> {
       stateFilter,
       typeFilter,
       watchedFilter,
+      comskipFilter,
       showFilter,
       alert,
       actionList
     } = this.state;
 
-    // console.log('SearchForm render');
+    console.log('SearchForm render', alert.text);
 
     return (
       <>
@@ -393,6 +464,22 @@ export default class SearchForm extends Component<Props, State> {
                 </Form.Control>
               </InputGroup>
 
+              <InputGroup size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>comskip:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  as="select"
+                  value={comskipFilter}
+                  aria-describedby="btnState"
+                  onChange={this.comskipChange}
+                >
+                  <option>all</option>
+                  <option>ready</option>
+                  <option>failed</option>
+                </Form.Control>
+              </InputGroup>
+
               <InputGroup className="" size="sm">
                 <InputGroup.Prepend>
                   <InputGroup.Text>by show:</InputGroup.Text>
@@ -451,7 +538,9 @@ export default class SearchForm extends Component<Props, State> {
 
         <Row>
           <Col>
-            <Alert variant={alert.type}>{alert.text}</Alert>
+            <Alert variant={alert.type}>
+              {alert.text} <b>{alert.match}</b>
+            </Alert>
           </Col>
         </Row>
       </>
@@ -469,4 +558,13 @@ function SelectedDisplay(prop) {
       <span className="fa fa-file-video" /> {len} selected
     </Button>
   );
+}
+
+function makeMatchDescription(steps) {
+  if (!steps) return '';
+
+  const parts = steps.map(item => {
+    return item.text;
+  });
+  return parts.join(', ');
 }
