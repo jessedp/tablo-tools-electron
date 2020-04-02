@@ -7,10 +7,12 @@ import Container from 'react-bootstrap/Container';
 import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
+import TabloImage from './TabloImage';
 
 type Props = {
   doDelete: () => void,
-  airing: Airing
+  airing: Airing,
+  withShow?: number
 };
 
 export default class RecordingSlim extends Component<Props> {
@@ -32,15 +34,25 @@ export default class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing } = this.props;
+    const { airing, withShow } = this.props;
 
     const classes = `border pb-1 mb-2 pt-1`;
+
+    let showCol = '';
+    if (withShow === 1) {
+      showCol = (
+        <Col md="1">
+          <TabloImage imageId={airing.background} maxHeight={50} />
+        </Col>
+      );
+    }
 
     return (
       <Container className={classes}>
         <Row>
-          <Col md="8">
-            <TitleSlim airing={airing} />
+          {showCol}
+          <Col md="7">
+            <TitleSlim airing={airing} withShow={withShow} />
           </Col>
           <Col md="4">
             <Row>
@@ -62,3 +74,6 @@ export default class RecordingSlim extends Component<Props> {
     );
   }
 }
+RecordingSlim.defaultProps = {
+  withShow: 0
+};
