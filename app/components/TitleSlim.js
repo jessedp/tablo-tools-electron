@@ -7,13 +7,20 @@ import Badge from 'react-bootstrap/Badge';
 import Description from './Description';
 import Airing from '../utils/Airing';
 
-type Props = { airing: Airing };
+type Props = { airing: Airing, withShow?: number };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
 
+  static defaultProps = { withShow: 0 };
+
   render() {
-    const { airing } = this.props;
+    const { airing, withShow } = this.props;
+
+    let showBlock = '';
+    if (withShow === 1) {
+      showBlock = <div className="text-primary">{airing.showTitle}</div>;
+    }
 
     return (
       <Row style={{ fontSize: 'small' }}>
@@ -26,6 +33,7 @@ export default class TitleSlim extends Component<Props> {
           <span className="smaller">{airing.datetime}</span>
         </Col>
         <Col md="8">
+          {showBlock}
           <Title title={airing.title} />
           <Description description={airing.description} />
         </Col>
