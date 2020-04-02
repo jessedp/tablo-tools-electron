@@ -12,11 +12,12 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 import { RecDb } from '../utils/db';
 import { asyncForEach } from '../utils/utils';
-import Airing from '../utils/Airing';
+import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
 import ConfirmDelete from './ConfirmDelete';
 import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
+import VideoExport from './VideoExport';
 
 type Props = {
   sendResults: Object => void,
@@ -39,7 +40,7 @@ type State = {
     match: string
   },
   airingList: Array<Airing>,
-  actionList: {}
+  actionList: Array<Airing>
 };
 
 export default class SearchForm extends Component<Props, State> {
@@ -62,7 +63,7 @@ export default class SearchForm extends Component<Props, State> {
       showFilter: '',
       alert: { type: '', text: '', match: '' },
       airingList: [],
-      actionList: {}
+      actionList: []
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
@@ -94,7 +95,7 @@ export default class SearchForm extends Component<Props, State> {
   async componentDidMount() {
     const { view, actionList, alert } = this.state;
     this.showsList = await showList();
-    const { length } = Object.keys(actionList);
+    const { length } = actionList;
     if (view === 'selected' && length >= 0) {
       this.setState({
         alert: { type: 'light', text: alert.text, match: alert.match }
@@ -123,14 +124,16 @@ export default class SearchForm extends Component<Props, State> {
     const { sendResults } = this.props;
     const { actionList } = this.state;
 
-    const len = Object.keys(actionList).length;
+    const len = actionList.length;
     if (len === 0) return;
 
     await sendResults({ loading: true, airingList: [] });
 
+    /**
     const list = Object.keys(actionList).map(item => {
       return Object.assign(new Airing(), actionList[item]);
     });
+     */
 
     // descending
     const timeSort = (a, b) => {
@@ -138,7 +141,7 @@ export default class SearchForm extends Component<Props, State> {
       return -1;
     };
 
-    list.sort((a, b) => timeSort(a, b));
+    actionList.sort((a, b) => timeSort(a, b));
 
     this.setState({
       view: 'selected',
@@ -147,7 +150,7 @@ export default class SearchForm extends Component<Props, State> {
 
     sendResults({
       loading: false,
-      airingList: list,
+      airingList: actionList,
       actionList
     });
 
@@ -157,18 +160,18 @@ export default class SearchForm extends Component<Props, State> {
 
   addItem = (item: Airing) => {
     const { actionList } = this.state;
-    if (!Object.keys(actionList).includes(item.object_id)) {
-      actionList[item.object_id] = item;
+    if (!actionList.find(rec => rec.object_id === item.object_id)) {
+      actionList.push(item);
       this.setState({ actionList });
     }
   };
 
   delItem = (item: Airing) => {
-    const { actionList } = this.state;
-    if (Object.keys(actionList).includes(item.object_id.toString())) {
-      delete actionList[item.object_id];
-      this.setState({ actionList });
-    }
+    let { actionList } = this.state;
+    actionList = actionList.filter(
+      airing => airing.object_id !== item.object_id
+    );
+    this.setState({ actionList });
   };
 
   selectAll = () => {
@@ -182,30 +185,29 @@ export default class SearchForm extends Component<Props, State> {
 
   unselectAll = () => {
     const { sendUnselectAll } = this.props;
-    const { airingList } = this.state;
+    // const { airingList } = this.state;
     sendUnselectAll();
-    airingList.forEach(airing => {
-      this.delItem(airing);
-    });
+    this.setState({ actionList: [] });
   };
 
   emptyItems = () => {
-    const { toggleItem } = this.props;
+    const { sendUnselectAll, toggleItem } = this.props;
     const { actionList } = this.state;
-    Object.keys(actionList).forEach(id => {
-      toggleItem(actionList[id], CHECKBOX_OFF);
+    actionList.forEach(item => {
+      toggleItem(item, CHECKBOX_OFF);
     });
-    this.setState({ actionList: {} });
+    sendUnselectAll();
+    this.setState({ actionList: [] });
   };
 
   deleteAll = async () => {
-    const { actionList } = this.state;
-
-    Object.keys(actionList).forEach(id => {
-      const rec = Object.assign(new Airing(), actionList[id]);
+    let { actionList } = this.state;
+    actionList = ensureAiringArray(actionList);
+    actionList.forEach(item => {
+      const rec = Object.assign(new Airing(), item);
       rec.delete();
     });
-    this.setState({ view: 'grid', actionList: {} });
+    this.setState({ view: 'grid', actionList: [] });
     await this.search();
   };
 
@@ -550,34 +552,48 @@ export default class SearchForm extends Component<Props, State> {
 
         <Row>
           {selectControl}
-          <Col className="pt-1" md="3">
-            <Button variant="outline-info" size="xs" onClick={this.selectAll}>
-              <span className="fa fa-plus pr-1" style={{ color: 'green' }} />
-              all
-            </Button>
-            &nbsp;
-            <Button variant="outline-info" size="xs" onClick={this.unselectAll}>
-              <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
-              all
-            </Button>
-            &nbsp;
-            <Button
-              variant="outline-danger"
-              size="xs"
-              onClick={this.emptyItems}
-            >
-              <span className="fa fa-times-circle pr-1" />
-              empty
-            </Button>
-          </Col>
-          {view === 'selected' ? (
-            <Col className="pt-1">
-              <ConfirmDelete
-                airingList={actionList}
-                onDelete={this.deleteAll}
-                label="delete selected"
-              />
+          {view !== 'selected' ? (
+            <Col className="pt-1" md="3">
+              <Button variant="outline-info" size="xs" onClick={this.selectAll}>
+                <span className="fa fa-plus pr-1" style={{ color: 'green' }} />
+                all
+              </Button>
+              &nbsp;
+              <Button
+                variant="outline-info"
+                size="xs"
+                onClick={this.unselectAll}
+              >
+                <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
+                all
+              </Button>
+              &nbsp;
+              <Button
+                variant="outline-danger"
+                size="xs"
+                onClick={this.emptyItems}
+              >
+                <span className="fa fa-times-circle pr-1" />
+                empty
+              </Button>
             </Col>
+          ) : (
+            ''
+          )}
+
+          {view === 'selected' ? (
+            <>
+              <Col className="pt-1">
+                <ConfirmDelete
+                  airingList={actionList}
+                  onDelete={this.deleteAll}
+                  label="delete selected"
+                />
+              </Col>
+              <Col className="pt-1">
+                <VideoExport airingList={actionList} label="export selected" />
+              </Col>
+            </>
           ) : (
             ''
           )}
@@ -598,7 +614,7 @@ export default class SearchForm extends Component<Props, State> {
 function SelectedDisplay(prop) {
   const { actionList, view } = prop;
 
-  const len = Object.keys(actionList).length;
+  const len = actionList.length;
 
   return (
     <Button onClick={view} variant="outline-primary" style={{ width: '125px' }}>

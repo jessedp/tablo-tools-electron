@@ -4,11 +4,11 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
-import Airing from '../utils/Airing';
+import Airing, { ensureAiringArray } from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 
 type Props = {
-  airingList: Array<Airing> | {},
+  airingList: Array<Airing>,
   label?: string,
   onDelete: () => {}
 };
@@ -54,19 +54,12 @@ export default class ConfirmDelete extends Component<Props, State> {
     }
 
     let containsProtected = false;
-    if (airingList) {
-      if (!Array.isArray(airingList)) {
-        airingList = Object.keys(airingList).map(id => {
-          if (airingList[id] instanceof Airing) {
-            return airingList[id];
-          }
-          return Object.assign(new Airing(), airingList[id]);
-        });
-      }
-      airingList.forEach(item => {
-        if (item.userInfo.protected) containsProtected = true;
-      });
-    }
+
+    airingList = ensureAiringArray(airingList);
+
+    airingList.forEach(item => {
+      if (item.userInfo.protected) containsProtected = true;
+    });
 
     let protectedAlert = '';
     if (containsProtected) {
