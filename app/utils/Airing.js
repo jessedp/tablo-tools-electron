@@ -256,6 +256,8 @@ export default class Airing {
   }
 
   get background() {
+    if (!this.show) return 0;
+    if (!this.show.background_image) return 0;
     return this.show.background_image.image_id;
   }
 
@@ -480,4 +482,12 @@ export default class Airing {
 
     cmd.run();
   }
+}
+
+export function ensureAiringArray(list) {
+  if (!list || !Array.isArray(list)) return [];
+  return list.map(item => {
+    if (item instanceof Airing) return item;
+    return Object.assign(new Airing(), item);
+  });
 }
