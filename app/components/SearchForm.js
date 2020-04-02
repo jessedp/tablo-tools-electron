@@ -13,6 +13,8 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { RecDb } from '../utils/db';
 import { asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
+import Show from '../utils/Show';
+import ConfirmDelete from './ConfirmDelete';
 import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
 
@@ -45,7 +47,7 @@ export default class SearchForm extends Component<Props, State> {
 
   initialState: State;
 
-  showsList: [];
+  showsList: Array<Show>;
 
   constructor() {
     super();
@@ -70,6 +72,8 @@ export default class SearchForm extends Component<Props, State> {
     this.showsList = [];
 
     this.search = this.search.bind(this);
+    this.resetSearch = this.resetSearch.bind(this);
+
     this.stateChange = this.stateChange.bind(this);
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
@@ -77,12 +81,14 @@ export default class SearchForm extends Component<Props, State> {
     this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
-    this.resetSearch = this.resetSearch.bind(this);
+
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
     this.emptyItems = this.emptyItems.bind(this);
+
     this.selectAll = this.selectAll.bind(this);
     this.unselectAll = this.unselectAll.bind(this);
+    this.deleteAll = this.deleteAll.bind(this);
   }
 
   async componentDidMount() {
@@ -117,7 +123,10 @@ export default class SearchForm extends Component<Props, State> {
     const { sendResults } = this.props;
     const { actionList } = this.state;
 
-    if (Object.keys(actionList).length === 0) return;
+    const len = Object.keys(actionList).length;
+    if (len === 0) return;
+
+    await sendResults({ loading: true, airingList: [] });
 
     const list = Object.keys(actionList).map(item => {
       return Object.assign(new Airing(), actionList[item]);
@@ -131,10 +140,19 @@ export default class SearchForm extends Component<Props, State> {
 
     list.sort((a, b) => timeSort(a, b));
 
-    this.setState({ view: 'selected' });
+    this.setState({
+      view: 'selected',
+      alert: { type: 'light', text: `${len} selected recordings`, match: '' }
+    });
 
-    await sendResults({ loading: true });
-    sendResults({ loading: false, airingList: list, actionList });
+    sendResults({
+      loading: false,
+      airingList: list,
+      actionList
+    });
+
+    const cleanState = { ...this.state };
+    localStorage.setItem('SearchState', JSON.stringify(cleanState));
   };
 
   addItem = (item: Airing) => {
@@ -180,12 +198,22 @@ export default class SearchForm extends Component<Props, State> {
     this.setState({ actionList: {} });
   };
 
-  delete = async () => {
+  deleteAll = async () => {
+    const { actionList } = this.state;
+
+    Object.keys(actionList).forEach(id => {
+      const rec = Object.assign(new Airing(), actionList[id]);
+      rec.delete();
+    });
+    this.setState({ view: 'grid', actionList: {} });
     await this.search();
   };
 
   resetSearch = async () => {
-    await this.setStateStore(this.initialState);
+    const { actionList } = this.state;
+    const newState = this.initialState;
+    newState.actionList = actionList;
+    await this.setStateStore(newState);
     await this.search();
   };
 
@@ -267,7 +295,7 @@ export default class SearchForm extends Component<Props, State> {
       steps.push({
         type: 'state',
         value: stateFilter,
-        text: `are ${stateFilter}`
+        text: `${stateFilter}`
       });
     }
 
@@ -278,7 +306,7 @@ export default class SearchForm extends Component<Props, State> {
       steps.push({
         type: 'type',
         value: typeFilter,
-        text: `is ${typeFilter}`
+        text: `${typeFilter}`
       });
     }
 
@@ -287,7 +315,7 @@ export default class SearchForm extends Component<Props, State> {
       steps.push({
         type: 'watched',
         value: stateFilter,
-        text: `are ${watchedFilter ? 'watched' : 'not watched'}`
+        text: `${watchedFilter === 'yes' ? 'watched' : 'not watched'}`
       });
     }
 
@@ -307,11 +335,14 @@ export default class SearchForm extends Component<Props, State> {
     }
 
     if (showFilter !== '' && showFilter !== 'all') {
+      let show = this.showsList.find(item => item.path === showFilter);
+      if (!show) show = { title: 'Unknown' };
       query.series_path = showFilter;
+
       steps.push({
         type: 'show',
         value: showFilter,
-        text: `show is`
+        text: `show is ${show.title}`
       });
     }
 
@@ -324,13 +355,14 @@ export default class SearchForm extends Component<Props, State> {
     const match = makeMatchDescription(steps);
 
     if (steps.length > 0) {
-      description = 'matching:';
+      description = 'matching: ';
     }
 
     if (!recs || recs.length === 0) {
       description = `No records found ${description}`;
       await this.setState({
-        alert: { type: 'danger', text: description, match }
+        alert: { type: 'danger', text: description, match },
+        view: 'search'
       });
     } else {
       sendResults({ loading: true });
@@ -342,7 +374,8 @@ export default class SearchForm extends Component<Props, State> {
           type: 'light',
           text: description,
           match
-        }
+        },
+        view: 'search'
       });
 
       await asyncForEach(recs, async doc => {
@@ -364,10 +397,18 @@ export default class SearchForm extends Component<Props, State> {
       comskipFilter,
       showFilter,
       alert,
-      actionList
+      actionList,
+      view
     } = this.state;
 
-    console.log('SearchForm render', alert.text);
+    // console.log('SearchForm render', alert.text);
+
+    let selectControl = (
+      <Col md="2">
+        <SelectedDisplay actionList={actionList} view={this.viewChange} />
+      </Col>
+    );
+    if (view === 'selected') selectControl = '';
 
     return (
       <>
@@ -508,10 +549,8 @@ export default class SearchForm extends Component<Props, State> {
         </Row>
 
         <Row>
-          <Col md="2">
-            <SelectedDisplay actionList={actionList} view={this.viewChange} />
-          </Col>
-          <Col className="ml-0 pl-0 pt-1">
+          {selectControl}
+          <Col className="pt-1" md="3">
             <Button variant="outline-info" size="xs" onClick={this.selectAll}>
               <span className="fa fa-plus pr-1" style={{ color: 'green' }} />
               all
@@ -527,13 +566,21 @@ export default class SearchForm extends Component<Props, State> {
               size="xs"
               onClick={this.emptyItems}
             >
-              <span
-                className="fa fa-times-circle pr-1"
-                style={{ color: 'red' }}
-              />
+              <span className="fa fa-times-circle pr-1" />
               empty
             </Button>
           </Col>
+          {view === 'selected' ? (
+            <Col className="pt-1">
+              <ConfirmDelete
+                airingList={actionList}
+                onDelete={this.deleteAll}
+                label="delete selected"
+              />
+            </Col>
+          ) : (
+            ''
+          )}
         </Row>
 
         <Row>

@@ -102,6 +102,20 @@ export default class Recording extends Component<Props, State> {
       overviewClass = `${overviewClass} fa-arrow-down`;
     }
 
+    let checkbox = '';
+    if (airing.videoDetails.state !== 'recording') {
+      checkbox = (
+        <Col md="1" className="mr-0 pr-1">
+          <div className="float-right p-0 m-0">
+            <Checkbox
+              checked={checked}
+              ref={checkboxRef => (this.checkboxRef = checkboxRef)}
+              handleChange={this.toggleSelection}
+            />
+          </div>
+        </Col>
+      );
+    }
     return (
       <Container className={classes}>
         <Row>
@@ -113,15 +127,7 @@ export default class Recording extends Component<Props, State> {
               <Col md="11" className="ml-0 mr-0 pl-0 pr-0">
                 <Title airing={airing} />
               </Col>
-              <Col md="1" className="mr-0 pr-1">
-                <div className="float-right p-0 m-0">
-                  <Checkbox
-                    checked={checked}
-                    ref={checkboxRef => (this.checkboxRef = checkboxRef)}
-                    handleChange={this.toggleSelection}
-                  />
-                </div>
-              </Col>
+              {checkbox}
             </Row>
 
             <Row className="mt-3">
@@ -149,7 +155,10 @@ export default class Recording extends Component<Props, State> {
                 &nbsp;
                 <VideoExport airing={airing} />
                 &nbsp;
-                <ConfirmDelete what={[airing]} onDelete={this.deleteAiring} />
+                <ConfirmDelete
+                  airingList={[airing]}
+                  onDelete={this.deleteAiring}
+                />
               </Col>
               <Col md="5" className="ml-0 pl-0 mr-0 pr-0">
                 <div className="float-right">
