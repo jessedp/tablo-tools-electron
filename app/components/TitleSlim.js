@@ -17,6 +17,15 @@ export default class TitleSlim extends Component<Props> {
   render() {
     const { airing, withShow } = this.props;
 
+    let episodeContent = '';
+    if (airing.isEpisode) {
+      episodeContent = (
+        <Badge pill className="p-1" variant="dark">
+          Ep. {airing.episode.number}
+        </Badge>
+      );
+    }
+
     let showBlock = '';
     if (withShow === 1) {
       showBlock = <div className="text-primary">{airing.showTitle}</div>;
@@ -24,11 +33,7 @@ export default class TitleSlim extends Component<Props> {
 
     return (
       <Row style={{ fontSize: 'small' }}>
-        <Col md="1">
-          <Badge pill className="p-1" variant="dark">
-            Ep. {airing.episode.number}
-          </Badge>
-        </Col>
+        <Col md="1">{episodeContent}</Col>
         <Col md="3">
           <span className="smaller">{airing.datetime}</span>
         </Col>
