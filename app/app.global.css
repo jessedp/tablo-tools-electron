@@ -20,6 +20,10 @@
 }
 
 /** bootstrap4 override width of bootstrap4 modal **/
+
+.modal-1000 {
+  max-width: 1000px !important;
+}
 .modal-lg {
   max-width: 80% !important;
 }
