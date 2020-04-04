@@ -582,7 +582,18 @@ export default class SearchForm extends Component<Props, State> {
 
           {view === 'selected' ? (
             <>
-              <Col md="1" />
+              <Col md="1">
+                <Col md="2" className="pt-1">
+                  <Button
+                    variant="outline-secondary"
+                    size="xs"
+                    onClick={this.search}
+                    title="Back"
+                  >
+                    <span className="fa fa-arrow-left" />
+                  </Button>
+                </Col>
+              </Col>
               <Col md="2" className="pt-1">
                 <ConfirmDelete
                   airingList={actionList}
