@@ -127,6 +127,7 @@ export default class RecordingList extends Component<Props, State> {
             key={airing.object_id}
             airing={airing}
             doDelete={() => {}}
+            withShow={0}
           />
         );
       });

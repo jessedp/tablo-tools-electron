@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 
 import Recording from './Recording';
-import Airing from '../utils/Airing';
+import Airing, { ensureAiringArray } from '../utils/Airing';
 import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
 type State = {
   airingList: Array<Airing>,
   airingRefs: Object,
-  actionList: Object,
+  actionList: Array<Airing>,
   loading: boolean
 };
 
@@ -29,7 +29,7 @@ export default class SearchResults extends Component<Props, State> {
 
     this.state = {
       airingRefs: {},
-      actionList: {},
+      actionList: [],
       loading: false,
       airingList: []
     };
@@ -99,8 +99,10 @@ export default class SearchResults extends Component<Props, State> {
   };
 
   render() {
-    const { actionList, loading, airingRefs, airingList } = this.state;
+    const { actionList, loading, airingRefs } = this.state;
+    let { airingList } = this.state;
 
+    airingList = ensureAiringArray(airingList);
     // console.log('SearchResults render');
 
     const rows = [];
@@ -108,10 +110,7 @@ export default class SearchResults extends Component<Props, State> {
       rows.push(
         airingList.map(airing => {
           let checked = CHECKBOX_OFF;
-          if (
-            !(typeof actionList === 'undefined') &&
-            Object.keys(actionList).includes(`${airing.object_id}`)
-          ) {
+          if (actionList.find(item => item.object_id === airing.object_id)) {
             checked = CHECKBOX_ON;
           }
 

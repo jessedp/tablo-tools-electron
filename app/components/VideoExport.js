@@ -1,46 +1,99 @@
 // @flow
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import Modal from 'react-bootstrap/Modal';
-import Alert from 'react-bootstrap/Alert';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import { timeStrToSeconds, readableDuration } from '../utils/utils';
-import Title from './Title';
-import Airing from '../utils/Airing';
+import Airing, { ensureAiringArray } from '../utils/Airing';
+import RecordingExport from './RecordingExport';
+import { throttleActions } from '../utils/utils';
 
-type Props = { airing: Airing };
-type State = { opened: boolean, exportInc: number, exportLbl: string };
+type Props = {
+  airingList: Array<Airing>,
+  label?: string
+};
+type State = { opened: boolean, exportState: number };
 
-const beginTime = '0:00/0:00';
-
-/** TODO: exportInc is used as a counter and state
- * and should be split accordingly */
+const EXP_WAITING = 1;
+const EXP_WORKING = 2;
+const EXP_DONE = 3;
 
 export default class VideoExport extends Component<Props, State> {
   props: Props;
 
-  constructor() {
+  static defaultProps: {};
+
+  freezeAirings: boolean;
+
+  // TODO: ref type again
+  airingRefs: {};
+
+  constructor(props: Props) {
     super();
     this.state = {
       opened: false,
-      exportInc: -1,
-      exportLbl: beginTime
+      exportState: EXP_WAITING
     };
+
+    this.airingRefs = {};
+    this.freezeAirings = false;
+    const { airingList } = props;
+
+    airingList.forEach(item => {
+      this.airingRefs[item.object_id] = React.createRef();
+    });
 
     (this: any).toggle = this.toggle.bind(this);
     (this: any).show = this.show.bind(this);
     (this: any).processVideo = this.processVideo.bind(this);
-    (this: any).updateProgress = this.updateProgress.bind(this);
     (this: any).cancelProcess = this.cancelProcess.bind(this);
+    (this: any).close = this.close.bind(this);
   }
 
   componentWillUnmount() {
-    const { airing } = this.props;
-    airing.cancelVideoProcess();
-    this.setState({});
+    this.cancelProcess();
   }
+
+  processVideo = async () => {
+    const { exportState } = this.state;
+    if (exportState === EXP_DONE) return;
+
+    await this.setState({ exportState: EXP_WORKING });
+
+    const actions = [];
+
+    Object.keys(this.airingRefs)
+      .sort((a, b) => (a < b ? -1 : 1))
+      .forEach(id => {
+        actions.push(() => this.airingRefs[id].current.processVideo());
+      });
+
+    // console.log('videoExport start', actions.length, new Date());
+    await throttleActions(actions, 1).then(results => {
+      // console.log(results);
+      return results;
+    });
+
+    // console.log(logs);
+    // console.log('videoExport done', new Date());
+
+    this.freezeAirings = true;
+
+    await this.setState({ exportState: EXP_DONE });
+  };
+
+  cancelProcess = async () => {
+    Object.keys(this.airingRefs).forEach(id => {
+      if (this.airingRefs[id].current)
+        this.airingRefs[id].current.cancelProcess();
+    });
+    this.setState({ exportState: EXP_WAITING });
+  };
+
+  close = async () => {
+    this.cancelProcess();
+    this.setState({
+      opened: false
+    });
+  };
 
   show() {
     this.setState({
@@ -55,72 +108,39 @@ export default class VideoExport extends Component<Props, State> {
     });
   }
 
-  async processVideo() {
-    const { airing } = this.props;
-
-    this.setState({
-      opened: true,
-      exportInc: 0,
-      exportLbl: beginTime
-    });
-    await airing.processVideo(this.updateProgress);
-  }
-
-  async cancelProcess() {
-    const { airing } = this.props;
-    const { exportInc } = this.state;
-    if (exportInc !== -2) {
-      airing.cancelVideoProcess();
-    }
-    await this.setState({
-      exportInc: -1,
-      exportLbl: beginTime,
-      opened: false
-    });
-  }
-
-  updateProgress(progress: Object) {
-    const { airing } = this.props;
-
-    if (progress.finished) {
-      this.setState({
-        exportInc: -2,
-        exportLbl: 'Complete'
-      });
-    } else {
-      // const pct = progress.percent  doesn't always work, so..
-      const pct = Math.round(
-        (timeStrToSeconds(progress.timemark) /
-          timeStrToSeconds(readableDuration(airing.videoDetails.duration))) *
-          100
-      );
-      const label = `${progress.timemark} / ${readableDuration(
-        airing.videoDetails.duration
-      )}`;
-      this.setState({
-        exportInc: pct,
-        exportLbl: label
-      });
-    }
-  }
-
   render() {
-    const { airing } = this.props;
-    const { opened, exportInc, exportLbl } = this.state;
+    let { airingList, label } = this.props;
+
+    const { opened, exportState } = this.state;
+
+    let size = 'xs';
+    if (label) {
+      label = <span className="pl-1">{label}</span>;
+      size = 'sm';
+    }
+
+    airingList = ensureAiringArray(airingList);
+    const timeSort = (a, b) => {
+      if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
+      return -1;
+    };
+
+    airingList.sort((a, b) => timeSort(a, b));
 
     return (
       <>
         <Button
           variant="outline-secondary"
-          size="xs"
+          size={size}
           onClick={this.show}
           title="Export Video"
         >
           <span className="fa fa-download" />
+          {label}
         </Button>
 
         <Modal
-          size="lg"
+          size="xl"
           show={opened}
           onHide={this.cancelProcess}
           animation={false}
@@ -130,29 +150,24 @@ export default class VideoExport extends Component<Props, State> {
             <Modal.Title>Exporting:</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Row>
-              <Col>
-                <Title airing={airing} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>{airing.exportFile}</Col>
-            </Row>
-            <Row>
-              <Col>
-                <ExportProgress
-                  process={this.processVideo}
-                  inc={exportInc}
-                  lbl={exportLbl}
+            {airingList.map(airing => {
+              const ref = this.airingRefs[airing.object_id];
+              return (
+                <RecordingExport
+                  ref={ref}
+                  airing={airing}
+                  key={Math.floor(Math.random() * 1000000)}
+                  freeze={this.freezeAirings}
                 />
-              </Col>
-            </Row>
+              );
+            })}
           </Modal.Body>
           <Modal.Footer>
             <ExportButton
-              inc={exportInc}
+              state={exportState}
               cancel={this.cancelProcess}
               process={this.processVideo}
+              close={this.close}
             />
           </Modal.Footer>
         </Modal>
@@ -160,54 +175,39 @@ export default class VideoExport extends Component<Props, State> {
     );
   }
 }
+VideoExport.defaultProps = { label: '' };
 
 /**
  * @return {string}
  */
 function ExportButton(prop) {
-  const { inc, cancel, process } = prop;
+  const { state, cancel, close, process } = prop;
 
-  if (inc === -2) {
+  if (state === EXP_WORKING) {
     return (
-      <Button variant="success" onClick={cancel}>
-        Done
+      <Button variant="secondary" onClick={cancel}>
+        Cancel
       </Button>
     );
   }
-  if (inc === -1) {
+
+  if (state === EXP_DONE) {
     return (
+      <Button variant="secondary" onClick={close}>
+        Close
+      </Button>
+    );
+  }
+
+  // if state === EXP_WAITING
+  return (
+    <>
       <Button variant="primary" onClick={process}>
         Export
       </Button>
-    );
-  }
-
-  return (
-    <Button variant="secondary" onClick={cancel}>
-      Cancel
-    </Button>
-  );
-}
-
-function ExportProgress(data) {
-  const { inc, lbl, process } = data;
-
-  if (inc === -1) {
-    return (
-      <Button variant="primary" onClick={process}>
-        Start Export
+      <Button variant="secondary" onClick={close}>
+        Close
       </Button>
-    );
-  }
-  if (inc === -2) {
-    return <Alert variant="success">Finished!</Alert>;
-  }
-
-  const pctLbl = `${Math.round(inc)} %`;
-  return (
-    <>
-      <ProgressBar animated max="100" now={inc} label={pctLbl} />
-      <span className="d-flex justify-content-center">{lbl}</span>
     </>
   );
 }

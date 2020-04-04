@@ -256,6 +256,8 @@ export default class Airing {
   }
 
   get background() {
+    if (!this.show) return 0;
+    if (!this.show.background_image) return 0;
     return this.show.background_image.image_id;
   }
 
@@ -372,13 +374,15 @@ export default class Airing {
   }
 
   async processVideo(callback: Function = null) {
-    console.log('processVideo');
-    console.log('ffmpeg', ffmpeg);
-    console.log('ffmpeg.path', ffmpeg.path);
+    const debug = false;
+
+    if (debug) console.log('start processVideo', new Date());
+    if (debug) console.log('ffmpeg', ffmpeg);
+    if (debug) console.log('ffmpeg.path', ffmpeg.path);
 
     const ffmpegPath = ffmpeg.path;
 
-    console.log('ffmpegPath', ffmpegPath);
+    if (debug) console.log('ffmpegPath', ffmpegPath);
     let ffmpegPath2;
     /** In dev, the prod path gets returned, so "fix" that * */
     // *nix
@@ -394,7 +398,7 @@ export default class Airing {
         '\\node_modules\\ffmpeg-static-electron-jdp\\'
       );
     }
-    console.log('after "app" replacements', ffmpegPath2);
+    if (debug) console.log('after "app" replacements', ffmpegPath2);
 
     // $FlowFixMe  dirty, but flow complains about process.resourcesPath
     const resourcePath = `${process.resourcesPath}`;
@@ -403,30 +407,38 @@ export default class Airing {
       '/electron/dist/resources',
       '/ffmpeg-static-electron-jdp/bin'
     );
-    console.log('resourcePath', resourcePath);
-    console.log('prodPath', psuedoProdPath);
+    if (debug) console.log('resourcePath', resourcePath);
+    if (debug) console.log('prodPath', psuedoProdPath);
 
     const ffmpegOpts = [
       '-c copy',
       '-y' // overwrite existing files
     ];
 
-    console.log('env', process.env.NODE_ENV);
-    console.log('prodPath exists', fs.existsSync(psuedoProdPath));
+    if (debug) console.log('env', process.env.NODE_ENV);
+    if (debug) console.log('prodPath exists', fs.existsSync(psuedoProdPath));
     // In true prod (not yarn build/start), ffmpeg is built into resources dir
     if (process.env.NODE_ENV === 'production') {
       const testStartPath = ffmpegPath2.replace(/^[/|\\]bin/, psuedoProdPath);
       if (fs.existsSync(testStartPath)) {
-        console.log('START replacing ffmpegPath2 for prodPath', psuedoProdPath);
+        if (debug)
+          console.log(
+            'START replacing ffmpegPath2 for prodPath',
+            psuedoProdPath
+          );
         ffmpegPath2 = testStartPath;
-        console.log('START replaced prodPath for prod', ffmpegPath2);
+        if (debug) console.log('START replaced prodPath for prod', ffmpegPath2);
       } else {
-        console.log('PROD replacing ffmpegPath2 for prodPath', psuedoProdPath);
+        if (debug)
+          console.log(
+            'PROD replacing ffmpegPath2 for prodPath',
+            psuedoProdPath
+          );
         ffmpegPath2 = psuedoProdPath.replace(
           /[/|\\]resources/,
           `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
         );
-        console.log('PROD replaced prodPath for prod', ffmpegPath2);
+        if (debug) console.log('PROD replaced prodPath for prod', ffmpegPath2);
       }
     } else {
       // otherwise we can hit the node_modules dir
@@ -438,7 +450,7 @@ export default class Airing {
       ffmpegOpts.push('-v 40');
     }
 
-    console.log(`ffmpegPath2 : ${ffmpegPath2}`);
+    if (debug) console.log(`ffmpegPath2 : ${ffmpegPath2}`);
 
     FfmpegCommand.setFfmpegPath(ffmpegPath2);
 
@@ -451,33 +463,77 @@ export default class Airing {
     outFile = this.exportFile;
     const outPath = this.exportPath;
 
-    console.log('exporting to path:', outPath);
-    console.log('exporting to file:', outFile);
+    if (debug) console.log('exporting to path:', outPath);
+    if (debug) console.log('exporting to file:', outFile);
 
     fs.mkdirSync(outPath, { recursive: true });
 
-    cmd
-      .input(input)
-      .output(outFile)
-      .addOutputOptions(ffmpegOpts)
-      .on('end', () => {
-        console.log('Finished processing');
-        if (typeof callback === 'function') {
-          callback({ finished: true });
-        }
-      })
-      .on('error', err => {
-        console.log(`An error occurred: ${err}`);
-      })
-      .on('stderr', stderrLine => {
-        console.log(`Stderr output: ${stderrLine}`);
-      })
-      .on('progress', progress => {
-        if (typeof callback === 'function') {
-          callback(progress);
-        }
-      });
+    return new Promise((resolve, reject) => {
+      const ffmpegLog = [];
+      let record = true;
+      cmd
+        .input(input)
+        .output(outFile)
+        .addOutputOptions(ffmpegOpts)
+        .on('end', () => {
+          console.log('Finished processing');
+          if (typeof callback === 'function') {
+            callback({ finished: true });
+          }
+          if (debug) console.log('result', ffmpegLog);
+          if (debug) console.log('end processVideo', new Date());
+          resolve(ffmpegLog);
+        })
+        .on('error', err => {
+          console.log(`An error occurred: ${err}`);
+          reject(err);
+        })
+        .on('stderr', stderrLine => {
+          if (
+            !stderrLine.includes('EXT-X-PROGRAM-DATE-TIME') &&
+            !stderrLine.includes('hls @') &&
+            !stderrLine.includes('tcp @') &&
+            !stderrLine.includes('AVIOContext') &&
+            !stderrLine.includes('Non-monotonous DTS') &&
+            !stderrLine.includes('frame=')
+          ) {
+            // record from start until this...
+            if (
+              stderrLine.includes(
+                'Stderr output: Press [q] to stop, [?] for help'
+              )
+            ) {
+              record = false;
+            }
+            if (
+              stderrLine.includes(
+                'Stderr output: No more output streams to write to, finishing.'
+              )
+            ) {
+              record = true;
+            }
+            if (record) ffmpegLog.push(stderrLine);
+            if (debug) console.log(`Stderr output: ${stderrLine}`);
+          }
+        })
+        .on('progress', progress => {
+          if (typeof callback === 'function') {
+            callback(progress);
+          }
+        });
 
-    cmd.run();
+      // setTimeout(this.cancelVideoProcess, 10000);
+
+      cmd.run();
+    });
   }
+}
+
+export function ensureAiringArray(list: Array<any>) {
+  if (!list || !Array.isArray(list)) return [];
+
+  return list.map<Airing>(item => {
+    if (item instanceof Airing) return item;
+    return Object.assign(new Airing(), item);
+  });
 }

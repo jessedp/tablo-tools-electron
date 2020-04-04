@@ -165,7 +165,7 @@ export default class Build extends Component<Props, State> {
       return '';
     }
 
-    let progressVariant = 'text-info';
+    let progressVariant = 'badge-danger';
 
     if (loading === STATE_LOADING) {
       const pct = Math.round((airingInc / airingMax) * 100);
