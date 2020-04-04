@@ -153,7 +153,7 @@ export default class Recording extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
-                <VideoExport airing={airing} />
+                <VideoExport airingList={[airing]} />
                 &nbsp;
                 <ConfirmDelete
                   airingList={[airing]}

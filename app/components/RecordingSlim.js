@@ -12,7 +12,8 @@ import TabloImage from './TabloImage';
 type Props = {
   doDelete: () => void,
   airing: Airing,
-  withShow?: number
+  withShow?: number,
+  progress?: Object
 };
 
 export default class RecordingSlim extends Component<Props> {
@@ -34,7 +35,7 @@ export default class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing, withShow } = this.props;
+    const { airing, withShow, progress } = this.props;
 
     const classes = `border pb-1 mb-2 pt-1`;
 
@@ -70,10 +71,14 @@ export default class RecordingSlim extends Component<Props> {
             </Row>
           </Col>
         </Row>
+        <Row>
+          <Col>{progress}</Col>
+        </Row>
       </Container>
     );
   }
 }
 RecordingSlim.defaultProps = {
-  withShow: 0
+  withShow: 0,
+  progress: null
 };
