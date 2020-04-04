@@ -204,8 +204,7 @@ export default class SearchForm extends Component<Props, State> {
     let { actionList } = this.state;
     actionList = ensureAiringArray(actionList);
     actionList.forEach(item => {
-      const rec = Object.assign(new Airing(), item);
-      rec.delete();
+      item.delete();
     });
     this.setState({ view: 'grid', actionList: [] });
     await this.search();
@@ -583,7 +582,8 @@ export default class SearchForm extends Component<Props, State> {
 
           {view === 'selected' ? (
             <>
-              <Col className="pt-1">
+              <Col md="1" />
+              <Col md="2" className="pt-1">
                 <ConfirmDelete
                   airingList={actionList}
                   onDelete={this.deleteAll}
