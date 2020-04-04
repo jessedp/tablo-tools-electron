@@ -140,9 +140,9 @@ export default class VideoExport extends Component<Props, State> {
         </Button>
 
         <Modal
-          size="xl"
+          size="1000"
           show={opened}
-          onHide={this.cancelProcess}
+          onHide={this.close}
           animation={false}
           centered
         >
