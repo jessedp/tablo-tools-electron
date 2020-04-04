@@ -75,12 +75,13 @@ export default class DbStatus extends Component<DbProps, DbState> {
             />
           </Col>
           <Col md="auto" className="pl-0 ml-0">
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
             <div
               style={{ cursor: 'pointer' }}
               onClick={this.forceBuild}
+              onKeyDown={this.forceBuild}
               role="button"
               tabIndex="0"
+              className="pl-2"
             >
               <span className={`fa fa-database pr-1 ${color}`} />
 
