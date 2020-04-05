@@ -46,12 +46,17 @@ export function isValidIp(addr) {
 }
 
 export function writeToFile(name, data) {
-  const cfg = JSON.parse(localStorage.getItem('AppConfig'));
-  if (!cfg.enableExportData) return;
+  const config = JSON.parse(localStorage.getItem('AppConfig'));
+  console.log(config);
+  if (!config) return;
+  if (Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
+    return;
+  }
+  if (!config.enableExportData) return;
 
-  const path = cfg.exportDataPath;
+  const path = config.exportDataPath;
   try {
-    fs.mkdirSync(cfg.exportDataPath, { recursive: true }, err => {
+    fs.mkdirSync(config.exportDataPath, { recursive: true }, err => {
       console.log(err);
     });
   } catch (e) {

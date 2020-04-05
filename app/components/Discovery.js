@@ -31,6 +31,13 @@ export default class Discovery extends Component<Props, State> {
     (this: any).discover = this.discover.bind(this);
   }
 
+  async componentDidMount() {
+    if (!Api.device) {
+      console.log('discover');
+      await this.discover();
+    }
+  }
+
   async discover() {
     let device = await Api.discover();
     // TODO: this is roughly where we should allow selecting one of

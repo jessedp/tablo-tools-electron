@@ -43,7 +43,8 @@ export default class Home extends Component<Props, State> {
         this.info = await Api.getServerInfo();
         writeToFile('server-info.json', JSON.stringify(this.info));
       } catch (err) {
-        this.info = 'Not Connected';
+        console.log(err);
+        this.info = '';
       }
     }
     this.setState({ device: this.info });

@@ -13,13 +13,16 @@ type DbState = { dbAge: number };
 export default class DbStatus extends Component<DbProps, DbState> {
   timer: IntervalID;
 
+  initialChecks: number;
+
   // TODO: figure out the type.
   buildRef: any;
 
   constructor() {
     super();
-    this.state = { dbAge: 0 };
+    this.state = { dbAge: -1 };
     this.buildRef = React.createRef();
+    this.initialChecks = 0;
 
     this.forceBuild = this.forceBuild.bind(this);
   }
@@ -36,12 +39,31 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
   checkAge = async (forceBuild?: boolean) => {
     const created = recDbCreated();
+    const threshold = 15;
+    // TODO: some const export?
+    if (!created && this.initialChecks < threshold) {
+      this.initialChecks += 1;
+      clearInterval(this.timer);
+      this.timer = setInterval(await this.checkAge, 1000);
+      return;
+    }
+    if (this.initialChecks < threshold) {
+      this.initialChecks = threshold;
+      clearInterval(this.timer);
+      this.timer = setInterval(await this.checkAge, 60000);
+    }
+
     const dbTime = new Date(created).getTime();
     const diff = (Date.now() - dbTime) / 60 / 1000;
     this.setState({ dbAge: diff });
 
     const config = JSON.parse(localStorage.getItem('AppConfig') || '{}');
-    if ((config.autoRebuild && diff > 30) || forceBuild) {
+    let autoRebuild = true;
+    if (Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
+      autoRebuild = config.autoRebuild;
+    }
+
+    if ((autoRebuild && diff > 30) || forceBuild) {
       await this.buildRef.build();
       this.checkAge();
     }
@@ -56,7 +78,9 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
     const created = recDbCreated();
     let color = '';
-    if (dbAge < 31) {
+    if (dbAge === -1) {
+      color = 'text-danger';
+    } else if (dbAge < 31) {
       color = 'text-success';
     } else if (dbAge < 120) {
       color = 'text-warning';

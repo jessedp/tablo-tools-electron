@@ -16,6 +16,7 @@ export default class ServerInfoTable extends Component<Props> {
     }
 
     if (!device.name) {
+      console.log(device);
       return <Alert variant="warning">Unable to contact Tablo</Alert>;
     }
 

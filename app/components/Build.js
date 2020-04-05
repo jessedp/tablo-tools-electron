@@ -46,12 +46,29 @@ export default class Build extends Component<Props, State> {
   }
 
   async componentDidMount(): * {
+    const created = recDbCreated();
+    // TODO: some const export?
+    if (!created) {
+      let i = 0;
+      const autoBuild = async () => {
+        if (!Api.device) {
+          if (i === 2) return;
+          i += 1;
+          setTimeout(await autoBuild, 1000);
+        }
+        if (Api.device) this.build();
+      };
+      autoBuild();
+    }
+
     const total = await recDbStats();
     await this.setState({ recCount: total });
   }
 
   build = async () => {
     const { showDbTable } = this.props;
+
+    if (!Api.device) return;
 
     showDbTable(false);
 
