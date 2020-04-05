@@ -34,7 +34,7 @@ export default class TitleSlim extends Component<Props> {
     return (
       <Row style={{ fontSize: 'small' }}>
         <Col md="1">{episodeContent}</Col>
-        <Col md="3">
+        <Col md="3" className="pr-0">
           <span className="smaller">{airing.datetime}</span>
         </Col>
         <Col md="8">
