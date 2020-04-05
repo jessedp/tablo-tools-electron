@@ -2,6 +2,10 @@
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+// import InputGroup from 'react-bootstrap/InputGroup';
+// import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import { throttleActions } from '../utils/utils';
@@ -10,7 +14,7 @@ type Props = {
   airingList: Array<Airing>,
   label?: string
 };
-type State = { opened: boolean, exportState: number };
+type State = { opened: boolean, exportState: number, atOnce: number };
 
 const EXP_WAITING = 1;
 const EXP_WORKING = 2;
@@ -30,7 +34,8 @@ export default class VideoExport extends Component<Props, State> {
     super();
     this.state = {
       opened: false,
-      exportState: EXP_WAITING
+      exportState: EXP_WAITING,
+      atOnce: 1
     };
 
     this.airingRefs = {};
@@ -52,22 +57,24 @@ export default class VideoExport extends Component<Props, State> {
     this.cancelProcess();
   }
 
+  atOnceChange = async (event: SyntheticEvent<HTMLInputElement>) => {
+    await this.setState({ atOnce: parseInt(event.currentTarget.value, 10) });
+  };
+
   processVideo = async () => {
-    const { exportState } = this.state;
+    const { exportState, atOnce } = this.state;
     if (exportState === EXP_DONE) return;
 
     await this.setState({ exportState: EXP_WORKING });
 
     const actions = [];
 
-    Object.keys(this.airingRefs)
-      .sort((a, b) => (a < b ? -1 : 1))
-      .forEach(id => {
+    Object.keys(this.airingRefs).forEach(id => {
+      if (this.airingRefs[id].current)
         actions.push(() => this.airingRefs[id].current.processVideo());
-      });
+    });
 
-    // console.log('videoExport start', actions.length, new Date());
-    await throttleActions(actions, 1).then(results => {
+    await throttleActions(actions, atOnce).then(results => {
       // console.log(results);
       return results;
     });
@@ -111,7 +118,7 @@ export default class VideoExport extends Component<Props, State> {
   render() {
     let { airingList, label } = this.props;
 
-    const { opened, exportState } = this.state;
+    const { opened, exportState, atOnce } = this.state;
 
     let size = 'xs';
     if (label) {
@@ -165,6 +172,8 @@ export default class VideoExport extends Component<Props, State> {
           <Modal.Footer>
             <ExportButton
               state={exportState}
+              atOnce={atOnce}
+              atOnceChange={this.atOnceChange}
               cancel={this.cancelProcess}
               process={this.processVideo}
               close={this.close}
@@ -182,6 +191,7 @@ VideoExport.defaultProps = { label: '' };
  */
 function ExportButton(prop) {
   const { state, cancel, close, process } = prop;
+  // , atOnce, atOnceChange
 
   if (state === EXP_WORKING) {
     return (
@@ -201,13 +211,36 @@ function ExportButton(prop) {
 
   // if state === EXP_WAITING
   return (
-    <>
-      <Button variant="primary" onClick={process}>
-        Export
-      </Button>
-      <Button variant="secondary" onClick={close}>
-        Close
-      </Button>
-    </>
+    <Row>
+      <Col md="auto">
+        <Button variant="primary" onClick={process} className="mr-2">
+          Export
+        </Button>
+        <Button variant="secondary" onClick={close}>
+          Close
+        </Button>
+      </Col>
+    </Row>
   );
 }
+
+/**
+ <Col md="auto">
+ <InputGroup size="sm">
+ <InputGroup.Prepend>
+ <InputGroup.Text>Max:</InputGroup.Text>
+ </InputGroup.Prepend>
+ <Form.Control
+ as="select"
+ value={atOnce}
+ aria-describedby="btnState"
+ onChange={atOnceChange}
+ >
+ <option>1</option>
+ <option>2</option>
+ <option>3</option>
+ <option>4</option>
+ </Form.Control>
+ </InputGroup>
+ </Col>
+* */

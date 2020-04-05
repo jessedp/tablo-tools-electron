@@ -130,6 +130,10 @@ export default class RecordingExport extends Component<Props, State> {
         airing.videoDetails.duration
       )}`;
 
+      // console.log(airing.object_id, 'pct', pct);
+      // console.log(airing.object_id, 'timemark', progress.timemark);
+      // console.log(airing.object_id, 'label', label);
+
       this.setState({
         exportInc: pct,
         exportState: EXP_WORKING,
