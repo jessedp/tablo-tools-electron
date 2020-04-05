@@ -290,7 +290,7 @@
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
     "styled-components": "^5.0.1",
-    "tablo-api": "^0.3.3",
+    "tablo-api": "^0.3.6",
     "video-react": "^0.14.1"
   },
   "resolutions": {
