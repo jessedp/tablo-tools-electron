@@ -1,5 +1,4 @@
 // @flow
-import os from 'os';
 import React, { Component } from 'react';
 
 import Container from 'react-bootstrap/Container';
@@ -12,51 +11,25 @@ import Col from 'react-bootstrap/Col';
 
 import { isValidIp } from '../utils/utils';
 import { updateApi } from '../utils/Tablo';
-
-type Props = {};
-type State = {
-  episodePath: string,
-  moviePath: string,
-  eventPath: string,
-  enableIpOverride: boolean,
-  autoRebuild: boolean,
-  overrideIp: string,
-  enableExportData: boolean,
-  exportDataPath: string,
-  saveState: number,
-  saveData: Array<string>
-};
+import getConfig, { ConfigType } from '../utils/config';
 
 const SAVE_NONE = 0;
 const SAVE_FAIL = 1;
 const SAVE_SUCCESS = 2;
 
-export default class Settings extends Component<Props, State> {
-  props: Props;
+type Props = {};
 
-  initialState: State;
+export default class Settings extends Component<Props, ConfigType> {
+  props: Props;
 
   constructor() {
     super();
 
-    this.initialState = {
-      episodePath: `${os.homedir()}/TabloRecordings/TV`,
-      moviePath: `${os.homedir()}/TabloRecordings/Movies`,
-      eventPath: `${os.homedir()}/TabloRecordings/Events`,
-      enableIpOverride: false,
-      autoRebuild: true,
-      overrideIp: '',
-      enableExportData: false,
-      exportDataPath: `${os.tmpdir()}/tablo-data/`,
-      saveState: SAVE_NONE,
-      saveData: []
-    };
-
-    const storedState = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+    const storedState = getConfig();
 
     storedState.saveState = SAVE_NONE;
 
-    this.state = Object.assign(this.initialState, storedState);
+    this.state = storedState;
 
     this.setEpisodePath = this.setEpisodePath.bind(this);
     this.setMoviePath = this.setMoviePath.bind(this);

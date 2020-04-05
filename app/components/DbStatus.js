@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import { recDbCreated } from '../utils/db';
 import Build from './Build';
 import RelativeDate from './RelativeDate';
+import getConfig from '../utils/config';
 
 type DbProps = {};
 type DbState = { dbAge: number };
@@ -57,7 +58,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
     const diff = (Date.now() - dbTime) / 60 / 1000;
     this.setState({ dbAge: diff });
 
-    const config = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+    const config = getConfig();
     let autoRebuild = true;
     if (Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
       autoRebuild = config.autoRebuild;

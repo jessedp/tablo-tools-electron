@@ -1,6 +1,7 @@
 import net from 'net';
 
 import Tablo from 'tablo-api';
+import getConfig from './config';
 
 const Api = new Tablo();
 
@@ -10,7 +11,7 @@ const store = new Store();
 
 const srvInfo = store.get('last_device');
 
-const config = JSON.parse(localStorage.getItem('AppConfig'));
+const config = getConfig();
 
 let ip;
 if (srvInfo) {
@@ -31,7 +32,7 @@ if (srvInfo) {
 }
 
 export function updateApi() {
-  const cfg = JSON.parse(localStorage.getItem('AppConfig'));
+  const cfg = getConfig();
   if (cfg.enableIpOverride) {
     Api.device = { private_ip: cfg.overrideIp };
   } else {

@@ -1,3 +1,5 @@
+import getConfig from './config';
+
 const fs = require('fs');
 
 export async function asyncForEach(array, callback) {
@@ -46,8 +48,7 @@ export function isValidIp(addr) {
 }
 
 export function writeToFile(name, data) {
-  const config = JSON.parse(localStorage.getItem('AppConfig'));
-  console.log(config);
+  const config = getConfig();
   if (!config) return;
   if (Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
     return;
@@ -57,7 +58,7 @@ export function writeToFile(name, data) {
   const path = config.exportDataPath;
   try {
     fs.mkdirSync(config.exportDataPath, { recursive: true }, err => {
-      console.log(err);
+      console.error(err);
     });
   } catch (e) {
     console.log(e);

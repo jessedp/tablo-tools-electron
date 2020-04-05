@@ -9,6 +9,7 @@ import { readableDuration } from './utils';
 import { RecDb, ShowDb } from './db';
 import Api from './Tablo';
 import Show from './Show';
+import getConfig from './config';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -314,7 +315,7 @@ export default class Airing {
     const { showTitle } = this;
 
     // TODO: need to init the config on first startup!
-    const config = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+    const config = getConfig();
     let outPath = '';
     switch (this.type) {
       case SERIES:
