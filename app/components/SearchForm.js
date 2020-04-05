@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
@@ -34,6 +35,8 @@ type State = {
   showFilter: string,
   comskipFilter: string,
   view: string,
+  percent: number,
+  percentLocation: number,
   alert: {
     type: string,
     text: string,
@@ -59,8 +62,10 @@ export default class SearchForm extends Component<Props, State> {
       stateFilter: 'any',
       watchedFilter: 'all',
       comskipFilter: 'all',
-      view: 'grid',
       showFilter: '',
+      view: 'grid',
+      percent: 100,
+      percentLocation: 0,
       alert: { type: '', text: '', match: '' },
       airingList: [],
       actionList: []
@@ -82,6 +87,8 @@ export default class SearchForm extends Component<Props, State> {
     this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
+
+    this.percentDrag = this.percentDrag.bind(this);
 
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
@@ -110,6 +117,10 @@ export default class SearchForm extends Component<Props, State> {
     const cleanState = { ...this.state };
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
+
+  percentDragTimeout: ?TimeoutID = null;
+
+  percentDragSearchTimeout: ?TimeoutID = null;
 
   setStateStore(...args: Array<Object>) {
     const values = args[0];
@@ -256,11 +267,54 @@ export default class SearchForm extends Component<Props, State> {
     }
   };
 
+  percentDrag = (event: SyntheticDragEvent<HTMLInputElement>) => {
+    if (!event) return;
+
+    this.setStateStore({ percent: event.currentTarget.value });
+
+    const slider = event.currentTarget;
+
+    if (this.percentDragSearchTimeout) {
+      clearTimeout(this.percentDragSearchTimeout);
+    }
+
+    if (this.percentDragTimeout) {
+      clearTimeout(this.percentDragTimeout);
+    }
+    const sliderPos = parseInt(slider.value, 10) / parseInt(slider.max, 10);
+
+    // blah, figure out the math of this :/
+    let xShim = 0;
+    if (sliderPos < 0.25) {
+      xShim = 7;
+    } else if (sliderPos < 0.5) {
+      xShim = 2;
+    } else if (sliderPos < 0.66) {
+      xShim = 0;
+    } else if (sliderPos < 0.85) {
+      xShim = -2;
+    } else {
+      xShim = -4;
+    }
+
+    const xPos = Math.round(slider.clientWidth * sliderPos) + xShim;
+
+    this.percentDragTimeout = setTimeout(async () => {
+      if (xPos) await this.setStateStore({ percentLoc: xPos });
+    }, 10);
+
+    this.percentDragSearchTimeout = setTimeout(async () => {
+      this.search();
+    }, 1000);
+  };
+
   search = async () => {
-    const { actionList, view } = this.state;
     const { sendResults } = this.props;
 
     const {
+      actionList,
+      view,
+      percent,
       searchValue,
       stateFilter,
       typeFilter,
@@ -347,9 +401,21 @@ export default class SearchForm extends Component<Props, State> {
       });
     }
 
-    const recs = await RecDb.asyncFind(query, [
+    let recs = await RecDb.asyncFind(query, [
       ['sort', { 'airing_details.datetime': -1 }]
     ]);
+
+    if (percent < 100) {
+      const pct = percent / 100;
+      recs = recs.filter(
+        rec => rec.airing_details.duration * pct >= rec.video_details.duration
+      );
+      steps.push({
+        type: 'complete',
+        value: percent,
+        text: `${percent}% or less complete`
+      });
+    }
 
     const airingList = [];
     let description = '';
@@ -399,8 +465,14 @@ export default class SearchForm extends Component<Props, State> {
       showFilter,
       alert,
       actionList,
-      view
+      view,
+      percent
     } = this.state;
+    let { percentLocation } = this.state;
+
+    const pctLabel = `${percent}%`;
+
+    if (!percentLocation) percentLocation = 0;
 
     // console.log('SearchForm render', alert.text);
 
@@ -552,30 +624,69 @@ export default class SearchForm extends Component<Props, State> {
         <Row>
           {selectControl}
           {view !== 'selected' ? (
-            <Col className="pt-1" md="3">
-              <Button variant="outline-info" size="xs" onClick={this.selectAll}>
-                <span className="fa fa-plus pr-1" style={{ color: 'green' }} />
-                all
-              </Button>
-              &nbsp;
-              <Button
-                variant="outline-info"
-                size="xs"
-                onClick={this.unselectAll}
-              >
-                <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
-                all
-              </Button>
-              &nbsp;
-              <Button
-                variant="outline-danger"
-                size="xs"
-                onClick={this.emptyItems}
-              >
-                <span className="fa fa-times-circle pr-1" />
-                empty
-              </Button>
-            </Col>
+            <>
+              <Col className="pt-1" md="3">
+                <Button
+                  variant="outline-info"
+                  size="xs"
+                  onClick={this.selectAll}
+                >
+                  <span
+                    className="fa fa-plus pr-1"
+                    style={{ color: 'green' }}
+                  />
+                  all
+                </Button>
+                &nbsp;
+                <Button
+                  variant="outline-info"
+                  size="xs"
+                  onClick={this.unselectAll}
+                >
+                  <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
+                  all
+                </Button>
+                &nbsp;
+                <Button
+                  variant="outline-danger"
+                  size="xs"
+                  onClick={this.emptyItems}
+                >
+                  <span className="fa fa-times-circle pr-1" />
+                  empty
+                </Button>
+              </Col>
+              <Col md="6">
+                <label
+                  className="smaller justify-content-center mb-3"
+                  style={{ width: '95%' }}
+                  id="pctLabel"
+                  htmlFor="customRange"
+                >
+                  Percent Complete
+                  <Badge
+                    className="ml-2 p-1"
+                    size="md"
+                    variant="light"
+                    onClick={this.search}
+                  >
+                    {percent}%
+                  </Badge>
+                  <input
+                    type="range"
+                    name="customRange"
+                    className="custom-range"
+                    id="customRange"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={percent}
+                    title={pctLabel}
+                    onChange={this.percentDrag}
+                  />
+                </label>
+              </Col>
+            </>
           ) : (
             ''
           )}
