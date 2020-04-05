@@ -13,6 +13,8 @@ import Build from './Build';
 import Discovery from './Discovery';
 import { writeToFile } from '../utils/utils';
 
+const { app } = require('electron').remote;
+
 type Props = {};
 type State = {
   device: Object,
@@ -63,10 +65,13 @@ export default class Home extends Component<Props, State> {
 
   render() {
     const { device, showDbTable } = this.state;
+
+    const appVersion = app.getVersion();
+
     return (
       <Container>
         <Alert variant="primary">
-          <h4 className="mb-2">Welcome to Tablo Tools!</h4>
+          <h4 className="mb-2">Welcome to Tablo Tools v{appVersion}</h4>
           <Alert variant="light" className="m-0">
             Tablo Tools allows you different views of the recordings on your
             Tablo as well as options to delete and export your recordings.
