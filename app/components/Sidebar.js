@@ -8,7 +8,7 @@ import Image from 'react-bootstrap/Image';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import routes from '../constants/routes.json';
-import tabloLogo from '../../resources/tablo_logo.png';
+import tabloLogo from '../../resources/tablo_tools_logo.png';
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 
@@ -73,10 +73,10 @@ export default class Sidebar extends Component<Props, State> {
 
     return (
       <Row className="mb-2">
-        <Col md="auto">
+        <Col md="1">
           <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
         </Col>
-        <Col>
+        <Col className="ml-2 mt-2">
           <ButtonGroup className="ml-5" style={{ minWidth: '250px' }}>
             <LinkContainer
               activeClassName=""
@@ -111,10 +111,10 @@ export default class Sidebar extends Component<Props, State> {
             </LinkContainer>
           </ButtonGroup>
         </Col>
-        <Col md="auto" className="float-right mt-1 smaller pt-1">
+        <Col md="auto" className="float-right mt-2 smaller pt-1">
           <DbStatus />
         </Col>
-        <Col md="auto" className="float-right mt-1">
+        <Col md="auto" className="float-right mt-2">
           <PingStatus />
         </Col>
         <Col md="auto" className="float-right">
