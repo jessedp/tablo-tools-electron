@@ -608,7 +608,9 @@ export default class SearchForm extends Component<Props, State> {
                   {this.showsList.map(item => {
                     return (
                       <option
-                        key={`show-filter-${item.object_id}`}
+                        key={`show-filter-${item.object_id}-${Math.floor(
+                          Math.random() * 1000000
+                        )}`}
                         value={item.path}
                       >
                         {item.title}
