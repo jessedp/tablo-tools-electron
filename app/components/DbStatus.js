@@ -14,7 +14,14 @@ type DbState = { dbAge: number };
 export default class DbStatus extends Component<DbProps, DbState> {
   timer: IntervalID;
 
-  initialChecks: number;
+  // whether we're using short-poll because the db doesn't exit
+  shortTimer: boolean;
+
+  emptyPollInterval: number;
+
+  rebuildPollInterval: number;
+
+  autoRebuildInterval: number;
 
   // TODO: figure out the type.
   buildRef: any;
@@ -23,14 +30,16 @@ export default class DbStatus extends Component<DbProps, DbState> {
     super();
     this.state = { dbAge: -1 };
     this.buildRef = React.createRef();
-    this.initialChecks = 0;
+    this.shortTimer = true;
+    this.emptyPollInterval = 1000; // 1 second
+    this.rebuildPollInterval = 30000; // 30 seconds
+    this.autoRebuildInterval = 30; // 30 minutes
 
     this.forceBuild = this.forceBuild.bind(this);
   }
 
   async componentDidMount() {
-    this.checkAge();
-    this.timer = setInterval(this.checkAge, 60000);
+    this.timer = setInterval(await this.checkAge, this.emptyPollInterval);
   }
 
   componentWillUnmount() {
@@ -40,18 +49,19 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
   checkAge = async (forceBuild?: boolean) => {
     const created = recDbCreated();
-    const threshold = 600;
-    // TODO: some const export?
-    if (!created && this.initialChecks < threshold) {
-      this.initialChecks += 1;
-      clearInterval(this.timer);
-      this.timer = setInterval(await this.checkAge, 1000);
+
+    if (!created && !forceBuild) {
+      if (!this.shortTimer) {
+        clearInterval(this.timer);
+        this.timer = setInterval(await this.checkAge, this.emptyPollInterval);
+      }
       return;
     }
-    if (this.initialChecks < threshold) {
-      this.initialChecks = threshold;
+
+    if (this.shortTimer) {
+      this.shortTimer = false;
       clearInterval(this.timer);
-      this.timer = setInterval(await this.checkAge, 60000);
+      this.timer = setInterval(await this.checkAge, this.rebuildPollInterval);
     }
 
     const dbTime = new Date(created).getTime();
@@ -64,7 +74,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
       autoRebuild = config.autoRebuild;
     }
 
-    if ((autoRebuild && diff > 30) || forceBuild) {
+    if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
       await this.buildRef.build();
       this.checkAge();
     }
