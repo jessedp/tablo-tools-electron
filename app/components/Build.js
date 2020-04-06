@@ -31,6 +31,8 @@ const STATE_FINISH = 2;
 export default class Build extends Component<Props, State> {
   props: Props;
 
+  building: boolean;
+
   static defaultProps = { view: 'progress' };
 
   constructor() {
@@ -42,6 +44,7 @@ export default class Build extends Component<Props, State> {
       airingMax: 1,
       recCount: 0
     };
+    this.building = false;
     this.build = this.build.bind(this);
   }
 
@@ -69,6 +72,11 @@ export default class Build extends Component<Props, State> {
     const { showDbTable } = this.props;
 
     if (!Api.device) return;
+    if (this.building) {
+      console.log('trying to double build');
+      return;
+    }
+    this.building = true;
 
     showDbTable(false);
 
@@ -106,7 +114,7 @@ export default class Build extends Component<Props, State> {
 
     cnt = await ShowDb.asyncInsert(shows);
     console.log(`${cnt.length} SHOW records added`);
-
+    this.building = false;
     await this.setState({ loading: STATE_FINISH, status });
     localStorage.setItem('LastDbBuild', new Date().toISOString());
     showDbTable(true);

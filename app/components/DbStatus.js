@@ -40,7 +40,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
   checkAge = async (forceBuild?: boolean) => {
     const created = recDbCreated();
-    const threshold = 15;
+    const threshold = 600;
     // TODO: some const export?
     if (!created && this.initialChecks < threshold) {
       this.initialChecks += 1;
