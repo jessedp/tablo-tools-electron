@@ -68,21 +68,41 @@ version: '0.1.0'
         </ul>
       </li>
     </ul>
-    {% include downloads.html %}
+    {% include downloads.html %} {% include quickstart.html %}
 
-    <!--
-      <div class="examples">
-        <h1>
-          On to it!
-        </h1>
-        Bulk deleting and bulk exporting are great
+    <div id="codesigning" class="examples">
+      <h1>Why Aren't They Signed?</h1>
+      <p>
+        Both Windows and MacOS require their respective installer packages to be
+        signed in order to have a nice, peaceful, security warning free
+        experience. MacOS goes a step further and prevents auto-updating even
+        after allowing you to install.
+        <br /><br /><b>BOO!</b><br /><br />
+        The problem, at least in the context of an open source side project like
+        this, is that the signing certificates required run
+        <b>at least $100 USD per year per certificate</b>. And of course, just
+        for kicks, the MacOS dmg almost certainly has to be built on a Mac.
+        <br /><br /><b>DOUBLE BOO!</b><br /><br />
+        Feel free to check back if this is a deal breaker for you.
+      </p>
+    </div>
 
-
-      </div>
-
-      (black triangle)
-      -->
-    <br /><br /><br /><br />
-    <span class="smaller">more to come...</span>
+    <div id="issues" class="examples">
+      <h1>Problems, Questions, Feedback?</h1>
+      Currently there are two options:
+      <ul>
+        <li>
+          Fill out an
+          <a href="https://github.com/jessedp/tablo-tools-electron/issues"
+            >issue</a
+          >
+          describing what's going on
+        </li>
+        <li>
+          Hit me up <a href="https://twitter.com/jessedp">@jessedp</a> on
+          Twitter
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
