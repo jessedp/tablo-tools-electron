@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{page.projectName}} - {{page.tagline}}</title>
+    <meta
+      property="og:title"
+      content="{{page.projectName}} - {{page.tagline}}"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="(github page url)" />
+    <meta property="og:image" content="(github page url)/og_logo.png" />
+    <meta property="og:description" content="(one sentence description)" />
+    <link href="lib/normalize.css" type="text/css" rel="stylesheet" />
+    <link href="main.css" type="text/css" rel="stylesheet" />
+
+    <!-- Add the slick-theme.css if you want default styling -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
+    />
+    <!-- Add the slick-theme.css if you want default styling -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"
+    />
+
+    <script
+      src="https://kit.fontawesome.com/c44a528dab.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="//use.typekit.net/ulc1wme.js"></script>
+    <script>
+      try {
+        Typekit.load();
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    {{ content }}
+
+    <div class="footer">
+      <div class="container">
+        <span class="created-by"
+          >Created by <a href="https://github.com/jessedp">jesse</a>
+        </span>
+      </div>
+    </div>
+    <script>
+      $(document).ready(() => {
+        let os = getOS();
+        const none = 'Windows';
+        switch (os) {
+          case 'Mac':
+          case 'Windows':
+          case 'Linux':
+            $('#btn' + os).trigger('click');
+            break;
+          default:
+            $('#btn' + none).trigger('click');
+        }
+        $('.slider').slick({
+          // normal options...
+          infinite: true,
+          dots: true,
+          speed: 500,
+          centerMode: true,
+          centerPadding: '100px',
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          autoplay: true,
+          autoplaySpeed: 2500
+        });
+      });
+
+      function openOS(evt, osName) {
+        $('.tabcontent').each((i, item) => {
+          $(item).hide();
+        });
+
+        $('.tablinks').each((i, item) => {
+          console.log('tablinks', item);
+          $(item).removeClass('active');
+        });
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        $('#' + osName).show();
+        $('#btn' + osName).addClass('active');
+      }
+
+      function getOS() {
+        const userAgent = window.navigator.userAgent,
+          platform = window.navigator.platform,
+          macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+          windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+          iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+        let os = null;
+
+        if (macosPlatforms.indexOf(platform) !== -1) {
+          os = 'Mac';
+        } else if (iosPlatforms.indexOf(platform) !== -1) {
+          os = 'iOS';
+        } else if (windowsPlatforms.indexOf(platform) !== -1) {
+          os = 'Windows';
+        } else if (/Android/.test(userAgent)) {
+          os = 'Android';
+        } else if (!os && /Linux/.test(platform)) {
+          os = 'Linux';
+        }
+
+        return os;
+      }
+      // TODO maybe google analytics
+    </script>
+    <script
+      type="text/javascript"
+      src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+    ></script>
+  </body>
+</html>

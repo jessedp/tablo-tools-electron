@@ -1,0 +1,88 @@
+---
+layout: main
+projectName: 'Tablo Tools'
+tagline: 'The control over your Tablo you needed'
+version: '0.1.0'
+---
+
+<div class="header">
+  <div class="container">
+    <h1 class="logo">
+      <img
+        src="resources/tablo_tools_title_large.png"
+        alt="Tablo Tools"
+        height="75px"
+      />
+    </h1>
+    <div class="tagline">
+      {{ page.tagline }}
+    </div>
+    <div class="cta">
+      <a href="#downloads" role="button"
+        ><i class="fa fa-download"></i> Download v{{page.version}}</a
+      >
+      <a href="https://github.com/jessedp/tablo-tools-electron" role="button">
+        <i class="fa fa-github"></i>
+        View on GitHub
+      </a>
+    </div>
+    <div class="demo">
+      <div class="slider">
+        <div><img src="resources/home.png" /></div>
+        <div><img src="resources/overview.png" /></div>
+
+        <div><img src="resources/search_all.png" /></div>
+        <div><img src="resources/search_term.png" /></div>
+        <div><img src="resources/search_view_selected.png" /></div>
+        <div><img src="resources/delete_confirm.png" /></div>
+        <div><img src="resources/export-waiting.png" /></div>
+        <div><img src="resources/export_working.png" /></div>
+
+        <div><img src="resources/shows.png" /></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="container">
+    <div class="subtagline">
+      Bulk <i class="hilite">Delete</i> and <i class="hilite">Export</i> your
+      Tablo recordings with ease
+    </div>
+
+    <ul class="features">
+      <li><b>Quick setup</b> automatically detects and loads your Tablo</li>
+      <li>
+        <b>Bulk Actions</b> search your recordings to bulk Export and Delete
+        them
+      </li>
+      <li>
+        <b>Search:</b> by <i>title/description</i> and various filters:
+        <ul class="features">
+          <li><i>state</i> failed/finished/recording</li>
+          <li><i>type</i> episode/series, movie, sport/events</li>
+          <li><i>watched</i> or not</li>
+          <li><i>commercial skip</i> ready or not</li>
+          <li><i>show</i> all episodes of a series</li>
+        </ul>
+      </li>
+    </ul>
+    {% include downloads.html %}
+
+    <!--
+      <div class="examples">
+        <h1>
+          On to it!
+        </h1>
+        Bulk deleting and bulk exporting are great
+
+
+      </div>
+
+      (black triangle)
+      -->
+    <br /><br /><br /><br />
+    <span class="smaller">more to come...</span>
+  </div>
+</div>

@@ -1,0 +1,169 @@
+<h1 id="downloads">
+  Download and Install
+</h1>
+All files associated with the current release are
+<a href="{{site.github.repository_url}}/releases/latest/">here</a>
+<!-- Tab links -->
+<div class="tab">
+  <button class="tablinks" id="btnWindows" onclick="openOS(event, 'Windows')">
+    <span class="fa fa-windows" />
+    Windows
+  </button>
+  <button class="tablinks" id="btnMac" onclick="openOS(event, 'Mac')">
+    <span class="fa fa-apple" />
+    Mac
+  </button>
+  <button class="tablinks" id="btnLinux" onclick="openOS(event, 'Linux')">
+    <span class="fa fa-linux" />
+    Linux
+  </button>
+</div>
+
+<!-- Tab content -->
+<div id="Linux" class="tabcontent">
+  <b>For Automatic Updates:</b>
+  <ol>
+    <li>
+      Download the AppImage
+      <a
+        href="https://github.com/AppImage/AppImageKit/wiki#for-users"
+        class="fa fa-question-circle"
+        target="_blank"
+      ></a>
+
+      for this release -
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}.AppImage"
+      >
+        TabloTools-{{page.version}}.AppImage
+      </a>
+    </li>
+    <li>
+      Make <code>TabloTools-{{page.version}}.AppImage</code> executable and run
+      it. <br />
+      <span class="smaller"
+        >Follow
+        <a
+          href="https://docs.appimage.org/introduction/quickstart.html#ref-quickstart"
+          target="_blank"
+        >
+          these quick instructions
+        </a>
+        if you're unsure how to do that.
+      </span>
+    </li>
+  </ol>
+  <span class="smaller"
+    >Updates will happpen the next time the app is opened after a new release is
+    made.</span
+  >
+  <br /><br />
+  <b>Standard packages:</b>
+  <ul>
+    <li>
+      <span class="fab fa-ubuntu list-icon"></span>
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/tablo-tools_{{page.version}}_amd64.deb"
+      >
+        tablo-tools_{{page.version}}_amd64.deb</a
+      >
+      <span class="smaller">(ubuntu, debian, etc).</span>
+    </li>
+    <li>
+      <span class="fab fa-redhat list-icon"></span>
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/tablo-tools-{{page.version}}.x86_64.rpm"
+      >
+        tablo-tools-{{page.version}}.x86_64.rpm</a
+      >
+      <span class="smaller">(centos, redhat, etc).</span>
+    </li>
+  </ul>
+  <span class="smaller"
+    >You will have to check back for new versions on your own.</span
+  >
+</div>
+
+<div id="Windows" class="tabcontent">
+  <b>For Automatic Updates:</b>
+  <ol>
+    <li>
+      Download the installer for this release -
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-Setup-{{page.version}}.exe"
+      >
+        TabloTools-Setup-{{page.version}}.exe
+      </a>
+    </li>
+    <li>Install <code>TabloTools-Setup-{{page.version}}.exe</code></li>
+  </ol>
+  <span class="smaller"
+    >Updates will happpen the next time the app is opened after a new release is
+    made.</span
+  >
+  <br /><br />
+
+  <b>Other packages:</b>
+  <ul>
+    <li>
+      <span class="fa fa-windows list-icon"></span>
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}.msi"
+      >
+        TabloTools-{{page.version}}.msi
+      </a>
+    </li>
+  </ul>
+  <span class="smaller"
+    >You will have to check back for new versions on your own.</span
+  >
+  <br /><br />
+  <span class="warn fa fa-warning"> NOTICE: </span> The Windows packages are not
+  signed and will require clicking through security warnings to install, but it
+  will work fine after that.
+</div>
+
+<div id="Mac" class="tabcontent">
+  <b>Packages:</b>
+  <ul>
+    <li>
+      <span class="fab fa-apple list-icon"></span>
+      <b>.dmg - </b>
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}.dmg"
+      >
+        TabloTools-{{page.version}}.dmg
+      </a>
+    </li>
+    <li>
+      <span class="fa  fa-file-archive-o list-icon"></span>
+      <b>.zip - </b>
+      <a
+        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}-mac.zip"
+      >
+        TabloTools-{{page.version}}-mac.zip
+      </a>
+    </li>
+  </ul>
+  <span class="warn fa fa-warning"> NOTICES: </span>
+  <ul>
+    <li>
+      <span class="fa fa-minus list-icon-small"></span> Neither of these
+      packages are signed.
+    </li>
+    <li>
+      <span class="fa fa-minus list-icon-small"></span> These have not been
+      installed or run on a Mac yet. Google thinks
+      <a
+        target="_blank"
+        href="https://www.wikihow.com/Install-Software-from-Unsigned-Developers-on-a-Mac"
+        >this article</a
+      >
+      might help with getting the <code>.dmg</code> installed.
+    </li>
+    <li>
+      <span class="fa fa-minus list-icon-small"></span> Automatic updates on
+      Macs require signed packages, so they will not work
+    </li>
+  </ul>
+</div>
