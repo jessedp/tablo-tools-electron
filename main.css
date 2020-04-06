@@ -221,6 +221,10 @@ h6 {
   font-weight: 600;
 }
 
+.tab-label {
+  font: 16px/1.4 'proxima-nova', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
 /* Style the buttons that are used to open the tab content */
 .tab button {
   background-color: inherit;

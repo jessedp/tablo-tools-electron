@@ -7,15 +7,15 @@ All files associated with the current release are
 <div class="tab">
   <button class="tablinks" id="btnWindows" onclick="openOS(event, 'Windows')">
     <span class="fa fa-windows" />
-    Windows
+    <span class="tab-label">Windows</span>
   </button>
   <button class="tablinks" id="btnMac" onclick="openOS(event, 'Mac')">
     <span class="fa fa-apple" />
-    Mac
+    <span class="tab-label">Mac</span>
   </button>
   <button class="tablinks" id="btnLinux" onclick="openOS(event, 'Linux')">
     <span class="fa fa-linux" />
-    Linux
+    <span class="tab-label">Linux</span>
   </button>
 </div>
 
@@ -120,7 +120,7 @@ All files associated with the current release are
   <br /><br />
   <span class="warn fa fa-warning"> NOTICE: </span> The Windows packages are not
   signed and will require clicking through security warnings to install, but it
-  will work fine after that.
+  will work fine after that. <a href="#codesigning">Why not?</a>
 </div>
 
 <div id="Mac" class="tabcontent">
@@ -149,7 +149,7 @@ All files associated with the current release are
   <ul>
     <li>
       <span class="fa fa-minus list-icon-small"></span> Neither of these
-      packages are signed.
+      packages are signed. <a href="#codesigning">Why not?</a>
     </li>
     <li>
       <span class="fa fa-minus list-icon-small"></span> These have not been
@@ -163,7 +163,7 @@ All files associated with the current release are
     </li>
     <li>
       <span class="fa fa-minus list-icon-small"></span> Automatic updates on
-      Macs require signed packages, so they will not work
+      Macs require signed packages, so they will not work.
     </li>
   </ul>
 </div>
