@@ -2,6 +2,13 @@
 logs
 *.log
 
+# jekyll/gh-pages cross polination
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+
 # Runtime data
 pids
 *.pid
