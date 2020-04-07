@@ -1,6 +1,7 @@
 ---
 layout: main
 projectName: 'Tablo Tools'
+projectUrl: 'https://github.com/jessedp/tablo-tools-electron'
 tagline: 'The control over your Tablo you needed'
 version: '0.1.0'
 ---
@@ -21,7 +22,7 @@ version: '0.1.0'
       <a href="#downloads" role="button"
         ><i class="fa fa-download"></i> Download v{{page.version}}</a
       >
-      <a href="https://github.com/jessedp/tablo-tools-electron" role="button">
+      <a href="{{page.projectUrl}}" role="button">
         <i class="fa fa-github"></i>
         View on GitHub
       </a>
@@ -70,6 +71,21 @@ version: '0.1.0'
     </ul>
     {% include downloads.html %} {% include quickstart.html %}
 
+    <h1>Known Issues / Todo</h1>
+    <ul>
+      <li>
+        <b>There can be only one</b> Tablo device for now. This is due to not
+        having multiples to test with.
+      </li>
+      <li>
+        <b>Security warnings</b> Windows and Mac binaries are unsigned, causing
+        security warnings. <a href="#codesigning">More here.</a>
+      </li>
+      <li>
+        <b>There can be only one</b> Tablo device for now. This is due to not
+        having multiples to test with.
+      </li>
+    </ul>
     <div id="codesigning" class="examples">
       <h1>Why Aren't They Signed?</h1>
       <p>
@@ -79,11 +95,10 @@ version: '0.1.0'
         after allowing you to install.
         <br /><br /><b>BOO!</b><br /><br />
         The problem, at least in the context of an open source side project like
-        this, is that the signing certificates required run
-        <b>at least $100 USD per year per certificate</b>. And of course, just
-        for kicks, the MacOS dmg almost certainly has to be built on a Mac.
-        <br /><br /><b>DOUBLE BOO!</b><br /><br />
-        Feel free to check back if this is a deal breaker for you.
+        this, is that the signing certificates required (1 each) run
+        <b>at least $100 USD per year per certificate</b>. <br /><br /><b
+          >DOUBLE BOO!</b
+        ><br /><br />
       </p>
     </div>
 
