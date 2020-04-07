@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 
 import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 
 import Recording from './Recording';
@@ -146,14 +145,11 @@ function Loading(prop) {
   if (!loading) return <></>;
 
   return (
-    <Row>
-      <Col md="6" className="">
-        <div className="d-flex justify-content-center">
-          <Spinner animation="grow" variant="warning" />
-        </div>
-      </Col>
-
-      <Col md="6">&nbsp;</Col>
-    </Row>
+    <div
+      className="d-flex justify-content-center m-0 p-0"
+      style={{ maxWidth: '500px' }}
+    >
+      <Spinner animation="grow" variant="warning" />
+    </div>
   );
 }
