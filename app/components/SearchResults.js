@@ -76,7 +76,8 @@ export default class SearchResults extends Component<Props, State> {
     const { airingRefs } = this.state;
     Object.keys(airingRefs).forEach(id => {
       if (airingRefs[id])
-        airingRefs[id].current.checkboxRef.toggle(CHECKBOX_ON);
+        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
+          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_ON);
     });
   };
 
@@ -84,7 +85,9 @@ export default class SearchResults extends Component<Props, State> {
     const { airingRefs } = this.state;
     Object.keys(airingRefs).forEach(id => {
       if (airingRefs[id])
-        airingRefs[id].current.checkboxRef.toggle(CHECKBOX_OFF);
+        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
+          // typeof check is because there are no checkboxes on episodes being recorded
+          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_OFF);
     });
   };
 
