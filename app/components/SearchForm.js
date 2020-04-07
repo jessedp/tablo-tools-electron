@@ -629,7 +629,7 @@ export default class SearchForm extends Component<Props, State> {
                         )}`}
                         value={item.path}
                       >
-                        {item.title}
+                        {item.title} ({item.showCounts.airing_count})
                       </option>
                     );
                   })}
