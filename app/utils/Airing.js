@@ -355,13 +355,16 @@ export default class Airing {
 
   async delete() {
     const { _id, path } = this;
-    try {
-      await Api.delete(path);
-      await RecDb.asyncRemove({ _id });
-    } catch (e) {
-      console.log('Airing.delete');
-      console.log(e);
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        Api.delete(path);
+        RecDb.asyncRemove({ _id });
+        setTimeout(() => resolve(true), 300 + 300 * Math.random());
+      } catch (e) {
+        console.log('Airing.delete', e);
+        reject(new Error(`Unable to delete ${this.object_id} - ${e}`));
+      }
+    });
   }
 
   cancelVideoProcess() {

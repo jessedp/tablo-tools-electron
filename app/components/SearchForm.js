@@ -12,7 +12,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 import { RecDb } from '../utils/db';
-import { asyncForEach } from '../utils/utils';
+import { asyncForEach, throttleActions } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
 import ConfirmDelete from './ConfirmDelete';
@@ -63,7 +63,7 @@ export default class SearchForm extends Component<Props, State> {
       watchedFilter: 'all',
       comskipFilter: 'all',
       showFilter: '',
-      view: 'grid',
+      view: 'search',
       percent: 100,
       percentLocation: 0,
       alert: { type: '', text: '', match: '' },
@@ -140,12 +140,6 @@ export default class SearchForm extends Component<Props, State> {
 
     await sendResults({ loading: true, airingList: [] });
 
-    /**
-    const list = Object.keys(actionList).map(item => {
-      return Object.assign(new Airing(), actionList[item]);
-    });
-     */
-
     // descending
     const timeSort = (a, b) => {
       if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
@@ -211,14 +205,26 @@ export default class SearchForm extends Component<Props, State> {
     this.setState({ actionList: [] });
   };
 
-  deleteAll = async () => {
+  deleteAll = async (countCallback: Function) => {
     let { actionList } = this.state;
     actionList = ensureAiringArray(actionList);
+    const list = [];
     actionList.forEach(item => {
-      item.delete();
+      list.push(() => item.delete());
     });
-    this.setState({ view: 'grid', actionList: [] });
-    await this.search();
+
+    await throttleActions(list, 4, countCallback)
+      .then(async () => {
+        // let ConfirmDelete display success for 1 sec
+        setTimeout(() => {
+          this.search(true);
+        }, 1000);
+        return false;
+      })
+      .catch(result => {
+        console.log('deleteAll failed', result);
+        return false;
+      });
   };
 
   resetSearch = async () => {
@@ -308,11 +314,11 @@ export default class SearchForm extends Component<Props, State> {
     }, 1000);
   };
 
-  search = async () => {
+  search = async (resetActionList?: boolean) => {
     const { sendResults } = this.props;
+    let { actionList } = this.state;
 
     const {
-      actionList,
       view,
       percent,
       searchValue,
@@ -325,6 +331,10 @@ export default class SearchForm extends Component<Props, State> {
 
     const query = {};
     const steps = [];
+
+    if (resetActionList === true) {
+      actionList = [];
+    }
 
     if (searchValue) {
       const re = new RegExp(searchValue, 'i');
@@ -425,34 +435,40 @@ export default class SearchForm extends Component<Props, State> {
       description = 'matching: ';
     }
 
+    let updateState;
     if (!recs || recs.length === 0) {
       description = `No records found ${description}`;
-      await this.setState({
+      updateState = {
         alert: { type: 'danger', text: description, match },
-        view: 'search'
-      });
+        view: 'search',
+        actionList,
+        airingList
+      };
     } else {
       sendResults({ loading: true });
-
-      description = `${recs.length} recordings found ${description}`;
-
-      this.setState({
-        alert: {
-          type: 'light',
-          text: description,
-          match
-        },
-        view: 'search'
-      });
 
       await asyncForEach(recs, async doc => {
         const airing = await Airing.create(doc);
         airingList.push(airing);
       });
+
+      description = `${recs.length} recordings found ${description}`;
+      updateState = {
+        alert: {
+          type: 'light',
+          text: description,
+          match
+        },
+        view: 'search',
+        actionList,
+        airingList
+      };
     }
 
     sendResults({ loading: false, view, airingList, actionList });
-    this.setStateStore({ airingList });
+    updateState.airingList = airingList;
+
+    this.setStateStore(updateState);
   };
 
   render() {
