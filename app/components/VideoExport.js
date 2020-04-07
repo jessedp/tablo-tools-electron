@@ -152,6 +152,7 @@ export default class VideoExport extends Component<Props, State> {
           onHide={this.close}
           animation={false}
           centered
+          scrollable
         >
           <Modal.Header closeButton>
             <Modal.Title>Exporting:</Modal.Title>
