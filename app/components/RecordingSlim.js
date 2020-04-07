@@ -57,12 +57,12 @@ export default class RecordingSlim extends Component<Props> {
           </Col>
           <Col md="4">
             <Row>
-              <Col md="6">
+              <Col md="7">
                 <div className="float-right">
                   <AiringStatus airing={airing} />
                 </div>
               </Col>
-              <Col md="6">
+              <Col md="5">
                 <span className="smaller float-right">
                   <span className="fa fa-clock pr-1" />
                   {airing.actualDuration} / {airing.duration}
