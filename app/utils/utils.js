@@ -77,9 +77,14 @@ export function writeToFile(name, data) {
  * @param listOfCallableActions An array of callable functions, which should
  *     return promises.
  * @param limit The maximum number of promises to have pending at once.
+ * @param progressCallback An optional callback for each set of results
  * @returns A Promise that resolves to the full list of values when everything is done.
  */
-export function throttleActions(listOfCallableActions, limit) {
+export function throttleActions(
+  listOfCallableActions,
+  limit,
+  progressCallback?: Function
+) {
   // We'll need to store which is the next promise in the list.
   let i = 0;
   const resultArray = new Array(listOfCallableActions.length);
@@ -98,6 +103,7 @@ export function throttleActions(listOfCallableActions, limit) {
         .then(result => {
           // Save results to the correct array index.
           resultArray[actionIndex] = result;
+          if (progressCallback) progressCallback(1);
           // eslint-disable-next-line no-useless-return
           return result;
         })
