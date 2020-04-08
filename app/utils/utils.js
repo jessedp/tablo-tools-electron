@@ -23,6 +23,23 @@ export function timeStrToSeconds(str) {
   return retVal;
 }
 
+export function secondsToTimeStr(time, seperator?: string) {
+  const secNum = parseInt(time, 10);
+  const hours = Math.floor(secNum / 3600)
+    .toString()
+    .padStart(2, '0');
+  const minutes = Math.floor((secNum - hours * 3600) / 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = (secNum - hours * 3600 - minutes * 60)
+    .toString()
+    .padStart(2, '0');
+
+  const sep = seperator || '';
+
+  return `${hours}${sep}${minutes}${sep}${seconds}`;
+}
+
 export function readableDuration(duration) {
   const date = new Date(null);
   date.setSeconds(duration);
