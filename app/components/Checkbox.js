@@ -102,7 +102,7 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
 const Icon = styled.svg`
   fill: black;
   stroke: black;
-  stroke-width: 2px;
+  stroke-width: 1px;
   padding-bottom: 7px;
 `;
 
@@ -111,10 +111,10 @@ const StyledCheckbox = styled.div`
   width: 16px;
   height: 16px;
   background: ${props => (props.checked ? 'white' : 'white')};
-  border-radius: 4px;
+  border-radius: 8px;
   border-width: 2px;
   border-style: solid;
-  border-color: #000;
+  border-color: rgb(142, 140, 132);
   transition: all 150ms;
   ${HiddenCheckbox}:focus + & {
     box-shadow: 0 0 0 3px pink;
