@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:300,400,700');
+
+.bodyX {
+  font: 300 70px/1 'Lato', sans-serif;
+  color: #777;
+  background: #eee;
+}
+
+.clock {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  color: #777;
+  background: #eee;
+  width: 80px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.clock span {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  margin: 0 1px 0 1px;
+}
+
+.clock span:nth-child(1),
+.clock span:nth-child(2) {
+  border-right: 1px solid #aaa;
+  padding-right: 2px;
+}
+
+.clock span::before,
+.clock span::after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  backface-visibility: hidden;
+  transition: transform 0.75s;
+}
+
+.clock span::before {
+  content: attr(data-old);
+  z-index: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.clock .flip::before {
+  transform: translate3d(0, 102.5%, 0);
+}
+
+.clock span::after {
+  content: attr(data-now);
+  z-index: 2;
+  transform: translate3d(0, -102.5%, 0);
+}
+
+.clock .flip::after {
+  transform: translate3d(0, 0, 0);
+}
