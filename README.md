@@ -1,18 +1,27 @@
-<h2>Tablo Tools</h2>
+<a href="https://travis-ci.com/github/jessedp/tablo-tools-electron">
+<img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />
+</a>
+<a href="https://jessedp.github.io/tablo-tools-electron/">
+<img width="300" src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_tools_title_large.png"/>
+</a>
 
+Tablo Tools allows you to Bulk Export and Delete recordings from your Tablo.
+<br/> 
+#### If you're interested in using it, <a href="https://jessedp.github.io/tablo-tools-electron/">head on over to the main site</a> for install instucations, documentation and videos.
 
+#### If you're interested in the code or contributing, keep reading...
 
-## Install
+## Development
+This was built using <a href="https://github.com/electron-react-boilerplate/electron-react-boilerplate">Electon React Boilerplate</a> as a base and as such is a Node+React app. Aside from that, the two main cogs are 
+<a href="https://github.com/louischatriot/nedb">nedb</a>/<a href="https://github.com/Akumzy/nedb-async">nedb-async</a> (document database) and <a href="https://github.com/jessedp/tablo-api-js">tablo-api-js</a>.
 
-Best of luck if you try one, but there are 
-[native app installers](https://github.com/jessedp/tablo-tools-electron/releases) you can try.
-
-## Run
-
-Hopefully after install it finds its way into a place you normally click to run stuff and you then do that.
-
-# Development
-You probably don't care about anything below here.
+#### Setup
+Something like this should work...
+`bash
+$ clone this repo
+$ yarn install
+$ yarn dev
+`
 
 #### Packaging
 
@@ -30,12 +39,9 @@ Then,
 
 ```bash
 $ yarn package-all
-```
-
-To package apps with options:
-
-```bash
-$ yarn package --[option]
+  - or -
+$ yarn package-linux
+$ yarn pacakge-win
 ```
 
 To run End-to-End Test
