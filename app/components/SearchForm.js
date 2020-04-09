@@ -881,9 +881,9 @@ function FilterSelect(props: fullFilterProps) {
     }),
     menu: provided => ({
       ...provided,
-      minWidth: '100px',
+      minWidth: 200,
       width: '100%',
-      maxWidth: '500px',
+      maxWidth: 500,
       zIndex: '99999'
     }),
     option: (provided, state) => ({
