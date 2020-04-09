@@ -1,62 +1,85 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 
 import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+
+import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
-import { readableDuration, timeStrToSeconds } from '../utils/utils';
+import {
+  readableDuration,
+  secondsToTimeStr,
+  timeStrToSeconds
+} from '../utils/utils';
 
 type Props = {
-  airing: Airing,
-  freeze: boolean
+  airing: Airing
 };
 
 type State = {
   exportInc: number,
   exportState: number,
   exportLabel: string,
-  ffmpegLog: {}
+  ffmpegLog: [],
+  startTime: number,
+  curTime: number
 };
 
 const EXP_WAITING = 1;
 const EXP_WORKING = 2;
 const EXP_DONE = 3;
+const EXP_CANCEL = 4;
 
 const beginTime = '00:00 / 00:00';
 
 export default class RecordingExport extends Component<Props, State> {
   props: Props;
 
-  ffmpegLog: {};
+  timer: IntervalID;
 
-  static defaultProps: { freeze: false };
+  shouldCancel: boolean;
 
-  constructor(props: Props) {
+  constructor() {
     super();
-
     this.state = {
       exportInc: 0,
-      exportState: props.freeze ? EXP_DONE : EXP_WAITING,
+      exportState: EXP_WAITING,
       exportLabel: beginTime,
-      ffmpegLog: {}
+      ffmpegLog: [],
+      startTime: 0,
+      curTime: 0
     };
+    this.shouldCancel = false;
 
     (this: any).updateProgress = this.updateProgress.bind(this);
-    (this: any).shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps: Props) {
-    return !nextProps.freeze;
   }
 
   componentWillUnmount() {
     const { airing } = this.props;
     airing.cancelVideoProcess();
+  }
+
+  startTimer() {
+    this.setState({
+      startTime: Date.now(),
+      curTime: Date.now()
+    });
+    this.timer = setInterval(() => {
+      const { startTime } = this.state;
+      this.setState({
+        curTime: Date.now() - startTime
+      });
+    }, 1);
+  }
+
+  stopTimer() {
+    clearInterval(this.timer);
   }
 
   async processVideo() {
@@ -72,35 +95,40 @@ export default class RecordingExport extends Component<Props, State> {
 
     // console.log('starting', airing.object_id, new Date());
 
-    // const ffmpegLog = await airing.processVideo(this.updateProgress);
-    await airing.processVideo(this.updateProgress);
+    this.startTimer();
 
-    // ffmpeg log -> console.log('retVal', returnVal);
-    // console.log('ffmpegLog', ffmpegLog);
+    const ffmpegLog = await airing.processVideo(this.updateProgress);
 
-    // console.log('done with', airing.object_id, new Date());
-    this.setState({
-      exportState: EXP_DONE,
-      exportInc: 0,
-      exportLabel: beginTime
-    });
+    this.stopTimer();
 
-    return this.ffmpegLog;
+    if (this.shouldCancel === true) {
+      await this.setState({
+        exportState: EXP_CANCEL,
+        ffmpegLog
+      });
+    } else {
+      await this.setState({
+        exportState: EXP_DONE,
+        exportInc: 0,
+        exportLabel: beginTime,
+        ffmpegLog
+      });
+    }
   }
 
   async cancelProcess() {
     const { exportState } = this.state;
-    if (exportState === EXP_DONE) return;
+
+    if (exportState !== EXP_WORKING) return;
+
+    this.shouldCancel = true;
 
     const { airing } = this.props;
 
-    if (exportState === EXP_WORKING) {
-      await airing.cancelVideoProcess();
-    }
-
+    await airing.cancelVideoProcess();
     this.setState({
       exportInc: 0,
-      exportState: EXP_WAITING,
+      exportState: EXP_CANCEL,
       exportLabel: beginTime
     });
   }
@@ -144,7 +172,13 @@ export default class RecordingExport extends Component<Props, State> {
 
   render() {
     const { airing } = this.props;
-    const { exportInc, exportLabel, exportState, ffmpegLog } = this.state;
+    const {
+      exportInc,
+      exportLabel,
+      exportState,
+      curTime,
+      ffmpegLog
+    } = this.state;
 
     const classes = `border pb-1 mb-2 pt-1`;
 
@@ -165,6 +199,7 @@ export default class RecordingExport extends Component<Props, State> {
               state={exportState}
               inc={exportInc}
               ffmpegLog={ffmpegLog}
+              time={curTime}
             />
           </Col>
         </Row>
@@ -176,11 +211,15 @@ export default class RecordingExport extends Component<Props, State> {
 type EPProp = {
   inc: number,
   state: number,
-  label: string
+  label: string,
+  time: number,
+  ffmpegLog: []
 };
 
 function ExportProgress(prop: EPProp) {
-  const { inc, label, state } = prop;
+  const { inc, label, state, time, ffmpegLog } = prop;
+
+  const timeStr = secondsToTimeStr(time / 1000, ':');
 
   if (state === EXP_WAITING) {
     return (
@@ -189,12 +228,29 @@ function ExportProgress(prop: EPProp) {
       </Alert>
     );
   }
+
   if (state === EXP_DONE) {
     return (
       <Alert variant="success" className="m-0 muted">
         <Row>
-          <Col md="4">
-            <span className="fa fa-check-circle" /> Finished!
+          <Col md="12">
+            <span className="fa fa-check-circle pr-2" />
+            <span className="pr-5">Finished in {timeStr}</span>
+            <FfmpegLog log={ffmpegLog} />
+          </Col>
+        </Row>
+      </Alert>
+    );
+  }
+
+  if (state === EXP_CANCEL) {
+    return (
+      <Alert variant="warning" className="m-0 muted">
+        <Row>
+          <Col md="12">
+            <span className="fa fa-check-circle pr-2" />
+            <span className="pr-5">Canceled after {timeStr}</span>
+            <FfmpegLog log={ffmpegLog} />
           </Col>
         </Row>
       </Alert>
@@ -204,44 +260,71 @@ function ExportProgress(prop: EPProp) {
   // if (exportState === EXP_WORKING)
   const pctLbl = `${Math.round(inc)} %`;
   return (
-    <>
-      <ProgressBar
-        animated
-        max="100"
-        now={inc}
-        label={pctLbl}
-        className="m-0"
-      />
-      <span className="d-flex justify-content-center smaller muted">
-        {label}
-      </span>
-    </>
+    <div className="d-flex flex-row">
+      <div style={{ width: '100%' }}>
+        <ProgressBar
+          animated
+          max="100"
+          now={inc}
+          label={pctLbl}
+          className="m-0"
+        />
+        <span className="d-flex justify-content-center smaller muted">
+          {label}
+        </span>
+      </div>
+      <div>
+        <Timer timeStr={timeStr} />
+      </div>
+    </div>
   );
 }
 
-/**
-function FfmpegLog(log) {
+function Timer(prop) {
+  const { timeStr } = prop;
+
+  const parts = timeStr.split(':');
+  // console.log(parts);
+
+  return (
+    <div className={clockStyles.clock}>
+      <span>{parts[0]}</span>
+      <span>{parts[1]}</span>
+      <span>{parts[2]}</span>
+    </div>
+  );
+}
+
+function FfmpegLog(prop) {
+  const { log } = prop;
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  console.log(log.data);
+
+  if (log.length === 0) return <i>No log</i>;
   // const logs = Object.keys(log).map(id => log[id]);
   // {logs}
+  let i = 0;
   if (isOpen) {
     return (
       <>
         <Button variant="outline-dark" size="xs" onClick={toggle}>
-          <span className="fa fa-arrow-up"/>
+          <span className="fa fa-arrow-left" /> log
         </Button>
-        <pre>
-             {}
-        </pre>
+
+        <div className="border">
+          <div className="badge-light">
+            {log.map(row => {
+              i += 1;
+              return <div key={`logrow-${i}`}>{row}</div>;
+            })}
+          </div>
+        </div>
       </>
     );
   }
   return (
-    <Button variant="outline-dark" size="xs" onClick={toggle}>
-      <span className="fa fa-arrow-right"/>
+    <Button variant="secondary" size="xs" onClick={toggle}>
+      <span className="fa fa-arrow-right" /> log
     </Button>
   );
 }
-*/

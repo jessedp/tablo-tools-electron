@@ -19,13 +19,14 @@ type State = { opened: boolean, exportState: number, atOnce: number };
 const EXP_WAITING = 1;
 const EXP_WORKING = 2;
 const EXP_DONE = 3;
+const EXP_CANCEL = 4;
 
 export default class VideoExport extends Component<Props, State> {
   props: Props;
 
   static defaultProps: {};
 
-  freezeAirings: boolean;
+  shouldCancel: boolean;
 
   // TODO: ref type again
   airingRefs: {};
@@ -39,7 +40,7 @@ export default class VideoExport extends Component<Props, State> {
     };
 
     this.airingRefs = {};
-    this.freezeAirings = false;
+    this.shouldCancel = false;
     const { airingList } = props;
 
     airingList.forEach(item => {
@@ -63,15 +64,18 @@ export default class VideoExport extends Component<Props, State> {
 
   processVideo = async () => {
     const { exportState, atOnce } = this.state;
-    if (exportState === EXP_DONE) return;
 
+    if (exportState === EXP_DONE) return;
     await this.setState({ exportState: EXP_WORKING });
 
     const actions = [];
 
     Object.keys(this.airingRefs).forEach(id => {
       if (this.airingRefs[id].current)
-        actions.push(() => this.airingRefs[id].current.processVideo());
+        actions.push(() => {
+          if (this.shouldCancel === false)
+            return this.airingRefs[id].current.processVideo();
+        });
     });
 
     await throttleActions(actions, atOnce).then(results => {
@@ -79,26 +83,26 @@ export default class VideoExport extends Component<Props, State> {
       return results;
     });
 
-    // console.log(logs);
-    // console.log('videoExport done', new Date());
-
-    this.freezeAirings = true;
-
-    await this.setState({ exportState: EXP_DONE });
+    this.setState({ exportState: EXP_DONE });
   };
 
   cancelProcess = async () => {
-    Object.keys(this.airingRefs).forEach(id => {
+    this.shouldCancel = true;
+
+    await Object.keys(this.airingRefs).forEach(async id => {
       if (this.airingRefs[id].current)
-        this.airingRefs[id].current.cancelProcess();
+        await this.airingRefs[id].current.cancelProcess();
     });
-    this.setState({ exportState: EXP_WAITING });
+
+    this.setState({ exportState: EXP_CANCEL });
   };
 
   close = async () => {
     this.cancelProcess();
+    this.shouldCancel = false;
     this.setState({
-      opened: false
+      opened: false,
+      exportState: EXP_WAITING
     });
   };
 
@@ -164,8 +168,7 @@ export default class VideoExport extends Component<Props, State> {
                 <RecordingExport
                   ref={ref}
                   airing={airing}
-                  key={Math.floor(Math.random() * 1000000)}
-                  freeze={this.freezeAirings}
+                  key={`RecordingExport-${airing.object_id}`}
                 />
               );
             })}
@@ -210,7 +213,7 @@ function ExportButton(prop) {
     );
   }
 
-  // if state === EXP_WAITING
+  // if state === EXP_WAITING || EXP_CANCEL
   return (
     <Row>
       <Col md="auto">
