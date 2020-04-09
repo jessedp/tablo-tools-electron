@@ -1,6 +1,7 @@
 <a href="https://travis-ci.com/github/jessedp/tablo-tools-electron">
 <img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />
 </a>
+<br/>
 <a href="https://jessedp.github.io/tablo-tools-electron/">
 <img width="300" src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_tools_title_large.png"/>
 </a>
