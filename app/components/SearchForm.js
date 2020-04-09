@@ -390,8 +390,11 @@ export default class SearchForm extends Component<Props, State> {
       if (comskipFilter === 'ready') {
         query['video_details.comskip.state'] = 'ready';
         text = 'comskip is ready';
-      } else {
+      } else if (comskipFilter === 'failed') {
         query['video_details.comskip.state'] = { $ne: 'ready' };
+      } else {
+        query['video_details.comskip.error'] = comskipFilter;
+        text = `comskip failed b/c ${comskipFilter}`;
       }
       steps.push({
         type: 'comskip',
@@ -812,6 +815,19 @@ function ComskipFilter(props: filterProps) {
     { value: 'ready', label: 'ready' },
     { value: 'failed', label: 'failed' }
   ];
+  const types = [];
+  // TODO: when this was async it belew up
+  RecDb.find({}, (err, recs) => {
+    recs.forEach(rec => {
+      const cs = rec.video_details.comskip;
+      if (cs.error) {
+        if (!types.includes(cs.error)) {
+          types.push(cs.error);
+          options.push({ value: cs.error, label: cs.error });
+        }
+      }
+    });
+  });
 
   return (
     <FilterSelect
