@@ -472,7 +472,7 @@ export default class Airing {
 
     fs.mkdirSync(outPath, { recursive: true });
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const ffmpegLog = [];
       let record = true;
       cmd
@@ -480,17 +480,19 @@ export default class Airing {
         .output(outFile)
         .addOutputOptions(ffmpegOpts)
         .on('end', () => {
-          console.log('Finished processing');
+          // console.log('Finished processing');
           if (typeof callback === 'function') {
             callback({ finished: true });
           }
           if (debug) console.log('result', ffmpegLog);
           if (debug) console.log('end processVideo', new Date());
+
           resolve(ffmpegLog);
         })
         .on('error', err => {
           console.log(`An error occurred: ${err}`);
-          reject(err);
+          // reject(err);
+          resolve(ffmpegLog);
         })
         .on('stderr', stderrLine => {
           if (
@@ -502,16 +504,12 @@ export default class Airing {
             !stderrLine.includes('frame=')
           ) {
             // record from start until this...
-            if (
-              stderrLine.includes(
-                'Stderr output: Press [q] to stop, [?] for help'
-              )
-            ) {
+            if (stderrLine.includes('Press [q] to stop, [?] for help')) {
               record = false;
             }
             if (
               stderrLine.includes(
-                'Stderr output: No more output streams to write to, finishing.'
+                'No more output streams to write to, finishing.'
               )
             ) {
               record = true;
