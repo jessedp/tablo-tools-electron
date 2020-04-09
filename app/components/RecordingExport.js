@@ -8,6 +8,7 @@ import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
+import Modal from 'react-bootstrap/Modal';
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
@@ -295,36 +296,46 @@ function Timer(prop) {
   );
 }
 
+// this is essentially a basic stick an array of strings in a modal
 function FfmpegLog(prop) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   const { log } = prop;
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
+
+  // const log = [];
+  // for (let i = 0; i < 100; i += 1) log.push('xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx ');
 
   if (log.length === 0) return <i>No log</i>;
-  // const logs = Object.keys(log).map(id => log[id]);
-  // {logs}
-  let i = 0;
-  if (isOpen) {
-    return (
-      <>
-        <Button variant="outline-dark" size="xs" onClick={toggle}>
-          <span className="fa fa-arrow-left" /> log
-        </Button>
 
-        <div className="border">
-          <div className="badge-light">
-            {log.map(row => {
-              i += 1;
-              return <div key={`logrow-${i}`}>{row}</div>;
-            })}
-          </div>
-        </div>
-      </>
-    );
-  }
+  let i = 0;
   return (
-    <Button variant="secondary" size="xs" onClick={toggle}>
-      <span className="fa fa-arrow-right" /> log
-    </Button>
+    <>
+      <Button size="xs" variant="primary" onClick={handleShow}>
+        <span className="fa fa-info-circle" /> log
+      </Button>
+
+      <Modal size="lg" show={show} onHide={handleClose} scrollable>
+        <Modal.Header closeButton>
+          <Modal.Title>Export Log</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {log.map(row => {
+            i += 1;
+            return <div key={`logrow-${i}`}>{row}</div>;
+          })}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
