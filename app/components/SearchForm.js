@@ -6,10 +6,10 @@ import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
+
+import Select from 'react-select';
 
 import { RecDb } from '../utils/db';
 import { asyncForEach, throttleActions } from '../utils/utils';
@@ -19,6 +19,7 @@ import ConfirmDelete from './ConfirmDelete';
 import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
 import VideoExport from './VideoExport';
+import TabloImage from './TabloImage';
 
 type Props = {
   sendResults: Object => void,
@@ -235,28 +236,28 @@ export default class SearchForm extends Component<Props, State> {
     await this.search();
   };
 
-  stateChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ stateFilter: event.currentTarget.value });
+  stateChange = async (event: Option) => {
+    await this.setState({ stateFilter: event.value });
     this.search();
   };
 
-  typeChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ typeFilter: event.currentTarget.value });
+  typeChange = async (event: Option) => {
+    await this.setState({ typeFilter: event.value });
     this.search();
   };
 
-  watchedChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ watchedFilter: event.currentTarget.value });
+  watchedChange = async (event: Option) => {
+    await this.setState({ watchedFilter: event.value });
     this.search();
   };
 
-  comskipChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ comskipFilter: event.currentTarget.value });
+  comskipChange = async (event: Option) => {
+    await this.setState({ comskipFilter: event.value });
     this.search();
   };
 
-  showChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ showFilter: event.currentTarget.value });
+  showChange = async (event: Option) => {
+    await this.setState({ showFilter: event.value });
     this.search();
   };
 
@@ -502,6 +503,27 @@ export default class SearchForm extends Component<Props, State> {
     return (
       <>
         <Row>
+          <Col>
+            <div className="d-flex flex-row">
+              <StateFilter onChange={this.stateChange} value={stateFilter} />
+              <TypeFilter onChange={this.typeChange} value={typeFilter} />
+              <WatchedFilter
+                onChange={this.watchedChange}
+                value={watchedFilter}
+              />
+              <ComskipFilter
+                onChange={this.comskipChange}
+                value={comskipFilter}
+              />
+              <ShowFilter
+                onChange={this.showChange}
+                value={showFilter}
+                shows={this.showsList}
+              />
+            </div>
+          </Col>
+        </Row>
+        <Row className="pt-3">
           <Col md="3">
             <InputGroup
               className="mb-3"
@@ -541,101 +563,35 @@ export default class SearchForm extends Component<Props, State> {
               </Button>
             </InputGroup>
           </Col>
-
-          <Col md="6">
-            <ButtonGroup size="sm" className="mb-3 mr-0 pr-0">
-              <InputGroup className="" size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text>state:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  as="select"
-                  value={stateFilter}
-                  aria-describedby="btnState"
-                  onChange={this.stateChange}
-                >
-                  <option>any</option>
-                  <option>finished</option>
-                  <option>failed</option>
-                  <option>recording</option>
-                </Form.Control>
-              </InputGroup>
-
-              <InputGroup className="" size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text>type:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  as="select"
-                  value={typeFilter}
-                  aria-describedby="btnState"
-                  onChange={this.typeChange}
-                >
-                  <option>any</option>
-                  <option>episode</option>
-                  <option>movie</option>
-                  <option>sports</option>
-                </Form.Control>
-              </InputGroup>
-
-              <InputGroup className="" size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text>watched:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  as="select"
-                  value={watchedFilter}
-                  aria-describedby="btnState"
-                  onChange={this.watchedChange}
-                >
-                  <option>all</option>
-                  <option>yes</option>
-                  <option>no</option>
-                </Form.Control>
-              </InputGroup>
-
-              <InputGroup size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text>comskip:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  as="select"
-                  value={comskipFilter}
-                  aria-describedby="btnState"
-                  onChange={this.comskipChange}
-                >
-                  <option>all</option>
-                  <option>ready</option>
-                  <option>failed</option>
-                </Form.Control>
-              </InputGroup>
-
-              <InputGroup className="" size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text>by show:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  as="select"
-                  value={showFilter}
-                  aria-describedby="btnState"
-                  onChange={this.showChange}
-                >
-                  <option>all</option>
-                  {this.showsList.map(item => {
-                    return (
-                      <option
-                        key={`show-filter-${item.object_id}-${Math.floor(
-                          Math.random() * 1000000
-                        )}`}
-                        value={item.path}
-                      >
-                        {item.title} ({item.showCounts.airing_count})
-                      </option>
-                    );
-                  })}
-                </Form.Control>
-              </InputGroup>
-            </ButtonGroup>
+          <Col md="7">
+            <label
+              className="smaller justify-content-center mb-3"
+              style={{ width: '95%' }}
+              id="pctLabel"
+              htmlFor="customRange"
+            >
+              Percent Complete
+              <Badge
+                className="ml-2 p-1"
+                size="md"
+                variant="light"
+                onClick={this.search}
+              >
+                {percent}%
+              </Badge>
+              <input
+                type="range"
+                name="customRange"
+                className="custom-range"
+                id="customRange"
+                min="0"
+                max="100"
+                step="1"
+                value={percent}
+                title={pctLabel}
+                onChange={this.percentDrag}
+              />
+            </label>
           </Col>
         </Row>
 
@@ -673,36 +629,6 @@ export default class SearchForm extends Component<Props, State> {
                   <span className="fa fa-times-circle pr-1" />
                   empty
                 </Button>
-              </Col>
-              <Col md="6">
-                <label
-                  className="smaller justify-content-center mb-3"
-                  style={{ width: '95%' }}
-                  id="pctLabel"
-                  htmlFor="customRange"
-                >
-                  Percent Complete
-                  <Badge
-                    className="ml-2 p-1"
-                    size="md"
-                    variant="light"
-                    onClick={this.search}
-                  >
-                    {percent}%
-                  </Badge>
-                  <input
-                    type="range"
-                    name="customRange"
-                    className="custom-range"
-                    id="customRange"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={percent}
-                    title={pctLabel}
-                    onChange={this.percentDrag}
-                  />
-                </label>
               </Col>
             </>
           ) : (
@@ -770,4 +696,221 @@ function makeMatchDescription(steps) {
     return item.text;
   });
   return parts.join(', ');
+}
+
+type filterProps = {
+  value: string,
+  onChange: Function,
+  // eslint-disable-next-line react/no-unused-prop-types
+  shows?: Array<Show>
+};
+
+function StateFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'any', label: 'any' },
+    { value: 'finished', label: 'finished' },
+    { value: 'recording', label: 'recording' },
+    { value: 'failed', label: 'failed' }
+  ];
+
+  return (
+    <FilterSelect
+      name="stateFilter"
+      placeholder="state"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+StateFilter.defaultProps = { shows: [] };
+
+function TypeFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'any', label: 'any' },
+    { value: 'episode', label: 'episode' },
+    { value: 'movie', label: 'movie' },
+    { value: 'sports', label: 'sports' }
+  ];
+
+  return (
+    <FilterSelect
+      name="typeFilter"
+      placeholder="type"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+TypeFilter.defaultProps = { shows: [] };
+
+function WatchedFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'all', label: 'all' },
+    { value: 'yes', label: 'yes' },
+    { value: 'no', label: 'no' }
+  ];
+
+  return (
+    <FilterSelect
+      name="watchedFilter"
+      placeholder="watched"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+WatchedFilter.defaultProps = { shows: [] };
+
+function ShowFilter(props: filterProps) {
+  const { value, onChange, shows } = props;
+
+  const options = [];
+  options.push({ value: '', label: 'all' });
+  if (shows && shows.length > 0) {
+    shows.forEach(item =>
+      options.push({
+        value: item.path,
+        label: (
+          <>
+            <TabloImage imageId={item.thumbnail} maxHeight={30} />
+            <span className="pl-1 pr-1">{item.title} </span>
+            <Badge variant="secondary" pill>
+              {item.showCounts.airing_count}
+            </Badge>
+          </>
+        )
+      })
+    );
+  }
+
+  return (
+    <FilterSelect
+      name="showFilter"
+      placeholder="show"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+ShowFilter.defaultProps = { shows: [] };
+
+function ComskipFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'all', label: 'all' },
+    { value: 'ready', label: 'ready' },
+    { value: 'failed', label: 'failed' }
+  ];
+
+  return (
+    <FilterSelect
+      name="comskipFilter"
+      placeholder="comskip"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+ComskipFilter.defaultProps = { shows: [] };
+
+type Option = {
+  value: string,
+  label: any
+};
+
+type fullFilterProps = {
+  name: string,
+  placeholder: string,
+  options: Array<Option>,
+  onChange: Function,
+  value: string
+};
+
+function FilterSelect(props: fullFilterProps) {
+  const { name, placeholder, options, onChange, value } = props;
+
+  const height = '30px';
+  const styles = {
+    control: (provided, state) => ({
+      ...provided,
+      height,
+      minHeight: height,
+      width: '100%',
+      maxWidth: 200,
+      background: '#fff',
+      borderColor: '#9e9e9e',
+      boxShadow: state.isFocused ? null : null,
+      borderRadius: '1px',
+      color: '#CCC',
+      fontSize: 12
+      // margin: 0,
+      // padding: '1px'
+    }),
+    valueContainer: provided => ({
+      ...provided,
+      height,
+      padding: '0 3px'
+    }),
+    menu: provided => ({
+      ...provided,
+      minWidth: '100px',
+      width: '100%',
+      maxWidth: '500px',
+      zIndex: '99999'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      fontSize: '12px',
+      color: '#3E3F3A',
+      borderBottom: '1px dotted #8E8C84',
+      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor,
+      overflowX: 'hidden'
+    }),
+    input: provided => ({
+      ...provided,
+      margin: '0px'
+    }),
+    singleValue: () => ({
+      color: 'hsl(0, 0%, 50%)'
+    }),
+    indicatorSeparator: () => ({
+      display: 'none'
+    }),
+    indicatorsContainer: provided => ({
+      ...provided,
+      height
+    })
+  };
+
+  return (
+    <div>
+      <div className="input-group input-group-sm">
+        <div className="input-group-prepend ">
+          <span className="input-group-text">{placeholder}</span>
+        </div>
+        <div>
+          <Select
+            options={options}
+            placeholder={placeholder}
+            name={name}
+            onChange={onChange}
+            styles={styles}
+            value={options.filter(option => option.value === value)}
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
