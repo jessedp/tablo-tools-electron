@@ -4,7 +4,7 @@
 <PROJECT_ROOT>/app/dist/.*
 <PROJECT_ROOT>/resources/.*
 <PROJECT_ROOT>/node_modules/webpack-cli
-<PROJECT_ROOT>/node_modules/react-select
+
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
 <PROJECT_ROOT>/release/.*
@@ -15,7 +15,8 @@
 <PROJECT_ROOT>/app/store/configureStore.js
 <PROJECT_ROOT>/app/store/configureStore.prod.js
 
-
+[untyped]
+<PROJECT_ROOT>/node_modules/react-select/*
 
 [include]
 
