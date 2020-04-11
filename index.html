@@ -3,7 +3,7 @@ layout: main
 projectName: 'Tablo Tools'
 projectUrl: 'https://github.com/jessedp/tablo-tools-electron'
 tagline: 'The control over your Tablo you needed'
-version: '0.1.1'
+version: '0.1.2'
 ---
 
 <div class="header">
@@ -90,6 +90,54 @@ version: '0.1.1'
         having multiples to test with.
       </li>
     </ul>
+    <div id="whitescreen" class="examples">
+      <h2>White Screen of Death</h2>
+      Sometimes you'll run into a problem that causes the app to crash with no
+      warning or explanation - simply a full screen of white. <b>Ouch</b>.
+      <br /><br />
+      First, please make sure you are running the current version:
+      <b> v{{ page.version }}</b> <br /><br />
+      Right, you already are.
+      <br />
+      For the time being, please follow these steps so the issue can be tracked
+      down and fixed.
+      <ol>
+        <li>Open the app</li>
+        <li>
+          In the top menu, click <code>View -> Toggle Developer Tools</code>
+          <span class="smaller">(a pane will open to right)</span>
+        </li>
+        <li>
+          Do whatever caused the problem until it happens again.
+          <span class="smaller">keep track of the steps, record it, etc</span>
+        </li>
+        <li>
+          <code>Right click</code> in that new pane and <code>Save As...</code>
+        </li>
+        <li><code>Upload</code> that file with your report on the issue.</li>
+      </ol>
+      <div style="padding-left: 20px"><i>Thanks!</i></div>
+
+      <video
+        id="initial"
+        class="video-js vjs-big-play-centered"
+        controls
+        preload="auto"
+        width="600"
+        poster="resources/save_console-cropped-poster.png"
+        data-setup="{}"
+      >
+        <source src="resources/save_console-cropped.mp4" type="video/mp4" />
+        <p class="vjs-no-js">
+          To view this video please enable JavaScript, and consider upgrading to
+          a web browser that
+          <a href="https://videojs.com/html5-video-support/" target="_blank"
+            >supports HTML5 video</a
+          >
+        </p>
+      </video>
+    </div>
+
     <div id="codesigning" class="examples">
       <h1>Why Aren't They Signed?</h1>
       <p>
