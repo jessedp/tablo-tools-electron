@@ -80,9 +80,10 @@ export function writeToFile(name, data) {
   } catch (e) {
     console.log(e);
   }
+  let outData = data;
+  if (typeof data === 'object') outData = JSON.stringify(data);
   const outFile = `${path}${name}`;
-  console.log('writing', outFile);
-  fs.writeFileSync(outFile, data);
+  fs.writeFileSync(outFile, outData);
 }
 
 /**
