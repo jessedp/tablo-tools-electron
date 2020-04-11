@@ -67,7 +67,7 @@ export function isValidIp(addr) {
 export function writeToFile(name, data) {
   const config = getConfig();
   if (!config) return;
-  if (Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
+  if (!Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
     return;
   }
   if (!config.enableExportData) return;
