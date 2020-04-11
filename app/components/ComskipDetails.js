@@ -24,7 +24,8 @@ export default class ComskipDetails extends Component<Props, State> {
   async componentDidMount() {
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
     const recs = await RecDb.asyncFind({});
-    const skipStats = {};
+
+    const skipStats = { ready: 0, none: 0, error: 0 };
     const skipErrors = {};
 
     recs.forEach(rec => {
@@ -34,7 +35,8 @@ export default class ComskipDetails extends Component<Props, State> {
       } else {
         skipStats[cs.state] = 0;
       }
-      if (cs.error) {
+      // TODO: missing comskip?
+      if (cs && cs.error) {
         if (cs.error in skipErrors) {
           skipErrors[cs.error] += 1;
         } else {

@@ -14,6 +14,7 @@ import { RecDb, ShowDb, recDbCreated, recDbStats } from '../utils/db';
 
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
+import { writeToFile } from '../utils/utils';
 
 type Props = { showDbTable: (show: boolean) => void, view?: string };
 type State = {
@@ -89,6 +90,11 @@ export default class Build extends Component<Props, State> {
       callback: val => {
         this.setState({ airingInc: val });
       }
+    });
+
+    // TODO: maybe put this elsewhere later
+    recs.forEach(rec => {
+      writeToFile(`airing-${rec.object_id}.json`, rec);
     });
 
     console.log(`retrieved ${recs.length} recordings`);
