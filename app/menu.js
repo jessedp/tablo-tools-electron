@@ -126,6 +126,13 @@ export default class MenuBuilder {
           click: () => {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           }
+        },
+        {
+          label: 'Toggle Developer Tools',
+          accelerator: 'Alt+Command+I',
+          click: () => {
+            this.mainWindow.toggleDevTools();
+          }
         }
       ]
     };
@@ -236,6 +243,13 @@ export default class MenuBuilder {
                       !this.mainWindow.isFullScreen()
                     );
                   }
+                },
+                {
+                  label: 'Toggle &Developer Tools',
+                  accelerator: 'Alt+Ctrl+I',
+                  click: () => {
+                    this.mainWindow.toggleDevTools();
+                  }
                 }
               ]
       },
@@ -243,29 +257,27 @@ export default class MenuBuilder {
         label: 'Help',
         submenu: [
           {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('http://electron.atom.io');
-            }
-          },
-          {
-            label: 'Documentation',
+            label: 'Website',
             click() {
               shell.openExternal(
-                'https://github.com/atom/electron/tree/master/docs#readme'
+                'https://jessedp.github.io/tablo-tools-electron/'
               );
             }
           },
           {
             label: 'Community Discussions',
             click() {
-              shell.openExternal('https://discuss.atom.io/c/electron');
+              shell.openExternal(
+                'https://community.tablotv.com/t/tablo-tools-bulk-export-delete-on-win-mac-linux/23254'
+              );
             }
           },
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal('https://github.com/atom/electron/issues');
+              shell.openExternal(
+                'https://github.com/jessedp/tablo-tools-electron/issues'
+              );
             }
           }
         ]

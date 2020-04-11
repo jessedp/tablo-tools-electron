@@ -67,7 +67,7 @@ export function isValidIp(addr) {
 export function writeToFile(name, data) {
   const config = getConfig();
   if (!config) return;
-  if (Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
+  if (!Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
     return;
   }
   if (!config.enableExportData) return;
@@ -80,9 +80,10 @@ export function writeToFile(name, data) {
   } catch (e) {
     console.log(e);
   }
+  let outData = data;
+  if (typeof data === 'object') outData = JSON.stringify(data);
   const outFile = `${path}${name}`;
-  console.log('writing', outFile);
-  fs.writeFileSync(outFile, data);
+  fs.writeFileSync(outFile, outData);
 }
 
 /**

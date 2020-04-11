@@ -820,7 +820,8 @@ function ComskipFilter(props: filterProps) {
   RecDb.find({}, (err, recs) => {
     recs.forEach(rec => {
       const cs = rec.video_details.comskip;
-      if (cs.error) {
+      // TODO: missing comskip?
+      if (cs && cs.error) {
         if (!types.includes(cs.error)) {
           types.push(cs.error);
           options.push({ value: cs.error, label: cs.error });

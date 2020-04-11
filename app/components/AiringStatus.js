@@ -169,7 +169,11 @@ export default class AiringStatus extends Component<Props> {
       );
     }
 
-    const title = `Commercial Skip unavailable (${comskip.error})`;
+    // TODO: missing comskip?
+    let error = 'no comskip data';
+    if (comskip) error = comskip.error;
+
+    const title = `Commercial Skip unavailable (${error})`;
     return (
       <i
         className="fa fa-times-circle p-1"
