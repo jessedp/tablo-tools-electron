@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import compareVersions from 'compare-versions';
 
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
@@ -28,8 +29,6 @@ type State = {
 export default class Overview extends Component<Props, State> {
   props: Props;
 
-  info: null;
-
   constructor() {
     super();
     const lastDevice = store.get('last_device');
@@ -37,10 +36,8 @@ export default class Overview extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    if (!this.info) {
-      this.info = await Api.getServerInfo();
-    }
-    this.setState({ device: this.info });
+    const device = await Api.getServerInfo();
+    this.setState({ device });
   }
 
   render() {
@@ -49,6 +46,10 @@ export default class Overview extends Component<Props, State> {
     if (lastDevice) {
       checked = new Date(lastDevice.checked);
     }
+
+    let comskipAvailable = false;
+    if (device.version)
+      comskipAvailable = compareVersions(`${device.version}`, '2.2.26') >= 0;
 
     return (
       <Container>
@@ -67,12 +68,16 @@ export default class Overview extends Component<Props, State> {
             </Alert>
             <DbInfoTable />
           </Col>
-          <Col>
-            <Alert variant="primary" className="p-2 m-0">
-              Commercial Skip Stats
-            </Alert>
-            <ComskipDetails />
-          </Col>
+          {comskipAvailable ? (
+            <Col>
+              <Alert variant="primary" className="p-2 m-0">
+                Commercial Skip Stats
+              </Alert>
+              <ComskipDetails />
+            </Col>
+          ) : (
+            ''
+          )}
           <Col>
             <Alert variant="primary" className="p-2 m-0">
               Current Tablo
