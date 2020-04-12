@@ -55,7 +55,7 @@ export default class VideoExport extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    this.cancelProcess();
+    this.cancelProcess(false);
   }
 
   atOnceChange = async (event: SyntheticEvent<HTMLInputElement>) => {
@@ -86,7 +86,7 @@ export default class VideoExport extends Component<Props, State> {
     this.setState({ exportState: EXP_DONE });
   };
 
-  cancelProcess = async () => {
+  cancelProcess = async (updateState = true) => {
     this.shouldCancel = true;
 
     await Object.keys(this.airingRefs).forEach(async id => {
@@ -94,7 +94,7 @@ export default class VideoExport extends Component<Props, State> {
         await this.airingRefs[id].current.cancelProcess();
     });
 
-    this.setState({ exportState: EXP_CANCEL });
+    if (updateState) this.setState({ exportState: EXP_CANCEL });
   };
 
   close = async () => {
