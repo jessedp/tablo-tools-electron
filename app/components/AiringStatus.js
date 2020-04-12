@@ -12,7 +12,7 @@ export default class AiringStatus extends Component<Props> {
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
 
-    if (comskip.state === 'ready') {
+    if (comskip && comskip.state === 'ready') {
       return '';
     }
 
@@ -72,7 +72,7 @@ export default class AiringStatus extends Component<Props> {
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
 
-    if (comskip.state === 'ready') {
+    if (comskip && comskip.state === 'ready') {
       return '';
     }
 
@@ -101,7 +101,7 @@ export default class AiringStatus extends Component<Props> {
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
 
-    if (comskip.state === 'ready') {
+    if (comskip && comskip.state === 'ready') {
       return '';
     }
 
@@ -158,6 +158,8 @@ export default class AiringStatus extends Component<Props> {
     const { airing } = this.props;
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
+
+    if (!comskip) return;
 
     if (comskip.state === 'ready') {
       return (
