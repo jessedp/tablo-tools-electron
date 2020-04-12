@@ -1,28 +1,35 @@
-<a href="https://travis-ci.com/github/jessedp/tablo-tools-electron">
+<a href="https://travis-ci.com/github/jessedp/tablo-tools-electron" title="Travis - Linux, Mac">
 <img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />
 </a>
+
+<a href="https://ci.appveyor.com/project/jessedp/tablo-tools-electron" title="Appveyor (Win)">
+<img src="https://ci.appveyor.com/api/projects/status/github/jessedp/tablo-tools-electron">
+</a>
+
 <br/>
+<br/>
+
 <a href="https://jessedp.github.io/tablo-tools-electron/">
 <img width="300" src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_tools_title_large.png"/>
 </a>
+<br/>
 
 Tablo Tools allows you to Bulk Export and Delete recordings from your Tablo.
-<br/> 
+<br/>
+
 #### If you're interested in using it, <a href="https://jessedp.github.io/tablo-tools-electron/">head on over to the main site</a> for install instucations, documentation and videos.
 
-#### If you're interested in the code or contributing, keep reading...
+#### _If you're interested in the code and/or or contributing, keep reading..._
 
 ## Development
-This was built using <a href="https://github.com/electron-react-boilerplate/electron-react-boilerplate">Electon React Boilerplate</a> as a base and as such is a Node+React app. Aside from that, the two main cogs are 
+
+This was built using <a href="https://github.com/electron-react-boilerplate/electron-react-boilerplate">Electon React Boilerplate</a> as a base and as such is a Node+React app. Aside from that, the two main cogs are
 <a href="https://github.com/louischatriot/nedb">nedb</a>/<a href="https://github.com/Akumzy/nedb-async">nedb-async</a> (document database) and <a href="https://github.com/jessedp/tablo-api-js">tablo-api-js</a>.
 
 #### Setup
+
 Something like this should work...
-`bash
-$ clone this repo
-$ yarn install
-$ yarn dev
-`
+`bash $ clone this repo $ yarn install $ yarn dev`
 
 #### Packaging
 
@@ -92,6 +99,5 @@ This project comes with Flow support out of the box! You can annotate your code 
 #### Dispatching redux actions from main process
 
 See [#118](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/118) and [#108](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/108)
-
 
 MIT © [Electron React Boilerplate](https://github.com/electron-react-boilerplate) and kinda me
