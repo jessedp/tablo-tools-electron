@@ -10,7 +10,7 @@
 <br/>
 
 <a href="https://jessedp.github.io/tablo-tools-electron/">
-<img width="300" src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_tools_title_large.png"/>
+<img src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_title_350_trans.png"/>
 </a>
 <br/>
 
