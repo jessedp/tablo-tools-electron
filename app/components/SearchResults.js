@@ -10,7 +10,8 @@ import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type Props = {
   addItem: (airing: Airing) => void,
-  delItem: (airing: Airing) => void
+  delItem: (airing: Airing) => void,
+  refresh: () => void
 };
 
 type State = {
@@ -35,7 +36,7 @@ export default class SearchResults extends Component<Props, State> {
 
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
-    this.search = this.search.bind(this);
+    // this.search = this.search.bind(this);
     this.delete = this.delete.bind(this);
   }
 
@@ -91,16 +92,13 @@ export default class SearchResults extends Component<Props, State> {
   };
 
   delete = async () => {
+    const { refresh } = this.props;
     // TODO: make this work if need be
-    await this.search();
-  };
-
-  search = async () => {
-    // TODO: make this work if need be
-    await this.search();
+    await refresh();
   };
 
   render() {
+    const { refresh } = this.props;
     const { actionList, loading, airingRefs } = this.state;
     let { airingList } = this.state;
 
@@ -120,7 +118,7 @@ export default class SearchResults extends Component<Props, State> {
             <Recording
               key={`recording-${airing.object_id}`}
               ref={airingRefs[airing.object_id]}
-              search={this.search}
+              search={refresh}
               doDelete={this.delete}
               airing={airing}
               addItem={this.addItem}
