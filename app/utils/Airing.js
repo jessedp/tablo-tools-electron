@@ -318,6 +318,13 @@ export default class Airing {
     const config = getConfig();
     let outPath = '';
     switch (this.type) {
+      case MOVIE:
+        outPath = fsPath.join(config.episodePath, sanitize(showTitle));
+        return outPath;
+      case EVENT:
+        outPath = fsPath.join(config.eventPath, sanitize(showTitle));
+        return outPath;
+      case PROGRAM:
       case SERIES:
         outPath = fsPath.join(
           config.episodePath,
@@ -325,13 +332,6 @@ export default class Airing {
           `Season ${this.seasonNum}`
         );
         return outPath;
-      case MOVIE:
-        return config.moviePath;
-      case EVENT:
-        outPath = fsPath.join(config.eventPath, this.showTitle);
-        return outPath;
-      case PROGRAM:
-        return config.exportDataPath;
       default:
         throw new Error('unknown airing type!');
     }
