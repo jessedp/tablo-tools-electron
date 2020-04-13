@@ -86,7 +86,7 @@ export default class VideoExport extends Component<Props, State> {
     this.setState({ exportState: EXP_DONE });
   };
 
-  cancelProcess = async (updateState = true) => {
+  cancelProcess = async (updateState: boolean = true) => {
     this.shouldCancel = true;
 
     await Object.keys(this.airingRefs).forEach(async id => {
@@ -98,7 +98,6 @@ export default class VideoExport extends Component<Props, State> {
   };
 
   close = async () => {
-    this.cancelProcess();
     this.shouldCancel = false;
     this.setState({
       opened: false,

@@ -49,6 +49,10 @@ export default class Search extends Component<Props> {
     this.SearchForm.delItem(airing);
   };
 
+  receiveRefresh = () => {
+    this.SearchForm.search();
+  };
+
   render() {
     return (
       <>
@@ -63,6 +67,7 @@ export default class Search extends Component<Props> {
           ref={searchResults => (this.SearchResults = searchResults)}
           addItem={this.receiveAddItem}
           delItem={this.receiveDelItem}
+          refresh={this.receiveRefresh}
         />
       </>
     );

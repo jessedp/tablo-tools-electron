@@ -10,7 +10,8 @@
  *
  * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
+
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -19,7 +20,42 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    // autoUpdater.autoDownload = false;
+    autoUpdater.allowPrerelease = true;
+
+    ipcMain.on('update-request', event => {
+      autoUpdater.on('error', error => {
+        console.error(error);
+        const data = {
+          available: false,
+          error,
+          info: {}
+        };
+        event.sender.send(data);
+      });
+      /**
+      autoUpdater.on('update-not-available', info => {
+        console.log(info);
+      });
+     */
+
+      autoUpdater.on('update-available', info => {
+        console.log('update available!', info);
+        const data = {
+          available: true,
+          info,
+          error: null
+        };
+        event.sender.send('update-reply', data);
+      });
+
+      autoUpdater.checkForUpdates();
+    });
+
+    // autoUpdater.checkForUpdates();
+    // setTimeout(autoUpdater.checkForUpdates, 2000);
+
+    // autoUpdater.checkForUpdatesAndNotify();
   }
 }
 

@@ -62,8 +62,9 @@ export default class RecordingExport extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    const { exportState } = this.state;
     const { airing } = this.props;
-    airing.cancelVideoProcess();
+    if (exportState === EXP_WORKING) airing.cancelVideoProcess();
   }
 
   startTimer() {
