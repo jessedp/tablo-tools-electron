@@ -4418,7 +4418,7 @@ color@^3.0.0:
     color-convert "^1.9.1"
     color-string "^1.5.2"
 
-colors@^1.3.2, colors@^1.3.3:
+colors@^1.1.2, colors@^1.3.2, colors@^1.3.3:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
   integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
@@ -5707,6 +5707,14 @@ electron-log@^4.0.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.1.1.tgz#c57e3d833f723742eb430dc2cdaa6f97d8dbcaff"
   integrity sha512-vkK3rNBOciRiinxrsdgg8hyUia+ct8ZMjBblvKjgNk4uHEDjjSyn313NOwv75xOMVIKlfmYzxaN8kR/oGC33aQ==
+
+electron-logger@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/electron-logger/-/electron-logger-0.0.3.tgz#5166e62f4ed6e1cb941fdd6ba1d787b18073b29a"
+  integrity sha1-UWbmL07W4cuUH91rodeHsYBzspo=
+  dependencies:
+    colors "^1.1.2"
+    merge "^1.2.0"
 
 electron-publish@22.4.1:
   version "22.4.1"
@@ -9937,6 +9945,11 @@ merge2@^1.2.3, merge2@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.3.0.tgz#5b366ee83b2f1582c48f87e47cf1a9352103ca81"
   integrity sha512-2j4DAdlBOkiSZIsaXk4mTE3sRS02yBHAtfy127xRV3bQUFqXkjHCHLW6Scv7DwNRbIWNHH8zpnz9zMaKXIdvYw==
+
+merge@^1.2.0:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/merge/-/merge-1.2.1.tgz#38bebf80c3220a8a487b6fcfb3941bb11720c145"
+  integrity sha512-VjFo4P5Whtj4vsLzsYBu5ayHhoHJ0UqNm7ibvShmbmoz7tGi0vXaoJbGdB+GmDMLUdg8DpQXEIeVDAe8MaABvQ==
 
 methods@~1.1.2:
   version "1.1.2"
