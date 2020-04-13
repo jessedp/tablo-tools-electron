@@ -1,7 +1,8 @@
 // @flow
 // import ffmpeg from 'ffmpeg-static-electron';
 import ffmpeg from 'ffmpeg-static-electron-jdp';
-
+import { exec } from 'child_process';
+import os from 'os';
 import fs from 'fs';
 import * as fsPath from 'path';
 
@@ -456,6 +457,12 @@ export default class Airing {
 
     if (debug) console.log(`ffmpegPath2 : ${ffmpegPath2}`);
 
+    if (os.platform() === 'darwin') {
+      // mac is giving an EACCES - maybe it needs to be chmod'd?
+      exec(`chmod +x ${ffmpegPath2}`, (error, stdout) => {
+        console.log('chmod stdout: ', stdout, ' error: ', error);
+      });
+    }
     FfmpegCommand.setFfmpegPath(ffmpegPath2);
 
     const watchPath = await this.watch();
