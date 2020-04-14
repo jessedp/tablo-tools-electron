@@ -321,7 +321,7 @@ export default class Airing {
     let outPath = '';
     switch (this.type) {
       case MOVIE:
-        outPath = fsPath.join(config.episodePath, sanitize(showTitle));
+        outPath = fsPath.join(config.moviePath, sanitize(showTitle));
         return outPath;
       case EVENT:
         outPath = fsPath.join(config.eventPath, sanitize(showTitle));
