@@ -17,13 +17,29 @@ import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
 
-type Props = {};
-type State = { current: string, updateData: UpdateMessage };
+type File = {
+  url: string,
+  sha512: string,
+  size: number,
+  blockMapSize: number
+};
 
 type UpdateMessage = {
   available: boolean,
-  info: any,
-  error: string | null
+  version: string,
+  files: Array<File>,
+  path: string,
+  sha512: string,
+  releaseDate: string,
+  releaseName: string,
+  releaseNotes: string
+};
+
+type Props = {};
+type State = {
+  current: string,
+  updateAvailable: boolean,
+  updateData?: UpdateMessage
 };
 
 export default class Sidebar extends Component<Props, State> {
@@ -33,7 +49,7 @@ export default class Sidebar extends Component<Props, State> {
     super();
     this.state = {
       current: routes.HOME,
-      updateData: { available: false, error: '', info: null }
+      updateAvailable: false
     };
     (this: any).setHome = this.setHome.bind(this);
     (this: any).setOvw = this.setOvw.bind(this);
@@ -43,27 +59,29 @@ export default class Sidebar extends Component<Props, State> {
 
   async componentDidMount(): * {
     const checkUpdate = () => ipcRenderer.send('update-request');
-    setInterval(checkUpdate, 60000);
-    setTimeout(checkUpdate, 1000);
+    if (process.env.NODE_ENV === 'production') {
+      setInterval(checkUpdate, 1000 * 60 * 60);
+      setTimeout(checkUpdate, 1000);
+    } else {
+      setInterval(checkUpdate, 5000);
+    }
 
     ipcRenderer.on('update-reply', (event, msg) => {
       this.processUpdate(msg);
     });
   }
 
-  async processUpdate(msg: UpdateMessage) {
-    console.log('processUpdate', msg);
-
+  async processUpdate(msg: any) {
     console.log(msg);
     if (msg.error) {
       console.error('Problem updating: ', msg.error);
       this.setState({
-        updateData: { available: false, error: msg.error, info: null }
+        updateAvailable: false
       });
     }
 
     if (msg.available === true) {
-      await this.setState({ updateData: msg });
+      await this.setState({ updateAvailable: true, updateData: msg.info });
     }
   }
 
@@ -88,8 +106,8 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   render() {
-    const { current, updateData } = this.state;
-    console.log(updateData);
+    const { current, updateAvailable, updateData } = this.state;
+
     const baseClass = '';
     let homeBtnClass = baseClass;
     let ovwBtnClass = baseClass;
@@ -174,7 +192,7 @@ export default class Sidebar extends Component<Props, State> {
             </Button>
           </LinkContainer>
         </Col>
-        <VersionStatus updateData={updateData} />
+        <VersionStatus updateData={updateData} available={updateAvailable} />
       </Row>
     );
   }
@@ -185,40 +203,14 @@ function VersionStatus(prop) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  let { updateData } = prop;
+  const { updateData, available } = prop;
 
-  updateData = {
-    available: true,
-    info: {
-      version: '0.1.5-alpha.1',
-      files: [
-        {
-          url: 'TabloTools-0.1.5-alpha.1.AppImage',
-          sha512:
-            'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
-          size: 126827108,
-          blockMapSize: 133752
-        }
-      ]
-    },
-    path: 'TabloTools-0.1.5-alpha.1.AppImage',
-    sha512:
-      'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
-    releaseDate: '2020-04-13T14:56:04.632Z',
-    releaseName: '0.1.5-alpha.1',
-    releaseNotes:
-      '<p>Fix one for loading Airings where the data is physically missing.</p>'
-  };
-
-  const { info } = updateData;
-
-  if (!updateData || !updateData.available) return <></>;
-  console.log('updateData.releaseDate', updateData.releaseDate);
+  if (!updateData || !available) return <></>;
 
   let color = 'text-warning ';
   let type = 'NEW Release ';
   let isRelease = true;
-  if (info.version.match(/[a-zA-Z]/)) {
+  if (updateData.version.match(/[a-zA-Z]/)) {
     type = 'Pre-release ';
     color = 'text-secondary';
     isRelease = false;
@@ -228,8 +220,8 @@ function VersionStatus(prop) {
     Date.parse(updateData.releaseDate),
     'ccc M/d/yy @ h:m:s a'
   );
-  const title = `v${info.version} available as of ${releaseDate}`;
-  const downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${info.version}/${updateData.path}`;
+  const title = `v${updateData.version} available as of ${releaseDate}`;
+  const downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${updateData.version}/${updateData.path}`;
 
   return (
     <>
@@ -256,7 +248,7 @@ function VersionStatus(prop) {
         </Modal.Header>
         <Modal.Body>
           <div>
-            {type} v{info.version} was released{' '}
+            {type} v{updateData.version} was released{' '}
             <RelativeDate date={updateData.releaseDate} />.
           </div>
           {isRelease ? (
@@ -280,7 +272,7 @@ function VersionStatus(prop) {
             variant="outline-secondary"
             onClick={() => shell.openExternal(downloadUrl)}
           >
-            Download v{info.version} now!
+            Download v{updateData.version} now!
           </Button>
           <div className="pt-2 smaller">
             Once that&apos;s complete, install it and you&apos;re ready to go!
@@ -297,7 +289,32 @@ function VersionStatus(prop) {
 }
 
 /**
- const testData = {
+ updateData = {
+    available: true,
+    info: {
+    info: {
+      version: '0.1.5-alpha.1',
+      files: [
+        {
+          url: 'TabloTools-0.1.5-alpha.1.AppImage',
+          sha512:
+            'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+          size: 126827108,
+          blockMapSize: 133752
+        }
+      ]
+    },
+    path: 'TabloTools-0.1.5-alpha.1.AppImage',
+    sha512:
+      'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+    releaseDate: '2020-04-13T14:56:04.632Z',
+    releaseName: '0.1.5-alpha.1',
+    releaseNotes:
+      '<p>Fix one for loading Airings where the data is physically missing.</p>'
+  };
+
+
+ const updateData = {
   available: true,
   info: {
     version: '0.1.3',
