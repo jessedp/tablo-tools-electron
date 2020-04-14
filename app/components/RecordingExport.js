@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import Modal from 'react-bootstrap/Modal';
+import Spinner from 'react-bootstrap/Spinner';
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
@@ -233,11 +234,13 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_DONE) {
     return (
-      <Alert variant="success" className="m-0 muted">
+      <Alert variant="success" className="m-0 muted smaller">
         <Row>
-          <Col md="12">
+          <Col md="8">
             <span className="fa fa-check-circle pr-2" />
             <span className="pr-5">Finished in {timeStr}</span>
+          </Col>
+          <Col md="4" className="text-right">
             <FfmpegLog log={ffmpegLog} />
           </Col>
         </Row>
@@ -247,11 +250,13 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_CANCEL) {
     return (
-      <Alert variant="warning" className="m-0 muted">
+      <Alert variant="warning" className="m-0 muted smaller">
         <Row>
-          <Col md="12">
+          <Col md="8">
             <span className="fa fa-check-circle pr-2" />
             <span className="pr-5">Canceled after {timeStr}</span>
+          </Col>
+          <Col md="4" className="text-right">
             <FfmpegLog log={ffmpegLog} />
           </Col>
         </Row>
@@ -259,26 +264,45 @@ function ExportProgress(prop: EPProp) {
     );
   }
 
+  if (inc === 0) {
+    return (
+      <Alert
+        variant="light"
+        className="m-0 muted smaller p-1 pl-3"
+        size="sm"
+        style={{ maxHeight: '30px' }}
+      >
+        <Spinner
+          animation="border"
+          variant="warning"
+          style={{ margin: 0, padding: 0 }}
+        />
+      </Alert>
+    );
+  }
+
   // if (exportState === EXP_WORKING)
   const pctLbl = `${Math.round(inc)} %`;
   return (
-    <div className="d-flex flex-row">
-      <div style={{ width: '100%' }}>
-        <ProgressBar
-          animated
-          max="100"
-          now={inc}
-          label={pctLbl}
-          className="m-0"
-        />
-        <span className="d-flex justify-content-center smaller muted">
-          {label}
-        </span>
+    <Alert variant="light" className="m-0 muted smaller p-1">
+      <div className="d-flex flex-row pt-1">
+        <div style={{ width: '100%' }}>
+          <ProgressBar
+            animated
+            max="100"
+            now={inc}
+            label={pctLbl}
+            className="m-0"
+          />
+          <span className="d-flex justify-content-center smaller muted">
+            {label}
+          </span>
+        </div>
+        <div>
+          <Timer timeStr={timeStr} />
+        </div>
       </div>
-      <div>
-        <Timer timeStr={timeStr} />
-      </div>
-    </div>
+    </Alert>
   );
 }
 

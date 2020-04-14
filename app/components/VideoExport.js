@@ -6,6 +6,8 @@ import Modal from 'react-bootstrap/Modal';
 // import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Form from 'react-bootstrap/Form';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import { throttleActions } from '../utils/utils';
@@ -63,6 +65,7 @@ export default class VideoExport extends Component<Props, State> {
   };
 
   processVideo = async () => {
+    const { airingList } = this.props;
     const { exportState, atOnce } = this.state;
 
     if (exportState === EXP_DONE) return;
@@ -70,11 +73,12 @@ export default class VideoExport extends Component<Props, State> {
 
     const actions = [];
 
-    Object.keys(this.airingRefs).forEach(id => {
-      if (this.airingRefs[id].current)
+    await airingList.forEach(async rec => {
+      const ref = this.airingRefs[rec.object_id];
+      // if (this.airingRefs[id].current)
+      if (ref.current)
         actions.push(() => {
-          if (this.shouldCancel === false)
-            return this.airingRefs[id].current.processVideo();
+          if (this.shouldCancel === false) return ref.current.processVideo();
         });
     });
 
@@ -87,12 +91,21 @@ export default class VideoExport extends Component<Props, State> {
   };
 
   cancelProcess = async (updateState: boolean = true) => {
+    const { airingList } = this.props;
+
     this.shouldCancel = true;
 
+    await airingList.forEach(async rec => {
+      const ref = this.airingRefs[rec.object_id];
+      if (ref.current) await ref.current.cancelProcess();
+    });
+
+    /**
     await Object.keys(this.airingRefs).forEach(async id => {
       if (this.airingRefs[id].current)
         await this.airingRefs[id].current.cancelProcess();
     });
+     * */
 
     if (updateState) this.setState({ exportState: EXP_CANCEL });
   };
@@ -193,7 +206,7 @@ VideoExport.defaultProps = { label: '' };
  * @return {string}
  */
 function ExportButton(prop) {
-  const { state, cancel, close, process } = prop;
+  const { state, cancel, close, process, atOnce, atOnceChange } = prop;
   // , atOnce, atOnceChange
 
   if (state === EXP_WORKING) {
@@ -215,6 +228,28 @@ function ExportButton(prop) {
   // if state === EXP_WAITING || EXP_CANCEL
   return (
     <Row>
+      <Col md="auto">
+        <InputGroup size="sm" className="pt-1">
+          <InputGroup.Prepend>
+            <InputGroup.Text title="More than 2 is probably silly, but YOLO!">
+              <span className="fa fa-info pr-2" />
+              Max:
+            </InputGroup.Text>
+          </InputGroup.Prepend>
+          <Form.Control
+            as="select"
+            value={atOnce}
+            aria-describedby="btnState"
+            onChange={atOnceChange}
+            title="More than 2 is probably silly, but YOLO!"
+          >
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+          </Form.Control>
+        </InputGroup>
+      </Col>
       <Col md="auto">
         <Button variant="primary" onClick={process} className="mr-2">
           Export
