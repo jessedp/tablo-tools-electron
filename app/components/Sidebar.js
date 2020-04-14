@@ -233,7 +233,7 @@ function VersionStatus(prop) {
 
   return (
     <>
-      <div className="">
+      <div className="pt-1">
         <Button
           as="div"
           className=""
