@@ -185,33 +185,70 @@ function VersionStatus(prop) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const { updateData } = prop;
+  let { updateData } = prop;
+
+  updateData = {
+    available: true,
+    info: {
+      version: '0.1.5-alpha.1',
+      files: [
+        {
+          url: 'TabloTools-0.1.5-alpha.1.AppImage',
+          sha512:
+            'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+          size: 126827108,
+          blockMapSize: 133752
+        }
+      ]
+    },
+    path: 'TabloTools-0.1.5-alpha.1.AppImage',
+    sha512:
+      'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+    releaseDate: '2020-04-13T14:56:04.632Z',
+    releaseName: '0.1.5-alpha.1',
+    releaseNotes:
+      '<p>Fix one for loading Airings where the data is physically missing.</p>'
+  };
+
   const { info } = updateData;
 
   if (!updateData || !updateData.available) return <></>;
+  console.log('updateData.releaseDate', updateData.releaseDate);
+
+  let color = 'text-warning ';
+  let type = 'NEW Release ';
+  let isRelease = true;
+  if (info.version.match(/[a-zA-Z]/)) {
+    type = 'Pre-release ';
+    color = 'text-secondary';
+    isRelease = false;
+  }
 
   const releaseDate = format(
-    Date.parse(info.releaseDate),
+    Date.parse(updateData.releaseDate),
     'ccc M/d/yy @ h:m:s a'
   );
   const title = `v${info.version} available as of ${releaseDate}`;
-  const downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${info.version}/${info.path}`;
+  const downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${info.version}/${updateData.path}`;
 
   return (
     <>
-      <Button
-        as="div"
-        variant="outline-light"
-        className="pt-1"
-        onClick={handleShow}
-        onKeyDown={handleShow}
-        role="button"
-        title={title}
-      >
-        <span className="text-warning" style={{ fontSize: '20px' }}>
-          <span className="fa fa-exclamation-circle" />
-        </span>
-      </Button>
+      <div className="pt-1">
+        <Button
+          as="div"
+          className=""
+          variant="outline-light"
+          onClick={handleShow}
+          onKeyDown={handleShow}
+          role="button"
+          title={title}
+          size="xs"
+        >
+          <span className={color} style={{ fontSize: '14px' }}>
+            <span className="fa fa-exclamation-circle" />
+          </span>
+        </Button>
+      </div>
 
       <Modal show={show} onHide={handleClose} scrollable>
         <Modal.Header closeButton>
@@ -219,10 +256,25 @@ function VersionStatus(prop) {
         </Modal.Header>
         <Modal.Body>
           <div>
-            v{info.version} was released{' '}
-            <RelativeDate date={info.releaseDate} />.
+            {type} v{info.version} was released{' '}
+            <RelativeDate date={updateData.releaseDate} />.
           </div>
-
+          {isRelease ? (
+            ''
+          ) : (
+            <div className="text-danger">
+              This is a pre-release. It may be broken. It may be to test a fix.
+              It may not do anyting interesting. You&apos;ve been warned.
+            </div>
+          )}
+          <br />
+          <h6>Notes:</h6>
+          <code>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div
+              dangerouslySetInnerHTML={{ __html: updateData.releaseNotes }}
+            />
+          </code>
           <Button
             className="pt-2"
             variant="outline-secondary"

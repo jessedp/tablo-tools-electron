@@ -452,8 +452,12 @@ export default class SearchForm extends Component<Props, State> {
       sendResults({ loading: true });
 
       await asyncForEach(recs, async doc => {
-        const airing = await Airing.create(doc);
-        airingList.push(airing);
+        try {
+          const airing = await Airing.create(doc);
+          airingList.push(airing);
+        } catch (e) {
+          console.log('Unable to load Airing data: ', e);
+        }
       });
 
       description = `${recs.length} recordings found ${description}`;

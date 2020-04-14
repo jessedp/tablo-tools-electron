@@ -22,7 +22,6 @@ const MOVIE = 'movie';
 const EVENT = 'event';
 const PROGRAM = 'program';
 
-const cmd = new FfmpegCommand();
 let outFile = '';
 
 export default class Airing {
@@ -78,6 +77,8 @@ export default class Airing {
 
   // eslint-disable-next-line camelcase
   series_path: string;
+
+  cmd: any;
 
   constructor(data: Object) {
     Object.assign(this, data);
@@ -241,7 +242,7 @@ export default class Airing {
       case PROGRAM:
         return this.program_path;
       default:
-        throw new Error('unknown airing type!');
+        throw new Error(`unknown airing type! ${this.type}`);
     }
   }
 
@@ -370,7 +371,7 @@ export default class Airing {
 
   cancelVideoProcess() {
     const { _id, path } = this;
-    cmd.kill();
+    this.cmd.kill();
     try {
       fs.unlinkSync(outFile);
     } catch (e) {
@@ -482,7 +483,8 @@ export default class Airing {
     return new Promise(resolve => {
       const ffmpegLog = [];
       let record = true;
-      cmd
+      this.cmd = new FfmpegCommand();
+      this.cmd
         .input(input)
         .output(outFile)
         .addOutputOptions(ffmpegOpts)
@@ -533,7 +535,7 @@ export default class Airing {
 
       // setTimeout(this.cancelVideoProcess, 10000);
 
-      cmd.run();
+      this.cmd.run();
     });
   }
 }
