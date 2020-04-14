@@ -242,7 +242,7 @@ export default class Airing {
       case PROGRAM:
         return this.program_path;
       default:
-        throw new Error('unknown airing type!');
+        throw new Error(`unknown airing type! ${this.type}`);
     }
   }
 

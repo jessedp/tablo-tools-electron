@@ -113,7 +113,11 @@ export default class Build extends Component<Props, State> {
     const showPaths = [];
     recs.forEach(rec => {
       const airing = new Airing(rec);
-      showPaths.push(airing.typePath);
+      try {
+        showPaths.push(airing.typePath);
+      } catch (e) {
+        console.log('error pushing airing.typePath into showPaths - skipping');
+      }
     });
 
     const shows = await Api.batch([...new Set(showPaths)]);
