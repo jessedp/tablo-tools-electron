@@ -20,7 +20,7 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    // autoUpdater.autoDownload = false;
+    autoUpdater.autoDownload = false;
     autoUpdater.allowPrerelease = true;
 
     ipcMain.on('update-request', event => {
@@ -31,8 +31,9 @@ export default class AppUpdater {
           error,
           info: {}
         };
-        event.sender.send(data);
+        event.sender.send('update-reply', data);
       });
+
       /**
       autoUpdater.on('update-not-available', info => {
         console.log(info);
@@ -40,7 +41,6 @@ export default class AppUpdater {
      */
 
       autoUpdater.on('update-available', info => {
-        console.log('update available!', info);
         const data = {
           available: true,
           info,
@@ -55,7 +55,7 @@ export default class AppUpdater {
     // autoUpdater.checkForUpdates();
     // setTimeout(autoUpdater.checkForUpdates, 2000);
 
-    // autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
