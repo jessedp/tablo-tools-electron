@@ -45,7 +45,7 @@ export default class Checkbox extends Component<Props, State> {
     const { checked } = this.state;
 
     return (
-      <div>
+      <span>
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label>
           <FullCheckbox
@@ -53,7 +53,7 @@ export default class Checkbox extends Component<Props, State> {
             onChange={this.handleCheckboxChange}
           />
         </label>
-      </div>
+      </span>
     );
   }
 }
@@ -79,7 +79,7 @@ FullCheckbox.defaultProps = {
   checked: false
 };
 
-const CheckboxContainer = styled.div`
+const CheckboxContainer = styled.span`
   display: inline-block;
   vertical-align: middle;
 `;
@@ -106,7 +106,7 @@ const Icon = styled.svg`
   padding-bottom: 7px;
 `;
 
-const StyledCheckbox = styled.div`
+const StyledCheckbox = styled.span`
   display: inline-block;
   width: 16px;
   height: 16px;
