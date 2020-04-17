@@ -78,6 +78,7 @@ export default class Build extends Component<Props, State> {
       return;
     }
     this.building = true;
+    console.time('Building');
 
     showDbTable(false);
 
@@ -134,6 +135,7 @@ export default class Build extends Component<Props, State> {
       });
 
       localStorage.setItem('LastDbBuild', new Date().toISOString());
+      console.timeEnd('Building');
     } catch (e) {
       console.log('Error Building! Reseting...', e);
       this.building = false;
