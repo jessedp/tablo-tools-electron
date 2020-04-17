@@ -40,7 +40,7 @@ export default class ExportData extends Component<Props, State> {
     this.state = {
       state: STATE_WAITING,
       enableServerInfo: CHECKBOX_ON,
-      enableRecordings: CHECKBOX_OFF,
+      enableRecordings: CHECKBOX_ON,
       serverInfoStatus: '',
       recordingStatus: ''
     };
@@ -101,7 +101,7 @@ export default class ExportData extends Component<Props, State> {
     }
     // need it for the file name, so...
     const info = await Api.getServerInfo();
-
+    delete info.private_ip;
     const filename = `${info.server_id}_Export.zip`;
     const tmpFile = path.join(tmpDir, filename);
 
@@ -225,7 +225,7 @@ export default class ExportData extends Component<Props, State> {
         });
       })
       .catch(err => {
-        console.log(err.response.data);
+        bail(err.response.data);
       });
   };
 
