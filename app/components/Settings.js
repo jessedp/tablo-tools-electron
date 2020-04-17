@@ -12,6 +12,7 @@ import Col from 'react-bootstrap/Col';
 import { isValidIp } from '../utils/utils';
 import { updateApi } from '../utils/Tablo';
 import getConfig, { ConfigType } from '../utils/config';
+import ExportData from './ExportData';
 
 const SAVE_NONE = 0;
 const SAVE_FAIL = 1;
@@ -119,7 +120,20 @@ export default class Settings extends Component<Props, ConfigType> {
       <Container>
         <Row style={{ width: '100%' }}>
           <Col>
-            <Alert variant="primary"> Settings</Alert>
+            <Alert variant="primary">
+              <h4>
+                Settings
+                <Button
+                  size="sm"
+                  className="mt-1 ml-5"
+                  variant="light"
+                  type="button"
+                  onClick={this.saveConfig}
+                >
+                  Save
+                </Button>
+              </h4>
+            </Alert>
           </Col>
         </Row>
         <Row>
@@ -218,10 +232,23 @@ export default class Settings extends Component<Props, ConfigType> {
             </Form.Row>
           </Form>
         </Row>
+
+        <Row className="mb-2">
+          <Col>
+            <Button
+              size="sm"
+              variant="primary"
+              type="button"
+              onClick={this.saveConfig}
+            >
+              Save
+            </Button>
+          </Col>
+        </Row>
         <Row>
-          <Button variant="primary" type="button" onClick={this.saveConfig}>
-            Save
-          </Button>
+          <Col>
+            <ExportData />
+          </Col>
         </Row>
       </Container>
     );
