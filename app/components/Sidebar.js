@@ -62,8 +62,6 @@ export default class Sidebar extends Component<Props, State> {
     if (process.env.NODE_ENV === 'production') {
       setInterval(checkUpdate, 1000 * 60 * 60);
       setTimeout(checkUpdate, 1000);
-    } else {
-      setInterval(checkUpdate, 5000);
     }
 
     ipcRenderer.on('update-reply', (event, msg) => {
