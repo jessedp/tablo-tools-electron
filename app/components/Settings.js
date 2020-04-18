@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import bsCustomFileInput from 'bs-custom-file-input';
 
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
@@ -9,16 +10,20 @@ import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+import InputGroup from 'react-bootstrap/InputGroup';
 import { isValidIp } from '../utils/utils';
 import { updateApi } from '../utils/Tablo';
 import getConfig, { ConfigType } from '../utils/config';
 import ExportData from './ExportData';
+import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 
 const SAVE_NONE = 0;
 const SAVE_FAIL = 1;
 const SAVE_SUCCESS = 2;
 
 type Props = {};
+
+const { dialog } = require('electron').remote;
 
 export default class Settings extends Component<Props, ConfigType> {
   props: Props;
@@ -35,6 +40,7 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setEpisodePath = this.setEpisodePath.bind(this);
     this.setMoviePath = this.setMoviePath.bind(this);
     this.setEventPath = this.setEventPath.bind(this);
+    this.setPathDialog = this.setPathDialog.bind(this);
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
@@ -45,6 +51,22 @@ export default class Settings extends Component<Props, ConfigType> {
 
     this.saveConfig = this.saveConfig.bind(this);
   }
+
+  componentDidMount(): * {
+    bsCustomFileInput.init();
+  }
+
+  setPathDialog = (field: string) => {
+    const file = dialog.showOpenDialogSync({
+      properties: ['openDirectory']
+    });
+    if (file) {
+      const fields = {};
+      // eslint-disable-next-line prefer-destructuring
+      fields[field] = file[0];
+      this.setState(fields);
+    }
+  };
 
   saveConfig = () => {
     const cleanState = { ...this.state };
@@ -70,20 +92,23 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ saveState: result, saveData: [] });
   };
 
-  toggleIpOverride = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ enableIpOverride: event.currentTarget.checked });
+  toggleIpOverride = () => {
+    const { enableIpOverride } = this.state;
+    this.setState({ enableIpOverride: !enableIpOverride });
   };
 
-  toggleAutoRebuild = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ autoRebuild: event.currentTarget.checked });
+  toggleAutoRebuild = () => {
+    const { autoRebuild } = this.state;
+    this.setState({ autoRebuild: !autoRebuild });
   };
 
   setOverrideIp = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ overrideIp: event.currentTarget.value });
   };
 
-  toggleDataExport = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ enableExportData: event.currentTarget.checked });
+  toggleDataExport = () => {
+    const { enableExportData } = this.state;
+    this.setState({ enableExportData: !enableExportData });
   };
 
   setExportDataPath = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -118,133 +143,129 @@ export default class Settings extends Component<Props, ConfigType> {
 
     return (
       <Container>
-        <Row style={{ width: '100%' }}>
-          <Col>
-            <Alert variant="primary">
-              <h4>
-                Settings
-                <Button
-                  size="sm"
-                  className="mt-1 ml-5"
-                  variant="light"
-                  type="button"
-                  onClick={this.saveConfig}
-                >
-                  Save
-                </Button>
-              </h4>
-            </Alert>
-          </Col>
-        </Row>
+        <Alert variant="primary" className="p-2 m-2">
+          <Row>
+            <Col md="2" className="pt-2">
+              <h4 className="pl-2">Settings</h4>
+            </Col>
+            <Col>
+              <Button
+                size="sm"
+                className="mt-1 ml-5"
+                variant="outline-light"
+                type="button"
+                onClick={this.saveConfig}
+              >
+                Save
+              </Button>
+            </Col>
+          </Row>
+        </Alert>
         <Row>
           <Col>
             <SaveStatus invalid={saveData} state={saveState} />
           </Col>
         </Row>
-        <Row>
-          <Form style={{ width: '100%' }} onSubmit={e => e.preventDefault()}>
-            <Form.Row>
-              <Form.Group controlId="episodePath" style={{ width: '35%' }}>
-                <Form.Label>Series/Episode Path</Form.Label>
-                <Form.Control
-                  value={episodePath}
-                  type="text"
-                  placeholder="Enter Episode Path"
-                  onChange={this.setEpisodePath}
-                />
-              </Form.Group>
-            </Form.Row>
-            <Form.Row>
-              <Form.Group controlId="moviePath" style={{ width: '35%' }}>
-                <Form.Label>Movie Path</Form.Label>
-                <Form.Control
-                  value={moviePath}
-                  type="text"
-                  placeholder="Enter Movie Path"
-                  onChange={this.setMoviePath}
-                />
-              </Form.Group>
-            </Form.Row>
-            <Form.Row>
-              <Form.Group controlId="eventPath" style={{ width: '35%' }}>
-                <Form.Label>Sport/Event Path</Form.Label>
-                <Form.Control
-                  value={eventPath}
-                  type="text"
-                  placeholder="Enter Event Path"
-                  onChange={this.setEventPath}
-                />
-              </Form.Group>
-            </Form.Row>
 
-            <Form.Row>
-              <Form.Group controlId="autoRebuild">
-                <Form.Check
-                  checked={autoRebuild}
-                  className="pr-2"
-                  onChange={this.toggleAutoRebuild}
-                  type="checkbox"
-                  label="Enable automatically rebuilding local database?"
-                />
-              </Form.Group>
-            </Form.Row>
-
-            <Alert variant="warning">Advanced</Alert>
-
-            <Form.Row>
-              <Form.Group controlId="overrideIp">
-                <Form.Check
-                  checked={enableIpOverride}
-                  className="pr-2"
-                  onChange={this.toggleIpOverride}
-                  type="checkbox"
-                  label="Override Tablo IP?"
-                />
-                <Form.Control
-                  value={overrideIp}
-                  type="text"
-                  placeholder="Enter IP"
-                  onChange={this.setOverrideIp}
-                  disabled={!enableIpOverride}
-                />
-              </Form.Group>
-            </Form.Row>
-
-            <Form.Row>
-              <Form.Group controlId="exportData">
-                <Form.Check
-                  checked={enableExportData}
-                  onChange={this.toggleDataExport}
-                  type="checkbox"
-                  label="Export Tablo Data?"
-                />
-                <span className="smaller">
-                  Writes out the raw JSON received from the Tablo to files.
-                </span>
-                <Form.Control
-                  value={exportDataPath}
-                  type="text"
-                  placeholder="Enter Path"
-                  onChange={this.setExportDataPath}
-                  disabled={!enableExportData}
-                />
-              </Form.Group>
-            </Form.Row>
-          </Form>
-        </Row>
-
-        <Row className="mb-2">
+        <Row className="mt-3" style={{ width: '375px' }}>
           <Col>
-            <Button
-              size="sm"
-              variant="primary"
-              type="button"
-              onClick={this.saveConfig}
-            >
-              Save
-            </Button>
+            <Checkbox
+              handleChange={this.toggleAutoRebuild}
+              checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
+              label="Enable automatically rebuilding local database?"
+            />
           </Col>
         </Row>
+
+        <Row className="p-1 mb-2">
+          <Col md="7" className="pt-1 border bg-light">
+            <h6 className="pt-1">Export Paths:</h6>
+          </Col>
+        </Row>
+
+        <Directory
+          label="Series/Episode"
+          onClick={() => this.setPathDialog('episodePath')}
+          onChange={this.setEpisodePath}
+          value={episodePath}
+          disabled={false}
+        />
+        <Directory
+          label="Movie"
+          onClick={() => this.setPathDialog('moviePath')}
+          onChange={this.setMoviePath}
+          value={moviePath}
+          disabled={false}
+        />
+        <Directory
+          label="Sport/Event"
+          onClick={() => this.setPathDialog('eventPath')}
+          onChange={this.setEventPath}
+          value={eventPath}
+          disabled={false}
+        />
+        <br />
+
+        <Row className="p-1 mb-2">
+          <Col md="7" className="pt-1 border bg-light">
+            <h6 className="pt-1">Advanced:</h6>
+          </Col>
+        </Row>
+
+        <div style={{ width: '375px' }}>
+          <Row>
+            <Col>
+              <Checkbox
+                handleChange={this.toggleIpOverride}
+                checked={enableIpOverride ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Override Tablo IP?"
+              />
+            </Col>
+          </Row>
+          <Row className="m-0 p-0">
+            <Col>
+              <Form.Control
+                value={overrideIp}
+                type="text"
+                placeholder="Enter IP"
+                onChange={this.setOverrideIp}
+                disabled={!enableIpOverride}
+              />
+            </Col>
+          </Row>
+          <Row className="mt-4">
+            <Col>
+              <Checkbox
+                handleChange={this.toggleDataExport}
+                checked={enableExportData ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Export Tablo Data?"
+              />
+              <div className="smaller">
+                Writes out the raw JSON received from the Tablo to files.
+              </div>
+            </Col>
+          </Row>
+        </div>
+        <div>
+          <Row>
+            <Col>
+              <Directory
+                label="Export Path"
+                onClick={() => this.setPathDialog('exportDataPath')}
+                onChange={this.setExportDataPath}
+                value={exportDataPath}
+                disabled={!enableExportData}
+              />
+            </Col>
+          </Row>
+        </div>
+
+        <Row className="p-1 mb-2 mt-5">
+          <Col md="7" className="pt-1 border bg-warning">
+            <h6 className="pt-1 text-white">DEBUG:</h6>
+          </Col>
+        </Row>
+
         <Row>
           <Col>
             <ExportData />
@@ -274,5 +295,45 @@ function SaveStatus(prop) {
         <li>{item}</li>
       ))}
     </Alert>
+  );
+}
+
+function Directory(prop) {
+  const { label, value, onClick, onChange, disabled } = prop;
+
+  return (
+    <div className="d-flex flex-row">
+      <div>
+        <InputGroup className="">
+          <InputGroup.Prepend>
+            <Form.Label
+              className="pt-2 bg-light pb-1 pr-1 pl-1 border"
+              style={{ width: '110px' }}
+            >
+              {label}
+            </Form.Label>
+          </InputGroup.Prepend>
+          <Form.Control
+            type="text"
+            value={value}
+            placeholder={`Enter ${label}`}
+            style={{ width: '350px' }}
+            onChange={onChange}
+            disabled={disabled}
+          />
+          <InputGroup.Append>
+            <Button
+              style={{ height: '35px' }}
+              size="xs"
+              variant="outline-secondary"
+              onClick={onClick}
+              disabled={disabled}
+            >
+              Pick
+            </Button>
+          </InputGroup.Append>
+        </InputGroup>
+      </div>
+    </div>
   );
 }
