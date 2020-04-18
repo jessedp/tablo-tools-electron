@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 
-type Props = { checked?: number, handleChange: any };
+type Props = { checked?: number, label?: string, handleChange: any };
 type State = { checked: boolean };
 
 export const CHECKBOX_NATURAL = 0;
@@ -43,22 +43,24 @@ export default class Checkbox extends Component<Props, State> {
 
   render() {
     const { checked } = this.state;
-
+    const { label } = this.props;
     return (
-      <div>
+      <span>
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label>
           <FullCheckbox
             checked={checked}
             onChange={this.handleCheckboxChange}
           />
+          {label ? <span className="pl-2">{label}</span> : ''}
         </label>
-      </div>
+      </span>
     );
   }
 }
 Checkbox.defaultProps = {
-  checked: CHECKBOX_OFF
+  checked: CHECKBOX_OFF,
+  label: ''
 };
 
 // eslint-disable-next-line react/jsx-props-no-spreading,react/prop-types
@@ -79,7 +81,7 @@ FullCheckbox.defaultProps = {
   checked: false
 };
 
-const CheckboxContainer = styled.div`
+const CheckboxContainer = styled.span`
   display: inline-block;
   vertical-align: middle;
 `;
@@ -106,7 +108,7 @@ const Icon = styled.svg`
   padding-bottom: 7px;
 `;
 
-const StyledCheckbox = styled.div`
+const StyledCheckbox = styled.span`
   display: inline-block;
   width: 16px;
   height: 16px;

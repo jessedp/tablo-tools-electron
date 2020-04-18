@@ -16,6 +16,7 @@ import tabloLogo from '../../resources/tablo_tools_logo.png';
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
+import getConfig from '../utils/config';
 
 type File = {
   url: string,
@@ -62,8 +63,6 @@ export default class Sidebar extends Component<Props, State> {
     if (process.env.NODE_ENV === 'production') {
       setInterval(checkUpdate, 1000 * 60 * 60);
       setTimeout(checkUpdate, 1000);
-    } else {
-      setInterval(checkUpdate, 5000);
     }
 
     ipcRenderer.on('update-reply', (event, msg) => {
@@ -215,6 +214,13 @@ function VersionStatus(prop) {
     color = 'text-secondary';
     isRelease = false;
   }
+  const config = getConfig();
+  let notifyBeta = false;
+  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
+    notifyBeta = config.notifyBeta;
+  }
+
+  if (!notifyBeta) return <></>;
 
   const releaseDate = format(
     Date.parse(updateData.releaseDate),

@@ -78,55 +78,73 @@ export default class Build extends Component<Props, State> {
       return;
     }
     this.building = true;
+    console.time('Building');
 
     showDbTable(false);
 
     this.setState({ loading: STATE_LOADING, status: [] });
 
-    const total = await Api.getRecordings({ countOnly: true, force: true });
-    this.setState({ airingMax: total });
+    try {
+      const total = await Api.getRecordings({ countOnly: true, force: true });
+      this.setState({ airingMax: total });
 
-    const recs = await Api.getRecordings({
-      callback: val => {
-        this.setState({ airingInc: val });
-      }
-    });
+      const recs = await Api.getRecordings({
+        callback: val => {
+          this.setState({ airingInc: val });
+        }
+      });
 
-    // TODO: maybe put this elsewhere later
-    recs.forEach(rec => {
-      writeToFile(`airing-${rec.object_id}.json`, rec);
-    });
+      // TODO: maybe put this elsewhere later
+      recs.forEach(rec => {
+        writeToFile(`airing-${rec.object_id}.json`, rec);
+      });
 
-    console.log(`retrieved ${recs.length} recordings`);
-    const { status } = this.state;
-    status.push(`retrieved ${recs.length} recordings`);
+      console.log(`retrieved ${recs.length} recordings`);
+      const { status } = this.state;
+      status.push(`retrieved ${recs.length} recordings`);
 
-    let cnt = 0;
-    cnt = await RecDb.asyncRemove({}, { multi: true });
-    await ShowDb.asyncRemove({}, { multi: true });
+      let cnt = 0;
+      cnt = await RecDb.asyncRemove({}, { multi: true });
+      await ShowDb.asyncRemove({}, { multi: true });
 
-    console.log(`${cnt} old records removed`);
-    cnt = await RecDb.asyncInsert(recs);
-    console.log(`${cnt.length} records added`);
-    status.push(`${cnt.length} recordings found.`);
+      console.log(`${cnt} old records removed`);
+      cnt = await RecDb.asyncInsert(recs);
+      console.log(`${cnt.length} records added`);
+      status.push(`${cnt.length} recordings found.`);
 
-    const showPaths = [];
-    recs.forEach(rec => {
-      const airing = new Airing(rec);
-      try {
-        showPaths.push(airing.typePath);
-      } catch (e) {
-        console.log('error pushing airing.typePath into showPaths - skipping');
-      }
-    });
+      const showPaths = [];
+      recs.forEach(rec => {
+        const airing = new Airing(rec);
+        try {
+          showPaths.push(airing.typePath);
+        } catch (e) {
+          console.log(
+            'error pushing airing.typePath into showPaths - skipping'
+          );
+        }
+      });
 
-    const shows = await Api.batch([...new Set(showPaths)]);
+      const shows = await Api.batch([...new Set(showPaths)]);
 
-    cnt = await ShowDb.asyncInsert(shows);
-    console.log(`${cnt.length} SHOW records added`);
-    this.building = false;
-    await this.setState({ loading: STATE_FINISH, status });
-    localStorage.setItem('LastDbBuild', new Date().toISOString());
+      cnt = await ShowDb.asyncInsert(shows);
+      console.log(`${cnt.length} SHOW records added`);
+      this.building = false;
+      await this.setState({
+        loading: STATE_FINISH,
+        status
+      });
+
+      localStorage.setItem('LastDbBuild', new Date().toISOString());
+      console.timeEnd('Building');
+    } catch (e) {
+      console.log('Error Building! Reseting...', e);
+      this.building = false;
+      await this.setState({
+        loading: STATE_FINISH,
+        status: [`An error occurred, please try again. ${e}`]
+      });
+    }
+
     showDbTable(true);
   };
 
