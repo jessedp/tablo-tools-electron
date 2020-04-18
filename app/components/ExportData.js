@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { shell } from 'electron';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
@@ -10,6 +11,9 @@ import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Form from 'react-bootstrap/Form';
+
 import Alert from 'react-bootstrap/Alert';
 import Api from '../utils/Tablo';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
@@ -17,10 +21,11 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 type Props = {};
 type State = {
   state: number,
-  enableServerInfo: number,
-  enableRecordings: number,
+  enableServerInfo: boolean,
+  enableRecordings: boolean,
   serverInfoStatus: any,
-  recordingStatus: any
+  recordingStatus: any,
+  fileFullPath: string
 };
 
 const STATE_WAITING = 0;
@@ -39,37 +44,39 @@ export default class ExportData extends Component<Props, State> {
     this.shouldCancel = false;
     this.state = {
       state: STATE_WAITING,
-      enableServerInfo: CHECKBOX_ON,
-      enableRecordings: CHECKBOX_ON,
+      enableServerInfo: true,
+      enableRecordings: false,
       serverInfoStatus: '',
-      recordingStatus: ''
+      recordingStatus: '',
+      fileFullPath: ''
     };
 
     (this: any).startExport = this.startExport.bind(this);
     (this: any).cancelExport = this.cancelExport.bind(this);
     (this: any).toggleServerInfo = this.toggleServerInfo.bind(this);
     (this: any).toggleRecordings = this.toggleRecordings.bind(this);
+    (this: any).openExportFile = this.openExportFile.bind(this);
   }
 
   toggleServerInfo = () => {
     const { enableServerInfo } = this.state;
-    this.setState({
-      enableServerInfo:
-        enableServerInfo === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF
-    });
+    this.setState({ enableServerInfo: !enableServerInfo });
   };
 
   toggleRecordings = () => {
     const { enableRecordings } = this.state;
-    this.setState({
-      enableRecordings:
-        enableRecordings === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF
-    });
+    this.setState({ enableRecordings: !enableRecordings });
   };
 
   cancelExport = () => {
     this.shouldCancel = true;
     this.setState({ state: STATE_WAITING });
+  };
+
+  openExportFile = () => {
+    const { fileFullPath } = this.state;
+    if (!fileFullPath) return;
+    shell.showItemInFolder(fileFullPath);
   };
 
   startExport = async () => {
@@ -79,8 +86,7 @@ export default class ExportData extends Component<Props, State> {
 
     this.setState({ state: STATE_WORKING });
 
-    if (enableServerInfo === CHECKBOX_OFF && !enableRecordings === CHECKBOX_OFF)
-      return;
+    if (!enableServerInfo && !enableRecordings) return;
 
     const bail = msg => {
       console.log(msg);
@@ -124,18 +130,20 @@ export default class ExportData extends Component<Props, State> {
       return bail(err);
     });
 
-    if (enableServerInfo === CHECKBOX_ON) {
-      archive.append(JSON.stringify(info), { name: 'server-info.json' });
+    if (enableServerInfo) {
+      archive.append(JSON.stringify(info, null, 2), {
+        name: 'server-info.json'
+      });
       this.setState({
         serverInfoStatus: (
           <span>
-            <span className="fa fa-check-circle" />
+            <span className="fa fa-check-circle text-success" />
           </span>
         )
       });
     }
 
-    if (enableRecordings === CHECKBOX_ON) {
+    if (enableRecordings) {
       this.setState({
         recordingStatus: (
           <span>
@@ -159,7 +167,7 @@ export default class ExportData extends Component<Props, State> {
 
       // TODO: maybe put these files elsewhere later
       recs.forEach(rec => {
-        archive.append(JSON.stringify(rec), {
+        archive.append(JSON.stringify(rec, null, 2), {
           name: `airings/airing-${rec.object_id}.json`
         });
       });
@@ -167,7 +175,7 @@ export default class ExportData extends Component<Props, State> {
       this.setState({
         recordingStatus: (
           <span>
-            <span className="fa fa-check-circle" />
+            <span className="fa fa-check-circle text-success" />
           </span>
         )
       });
@@ -202,6 +210,7 @@ export default class ExportData extends Component<Props, State> {
 
     const formData = new FormData();
     Object.entries(fields).forEach(([k, v]) => {
+      // $FlowFixMe ugh. maybe later.
       formData.append(k, v);
     });
 
@@ -221,7 +230,8 @@ export default class ExportData extends Component<Props, State> {
         return this.setState({
           state: STATE_COMPLETE,
           serverInfoStatus: '',
-          recordingStatus: ''
+          recordingStatus: '',
+          fileFullPath: tmpFile
         });
       })
       .catch(err => {
@@ -235,16 +245,69 @@ export default class ExportData extends Component<Props, State> {
       enableServerInfo,
       enableRecordings,
       serverInfoStatus,
-      recordingStatus
+      recordingStatus,
+      fileFullPath
     } = this.state;
 
     return (
-      <div className="border p-1 mb-3 mt-3" style={{ width: '350px' }}>
+      <div className="p-1 mb-3 mt-1">
         <Row>
-          <Col md="8">
-            <h5>Send Device Data</h5>
+          <Col md="3">
+            <h5>Submit Device Data</h5>
           </Col>
+          <Col md="auto" />
+        </Row>
+        <Row>
+          <Col>
+            <b>About: </b>
+            <ul>
+              <li>
+                The only data being sent is about the current Tablo device.
+              </li>
+              <li>
+                Your <i>public_ip</i> (and anything else that looks personal)
+                will never be sent.
+              </li>
+              <li>The data is not and will not be public.</li>
+              <li>
+                This is an open source project. Anyone can look at the code to
+                verify the data being sent (See <code>Help -&gt; About</code>{' '}
+                menu)
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row>
+          <Col md="6">
+            <Alert variant="warning">
+              It&apos;s pretty pointless to do this unless we ask for it...
+            </Alert>
+          </Col>
+        </Row>
+        <Row>
           <Col md="4">
+            <Row className="mt-1">
+              <Col md="8">
+                <Checkbox
+                  checked={enableServerInfo ? CHECKBOX_ON : CHECKBOX_OFF}
+                  handleChange={this.toggleServerInfo}
+                  label="Server Info"
+                />
+              </Col>
+              <Col md="auto">{serverInfoStatus}</Col>
+            </Row>
+            <Row>
+              <Col md="5">
+                <Checkbox
+                  checked={enableRecordings ? CHECKBOX_ON : CHECKBOX_OFF}
+                  handleChange={this.toggleRecordings}
+                  label="Recordings"
+                />
+              </Col>
+              <Col md="auto">{recordingStatus}</Col>
+            </Row>
+          </Col>
+          <Col md="auto">
             <ExportButton
               state={state}
               startExport={this.startExport}
@@ -252,57 +315,68 @@ export default class ExportData extends Component<Props, State> {
             />
           </Col>
         </Row>
-
         <Row>
-          <Col md="8">
-            <div className="d-flex flex-row">
-              <div className="p-1">
-                <Checkbox
-                  checked={enableServerInfo}
-                  handleChange={this.toggleServerInfo}
-                />
-              </div>
-              <div className="p-1">Server Info</div>
-              <div className="p-1">{serverInfoStatus}</div>
-            </div>
-            <div className="d-flex flex-row">
-              <div className="p-1">
-                <Checkbox
-                  checked={enableRecordings}
-                  handleChange={this.toggleRecordings}
-                />
-              </div>
-              <div className="p-1">Recordings</div>
-              <div className="p-1">{recordingStatus}</div>
-            </div>
-          </Col>
-          <Col md="4" className="pt-4">
-            <Status state={state} />
+          <Col md="7">
+            <InputGroup className="">
+              <InputGroup.Prepend>
+                <Form.Label
+                  className="pt-2 bg-light pb-1 pr-1 pl-1 border"
+                  style={{ width: '110px' }}
+                >
+                  Export file
+                </Form.Label>
+              </InputGroup.Prepend>
+              <Form.Control
+                type="text"
+                value={fileFullPath}
+                placeholder="not generated"
+                style={{ width: '350px' }}
+                onChange={() => {}}
+              />
+              <InputGroup.Append>
+                <Button
+                  style={{ height: '35px' }}
+                  size="xs"
+                  variant="outline-secondary"
+                  onClick={this.openExportFile}
+                >
+                  <span>Open</span>
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+            <span className="smaller">
+              The zip file will contain <code>.json</code> files. They are text
+              files if you want to take a look.
+            </span>
           </Col>
         </Row>
       </div>
     );
   }
 }
-function Status(prop) {
-  const { state } = prop;
-  if (state === STATE_WORKING)
-    return <Spinner animation="grow" variant="info" />;
-  if (state === STATE_COMPLETE) return <Alert variant="success">Thanks!</Alert>;
-  return '';
-}
 
 function ExportButton(prop) {
-  const { state, startExport, cancelExport } = prop;
+  const { state, startExport } = prop;
+  // , cancelExport
+
   if (state === STATE_WORKING) {
+    return <Spinner animation="grow" variant="info" />;
+    // return (
+    //   <Button
+    //     size="sm"
+    //     variant="outline-warning"
+    //     type="button"
+    //     onClick={cancelExport}
+    //   >
+    //     Cancel
+    //   </Button>
+    // );
+  }
+
+  if (state === STATE_COMPLETE) {
     return (
-      <Button
-        size="sm"
-        variant="outline-warning"
-        type="button"
-        onClick={cancelExport}
-      >
-        Cancel
+      <Button as="div" size="sm" variant="success">
+        Thanks!
       </Button>
     );
   }
