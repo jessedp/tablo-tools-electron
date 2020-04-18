@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import bsCustomFileInput from 'bs-custom-file-input';
 
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
@@ -50,10 +49,6 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setExportDataPath = this.setExportDataPath.bind(this);
 
     this.saveConfig = this.saveConfig.bind(this);
-  }
-
-  componentDidMount(): * {
-    bsCustomFileInput.init();
   }
 
   setPathDialog = (field: string) => {
