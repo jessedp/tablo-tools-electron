@@ -45,7 +45,7 @@ export default class ExportData extends Component<Props, State> {
     this.state = {
       state: STATE_WAITING,
       enableServerInfo: true,
-      enableRecordings: false,
+      enableRecordings: true,
       serverInfoStatus: '',
       recordingStatus: '',
       fileFullPath: ''
