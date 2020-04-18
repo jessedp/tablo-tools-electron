@@ -79,7 +79,7 @@ export default class ExportData extends Component<Props, State> {
     shell.showItemInFolder(fileFullPath);
   };
 
-  startExport = async () => {
+  startExport = async (upload: boolean = true) => {
     const { enableServerInfo, enableRecordings } = this.state;
 
     this.shouldCancel = false;
@@ -183,6 +183,14 @@ export default class ExportData extends Component<Props, State> {
 
     // this will trigger out.on('close')
     archive.finalize();
+
+    this.setState({
+      state: STATE_COMPLETE,
+      serverInfoStatus: '',
+      recordingStatus: '',
+      fileFullPath: tmpFile
+    });
+
     // listen for all archive data to be written
     // 'close' event is fired only when a file descriptor is involved
     // output.on('close', async () => {
@@ -191,6 +199,10 @@ export default class ExportData extends Component<Props, State> {
     //     'archiver has been finalized and the output file descriptor has closed.'
     //   );
     // });
+
+    if (!upload) {
+      return;
+    }
 
     /** Now actually upload * */
     const signUrl =
@@ -287,7 +299,7 @@ export default class ExportData extends Component<Props, State> {
         <Row>
           <Col md="4">
             <Row className="mt-1">
-              <Col md="8">
+              <Col md="5">
                 <Checkbox
                   checked={enableServerInfo ? CHECKBOX_ON : CHECKBOX_OFF}
                   handleChange={this.toggleServerInfo}
@@ -310,6 +322,7 @@ export default class ExportData extends Component<Props, State> {
           <Col md="auto">
             <ExportButton
               state={state}
+              buildExport={() => this.startExport(false)}
               startExport={this.startExport}
               cancelExport={this.cancelExport}
             />
@@ -356,7 +369,7 @@ export default class ExportData extends Component<Props, State> {
 }
 
 function ExportButton(prop) {
-  const { state, startExport } = prop;
+  const { state, buildExport, startExport } = prop;
   // , cancelExport
 
   if (state === STATE_WORKING) {
@@ -396,13 +409,25 @@ function ExportButton(prop) {
 
   // STATE_WAITING
   return (
-    <Button
-      size="sm"
-      variant="outline-primary"
-      type="button"
-      onClick={startExport}
-    >
-      Start
-    </Button>
+    <>
+      <Button
+        size="sm"
+        variant="outline-primary"
+        type="button"
+        onClick={buildExport}
+        className="mr-2"
+      >
+        Build and Review
+      </Button>
+
+      <Button
+        size="sm"
+        variant="outline-danger"
+        type="button"
+        onClick={startExport}
+      >
+        Upload
+      </Button>
+    </>
   );
 }
