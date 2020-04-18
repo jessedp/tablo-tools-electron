@@ -1,24 +1,27 @@
 import os from 'os';
 
 export type ConfigType = {
+  autoRebuild: boolean,
+  notifyBeta: boolean,
   episodePath: string,
   moviePath: string,
   eventPath: string,
   enableIpOverride: boolean,
-  autoRebuild: boolean,
   overrideIp: string,
   enableExportData: boolean,
   exportDataPath: string,
+  // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number,
   saveData: Array<string>
 };
 
 export const defaultConfig: ConfigType = {
+  autoRebuild: true,
+  notifyBeta: false,
   episodePath: `${os.homedir()}/TabloRecordings/TV`,
   moviePath: `${os.homedir()}/TabloRecordings/Movies`,
   eventPath: `${os.homedir()}/TabloRecordings/Events`,
   enableIpOverride: false,
-  autoRebuild: true,
   overrideIp: '',
   enableExportData: false,
   exportDataPath: `${os.tmpdir()}/tablo-data/`,

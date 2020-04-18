@@ -16,6 +16,7 @@ import tabloLogo from '../../resources/tablo_tools_logo.png';
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
+import getConfig from '../utils/config';
 
 type File = {
   url: string,
@@ -213,6 +214,13 @@ function VersionStatus(prop) {
     color = 'text-secondary';
     isRelease = false;
   }
+  const config = getConfig();
+  let notifyBeta = false;
+  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
+    notifyBeta = config.notifyBeta;
+  }
+
+  if (!notifyBeta) return <></>;
 
   const releaseDate = format(
     Date.parse(updateData.releaseDate),

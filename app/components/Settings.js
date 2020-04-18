@@ -43,6 +43,7 @@ export default class Settings extends Component<Props, ConfigType> {
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
+    this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
     this.setOverrideIp = this.setOverrideIp.bind(this);
 
     this.toggleDataExport = this.toggleDataExport.bind(this);
@@ -97,6 +98,11 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ autoRebuild: !autoRebuild });
   };
 
+  toggleNotifyBeta = () => {
+    const { notifyBeta } = this.state;
+    this.setState({ notifyBeta: !notifyBeta });
+  };
+
   setOverrideIp = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ overrideIp: event.currentTarget.value });
   };
@@ -128,6 +134,7 @@ export default class Settings extends Component<Props, ConfigType> {
       saveState,
       enableIpOverride,
       autoRebuild,
+      notifyBeta,
       overrideIp,
       enableExportData,
       exportDataPath,
@@ -162,17 +169,34 @@ export default class Settings extends Component<Props, ConfigType> {
           </Col>
         </Row>
 
-        <Row className="mt-3" style={{ width: '375px' }}>
+        <Row className="mt-3">
           <Col>
             <Checkbox
               handleChange={this.toggleAutoRebuild}
               checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
               label="Enable automatically rebuilding local database?"
             />
+            <div className="pl-4 smaller">
+              Occurs every 30 minutes behind the scenes
+            </div>
           </Col>
         </Row>
 
-        <Row className="p-1 mb-2">
+        <Row className="mt-3">
+          <Col>
+            <Checkbox
+              handleChange={this.toggleNotifyBeta}
+              checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
+              label="Show notification of pre-releases (beta, alpha, etc)?"
+            />
+            <div className="pl-4 smaller">
+              Notifications will always be shown for full/normal releases that
+              everyone will want. Windows and Linux will auto-update...
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="p-1 mt-3 mb-2">
           <Col md="7" className="pt-1 border bg-light">
             <h6 className="pt-1">Export Paths:</h6>
           </Col>
