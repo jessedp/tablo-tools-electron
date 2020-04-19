@@ -107,6 +107,7 @@ export default class ExportData extends Component<Props, State> {
     }
     // need it for the file name, so...
     const info = await Api.getServerInfo();
+    // public_ip, http, slip,
     delete info.private_ip;
     const filename = `${info.server_id}_Export.zip`;
     const tmpFile = path.join(tmpDir, filename);
