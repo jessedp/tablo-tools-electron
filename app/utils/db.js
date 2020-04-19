@@ -1,3 +1,4 @@
+import Store from 'electron-store';
 import { formatDistanceToNow } from 'date-fns';
 
 const path = require('path');
@@ -7,18 +8,19 @@ const { AsyncNedb } = require('nedb-async');
 const electron = require('electron');
 
 const dataDir = (electron.app || electron.remote.app).getPath('userData');
-export const recFile = path.join(dataDir, 'recordings.db');
-export const showFile = path.join(dataDir, 'show.db');
+
+const store = new Store();
+const device = store.get('last_device');
+
+const recDbName = `${device.server_id}-recordings.db`;
+const showDbName = `${device.server_id}-show.db`;
+
+export const recFile = path.join(dataDir, recDbName);
+export const showFile = path.join(dataDir, showDbName);
+// TODO: check/delete old recordings/shows dbs - have to get at IndexDB
 
 export async function recDbStats() {
   return RecDb.asyncCount({});
-  /**
-  let stats = {};
-  if (fs.existsSync(recFile) === true) {
-    stats = fs.statSync(recFile);
-  }
-  return stats;
-   * */
 }
 
 export function recDbCreated() {
