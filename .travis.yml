@@ -69,7 +69,8 @@ before_script:
   # On Linux, create a "virtual display". This allows browsers to work properly
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3; fi
-  - yarn install
+  # - yarn install
+  - while ! yarn install; do echo --- ; done
   # - yarn add ffmpeg-static-electron-jdp --force
 
 script:
