@@ -1,24 +1,61 @@
 // @flow
 import React, { Component } from 'react';
-import Alert from 'react-bootstrap/Alert';
 import Table from 'react-bootstrap/Table';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import PubSub from 'pubsub-js';
+import ServerInfo from 'tablo-api/dist/ServerInfo';
 
-type Props = { device: Object };
+const Store = require('electron-store');
 
-export default class ServerInfoTable extends Component<Props> {
+const store = new Store();
+
+type Props = {};
+// TODO: type it
+type State = { serverInfo: ServerInfo };
+
+export default class ServerInfoTable extends Component<Props, State> {
   props: Props;
 
-  render() {
-    const { device } = this.props;
+  psToken: null;
 
-    if (!device || Object.keys(device).length === 0) {
+  constructor() {
+    super();
+    this.state = { serverInfo: {} };
+
+    this.refresh = this.refresh.bind(this);
+  }
+
+  componentDidMount = async () => {
+    this.psToken = PubSub.subscribe('DEVICE_CHANGE', this.refresh);
+    await this.refresh();
+  };
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.psToken);
+  }
+
+  refresh = async () => {
+    try {
+      const serverInfo = await global.Api.getServerInfo();
+      this.setState({ serverInfo });
+    } catch (e) {
+      console.error(e);
+      this.setState({ serverInfo: {} });
+    }
+  };
+
+  render() {
+    let { serverInfo } = this.state;
+    const device = store.get('CurrentDevice');
+
+    // if (!device || Object.keys(serverInfo).length === 0 || !serverInfo) {
+    if (!device) {
       return '';
     }
+    if (!serverInfo) serverInfo = {};
 
-    if (!device.name) {
-      console.log(device);
-      return <Alert variant="warning">Unable to contact Tablo</Alert>;
-    }
+    const { model } = serverInfo;
 
     return (
       <Table striped bordered size="sm" variant="">
@@ -29,20 +66,43 @@ export default class ServerInfoTable extends Component<Props> {
           </tr>
           <tr>
             <th>Server ID</th>
-            <td>{device.server_id}</td>
+            <td>{device.serverid}</td>
           </tr>
           <tr>
             <th>Local IP</th>
-            <td>{device.local_address}</td>
+            <td>{device.private_ip}</td>
           </tr>
           <tr>
             <th>Timezone</th>
-            <td>{device.timezone}</td>
+            <td>{serverInfo.timezone}</td>
           </tr>
           <tr>
             <th>Firmware version</th>
-            <td>{device.version}</td>
+            <td>{serverInfo.version}</td>
           </tr>
+          {serverInfo.model ? (
+            <tr>
+              <td colSpan="2">
+                <div className="mb-1">
+                  <b>Model:</b> {model.name} - {model.type} - {model.device}
+                </div>
+                <Row className="p-1">
+                  <Col md="2">Wifi</Col>
+                  <Col>
+                    {model.wifi ? (
+                      <span className="fa fa-check-circle text-success" />
+                    ) : (
+                      <span className="fa fa-times-circle text-danger" />
+                    )}
+                  </Col>
+                  <Col md="2">Tuners</Col>
+                  <Col>{model.tuners}</Col>
+                </Row>
+              </td>
+            </tr>
+          ) : (
+            <></>
+          )}
         </tbody>
       </Table>
     );

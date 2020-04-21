@@ -15,7 +15,6 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 
 import Alert from 'react-bootstrap/Alert';
-import Api from '../utils/Tablo';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type Props = {};
@@ -98,6 +97,7 @@ export default class ExportData extends Component<Props, State> {
     };
 
     const tmpDir = path.join(os.tmpdir(), 'tablo-tools-export');
+    const { Api } = global;
     try {
       // $FlowFixMe guessing this means I don't have the proper node version somewhere
       fs.rmdirSync(tmpDir, { recursive: true });
@@ -107,8 +107,11 @@ export default class ExportData extends Component<Props, State> {
     }
     // need it for the file name, so...
     const info = await Api.getServerInfo();
-    // public_ip, http, slip,
-    delete info.private_ip;
+    // get rid of personal data
+    delete info.public_ip;
+    delete info.http;
+    delete info.slip;
+
     const filename = `${info.server_id}_Export.zip`;
     const tmpFile = path.join(tmpDir, filename);
 

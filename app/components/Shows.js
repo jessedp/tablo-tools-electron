@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
 
 import Button from 'react-bootstrap/Button';
 
@@ -21,6 +22,8 @@ export default class Shows extends Component<Props, State> {
 
   initialState: State;
 
+  psToken: null;
+
   constructor() {
     super();
 
@@ -34,6 +37,16 @@ export default class Shows extends Component<Props, State> {
     this.state = Object.assign(this.initialState, storedState);
     this.viewShows = this.viewShows.bind(this);
     this.viewEpisodes = this.viewEpisodes.bind(this);
+  }
+
+  componentDidMount() {
+    this.psToken = PubSub.subscribe('DB_CHANGE', () => {
+      this.viewShows();
+    });
+  }
+
+  componentWillUnmount(): * {
+    PubSub.unsubscribe(this.psToken);
   }
 
   async setStateStore(...args: Array<Object>) {

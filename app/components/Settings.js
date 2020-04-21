@@ -11,7 +11,7 @@ import Col from 'react-bootstrap/Col';
 
 import InputGroup from 'react-bootstrap/InputGroup';
 import { isValidIp } from '../utils/utils';
-import { updateApi } from '../utils/Tablo';
+import { discover } from '../utils/Tablo';
 import getConfig, { ConfigType } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
@@ -44,7 +44,7 @@ export default class Settings extends Component<Props, ConfigType> {
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
     this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
-    this.setOverrideIp = this.setOverrideIp.bind(this);
+    this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
 
     this.toggleDataExport = this.toggleDataExport.bind(this);
     this.setExportDataPath = this.setExportDataPath.bind(this);
@@ -69,16 +69,16 @@ export default class Settings extends Component<Props, ConfigType> {
     cleanState.saveData = [];
     const invalid = [];
     let result = SAVE_FAIL;
-    if (cleanState.enableIpOverride) {
-      if (!isValidIp(cleanState.overrideIp)) {
-        invalid.push(`Invalid IP Address: ${cleanState.overrideIp}`);
+    if (cleanState.enableTestDevice) {
+      if (!isValidIp(cleanState.testDeviceIp)) {
+        invalid.push(`Invalid IP Address: ${cleanState.testDeviceIp}`);
       }
     }
 
     // TODO:  try to validate Export paths?
     if (invalid.length === 0) {
       localStorage.setItem('AppConfig', JSON.stringify(cleanState));
-      updateApi();
+      discover();
       result = SAVE_SUCCESS;
       setTimeout(() => {
         this.setState({ saveState: SAVE_NONE });
@@ -89,8 +89,8 @@ export default class Settings extends Component<Props, ConfigType> {
   };
 
   toggleIpOverride = () => {
-    const { enableIpOverride } = this.state;
-    this.setState({ enableIpOverride: !enableIpOverride });
+    const { enableTestDevice } = this.state;
+    this.setState({ enableTestDevice: !enableTestDevice });
   };
 
   toggleAutoRebuild = () => {
@@ -103,8 +103,8 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ notifyBeta: !notifyBeta });
   };
 
-  setOverrideIp = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ overrideIp: event.currentTarget.value });
+  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ testDeviceIp: event.currentTarget.value });
   };
 
   toggleDataExport = () => {
@@ -132,10 +132,10 @@ export default class Settings extends Component<Props, ConfigType> {
     const {
       saveData,
       saveState,
-      enableIpOverride,
       autoRebuild,
       notifyBeta,
-      overrideIp,
+      enableTestDevice,
+      testDeviceIp,
       enableExportData,
       exportDataPath,
       episodePath,
@@ -236,20 +236,27 @@ export default class Settings extends Component<Props, ConfigType> {
             <Col>
               <Checkbox
                 handleChange={this.toggleIpOverride}
-                checked={enableIpOverride ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Override Tablo IP?"
+                checked={enableTestDevice ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Enable Test Device?"
               />
             </Col>
           </Row>
           <Row className="m-0 p-0">
             <Col>
-              <Form.Control
-                value={overrideIp}
-                type="text"
-                placeholder="Enter IP"
-                onChange={this.setOverrideIp}
-                disabled={!enableIpOverride}
-              />
+              <InputGroup size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text title="Test Device IP address">
+                    <span className="fa fa-network-wired pr-2" />
+                  </InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  value={testDeviceIp}
+                  type="text"
+                  placeholder="Enter IP"
+                  onChange={this.setTestDeviceIp}
+                  disabled={!enableTestDevice}
+                />
+              </InputGroup>
             </Col>
           </Row>
           <Row className="mt-4">
@@ -323,14 +330,11 @@ function Directory(prop) {
   return (
     <div className="d-flex flex-row">
       <div>
-        <InputGroup className="">
+        <InputGroup size="sm">
           <InputGroup.Prepend>
-            <Form.Label
-              className="pt-2 bg-light pb-1 pr-1 pl-1 border"
-              style={{ width: '110px' }}
-            >
+            <InputGroup.Text title={label} style={{ width: '110px' }}>
               {label}
-            </Form.Label>
+            </InputGroup.Text>
           </InputGroup.Prepend>
           <Form.Control
             type="text"
@@ -342,13 +346,12 @@ function Directory(prop) {
           />
           <InputGroup.Append>
             <Button
-              style={{ height: '35px' }}
               size="xs"
               variant="outline-secondary"
               onClick={onClick}
               disabled={disabled}
             >
-              Pick
+              <span className="fa fa-folder-open" />
             </Button>
           </InputGroup.Append>
         </InputGroup>

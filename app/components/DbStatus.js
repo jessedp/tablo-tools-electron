@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -26,6 +27,8 @@ export default class DbStatus extends Component<DbProps, DbState> {
   // TODO: figure out the type.
   buildRef: any;
 
+  psToken: null;
+
   constructor() {
     super();
     this.state = { dbAge: -1 };
@@ -39,12 +42,14 @@ export default class DbStatus extends Component<DbProps, DbState> {
   }
 
   async componentDidMount() {
-    this.timer = setInterval(await this.checkAge, this.emptyPollInterval);
+    this.timer = setInterval(this.checkAge, this.emptyPollInterval);
+    this.psToken = PubSub.subscribe('DB_CHANGE', () => this.checkAge(false));
+    // this.psToken = PubSub.subscribe('DB_BUILT', () => this.checkAge(false));
   }
 
   componentWillUnmount() {
     clearInterval(this.timer);
-    return super.componentWillUnmount();
+    PubSub.unsubscribe(this.psToken);
   }
 
   checkAge = async (forceBuild?: boolean) => {
@@ -53,7 +58,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
     if (!created && !forceBuild) {
       if (!this.shortTimer) {
         clearInterval(this.timer);
-        this.timer = setInterval(await this.checkAge, this.emptyPollInterval);
+        this.timer = setInterval(this.checkAge, this.emptyPollInterval);
       }
       return;
     }
@@ -61,7 +66,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
     if (this.shortTimer) {
       this.shortTimer = false;
       clearInterval(this.timer);
-      this.timer = setInterval(await this.checkAge, this.rebuildPollInterval);
+      this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     }
 
     const dbTime = new Date(created).getTime();

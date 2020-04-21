@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,7 +12,6 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 import Select from 'react-select';
 
-import { RecDb } from '../utils/db';
 import { asyncForEach, throttleActions } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
@@ -98,20 +98,13 @@ export default class SearchForm extends Component<Props, State> {
     this.selectAll = this.selectAll.bind(this);
     this.unselectAll = this.unselectAll.bind(this);
     this.deleteAll = this.deleteAll.bind(this);
+
+    (this: any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
-    const { view, actionList, alert } = this.state;
-    this.showsList = await showList();
-    const { length } = actionList;
-    if (view === 'selected' && length >= 0) {
-      this.setState({
-        alert: { type: 'light', text: alert.text, match: alert.match }
-      });
-      this.viewChange();
-    } else {
-      await this.search();
-    }
+    this.refresh();
+    PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount() {
@@ -130,6 +123,20 @@ export default class SearchForm extends Component<Props, State> {
     const cleanState = this.state;
 
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
+  }
+
+  async refresh() {
+    const { view, actionList, alert } = this.state;
+    this.showsList = await showList();
+    const { length } = actionList;
+    if (view === 'selected' && length >= 0) {
+      this.setState({
+        alert: { type: 'light', text: alert.text, match: alert.match }
+      });
+      this.viewChange();
+    } else {
+      await this.search();
+    }
   }
 
   viewChange = async () => {
@@ -415,7 +422,7 @@ export default class SearchForm extends Component<Props, State> {
       });
     }
 
-    let recs = await RecDb.asyncFind(query, [
+    let recs = await global.RecDb.asyncFind(query, [
       ['sort', { 'airing_details.datetime': -1 }]
     ]);
 
@@ -443,7 +450,7 @@ export default class SearchForm extends Component<Props, State> {
     if (!recs || recs.length === 0) {
       description = `No records found ${description}`;
       updateState = {
-        alert: { type: 'danger', text: description, match },
+        alert: { type: 'warning', text: description, match },
         view: 'search',
         actionList,
         airingList
@@ -821,7 +828,7 @@ function ComskipFilter(props: filterProps) {
   ];
   const types = [];
   // TODO: when this was async it belew up
-  RecDb.find({}, (err, recs) => {
+  global.RecDb.find({}, (err, recs) => {
     recs.forEach(rec => {
       const cs = rec.video_details.comskip;
       // TODO: missing comskip?
