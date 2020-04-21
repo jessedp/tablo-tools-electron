@@ -14,23 +14,18 @@ export async function setupApi() {
 
   await discover();
   // TODO - updating to v0.0.7, remove in some time
-  const currentDevice = store.get('CurrentDevice');
-  if (!currentDevice) {
-    const oldDevice = store.get('last_device');
-    if (global.discoveredDevices.length > 0) {
-      let newDevice;
-      if (oldDevice)
-        newDevice = global.discoveredDevices.map(
-          item => item.serverid === oldDevice.server_id
-        );
-      // eslint-disable-next-line prefer-destructuring
-      if (!newDevice) newDevice = global.discoveredDevices[0];
-      setCurrentDevice(newDevice, false);
-      store.delete('LastDevice');
-      store.delete('last_device');
-      const lastBuild = localStorage.getItem('LastDbBuild');
+  let currentDevice = store.get('CurrentDevice');
+  if (!currentDevice || currentDevice[0] === true) {
+    // eslint-disable-next-line prefer-destructuring
+    currentDevice = global.discoveredDevices[0];
+    setCurrentDevice(currentDevice, false);
+    store.delete('LastDevice');
+    store.delete('last_device');
+    const lastBuild = localStorage.getItem('LastDbBuild');
+    if (lastBuild) {
       localStorage.setItem(dbCreatedKey(), lastBuild);
     }
+    localStorage.removeItem('LastDbBuild');
   } else {
     global.Api.device = store.get('CurrentDevice');
   }
