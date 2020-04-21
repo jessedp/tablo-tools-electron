@@ -2,8 +2,7 @@
 import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
-
-import { RecDb } from '../utils/db';
+import PubSub from 'pubsub-js';
 
 type Props = {};
 
@@ -21,6 +20,8 @@ type State = {
 export default class DbInfoTable extends Component<Props, State> {
   props: Props;
 
+  psToken: null;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -33,9 +34,20 @@ export default class DbInfoTable extends Component<Props, State> {
       typeMovie: 0,
       typeEvent: 0
     };
+    (this: any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
+    await this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
+  }
+
+  componentWillUnmount(): * {
+    PubSub.unsubscribe(this.psToken);
+  }
+
+  async refresh() {
+    const { RecDb } = global;
     const recTotal = await RecDb.asyncCount({});
     const watched = await RecDb.asyncCount({ 'user_info.watched': true });
     const finished = await RecDb.asyncCount({

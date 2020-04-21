@@ -7,17 +7,15 @@ import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 
 import ServerInfoTable from './ServerInfoTable';
-import Api from '../utils/Tablo';
 import DbInfoTable from './DbInfoTable';
 import Build from './Build';
 import Discovery from './Discovery';
-import { writeToFile } from '../utils/utils';
 
 const { app } = require('electron').remote;
 
 type Props = {};
 type State = {
-  device: Object,
+  showServerInfo: boolean,
   showDbTable: boolean
 };
 
@@ -26,23 +24,19 @@ export default class Home extends Component<Props, State> {
 
   info: string;
 
-  // showDbTable: (show: boolean) => void;
-
-  // updateDevice: (dev: Object) => void;
-
   constructor() {
     super();
-    // const lastDevice = store.get('last_device');
-    this.state = { device: {}, showDbTable: true };
+    this.state = { showDbTable: true, showServerInfo: true };
     // this.discover = this.discover.bind(this);
     (this: any).showDbTable = this.showDbTable.bind(this);
-    (this: any).updateDevice = this.updateDevice.bind(this);
+    (this: any).showServerInfo = this.showServerInfo.bind(this);
   }
 
   async componentDidMount() {
+    /**
     if (!this.info) {
       try {
-        this.info = await Api.getServerInfo();
+        this.info = await global.Api.getServerInfo();
         writeToFile('server-info.json', JSON.stringify(this.info));
       } catch (err) {
         console.log(err);
@@ -50,6 +44,14 @@ export default class Home extends Component<Props, State> {
       }
     }
     this.setState({ device: this.info });
+     */
+  }
+
+  showServerInfo(show: boolean) {
+    const { showServerInfo } = this.state;
+    if (show !== showServerInfo) {
+      this.setState({ showServerInfo: show });
+    }
   }
 
   showDbTable(show: boolean) {
@@ -59,12 +61,8 @@ export default class Home extends Component<Props, State> {
     }
   }
 
-  updateDevice(dev: Object) {
-    this.setState({ device: dev });
-  }
-
   render() {
-    const { device, showDbTable } = this.state;
+    const { showServerInfo, showDbTable } = this.state;
 
     const appVersion = app.getVersion();
 
@@ -85,10 +83,10 @@ export default class Home extends Component<Props, State> {
                 <Alert variant="dark">Current Tablo</Alert>
               </Card.Title>
               <Card.Subtitle className="text-muted">
-                <Discovery updateDevice={this.updateDevice} />
+                <Discovery showServerInfo={this.showServerInfo} />
               </Card.Subtitle>
               <Card.Body className="p-1">
-                <ServerInfoTable device={device} />
+                {showServerInfo ? <ServerInfoTable /> : ''}
               </Card.Body>
             </Card>
           </Col>

@@ -1,64 +1,83 @@
 import net from 'net';
+import PubSub from 'pubsub-js';
+
+import Store from 'electron-store';
 
 import Tablo from 'tablo-api';
 import getConfig from './config';
-
-const Api = new Tablo();
-
-const Store = require('electron-store');
+import { dbCreatedKey } from './db';
 
 const store = new Store();
 
-const srvInfo = store.get('last_device');
+export async function setupApi() {
+  global.Api = new Tablo();
 
-const config = getConfig();
-
-let ip;
-if (srvInfo) {
-  ip = srvInfo.local_address;
-}
-
-if (config && config.enableIpOverride) {
-  ip = config.overrideIp;
-}
-
-if (srvInfo) {
-  Api.device = {
-    // private_ip: srvInfo.local_address,
-    private_ip: ip
-    // ip: '192.168.1.122',
-    // srvInfo.server_id
-  };
-}
-
-export function updateApi() {
-  const cfg = getConfig();
-  if (cfg.enableIpOverride) {
-    Api.device = { private_ip: cfg.overrideIp };
+  await discover();
+  // TODO - updating to v0.0.7, remove in some time
+  const currentDevice = store.get('CurrentDevice');
+  if (!currentDevice) {
+    const oldDevice = store.get('last_device');
+    if (global.discoveredDevices.length > 0) {
+      let newDevice;
+      if (oldDevice)
+        newDevice = global.discoveredDevices.map(
+          item => item.serverid === oldDevice.server_id
+        );
+      // eslint-disable-next-line prefer-destructuring
+      if (!newDevice) newDevice = global.discoveredDevices[0];
+      setCurrentDevice(newDevice, false);
+      store.delete('LastDevice');
+      store.delete('last_device');
+      const lastBuild = localStorage.getItem('LastDbBuild');
+      localStorage.setItem(dbCreatedKey(), lastBuild);
+    }
   } else {
-    Api.device = { private_ip: srvInfo.local_address };
+    global.Api.device = store.get('CurrentDevice');
   }
 }
 
-export async function checkConnection() {
-  // console.log('in checkConnection');
+export function setCurrentDevice(device, publish = true) {
+  global.Api.device = device;
+  store.set('CurrentDevice', device);
+  if (publish) PubSub.publish('DEVICE_CHANGE', true);
+}
 
-  // const connIp = '127.0.0.1';
-  if (!Api.device || !Api.device.private_ip) return;
-  const connIp = Api.device.private_ip;
+export const discover = async () => {
+  const devices = await global.Api.discover();
+  const deviceArray = Object.keys(devices).map(i => devices[i]);
+
+  const cfg = getConfig();
+  if (cfg.enableTestDevice) {
+    const overDevice = { ...devices[0] };
+    const fakeServerId = cfg.testDeviceIp.replace(/\./g, '-');
+    overDevice.name = 'Test Device';
+    overDevice.serverid = `TID_${fakeServerId}`;
+    overDevice.private_ip = cfg.testDeviceIp;
+    deviceArray.push(overDevice);
+  }
+
+  global.discoveredDevices = deviceArray;
+  PubSub.publish('DEVLIST_CHANGE', true);
+};
+
+export async function checkConnection() {
+  const device = store.get('CurrentDevice');
+  if (!device || !device.private_ip) return;
+  const connIp = device.private_ip;
 
   // console.log('connIp', connIp);
   const client = new net.Socket();
-  client.setTimeout(25000);
+  client.setTimeout(500);
   let status = false;
   client
     .connect({ port: 8885, host: connIp }, () => {
-      // console.log('client connected');
       status = true;
       client.end();
     })
     .on('error', evt => {
-      console.log('error', evt);
+      if (!evt.toString().match(/ECONNREFUSED/)) {
+        console.log('error', evt);
+      }
       status = false;
     })
     .on('timeout', evt => {
@@ -76,5 +95,3 @@ export async function checkConnection() {
     });
   });
 }
-
-export default Api;

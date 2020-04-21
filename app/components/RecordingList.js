@@ -10,8 +10,6 @@ import Badge from 'react-bootstrap/Badge';
 import Alert from 'react-bootstrap/Alert';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import { RecDb } from '../utils/db';
-
 import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import { asyncForEach } from '../utils/utils';
@@ -79,7 +77,7 @@ export default class RecordingList extends Component<Props, State> {
       series_path: show.path
     };
 
-    const recs = await RecDb.asyncFind(query, [
+    const recs = await global.RecDb.asyncFind(query, [
       [
         'sort',
         {

@@ -1,14 +1,12 @@
 // @flow
 import React, { Component } from 'react';
-
+import PubSub from 'pubsub-js';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-
-import { ShowDb } from '../utils/db';
 
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
@@ -25,6 +23,8 @@ export default class ShowsList extends Component<Props, State> {
 
   initialState: State;
 
+  psToken: null;
+
   constructor() {
     super();
 
@@ -37,6 +37,11 @@ export default class ShowsList extends Component<Props, State> {
 
   async componentDidMount() {
     await this.search();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.search);
+  }
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.psToken);
   }
 
   search = async () => {
@@ -46,7 +51,7 @@ export default class ShowsList extends Component<Props, State> {
     const result = [];
 
     if (!objRecs || objRecs.length === 0) {
-      await this.setState({ alertType: 'danger', alertTxt: 'No shows found' });
+      this.setState({ alertType: 'warning', alertTxt: 'No shows found' });
     } else {
       this.setState({
         display: [
@@ -58,7 +63,7 @@ export default class ShowsList extends Component<Props, State> {
         ]
       });
 
-      await this.setState({
+      this.setState({
         alertType: 'info',
         alertTxt: `${objRecs.length} shows found`
       });
@@ -107,7 +112,7 @@ export default class ShowsList extends Component<Props, State> {
 export async function showList() {
   const query = {};
 
-  const recs = await ShowDb.asyncFind(query);
+  const recs = await global.ShowDb.asyncFind(query);
 
   const objRecs = [];
 

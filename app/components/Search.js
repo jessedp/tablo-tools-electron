@@ -25,7 +25,7 @@ export default class Search extends Component<Props> {
 
   /** Form to Results * */
   receiveResults = (recs: Object) => {
-    this.SearchResults.receiveResults(recs);
+    if (this.SearchResults) this.SearchResults.receiveResults(recs);
   };
 
   receiveSelectAll = () => {

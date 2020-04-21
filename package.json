@@ -281,6 +281,7 @@
     "path": "^0.12.7",
     "popper.js": "^1.16.1",
     "prop-types": "^15.7.2",
+    "pubsub-js": "^1.8.0",
     "react": "^16.12.0",
     "react-bootstrap": "^1.0.0",
     "react-dom": "^16.12.0",
@@ -296,7 +297,7 @@
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
     "styled-components": "^5.0.1",
-    "tablo-api": "^0.3.6",
+    "tablo-api": "^0.4.3",
     "video-react": "^0.14.1"
   },
   "resolutions": {

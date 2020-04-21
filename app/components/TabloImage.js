@@ -4,8 +4,6 @@ import Image from 'react-bootstrap/Image';
 
 import unknownImg from '../../resources/white-question-mark.png';
 
-import Api from '../utils/Tablo';
-
 type Props = { imageId: number, maxHeight?: number };
 
 export default class TabloImage extends Component<Props> {
@@ -15,7 +13,7 @@ export default class TabloImage extends Component<Props> {
 
   render() {
     const { imageId, maxHeight } = this.props;
-    const host = Api.device.private_ip;
+    const host = global.Api.device.private_ip;
     const style = {};
     if (maxHeight) {
       style.maxHeight = `${maxHeight}px`;

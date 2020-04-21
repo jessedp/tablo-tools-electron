@@ -11,7 +11,6 @@ import Col from 'react-bootstrap/Col';
 import DbInfoTable from './DbInfoTable';
 import ServerInfoTable from './ServerInfoTable';
 
-import Api from '../utils/Tablo';
 import { recDbCreated } from '../utils/db';
 import RelativeDate from './RelativeDate';
 import ComskipDetails from './ComskipDetails';
@@ -22,8 +21,7 @@ const store = new Store();
 
 type Props = {};
 type State = {
-  device: Object,
-  lastDevice: Object
+  currentDevice: Object
 };
 
 export default class Overview extends Component<Props, State> {
@@ -31,25 +29,24 @@ export default class Overview extends Component<Props, State> {
 
   constructor() {
     super();
-    const lastDevice = store.get('last_device');
-    this.state = { device: {}, lastDevice };
-  }
-
-  async componentDidMount() {
-    const device = await Api.getServerInfo();
-    this.setState({ device });
+    const currentDevice = store.get('CurrentDevice');
+    this.state = { currentDevice };
   }
 
   render() {
-    const { device, lastDevice } = this.state;
+    const { currentDevice } = this.state;
     let checked = '';
-    if (lastDevice) {
-      checked = new Date(lastDevice.checked);
-    }
+
+    if (!currentDevice)
+      return <Alert variant="warning">No device selected</Alert>;
+
+    checked = new Date(currentDevice.inserted);
 
     let comskipAvailable = false;
-    if (device.version)
-      comskipAvailable = compareVersions(`${device.version}`, '2.2.26') >= 0;
+    if (currentDevice.server_version) {
+      const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
+      comskipAvailable = compareVersions(testVersion, '2.2.26') >= 0;
+    }
 
     return (
       <Container>
@@ -82,7 +79,7 @@ export default class Overview extends Component<Props, State> {
             <Alert variant="primary" className="p-2 m-0">
               Current Tablo
             </Alert>
-            <ServerInfoTable device={device} />
+            <ServerInfoTable />
           </Col>
         </Row>
       </Container>

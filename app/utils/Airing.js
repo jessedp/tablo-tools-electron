@@ -7,8 +7,7 @@ import fs from 'fs';
 import * as fsPath from 'path';
 
 import { readableDuration } from './utils';
-import { RecDb, ShowDb } from './db';
-import Api from './Tablo';
+
 import Show from './Show';
 import getConfig from './config';
 
@@ -98,7 +97,7 @@ export default class Airing {
   static async create(data: Object) {
     const airing = new Airing(data);
 
-    const docs = await ShowDb.asyncFind({ path: airing.typePath });
+    const docs = await global.ShowDb.asyncFind({ path: airing.typePath });
 
     let piece = [];
     switch (airing.type) {
@@ -342,9 +341,9 @@ export default class Airing {
   async watch() {
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
-      const data = await Api.post({ path: watchPath });
+      const data = await window.post({ path: watchPath });
       // TODO: better local/forward rewrites (probably elsewhere)
-      if (Api.device.private_ip === '127.0.0.1') {
+      if (global.Api.device.private_ip === '127.0.0.1') {
         const re = new RegExp(
           '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}'
         );
@@ -359,8 +358,8 @@ export default class Airing {
     const { _id, path } = this;
     return new Promise((resolve, reject) => {
       try {
-        Api.delete(path);
-        RecDb.asyncRemove({ _id });
+        global.Api.delete(path);
+        global.RecDb.asyncRemove({ _id });
         setTimeout(() => resolve(true), 300 + 300 * Math.random());
       } catch (e) {
         console.log('Airing.delete', e);

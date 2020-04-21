@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import PubSub from 'pubsub-js';
 import { formatDistanceToNow } from 'date-fns';
 
 const path = require('path');
@@ -8,23 +9,22 @@ const { AsyncNedb } = require('nedb-async');
 const electron = require('electron');
 
 const dataDir = (electron.app || electron.remote.app).getPath('userData');
-
 const store = new Store();
-const device = store.get('last_device');
 
-const recDbName = `${device.server_id}-recordings.db`;
-const showDbName = `${device.server_id}-show.db`;
-
-export const recFile = path.join(dataDir, recDbName);
-export const showFile = path.join(dataDir, showDbName);
 // TODO: check/delete old recordings/shows dbs - have to get at IndexDB
 
 export async function recDbStats() {
-  return RecDb.asyncCount({});
+  return global.RecDb.asyncCount({});
 }
 
+export const dbCreatedKey = () => {
+  const dev = store.get('CurrentDevice');
+  return `LastDbBuild-${dev.serverid}`;
+};
+
 export function recDbCreated() {
-  return localStorage.getItem('LastDbBuild');
+  // localStorage.setItem(dbCreatedKey(), null);
+  return localStorage.getItem(dbCreatedKey());
 }
 
 export function recDbCreatedDisp() {
@@ -37,13 +37,34 @@ export function recDbCreatedDisp() {
   return lastBuild;
 }
 
-export const RecDb = new AsyncNedb({
-  filename: recFile,
-  autoload: true,
-  inMemoryOnly: false
-});
-export const ShowDb = new AsyncNedb({
-  filename: showFile,
-  autoload: true,
-  inMemoryOnly: false
-});
+export const makeRecDb = () => {
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const recDbName = `${device.serverid}-recordings.db`;
+  const recFile = path.join(dataDir, recDbName);
+
+  return new AsyncNedb({
+    filename: recFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
+export const makeShowDb = () => {
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const showDbName = `${device.serverid}-show.db`;
+  const showFile = path.join(dataDir, showDbName);
+
+  return new AsyncNedb({
+    filename: showFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
+export const setupDb = async () => {
+  global.RecDb = makeRecDb();
+  global.ShowDb = makeShowDb();
+  PubSub.publish('DB_CHANGE', true);
+};

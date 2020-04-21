@@ -1,5 +1,7 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
+
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
@@ -9,8 +11,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import Api from '../utils/Tablo';
-import { RecDb, ShowDb, recDbCreated, recDbStats } from '../utils/db';
+import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
 
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
@@ -28,11 +29,14 @@ type State = {
 const STATE_NONE = 0;
 const STATE_LOADING = 1;
 const STATE_FINISH = 2;
+const STATE_ERROR = 3;
 
 export default class Build extends Component<Props, State> {
   props: Props;
 
   building: boolean;
+
+  psToken: null;
 
   static defaultProps = { view: 'progress' };
 
@@ -47,16 +51,18 @@ export default class Build extends Component<Props, State> {
     };
     this.building = false;
     this.build = this.build.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
   async componentDidMount(): * {
+    const { Api } = global;
     const created = recDbCreated();
     // TODO: some const export?
     if (!created) {
       let i = 0;
       const autoBuild = async () => {
         if (!Api.device) {
-          if (i === 2) return;
+          if (i > 0) return;
           i += 1;
           setTimeout(await autoBuild, 1000);
         }
@@ -64,12 +70,21 @@ export default class Build extends Component<Props, State> {
       };
       autoBuild();
     }
-
-    const total = await recDbStats();
-    await this.setState({ recCount: total });
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.psToken);
+  }
+
+  refresh = async () => {
+    const total = await recDbStats();
+    await this.setState({ recCount: total });
+  };
+
   build = async () => {
+    const { Api } = global;
     const { showDbTable } = this.props;
 
     if (!Api.device) return;
@@ -77,6 +92,7 @@ export default class Build extends Component<Props, State> {
       console.log('trying to double build');
       return;
     }
+
     this.building = true;
     console.time('Building');
 
@@ -85,13 +101,13 @@ export default class Build extends Component<Props, State> {
     this.setState({ loading: STATE_LOADING, status: [] });
 
     try {
-      const total = await Api.getRecordings({ countOnly: true, force: true });
+      console.log('start');
+      const total = await Api.getRecordingsCount();
+      console.log('total', total);
       this.setState({ airingMax: total });
 
-      const recs = await Api.getRecordings({
-        callback: val => {
-          this.setState({ airingInc: val });
-        }
+      const recs = await Api.getRecordings(true, val => {
+        this.setState({ airingInc: val });
       });
 
       // TODO: maybe put this elsewhere later
@@ -103,9 +119,10 @@ export default class Build extends Component<Props, State> {
       const { status } = this.state;
       status.push(`retrieved ${recs.length} recordings`);
 
+      const { RecDb } = global;
       let cnt = 0;
       cnt = await RecDb.asyncRemove({}, { multi: true });
-      await ShowDb.asyncRemove({}, { multi: true });
+      await global.ShowDb.asyncRemove({}, { multi: true });
 
       console.log(`${cnt} old records removed`);
       cnt = await RecDb.asyncInsert(recs);
@@ -126,7 +143,7 @@ export default class Build extends Component<Props, State> {
 
       const shows = await Api.batch([...new Set(showPaths)]);
 
-      cnt = await ShowDb.asyncInsert(shows);
+      cnt = await global.ShowDb.asyncInsert(shows);
       console.log(`${cnt.length} SHOW records added`);
       this.building = false;
       await this.setState({
@@ -134,14 +151,16 @@ export default class Build extends Component<Props, State> {
         status
       });
 
-      localStorage.setItem('LastDbBuild', new Date().toISOString());
+      localStorage.setItem(dbCreatedKey(), new Date().toISOString());
+      PubSub.publish('DB_CHANGE', true);
       console.timeEnd('Building');
     } catch (e) {
-      console.log('Error Building! Reseting...', e);
+      console.log('Error Building! Resetting...', e);
+      console.timeEnd('Building');
       this.building = false;
       await this.setState({
-        loading: STATE_FINISH,
-        status: [`An error occurred, please try again. ${e}`]
+        loading: STATE_ERROR,
+        status: [e.toString()]
       });
     }
 
@@ -205,6 +224,22 @@ export default class Build extends Component<Props, State> {
         <Container>
           <Alert className="fade m-2" variant="success">
             Done! {txt}
+          </Alert>
+        </Container>
+      );
+    }
+
+    if (loading === STATE_ERROR) {
+      setTimeout(() => {
+        this.setState({ loading: STATE_NONE });
+      }, 5000);
+
+      return (
+        <Container>
+          <Alert className="fade m-2" variant="danger">
+            <b>Problem building...</b>
+            <br />
+            {status[0]}
           </Alert>
         </Container>
       );

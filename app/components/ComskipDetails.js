@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
 
 import Table from 'react-bootstrap/Table';
-
 import Alert from 'react-bootstrap/Alert';
-import { RecDb } from '../utils/db';
 
 type Props = {};
 type State = {
@@ -19,11 +18,24 @@ export default class ComskipDetails extends Component<Props, State> {
   constructor() {
     super();
     this.state = { skipStats: {}, skipErrors: {}, recCount: 0 };
+
+    (this: any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
+  }
+
+  componentWillUnmount(): * {
+    PubSub.unsubscribe(this.psToken);
+  }
+
+  psToken = null;
+
+  async refresh() {
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
-    const recs = await RecDb.asyncFind({});
+    const recs = await global.RecDb.asyncFind({});
 
     const skipStats = { ready: 0, none: 0, error: 0 };
     const skipErrors = {};
