@@ -7,6 +7,7 @@ import webpack from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
 
@@ -58,9 +59,12 @@ export default merge.smart(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false
+    }),
+
+    new webpack.DefinePlugin({
+      'process.type': '"browser"'
     })
   ],
-
   /**
    * Disables webpack processing of __dirname and __filename.
    * If you run the bundle in node.js it falls back to these values of node.js.

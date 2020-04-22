@@ -6,7 +6,6 @@
  *
  * https://webpack.js.org/concepts/hot-module-replacement/
  */
-
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
@@ -239,6 +238,10 @@ export default merge.smart(baseConfig, {
 
     new webpack.LoaderOptionsPlugin({
       debug: true
+    }),
+
+    new webpack.DefinePlugin({
+      'process.type': '"renderer"'
     })
   ],
 

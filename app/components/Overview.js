@@ -36,6 +36,7 @@ export default class Overview extends Component<Props, State> {
   render() {
     const { currentDevice } = this.state;
     let checked = '';
+    console.log(currentDevice.anotherTest());
 
     if (!currentDevice)
       return <Alert variant="warning">No device selected</Alert>;

@@ -11,10 +11,11 @@
  * @flow
  */
 import { app, BrowserWindow, ipcMain } from 'electron';
-
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+
+require('./sentry');
 
 export default class AppUpdater {
   constructor() {

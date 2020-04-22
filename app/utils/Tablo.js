@@ -1,5 +1,6 @@
 import net from 'net';
 import PubSub from 'pubsub-js';
+import * as Sentry from '@sentry/electron';
 
 import Store from 'electron-store';
 
@@ -33,6 +34,14 @@ export async function setupApi() {
 
 export function setCurrentDevice(device, publish = true) {
   global.Api.device = device;
+  Sentry.configureScope(scope => {
+    scope.setUser({ id: device.serverid, username: device.name });
+    scope.setTag('tablo.host', device.host);
+    scope.setTag('tablo.roku', device.roku);
+    scope.setTag('tablo.board', device.board);
+    scope.setTag('tablo.firmware', device.server_version);
+    // scope.clear();
+  });
   store.set('CurrentDevice', device);
   if (publish) PubSub.publish('DEVICE_CHANGE', true);
 }
