@@ -55,6 +55,7 @@ export default class ExportData extends Component<Props, State> {
     (this: any).toggleServerInfo = this.toggleServerInfo.bind(this);
     (this: any).toggleRecordings = this.toggleRecordings.bind(this);
     (this: any).openExportFile = this.openExportFile.bind(this);
+    (this: any).causeError = this.causeError.bind(this);
   }
 
   toggleServerInfo = () => {
@@ -255,6 +256,10 @@ export default class ExportData extends Component<Props, State> {
       });
   };
 
+  causeError = () => {
+    this.whatWhat();
+  };
+
   render() {
     const {
       state,
@@ -365,6 +370,15 @@ export default class ExportData extends Component<Props, State> {
               The zip file will contain <code>.json</code> files. They are text
               files if you want to take a look.
             </span>
+            <Button
+              size="xs"
+              className="ml-5"
+              variant="light"
+              onClick={this.causeError}
+            >
+              {' '}
+              &nbsp;{' '}
+            </Button>
           </Col>
         </Row>
       </div>
