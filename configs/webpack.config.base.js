@@ -6,6 +6,9 @@ import path from 'path';
 import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
 
+// const { version } = require('package.json');
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
+
 export default {
   externals: [...Object.keys(externals || {})],
 
@@ -50,6 +53,22 @@ export default {
       FLUENTFFMPEG_COV: false
     }),
 
-    new webpack.NamedModulesPlugin()
+    new webpack.NamedModulesPlugin(),
+
+    new SentryWebpackPlugin({
+      include: '.',
+      ignoreFile: '.sentrycliignore',
+      ignore: [
+        'node_modules',
+        'configs',
+        '_site',
+        'flow-typed',
+        'internals',
+        'test'
+      ],
+      configFile: 'sentry.properties',
+      dryRun: false,
+      release: process.env.SENTRY_VERSION
+    })
   ]
 };
