@@ -6,7 +6,11 @@ import path from 'path';
 import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
 
-// const { version } = require('package.json');
+const { version } = require('../package.json');
+
+console.log(version);
+
+// eslint-disable-next-line import/order
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 
 export default {
@@ -68,7 +72,7 @@ export default {
       ],
       configFile: 'sentry.properties',
       dryRun: false,
-      release: process.env.SENTRY_VERSION
+      release: version
     })
   ]
 };
