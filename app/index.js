@@ -8,6 +8,8 @@ import './app.global.css';
 import { setupApi } from './utils/Tablo';
 import { setupDb } from './utils/db';
 
+require('./sentry');
+
 const store = configureStore();
 
 const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;
