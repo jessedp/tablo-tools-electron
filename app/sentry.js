@@ -1,8 +1,6 @@
-/**
-const { app } = require('electron').remote;
+// eslint-disable-next-line import/order
+const { version } = require('../package.json');
 
-const appVersion = app.getVersion();
-   * */
 const { init } =
   process.type === 'browser'
     ? require('@sentry/electron/dist/main')
@@ -13,6 +11,7 @@ if (process.env.NODE_ENV === 'production') {
     dsn:
       'https://a19dbdc56dc54776a48d2acce4c99ddc@o381395.ingest.sentry.io/5208692',
     org: 'jessedp',
-    project: 'tablo-tools-electron'
+    project: 'tablo-tools-electron',
+    release: version
   });
 }
