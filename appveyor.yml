@@ -17,7 +17,7 @@ cache:
 matrix:
   fast_finish: true
 
-build: false
+build: off
 
 version: '{build}'
 
