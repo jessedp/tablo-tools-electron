@@ -3,7 +3,7 @@ layout: main
 projectName: 'Tablo Tools'
 projectUrl: 'https://github.com/jessedp/tablo-tools-electron'
 tagline: 'The control over your Tablo you needed'
-version: '0.1.6'
+version: '0.1.7'
 ---
 
 <div class="header">
@@ -53,7 +53,10 @@ version: '0.1.6'
     </div>
 
     <ul class="features">
-      <li><b>Quick setup</b> automatically detects and loads your Tablo</li>
+      <li>
+        <b>Quick setup</b> automatically detects and loads <b>all</b> of your
+        Tablos!
+      </li>
       <li>
         <b>Automatic updates</b> see the <a href="#downloads">notes</a> for your
         OS below
@@ -78,29 +81,28 @@ version: '0.1.6'
     <h1>Known Issues / Todo</h1>
     <ul>
       <li>
-        <b>There can be only one</b> Tablo device for now. This is due to not
-        having multiples to test with.
-      </li>
-      <li>
         <b>Security warnings</b> Windows and Mac binaries are unsigned, causing
         security warnings. <a href="#codesigning">More here.</a>
-      </li>
-      <li>
-        <b>There can be only one</b> Tablo device for now. This is due to not
-        having multiples to test with.
       </li>
     </ul>
     <div id="wsod" class="examples">
       <h2>White Screen of Death</h2>
+      <h4>
+        So long as you haven't disabled it, any error you receive will have been
+        reported to us already.
+      </h4>
       Sometimes you'll run into a problem that causes the app to crash with no
       warning or explanation - simply a full screen of white. <b>Ouch</b>.
       <br /><br />
       First, please make sure you are running the current version:
       <b> v{{ page.version }}</b> <br /><br />
       Right, you already are.
-      <br />
-      For the time being, please follow these steps so the issue can be tracked
-      down and fixed.
+      <h5>
+        Again, so long as you haven't disabled it, any error you receive will
+        have been reported to us already.
+      </h5>
+      If you have disabled it or just want to, please follow these steps to
+      gather information so the issue can be tracked down and fixed.
       <ol>
         <li>Open the app</li>
         <li>
@@ -172,6 +174,10 @@ version: '0.1.6'
 
     <div id="issues" class="examples">
       <h1>Problems, Questions, Feedback?</h1>
+      First, know that so long as you haven't disabled it, any error you receive
+      will have been reported to us, so we're probably aware. Please don't let
+      that stop you from reporting problems, though.
+      <br /><br />
       Currently there are two options:
       <ul>
         <li>
