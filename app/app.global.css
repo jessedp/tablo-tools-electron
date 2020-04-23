@@ -24,6 +24,12 @@
 .modal-1000 {
   max-width: 1000px !important;
 }
+
+.modal-md {
+  width: 50%;
+  max-width: 600px !important;
+}
+
 .modal-lg {
   max-width: 80% !important;
 }
