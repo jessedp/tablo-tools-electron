@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import * as Sentry from '@sentry/electron';
 import Store from 'electron-store';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -51,6 +52,13 @@ export default class PermissionRequests extends Component<Props, State> {
     console.log(optionName, evt);
     if (optionName === 'allowErrorReport') {
       requests[optionName] = !requests[optionName];
+      if (Sentry.getCurrentHub().getClient()) {
+        Sentry.getCurrentHub()
+          .getClient()
+          .getOptions().enabled = requests[optionName];
+      } else {
+        console.error('Unable to set Sentry reporting value');
+      }
       setConfigItem(optionName, !requests[optionName]);
       this.setState({ requests });
     }

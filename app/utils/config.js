@@ -10,6 +10,7 @@ export type ConfigType = {
   testDeviceIp: string,
   enableExportData: boolean,
   exportDataPath: string,
+  allowErrorReport: boolean,
   // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number,
   saveData: Array<string>
@@ -37,8 +38,11 @@ export function setConfigItem(key: string, val: string) {
 
 // TODO: should do setConfig. Should redo all of this config mess.
 // setConfig Partial<ConfigType> react-hot-loader
-export default function getConfig() {
-  const storedConfig = JSON.parse(localStorage.getItem('AppConfig') || '{}');
+export default function getConfig(): ConfigType {
+  const storedConfig: ConfigType = JSON.parse(
+    localStorage.getItem('AppConfig') || '{}'
+  );
+
   let upgrade = false; // just rewrite it...
   // TODO: remove after 0.0.7
   // change: enableIpOverride => enableTestDevice

@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import * as Sentry from '@sentry/electron';
 
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
@@ -78,6 +79,14 @@ export default class Settings extends Component<Props, ConfigType> {
 
     // TODO:  try to validate Export paths?
     if (invalid.length === 0) {
+      if (Sentry.getCurrentHub().getClient()) {
+        Sentry.getCurrentHub()
+          .getClient()
+          .getOptions().enabled = cleanState.allowErrorReport;
+      } else {
+        console.error('Unable to set Sentry reporting value');
+      }
+
       localStorage.setItem('AppConfig', JSON.stringify(cleanState));
       discover();
       result = SAVE_SUCCESS;

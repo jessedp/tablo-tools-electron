@@ -34,12 +34,16 @@ export default class VersionInfo extends Component<Props, State> {
     let lastVersion = store.get('LastVersion');
     if (!lastVersion) lastVersion = '0.0.0';
 
-    const match = lastVersion.match(/[\d.]*/);
+    let match = lastVersion.match(/[\d.]*/);
     const relLastVersion = match ? match[0] : '0.0.0';
     const relNewVersion = app.getVersion().match(/[\d.]*/)[0];
     console.log(relLastVersion, relNewVersion);
 
-    const beta = !!app.getVersion().match(/[a-zA-Z]/)[0];
+    let beta = false;
+    match = app.getVersion().match(/[a-zA-Z]/);
+    if (match && match[0]) {
+      beta = true;
+    }
 
     if (
       (beta && relLastVersion !== relNewVersion) ||
