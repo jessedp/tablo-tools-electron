@@ -1,6 +1,6 @@
 {
   "name": "tablo-tools",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "productName": "tablo-tools",
   "description": "Tools for messing with your Tablo DVR",
   "scripts": {
