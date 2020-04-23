@@ -73,7 +73,7 @@ export default class Discovery extends Component<Props, State> {
     } else {
       store.set('Devices', devices);
       if (devices.length === 1) {
-        this.setDevice(devices[0]);
+        this.setDevice(devices[0].serverid);
         showServerInfo(true);
       } else {
         showServerInfo(false);
@@ -82,7 +82,7 @@ export default class Discovery extends Component<Props, State> {
     }
   }
 
-  setDevice = (serverId: {}) => {
+  setDevice = (serverId: string) => {
     const { showServerInfo } = this.props;
     const device = global.discoveredDevices.filter(
       item => item.serverid === serverId

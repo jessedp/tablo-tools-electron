@@ -34,15 +34,20 @@ export async function setupApi() {
 
 export function setCurrentDevice(device, publish = true) {
   global.Api.device = device;
-  Sentry.configureScope(scope => {
-    scope.setUser({ id: device.serverid, username: device.name });
-    scope.setTag('tablo_host', device.host);
-    scope.setTag('tablo_board', device.board);
-    scope.setTag('tablo_firmware', device.server_version);
-    // scope.clear();
-  });
-  store.set('CurrentDevice', device);
-  if (publish) PubSub.publish('DEVICE_CHANGE', true);
+  if (device) {
+    Sentry.configureScope(scope => {
+      scope.setUser({ id: device.serverid, username: device.name });
+      scope.setTag('tablo_host', device.host);
+      scope.setTag('tablo_board', device.board);
+      scope.setTag('tablo_firmware', device.server_version);
+      // scope.clear();
+    });
+    store.set('CurrentDevice', device);
+    if (publish) PubSub.publish('DEVICE_CHANGE', true);
+  } else {
+    console.error('setCurrentDevice called without device!', device);
+    store.delete('CurrentDevice');
+  }
 }
 
 export const discover = async () => {

@@ -37,7 +37,6 @@ export default class VersionInfo extends Component<Props, State> {
     let match = lastVersion.match(/[\d.]*/);
     const relLastVersion = match ? match[0] : '0.0.0';
     const relNewVersion = app.getVersion().match(/[\d.]*/)[0];
-    console.log(relLastVersion, relNewVersion);
 
     let beta = false;
     match = app.getVersion().match(/[a-zA-Z]/);
