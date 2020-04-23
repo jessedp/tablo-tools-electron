@@ -54,6 +54,8 @@ export default class SearchForm extends Component<Props, State> {
 
   showsList: Array<Show>;
 
+  psToken: null;
+
   constructor() {
     super();
 
@@ -104,11 +106,12 @@ export default class SearchForm extends Component<Props, State> {
 
   async componentDidMount() {
     this.refresh();
-    PubSub.subscribe('DB_CHANGE', this.refresh);
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount() {
     const cleanState = { ...this.state };
+    PubSub.unsubscribe(this.psToken);
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
