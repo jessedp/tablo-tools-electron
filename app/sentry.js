@@ -1,10 +1,9 @@
-// eslint-disable-next-line import/order
-const { version } = require('../package.json');
-
 const { init } =
   process.type === 'browser'
     ? require('@sentry/electron/dist/main')
     : require('@sentry/electron/dist/renderer');
+
+const { version } = require('../package.json');
 
 if (process.env.NODE_ENV === 'production') {
   init({
