@@ -36,10 +36,9 @@ export function setCurrentDevice(device, publish = true) {
   global.Api.device = device;
   Sentry.configureScope(scope => {
     scope.setUser({ id: device.serverid, username: device.name });
-    scope.setTag('tablo.host', device.host);
-    scope.setTag('tablo.roku', device.roku);
-    scope.setTag('tablo.board', device.board);
-    scope.setTag('tablo.firmware', device.server_version);
+    scope.setTag('tablo_host', device.host);
+    scope.setTag('tablo_board', device.board);
+    scope.setTag('tablo_firmware', device.server_version);
     // scope.clear();
   });
   store.set('CurrentDevice', device);

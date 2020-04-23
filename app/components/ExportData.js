@@ -257,6 +257,7 @@ export default class ExportData extends Component<Props, State> {
   };
 
   causeError = () => {
+    // $FlowFixMe not yet. hidden and allows causing an error in prod
     this.whatWhat();
   };
 

@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Sidebar from '../components/Sidebar';
 import VersionInfo from '../components/VersionInfo';
+import PermissionRequests from '../components/PermissionRequests';
 
 type Props = {
   children: React.Node
@@ -19,6 +20,7 @@ export default class App extends React.Component<Props> {
     return (
       <>
         <Container style={{ width: '100%', maxWidth: '100%' }} className="m-0">
+          <PermissionRequests />
           <VersionInfo />
           <Row>
             <Col className="ml-0 pl-0">

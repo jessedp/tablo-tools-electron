@@ -44,6 +44,7 @@ export default class Settings extends Component<Props, ConfigType> {
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
     this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
+    this.toggleErrorReport = this.toggleErrorReport.bind(this);
     this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
 
     this.toggleDataExport = this.toggleDataExport.bind(this);
@@ -103,6 +104,11 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ notifyBeta: !notifyBeta });
   };
 
+  toggleErrorReport = () => {
+    const { allowErrorReport } = this.state;
+    this.setState({ allowErrorReport: !allowErrorReport });
+  };
+
   setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ testDeviceIp: event.currentTarget.value });
   };
@@ -134,6 +140,7 @@ export default class Settings extends Component<Props, ConfigType> {
       saveState,
       autoRebuild,
       notifyBeta,
+      allowErrorReport,
       enableTestDevice,
       testDeviceIp,
       enableExportData,
@@ -192,6 +199,22 @@ export default class Settings extends Component<Props, ConfigType> {
             <div className="pl-4 smaller">
               Notifications will always be shown for full/normal releases that
               everyone will want. Windows and Linux will auto-update...
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="mt-3">
+          <Col>
+            <Checkbox
+              handleChange={this.toggleErrorReport}
+              label="Allow sending Error Reports?"
+              checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
+            />
+            <div className="pl-4 smaller">
+              No personal data is collected - this simply notifies of us errors
+              before you may post about it or even notice a problem. It does the{' '}
+              <i>white screen of death</i> information gathering for you (and
+              more).
             </div>
           </Col>
         </Row>

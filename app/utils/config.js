@@ -25,13 +25,22 @@ export const defaultConfig: ConfigType = {
   testDeviceIp: '',
   enableExportData: false,
   exportDataPath: `${os.tmpdir()}/tablo-data/`,
+  allowErrorReport: true,
   saveData: []
 };
 
+export function setConfigItem(key: string, val: string) {
+  const storedConfig = getConfig();
+  storedConfig[key] = val;
+  localStorage.setItem('AppConfig', JSON.stringify(storedConfig));
+}
+
+// TODO: should do setConfig. Should redo all of this config mess.
+// setConfig Partial<ConfigType> react-hot-loader
 export default function getConfig() {
   const storedConfig = JSON.parse(localStorage.getItem('AppConfig') || '{}');
   let upgrade = false; // just rewrite it...
-  // TODO: remove 0.0.7
+  // TODO: remove after 0.0.7
   // change: enableIpOverride => enableTestDevice
   if (Object.prototype.hasOwnProperty.call(storedConfig, 'enableIpOverride')) {
     storedConfig.enableTestDevice = storedConfig.enableIpOverride;
