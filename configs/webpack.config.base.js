@@ -6,13 +6,6 @@ import path from 'path';
 import webpack from 'webpack';
 import { dependencies as externals } from '../app/package.json';
 
-const { version } = require('../package.json');
-
-console.log(version);
-
-// eslint-disable-next-line import/order
-const SentryWebpackPlugin = require('@sentry/webpack-plugin');
-
 export default {
   externals: [...Object.keys(externals || {})],
 
@@ -57,22 +50,6 @@ export default {
       FLUENTFFMPEG_COV: false
     }),
 
-    new webpack.NamedModulesPlugin(),
-
-    new SentryWebpackPlugin({
-      include: '.',
-      ignoreFile: '.sentrycliignore',
-      ignore: [
-        'node_modules',
-        'configs',
-        '_site',
-        'flow-typed',
-        'internals',
-        'test'
-      ],
-      configFile: 'sentry.properties',
-      dryRun: false,
-      release: version
-    })
+    new webpack.NamedModulesPlugin()
   ]
 };

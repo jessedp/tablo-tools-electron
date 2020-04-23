@@ -11,6 +11,11 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
 
+// eslint-disable-next-line import/order
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
+
+const { version } = require('../package.json');
+
 CheckNodeEnv('production');
 
 export default merge.smart(baseConfig, {
@@ -63,6 +68,24 @@ export default merge.smart(baseConfig, {
 
     new webpack.DefinePlugin({
       'process.type': '"browser"'
+    }),
+    new SentryWebpackPlugin({
+      include: '.',
+      ignoreFile: '.sentrycliignore',
+      ignore: [
+        'node_modules',
+        'configs',
+        '_site',
+        'flow-typed',
+        'internals',
+        'test',
+        'dll',
+        'babel.config.js',
+        '.eslintrc'
+      ],
+      configFile: 'sentry.properties',
+      dryRun: false,
+      release: version
     })
   ],
   /**
