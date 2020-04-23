@@ -345,7 +345,10 @@ export default class SearchForm extends Component<Props, State> {
     }
 
     if (searchValue) {
-      const re = new RegExp(searchValue, 'i');
+      const escapeRegExp = (text: string) => {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+      };
+      const re = new RegExp(escapeRegExp(searchValue), 'i');
       // query['airing_details.show_title'] =  { $regex: re };
       query.$or = [
         { 'airing_details.show_title': { $regex: re } },
