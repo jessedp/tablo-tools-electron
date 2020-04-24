@@ -49,7 +49,6 @@ export default class PermissionRequests extends Component<Props, State> {
     optionName: string
   ): void => {
     const { requests } = this.state;
-    console.log(optionName, evt);
     if (optionName === 'allowErrorReport') {
       requests[optionName] = !requests[optionName];
       if (Sentry.getCurrentHub().getClient()) {
