@@ -156,18 +156,16 @@ export default class ExportData extends Component<Props, State> {
           </span>
         )
       });
-      const total = await Api.getRecordings({ countOnly: true, force: true });
+      const total = await Api.getRecordingsCount();
       let done = 0;
       const updateTotal = num => {
-        this.setState({ recordingStatus: `${num} / ${total}` });
+        this.setState({ recordingStatus: `${num} / ${total.length}` });
       };
       updateTotal(done);
 
-      const recs = await Api.getRecordings({
-        callback: val => {
-          done += 1;
-          updateTotal(val);
-        }
+      const recs = await Api.getRecordings(true, val => {
+        done += 1;
+        updateTotal(val);
       });
 
       // TODO: maybe put these files elsewhere later
