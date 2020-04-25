@@ -40,6 +40,7 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setEpisodePath = this.setEpisodePath.bind(this);
     this.setMoviePath = this.setMoviePath.bind(this);
     this.setEventPath = this.setEventPath.bind(this);
+    this.setProgramPath = this.setProgramPath.bind(this);
     this.setPathDialog = this.setPathDialog.bind(this);
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
@@ -143,6 +144,10 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ eventPath: event.currentTarget.value });
   };
 
+  setProgramPath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ programPath: event.currentTarget.value });
+  };
+
   render() {
     const {
       saveData,
@@ -156,7 +161,8 @@ export default class Settings extends Component<Props, ConfigType> {
       exportDataPath,
       episodePath,
       moviePath,
-      eventPath
+      eventPath,
+      programPath
     } = this.state;
 
     return (
@@ -253,6 +259,13 @@ export default class Settings extends Component<Props, ConfigType> {
           onClick={() => this.setPathDialog('eventPath')}
           onChange={this.setEventPath}
           value={eventPath}
+          disabled={false}
+        />
+        <Directory
+          label="Manual Recording"
+          onClick={() => this.setPathDialog('programPath')}
+          onChange={this.setProgramPath}
+          value={programPath}
           disabled={false}
         />
         <br />

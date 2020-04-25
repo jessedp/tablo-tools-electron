@@ -41,7 +41,7 @@ type State = {
   alert: {
     type: string,
     text: string,
-    match: string
+    matches: [] // TODO: another element in state
   },
   airingList: Array<Airing>,
   actionList: Array<Airing>
@@ -69,13 +69,15 @@ export default class SearchForm extends Component<Props, State> {
       view: 'search',
       percent: 100,
       percentLocation: 0,
-      alert: { type: '', text: '', match: '' },
+      alert: { type: '', text: '', matches: [] },
       airingList: [],
       actionList: []
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
-    delete storedState.recordingRefs;
+    // delete storedState.recordingRefs;
+    if (typeof storedState.alert.matches === 'string')
+      storedState.alert.matches = [];
     const initialStateCopy = { ...this.initialState };
     this.state = Object.assign(initialStateCopy, storedState);
     this.showsList = [];
@@ -134,7 +136,7 @@ export default class SearchForm extends Component<Props, State> {
     const { length } = actionList;
     if (view === 'selected' && length >= 0) {
       this.setState({
-        alert: { type: 'light', text: alert.text, match: alert.match }
+        alert: { type: 'light', text: alert.text, matches: alert.matches }
       });
       this.viewChange();
     } else {
@@ -161,7 +163,7 @@ export default class SearchForm extends Component<Props, State> {
 
     this.setState({
       view: 'selected',
-      alert: { type: 'light', text: `${len} selected recordings`, match: '' }
+      alert: { type: 'light', text: `${len} selected recordings`, matches: [] }
     });
 
     sendResults({
@@ -361,10 +363,21 @@ export default class SearchForm extends Component<Props, State> {
         { 'event.description': { $regex: re } }
       ];
 
+      if (typeFilter !== 'any') {
+        const typeRe = new RegExp(typeFilter, 'i');
+        query.path = { $regex: typeRe };
+
+        steps.push({
+          type: 'type',
+          value: typeFilter,
+          text: `is: ${typeFilter}`
+        });
+      }
+
       steps.push({
         type: 'search',
         value: searchValue,
-        text: `where title or description contains "${searchValue}`
+        text: `title or description contains "${searchValue}"`
       });
     }
 
@@ -375,17 +388,6 @@ export default class SearchForm extends Component<Props, State> {
         type: 'state',
         value: stateFilter,
         text: `${stateFilter}`
-      });
-    }
-
-    if (typeFilter !== 'any') {
-      const typeRe = new RegExp(typeFilter, 'i');
-      query.path = { $regex: typeRe };
-
-      steps.push({
-        type: 'type',
-        value: typeFilter,
-        text: `${typeFilter}`
       });
     }
 
@@ -445,18 +447,31 @@ export default class SearchForm extends Component<Props, State> {
     }
 
     const airingList = [];
-    let description = '';
-    const match = makeMatchDescription(steps);
-
+    let description;
     if (steps.length > 0) {
       description = 'matching: ';
     }
+    // const match = makeMatchDescription(steps);
+    // let matches;
+    //
+    // if (steps.length > 0) {
+    //   description = 'matching: ';
+    //   match = (
+    //     <>
+    //       <span>matching:</span>
+    //       {steps.map(item => {
+    //         return <Badge pill>{item.text}</Badge>;
+    //       })}
+    //     </>
+    //   );
+    //   console.log(match);
+    // }
 
     let updateState;
     if (!recs || recs.length === 0) {
-      description = `No records found ${description}`;
+      description = `No records found`;
       updateState = {
-        alert: { type: 'warning', text: description, match },
+        alert: { type: 'warning', text: description, matches: steps },
         view: 'search',
         actionList,
         airingList
@@ -470,15 +485,17 @@ export default class SearchForm extends Component<Props, State> {
           airingList.push(airing);
         } catch (e) {
           console.log('Unable to load Airing data: ', e);
+          console.log(doc);
+          throw e;
         }
       });
 
-      description = `${recs.length} recordings found ${description}`;
+      description = `${recs.length} recordings found`;
       updateState = {
         alert: {
           type: 'light',
           text: description,
-          match
+          matches: steps
         },
         view: 'search',
         actionList,
@@ -510,8 +527,6 @@ export default class SearchForm extends Component<Props, State> {
     const pctLabel = `${percent}%`;
 
     if (!percentLocation) percentLocation = 0;
-
-    // console.log('SearchForm render', alert.text);
 
     let selectControl = (
       <Col md="2">
@@ -688,7 +703,19 @@ export default class SearchForm extends Component<Props, State> {
         <Row>
           <Col>
             <Alert variant={alert.type}>
-              {alert.text} <b>{alert.match}</b>
+              {alert.text}
+              {alert.matches.map(item => {
+                return (
+                  <Badge
+                    pill
+                    className="ml-2"
+                    key={Math.random() * 99999999999999}
+                    variant="dark"
+                  >
+                    <h6 className="p-1 m-0">{item.text}</h6>
+                  </Badge>
+                );
+              })}
             </Alert>
           </Col>
         </Row>
@@ -707,15 +734,6 @@ function SelectedDisplay(prop) {
       <span className="fa fa-file-video" /> {len} selected
     </Button>
   );
-}
-
-function makeMatchDescription(steps) {
-  if (!steps) return '';
-
-  const parts = steps.map(item => {
-    return item.text;
-  });
-  return parts.join(', ');
 }
 
 type filterProps = {
@@ -754,7 +772,8 @@ function TypeFilter(props: filterProps) {
     { value: 'any', label: 'any' },
     { value: 'episode', label: 'episode' },
     { value: 'movie', label: 'movie' },
-    { value: 'sports', label: 'sports' }
+    { value: 'sports', label: 'sports' },
+    { value: 'programs', label: 'programs' }
   ];
 
   return (

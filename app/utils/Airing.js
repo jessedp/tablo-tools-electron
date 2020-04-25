@@ -98,8 +98,7 @@ export default class Airing {
     const airing = new Airing(data);
 
     const docs = await global.ShowDb.asyncFind({ path: airing.typePath });
-
-    let piece = [];
+    let piece = new Show();
     switch (airing.type) {
       case SERIES:
         piece = docs[0].series;
@@ -111,10 +110,10 @@ export default class Airing {
         piece = docs[0].sport;
         break;
       case PROGRAM:
-      default:
-        console.log('PROGRAM type - who knows if this will work');
-        piece = docs[0].program;
         break;
+      default:
+        console.error(`Unknown Airing type`, airing);
+        throw Error(`Unknown Airing type "${airing.type}"`);
     }
     airing.show = piece;
     return airing;
@@ -156,6 +155,9 @@ export default class Airing {
         break;
       case MOVIE:
         retVal = this.movieTitle;
+        break;
+      case PROGRAM:
+        retVal = this.showTitle;
         break;
       default:
         retVal = '';
@@ -227,6 +229,9 @@ export default class Airing {
     if (/sports/.test(this.path)) {
       return EVENT;
     }
+    if (/programs/.test(this.path)) {
+      return PROGRAM;
+    }
     return `unknown : ${this.path}`;
   }
 
@@ -239,7 +244,7 @@ export default class Airing {
       case EVENT:
         return this.sport_path;
       case PROGRAM:
-        return this.program_path;
+        return '';
       default:
         throw new Error(`unknown airing type! ${this.type}`);
     }
@@ -258,14 +263,15 @@ export default class Airing {
   }
 
   get background() {
-    if (!this.show) return 0;
-    if (!this.show.background_image) return 0;
+    if (!this.show.background_image) {
+      return this.image;
+    }
     return this.show.background_image.image_id;
   }
 
   get thumbnail(): number {
     if (!this.show.thumbnail_image) {
-      return 0;
+      return this.image;
     }
     return this.show.thumbnail_image.image_id;
   }
@@ -275,11 +281,11 @@ export default class Airing {
     if (snapshotImage && snapshotImage.image_id) {
       return snapshotImage.image_id;
     }
-    return null;
+    return 0;
   }
 
   get exportFile() {
-    const { showTitle } = this;
+    const { showTitle, airingDetails } = this;
 
     const EXT = 'mp4';
     let outPath = this.exportPath;
@@ -304,11 +310,16 @@ export default class Airing {
         // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
         outPath = fsPath.join(outPath, `${season}${this.title}.${EXT}`);
         return outPath;
-      default:
-        console.error('Unknown type exportFile', this);
-        // `${outPath}/${this.title}`;
-        outPath = fsPath.join(outPath, this.title);
+      case PROGRAM:
+        // eslint-disable-next-line no-case-declarations
+        const datetime = airingDetails.datetime
+          .replace(/[-:Z]/g, '')
+          .replace('T', '_');
+        outPath = fsPath.join(outPath, `${this.title}-${datetime}.${EXT}`);
         return outPath;
+      default:
+        console.error('Unknown type exportFile', this.type, this);
+        throw Error('Unknown type exportFile');
     }
   }
 
@@ -325,13 +336,15 @@ export default class Airing {
       case EVENT:
         outPath = fsPath.join(config.eventPath, sanitize(showTitle));
         return outPath;
-      case PROGRAM:
       case SERIES:
         outPath = fsPath.join(
           config.episodePath,
           sanitize(showTitle),
           `Season ${this.seasonNum}`
         );
+        return outPath;
+      case PROGRAM:
+        outPath = config.programPath;
         return outPath;
       default:
         throw new Error('unknown airing type!');
