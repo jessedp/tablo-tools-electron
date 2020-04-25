@@ -133,7 +133,7 @@ export default class Build extends Component<Props, State> {
       recs.forEach(rec => {
         const airing = new Airing(rec);
         try {
-          showPaths.push(airing.typePath);
+          if (airing.typePath) showPaths.push(airing.typePath);
         } catch (e) {
           console.log(
             'error pushing airing.typePath into showPaths - skipping'
