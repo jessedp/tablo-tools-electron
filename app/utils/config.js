@@ -2,6 +2,7 @@ import os from 'os';
 
 export type ConfigType = {
   autoRebuild: boolean,
+  autoRebuildMinutes: number,
   notifyBeta: boolean,
   episodePath: string,
   moviePath: string,
@@ -19,6 +20,7 @@ export type ConfigType = {
 
 export const defaultConfig: ConfigType = {
   autoRebuild: true,
+  autoRebuildMinutes: 30,
   notifyBeta: false,
   episodePath: `${os.homedir()}/TabloRecordings/TV`,
   moviePath: `${os.homedir()}/TabloRecordings/Movies`,

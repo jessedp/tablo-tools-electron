@@ -6,16 +6,17 @@ import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import InputGroup from 'react-bootstrap/InputGroup';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, { ConfigType } from '../utils/config';
+import getConfig, { ConfigType, defaultConfig } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
+import DurationPicker from './DurationPicker';
 
 const SAVE_NONE = 0;
 const SAVE_FAIL = 1;
@@ -45,6 +46,7 @@ export default class Settings extends Component<Props, ConfigType> {
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
+    this.setAutoRebuildMinutes = this.setAutoRebuildMinutes.bind(this);
     this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
     this.toggleErrorReport = this.toggleErrorReport.bind(this);
     this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
@@ -76,6 +78,9 @@ export default class Settings extends Component<Props, ConfigType> {
       if (!isValidIp(cleanState.testDeviceIp)) {
         invalid.push(`Invalid IP Address: ${cleanState.testDeviceIp}`);
       }
+      if (!cleanState.autoRebuildMinutes) {
+        cleanState.autoRebuildMinutes = defaultConfig.autoRebuildMinutes;
+      }
     }
 
     // TODO:  try to validate Export paths?
@@ -104,9 +109,19 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ enableTestDevice: !enableTestDevice });
   };
 
+  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ testDeviceIp: event.currentTarget.value });
+  };
+
   toggleAutoRebuild = () => {
     const { autoRebuild } = this.state;
     this.setState({ autoRebuild: !autoRebuild });
+  };
+
+  setAutoRebuildMinutes = (minutes: number | null) => {
+    console.log('setAutoRebuildMinutes', minutes);
+    // this.setState({ autoRebuildMinutes: event.currentTarget.value });
+    this.setState({ autoRebuildMinutes: minutes });
   };
 
   toggleNotifyBeta = () => {
@@ -117,10 +132,6 @@ export default class Settings extends Component<Props, ConfigType> {
   toggleErrorReport = () => {
     const { allowErrorReport } = this.state;
     this.setState({ allowErrorReport: !allowErrorReport });
-  };
-
-  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ testDeviceIp: event.currentTarget.value });
   };
 
   toggleDataExport = () => {
@@ -153,6 +164,7 @@ export default class Settings extends Component<Props, ConfigType> {
       saveData,
       saveState,
       autoRebuild,
+      autoRebuildMinutes,
       notifyBeta,
       allowErrorReport,
       enableTestDevice,
@@ -191,18 +203,20 @@ export default class Settings extends Component<Props, ConfigType> {
           </Col>
         </Row>
 
-        <Row className="mt-3">
-          <Col>
+        <div className="mt-3">
+          <div>
             <Checkbox
               handleChange={this.toggleAutoRebuild}
               checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
               label="Enable automatically rebuilding local database?"
             />
-            <div className="pl-4 smaller">
-              Occurs every 30 minutes behind the scenes
-            </div>
-          </Col>
-        </Row>
+            <DurationPicker
+              value={autoRebuildMinutes}
+              updateValue={this.setAutoRebuildMinutes}
+              disabled={!autoRebuild}
+            />
+          </div>
+        </div>
 
         <Row className="mt-3">
           <Col>
