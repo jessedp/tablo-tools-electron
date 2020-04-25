@@ -27,7 +27,7 @@ export default class RecordingOverview extends Component<Props> {
                 <td>{airing.episodeNum}</td>
               </>
             ) : (
-              ''
+              <></>
             )}
             <th>Watched</th>
             <td>{boolStr(airing.userInfo.watched)}</td>
