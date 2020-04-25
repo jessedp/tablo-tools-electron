@@ -38,12 +38,11 @@ export default class DurationPicker extends Component<Props, State> {
 
   setup = () => {
     const { value, disabled } = this.props;
-    console.log('value', value, 'disabled', disabled);
 
     let fixValue = value;
     if (typeof value !== 'number') fixValue = parseInt(fixValue, 10);
     fixValue = Number.isNaN(fixValue) ? null : parseInt(fixValue, 10);
-    console.log('fixValue', fixValue);
+
     let minutes;
     let hours;
     if (fixValue) {
@@ -71,7 +70,7 @@ export default class DurationPicker extends Component<Props, State> {
     const { value, updateValue } = this.props;
     const { disabled } = this.state;
     let { hours, minutes } = this.state;
-    console.log('hours', hours, 'min', minutes);
+
     if (disabled) return;
 
     if (typeof hours !== 'number') hours = parseInt(hours, 10);
@@ -86,7 +85,6 @@ export default class DurationPicker extends Component<Props, State> {
       newValue = hours * 60 + minutes;
     }
 
-    console.log(hours, minutes, newValue);
     if (newValue !== value) updateValue(newValue);
   };
 
