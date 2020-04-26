@@ -28,12 +28,17 @@ type Props = {
   toggleItem: (Airing, number) => void
 };
 
+type Season = {
+  num: number,
+  count: number
+};
 type State = {
   searchValue: string,
   typeFilter: string,
   stateFilter: string,
   watchedFilter: string,
   showFilter: string,
+  seasonFilter: string,
   comskipFilter: string,
   view: string,
   percent: number,
@@ -44,7 +49,8 @@ type State = {
     matches: [] // TODO: another element in state
   },
   airingList: Array<Airing>,
-  actionList: Array<Airing>
+  actionList: Array<Airing>,
+  seasonList: Array<Season>
 };
 
 export default class SearchForm extends Component<Props, State> {
@@ -66,12 +72,14 @@ export default class SearchForm extends Component<Props, State> {
       watchedFilter: 'all',
       comskipFilter: 'all',
       showFilter: '',
+      seasonFilter: '',
       view: 'search',
       percent: 100,
       percentLocation: 0,
       alert: { type: '', text: '', matches: [] },
       airingList: [],
-      actionList: []
+      actionList: [],
+      seasonList: []
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
@@ -89,6 +97,7 @@ export default class SearchForm extends Component<Props, State> {
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
     this.showChange = this.showChange.bind(this);
+    this.seasonChange = this.seasonChange.bind(this);
     this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
@@ -270,6 +279,30 @@ export default class SearchForm extends Component<Props, State> {
 
   showChange = async (event: Option) => {
     await this.setState({ showFilter: event.value });
+    const list = [];
+    if (event.value !== '' && event.value !== 'all') {
+      // load seasons for show
+      const query = { series_path: event.value };
+      const seasons = {};
+
+      const recs = await global.RecDb.asyncFind(query);
+      await asyncForEach(recs, async rec => {
+        const airing = await Airing.create(rec);
+        const num = airing.episode.season_number;
+        if (seasons[num]) seasons[num] += 1;
+        else seasons[num] = 1;
+      });
+      Object.keys(seasons).forEach(key => {
+        list.push({ num: parseInt(key, 10), count: seasons[key] });
+      });
+    }
+
+    await this.setState({ seasonList: list });
+    this.search();
+  };
+
+  seasonChange = async (event: Option) => {
+    await this.setState({ seasonFilter: event.value });
     this.search();
   };
 
@@ -339,7 +372,8 @@ export default class SearchForm extends Component<Props, State> {
       typeFilter,
       watchedFilter,
       comskipFilter,
-      showFilter
+      showFilter,
+      seasonFilter
     } = this.state;
 
     const query = {};
@@ -428,7 +462,18 @@ export default class SearchForm extends Component<Props, State> {
         value: showFilter,
         text: `show is ${show.title}`
       });
+
+      if (seasonFilter !== '' && seasonFilter !== 'all') {
+        // / seasonList
+        query['episode.season_number'] = parseInt(seasonFilter, 10);
+        steps.push({
+          type: 'season',
+          value: seasonFilter,
+          text: `season #${seasonFilter}`
+        });
+      }
     }
+    console.log(query);
 
     let recs = await global.RecDb.asyncFind(query, [
       ['sort', { 'airing_details.datetime': -1 }]
@@ -451,21 +496,6 @@ export default class SearchForm extends Component<Props, State> {
     if (steps.length > 0) {
       description = 'matching: ';
     }
-    // const match = makeMatchDescription(steps);
-    // let matches;
-    //
-    // if (steps.length > 0) {
-    //   description = 'matching: ';
-    //   match = (
-    //     <>
-    //       <span>matching:</span>
-    //       {steps.map(item => {
-    //         return <Badge pill>{item.text}</Badge>;
-    //       })}
-    //     </>
-    //   );
-    //   console.log(match);
-    // }
 
     let updateState;
     if (!recs || recs.length === 0) {
@@ -517,8 +547,10 @@ export default class SearchForm extends Component<Props, State> {
       watchedFilter,
       comskipFilter,
       showFilter,
+      seasonFilter,
       alert,
       actionList,
+      seasonList,
       view,
       percent
     } = this.state;
@@ -555,6 +587,15 @@ export default class SearchForm extends Component<Props, State> {
                 value={showFilter}
                 shows={this.showsList}
               />
+              {seasonList.length > 0 ? (
+                <SeasonFilter
+                  onChange={this.seasonChange}
+                  value={seasonFilter}
+                  seasons={seasonList}
+                />
+              ) : (
+                ''
+              )}
             </div>
           </Col>
         </Row>
@@ -740,7 +781,9 @@ type filterProps = {
   value: string,
   onChange: Function,
   // eslint-disable-next-line react/no-unused-prop-types
-  shows?: Array<Show>
+  shows?: Array<Show>,
+  // eslint-disable-next-line react/no-unused-prop-types
+  seasons?: Array<Season>
 };
 
 function StateFilter(props: filterProps) {
@@ -763,7 +806,7 @@ function StateFilter(props: filterProps) {
     />
   );
 }
-StateFilter.defaultProps = { shows: [] };
+StateFilter.defaultProps = { shows: [], seasons: [] };
 
 function TypeFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -786,7 +829,7 @@ function TypeFilter(props: filterProps) {
     />
   );
 }
-TypeFilter.defaultProps = { shows: [] };
+TypeFilter.defaultProps = { shows: [], seasons: [] };
 
 function WatchedFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -807,7 +850,7 @@ function WatchedFilter(props: filterProps) {
     />
   );
 }
-WatchedFilter.defaultProps = { shows: [] };
+WatchedFilter.defaultProps = { shows: [], seasons: [] };
 
 function ShowFilter(props: filterProps) {
   const { value, onChange, shows } = props;
@@ -841,7 +884,39 @@ function ShowFilter(props: filterProps) {
     />
   );
 }
-ShowFilter.defaultProps = { shows: [] };
+ShowFilter.defaultProps = { shows: [], seasons: [] };
+
+function SeasonFilter(props: filterProps) {
+  const { value, onChange, seasons } = props;
+  const options = [];
+  options.push({ value: 'all', label: 'all' });
+  if (seasons && seasons.length > 0) {
+    seasons.forEach(item =>
+      options.push({
+        value: `${item.num}`,
+        label: (
+          <>
+            <span className="pr-1">Season #{item.num}</span>
+            <Badge variant="secondary" pill>
+              {item.count}
+            </Badge>
+          </>
+        )
+      })
+    );
+  }
+
+  return (
+    <FilterSelect
+      name="showFilter"
+      placeholder="season"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+SeasonFilter.defaultProps = { shows: [], seasons: [] };
 
 function ComskipFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -876,7 +951,7 @@ function ComskipFilter(props: filterProps) {
     />
   );
 }
-ComskipFilter.defaultProps = { shows: [] };
+ComskipFilter.defaultProps = { shows: [], seasons: [] };
 
 type Option = {
   value: string,
