@@ -1068,7 +1068,7 @@ function PerPageFilter(props: filterProps) {
     </div>
   );
 }
-PerPageFilter.defaultProps = { shows: [] };
+PerPageFilter.defaultProps = { shows: [], seasons: [] };
 
 type Option = {
   value: string,
