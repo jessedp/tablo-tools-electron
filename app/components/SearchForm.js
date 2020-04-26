@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+import ReactPaginate from 'react-paginate';
 import Select from 'react-select';
 
 import { asyncForEach, throttleActions } from '../utils/utils';
@@ -29,6 +30,8 @@ type Props = {
 };
 
 type State = {
+  skip: number,
+  limit: number,
   searchValue: string,
   typeFilter: string,
   stateFilter: string,
@@ -38,6 +41,7 @@ type State = {
   view: string,
   percent: number,
   percentLocation: number,
+  recordCount: number,
   alert: {
     type: string,
     text: string,
@@ -60,6 +64,8 @@ export default class SearchForm extends Component<Props, State> {
     super();
 
     this.initialState = {
+      skip: 0,
+      limit: 50,
       searchValue: '',
       typeFilter: 'any',
       stateFilter: 'any',
@@ -69,16 +75,19 @@ export default class SearchForm extends Component<Props, State> {
       view: 'search',
       percent: 100,
       percentLocation: 0,
+      recordCount: 0,
       alert: { type: '', text: '', matches: [] },
       airingList: [],
       actionList: []
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
-    // delete storedState.recordingRefs;
+
     if (typeof storedState.alert.matches === 'string')
       storedState.alert.matches = [];
     const initialStateCopy = { ...this.initialState };
+    // TODO: fix react-paginate to take initial page
+    storedState.skip = 0;
     this.state = Object.assign(initialStateCopy, storedState);
     this.showsList = [];
 
@@ -103,6 +112,8 @@ export default class SearchForm extends Component<Props, State> {
     this.unselectAll = this.unselectAll.bind(this);
     this.deleteAll = this.deleteAll.bind(this);
 
+    (this: any).handlePageClick = this.handlePageClick.bind(this);
+    (this: any).updatePerPage = this.updatePerPage.bind(this);
     (this: any).refresh = this.refresh.bind(this);
   }
 
@@ -129,6 +140,23 @@ export default class SearchForm extends Component<Props, State> {
 
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
+
+  async handlePageClick(data: { selected: number }) {
+    const { limit } = this.state;
+    console.log(data);
+    // this.setState( {skip: 0 });
+    const { selected } = data;
+    const offset = Math.ceil(selected * limit);
+
+    this.setState({ skip: offset }, () => {
+      this.search();
+    });
+  }
+
+  updatePerPage = async (event: Option) => {
+    await this.setState({ limit: parseInt(event.value, 10) });
+    this.search();
+  };
 
   async refresh() {
     const { view, actionList, alert } = this.state;
@@ -332,6 +360,8 @@ export default class SearchForm extends Component<Props, State> {
     let { actionList } = this.state;
 
     const {
+      skip,
+      limit,
       view,
       percent,
       searchValue,
@@ -430,9 +460,15 @@ export default class SearchForm extends Component<Props, State> {
       });
     }
 
-    let recs = await global.RecDb.asyncFind(query, [
-      ['sort', { 'airing_details.datetime': -1 }]
-    ]);
+    const count = await global.RecDb.asyncCount(query);
+    const projection = [];
+    projection.push(['sort', { 'airing_details.datetime': -1 }]);
+    if (limit !== 'all') {
+      projection.push(['skip', skip]);
+      projection.push(['limit', limit]);
+    }
+
+    let recs = await global.RecDb.asyncFind(query, projection);
 
     if (percent < 100) {
       const pct = percent / 100;
@@ -451,21 +487,6 @@ export default class SearchForm extends Component<Props, State> {
     if (steps.length > 0) {
       description = 'matching: ';
     }
-    // const match = makeMatchDescription(steps);
-    // let matches;
-    //
-    // if (steps.length > 0) {
-    //   description = 'matching: ';
-    //   match = (
-    //     <>
-    //       <span>matching:</span>
-    //       {steps.map(item => {
-    //         return <Badge pill>{item.text}</Badge>;
-    //       })}
-    //     </>
-    //   );
-    //   console.log(match);
-    // }
 
     let updateState;
     if (!recs || recs.length === 0) {
@@ -490,13 +511,23 @@ export default class SearchForm extends Component<Props, State> {
         }
       });
 
-      description = `${recs.length} recordings found`;
+      let end = 0;
+      if (limit === 'all') {
+        end = count;
+      } else {
+        end = skip + limit;
+        if (count < limit) end = count;
+        if (count > skip && count < end) end = count;
+      }
+
+      description = `${skip + 1} - ${parseInt(end, 10)} of ${count} recordings`;
       updateState = {
         alert: {
           type: 'light',
           text: description,
           matches: steps
         },
+        recordCount: count,
         view: 'search',
         actionList,
         airingList
@@ -520,7 +551,9 @@ export default class SearchForm extends Component<Props, State> {
       alert,
       actionList,
       view,
-      percent
+      percent,
+      recordCount,
+      limit
     } = this.state;
     let { percentLocation } = this.state;
 
@@ -664,6 +697,45 @@ export default class SearchForm extends Component<Props, State> {
                   <span className="fa fa-times-circle pr-1" />
                   empty
                 </Button>
+              </Col>
+              <Col>
+                <Row>
+                  <Col>
+                    {recordCount >= limit ? (
+                      <ReactPaginate
+                        previousLabel={
+                          <span
+                            className="fa fa-arrow-left"
+                            title="previous page"
+                          />
+                        }
+                        nextLabel={
+                          <span
+                            className="fa fa-arrow-right"
+                            title="next page"
+                          />
+                        }
+                        breakLabel="..."
+                        breakClassName="break-me"
+                        pageCount={Math.ceil(recordCount / limit)}
+                        marginPagesDisplayed={2}
+                        pageRangeDisplayed={parseInt(limit, 10)}
+                        onPageChange={this.handlePageClick}
+                        containerClassName="pagination"
+                        subContainerClassName="pages pagination"
+                        activeClassName="active-page"
+                      />
+                    ) : (
+                      <></>
+                    )}
+                  </Col>
+                  <Col md="2">
+                    <PerPageFilter
+                      value={`${limit}`}
+                      onChange={this.updatePerPage}
+                    />
+                  </Col>
+                </Row>
               </Col>
             </>
           ) : (
@@ -878,6 +950,36 @@ function ComskipFilter(props: filterProps) {
 }
 ComskipFilter.defaultProps = { shows: [] };
 
+function PerPageFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'all', label: 'all' },
+    { value: '10', label: '10' },
+    { value: '50', label: '50' },
+    { value: '100', label: '100' }
+  ];
+  const height = '24px';
+
+  return (
+    <div>
+      <div className="input-group input-group-sm">
+        <div>
+          <Select
+            options={options}
+            name="per page"
+            onChange={onChange}
+            placeholder="per page"
+            styles={FilterStyles(height, 75)}
+            value={options.filter(option => `${option.value}` === `${value}`)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+PerPageFilter.defaultProps = { shows: [] };
+
 type Option = {
   value: string,
   label: any
@@ -895,13 +997,48 @@ function FilterSelect(props: fullFilterProps) {
   const { name, placeholder, options, onChange, value } = props;
 
   const height = '30px';
-  const styles = {
+  let maxLen = 0;
+  options.forEach(item => {
+    const len = item.label.length * 15;
+    if (len > maxLen) maxLen = len;
+  });
+  // TODO: cheeeeating.
+  if (name === 'showFilter') maxLen = 300;
+
+  return (
+    <div>
+      <div className="input-group input-group-sm">
+        <div className="input-group-prepend ">
+          <span className="input-group-text">{placeholder}</span>
+        </div>
+        <div>
+          <Select
+            options={options}
+            placeholder={placeholder}
+            name={name}
+            onChange={onChange}
+            styles={FilterStyles(height, maxLen)}
+            value={options.filter(option => option.value === value)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const FilterStyles = (height: string, width?: number) => {
+  return {
+    container: base => ({
+      ...base,
+      flex: 1
+    }),
     control: (provided, state) => ({
       ...provided,
       height,
       minHeight: height,
+      minWidth: 75,
       width: '100%',
-      maxWidth: 200,
+      maxWidth: 600,
       background: '#fff',
       borderColor: '#9e9e9e',
       boxShadow: state.isFocused ? null : null,
@@ -918,7 +1055,7 @@ function FilterSelect(props: fullFilterProps) {
     }),
     menu: provided => ({
       ...provided,
-      minWidth: 200,
+      minWidth: width || 50,
       width: '100%',
       maxWidth: 500,
       zIndex: '99999'
@@ -946,24 +1083,4 @@ function FilterSelect(props: fullFilterProps) {
       height
     })
   };
-
-  return (
-    <div>
-      <div className="input-group input-group-sm">
-        <div className="input-group-prepend ">
-          <span className="input-group-text">{placeholder}</span>
-        </div>
-        <div>
-          <Select
-            options={options}
-            placeholder={placeholder}
-            name={name}
-            onChange={onChange}
-            styles={styles}
-            value={options.filter(option => option.value === value)}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
+};
