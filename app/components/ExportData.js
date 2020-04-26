@@ -298,8 +298,17 @@ export default class ExportData extends Component<Props, State> {
           </Col>
         </Row>
         <Row>
-          <Col md="6">
-            <Alert variant="warning">
+          <Col md="8">
+            <Alert variant="light">
+              <ul className="ml-0 pl-2">
+                <li>
+                  <b>Build &amp; Review</b> - creates the zip file to be upload
+                  so you can see what&apos;s being sent.
+                </li>
+                <li>
+                  <b>Upload</b> - creates and uploads the zip file
+                </li>
+              </ul>
               It&apos;s pretty pointless to do this unless we ask for it...
             </Alert>
           </Col>
@@ -366,8 +375,8 @@ export default class ExportData extends Component<Props, State> {
               </InputGroup.Append>
             </InputGroup>
             <span className="smaller">
-              The zip file will contain <code>.json</code> files. They are text
-              files if you want to take a look.
+              The zip file will contain <code>.json</code> files. They are plain
+              text files if you want to take a look.
             </span>
             <Button
               size="xs"
