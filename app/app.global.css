@@ -19,6 +19,48 @@
   border-radius: 0.2rem;
 }
 
+/*** react-paginate ***/
+.pagination {
+  padding: 0;
+  float: right;
+}
+
+.pagination > li:not(.previous):not(.next) {
+  border: #b6c5d5 solid 1px;
+  border-right: none;
+}
+
+.pagination > li:not(.previous):not(.next):nth-last-child(2) {
+  border-right: #b6c5d5 solid 1px;
+}
+
+.pagination > li.next,
+.pagination > li.previous {
+  padding: 0;
+  margin: 0 5px 0 5px;
+}
+
+.pagination > li > a {
+  padding: 5px;
+}
+.pagination > li > a:hover {
+  cursor: pointer;
+  background: #9fcdff;
+}
+
+.pagination > li.previous > a:hover,
+.pagination > li.next > a:hover {
+  background: #b8daff;
+  color: #1e7e34;
+}
+
+.active-page {
+  background: #b6c5d5;
+}
+.break-me {
+  padding: 0 2px 0 2px;
+}
+
 /** bootstrap4 override width of bootstrap4 modal **/
 
 .modal-1000 {
