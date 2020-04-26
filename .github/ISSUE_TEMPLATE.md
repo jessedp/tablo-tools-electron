@@ -1,30 +1,21 @@
 <!--- Provide a general summary of the issue in the Title above -->
 
-## Prerequisites
-
-- [ ] Using yarn
-- [ ] Using an up-to-date master branch
-- [ ] Using latest version of devtools. See [wiki for howto update](https://github.com/electron-react-boilerplate/electron-react-boilerplate/wiki/DevTools)
-- [ ] Link to stacktrace in a Gist (for bugs)
-- [ ] For issue in production release, devtools output of `DEBUG_PROD=true yarn build && yarn start`
-- [ ] Tried solutions mentioned in [#400](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)
-
-## Expected Behavior
+#### Expected Behavior
 
 <!--- If you're describing a bug, tell us what should happen -->
 <!--- If you're suggesting a change/improvement, tell us how it should work -->
 
-## Current Behavior
+#### Current Behavior
 
 <!--- If describing a bug, tell us what happens instead of the expected behavior -->
 <!--- If suggesting a change/improvement, explain the difference from current behavior -->
 
-## Possible Solution
+#### Possible Solution
 
 <!--- Not obligatory, but suggest a fix/reason for the bug, -->
 <!--- or ideas how to implement the addition or change -->
 
-## Steps to Reproduce (for bugs)
+#### Steps to Reproduce (for bugs)
 
 <!--- Provide a link to a live example, or an unambiguous set of steps to -->
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
@@ -37,17 +28,16 @@
 
 4.
 
-## Context
+#### Your Environment
 
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Did you make any changes to the boilerplate after cloning it? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+<!---
+For most bad bugs (eg, a "white screen") has occurred, we have captured the error and have the information below.
+The last 4 of the ServerID are especially important if you're submitted data through the app.
 
-## Your Environment
+Include as many relevant details about the environment you experienced the bug in
+-->
 
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-
-- Node version :
-- Version or Branch used :
-- Operating System and version :
-- Link to your project :
+- App version -
+- Last 4 of Tablo ServerID -
+- Tablo Firmware version -
+- Operating System and version -
