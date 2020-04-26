@@ -91,7 +91,7 @@ export default class SearchForm extends Component<Props, State> {
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
 
-    if (typeof storedState.alert.matches === 'string')
+    if (storedState.alert && typeof storedState.alert.matches === 'string')
       storedState.alert.matches = [];
     const initialStateCopy = { ...this.initialState };
     // TODO: fix react-paginate to take initial page
