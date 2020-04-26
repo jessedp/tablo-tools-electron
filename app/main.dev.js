@@ -49,8 +49,11 @@ export default class AppUpdater {
         };
         event.sender.send('update-reply', data);
       });
-
-      autoUpdater.checkForUpdates();
+      try {
+        autoUpdater.checkForUpdates();
+      } catch (e) {
+        console.error('autoUpdater.checkForUpdates problem', e);
+      }
     });
 
     // autoUpdater.checkForUpdates();
