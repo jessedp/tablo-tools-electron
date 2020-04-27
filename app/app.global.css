@@ -72,12 +72,9 @@ div.scrollable-area {
 
 .search-image {
   padding: 0 0 2px 2px;
-
-  /* width: 101px; */
-
-  /* min-width: 101px; */
-
-  /* max-width: 101px; */
+  width: 93px;
+  min-width: 93px;
+  max-width: 93px;
   height: 125px;
   max-height: 125px;
   min-height: 125px;
