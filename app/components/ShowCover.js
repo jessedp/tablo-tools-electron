@@ -14,9 +14,18 @@ export default class ShowCover extends Component<Props> {
     return (
       <div
         className="overlay-image"
-        style={{ position: 'relative', width: '147px', maxHeight: '196px' }}
+        style={{
+          position: 'relative',
+          width: '147px',
+          maxHeight: '196px',
+          display: 'inline-block'
+        }}
       >
-        <TabloImage imageId={show.thumbnail} />
+        <TabloImage
+          imageId={show.thumbnail}
+          className="cover-image"
+          title={show.title}
+        />
         <BottomLine show={show} />
         <Badge show={show} />
       </div>
@@ -49,7 +58,6 @@ function BottomLine(prop) {
 
   return (
     <>
-      <span className="bg-">x</span>
       <div className={style}>
         {showCounts.unwatched_count} of {showCounts.airing_count} unwatched
       </div>
@@ -70,13 +78,13 @@ function Badge(prop) {
   switch (show.type) {
     case SERIES:
       style = 'badge-cell-bg state-recorded';
-    // eslint-disable-next-line no-fallthrough
+      break;
     case EVENT:
       style = 'badge-cell-bg state-recorded';
-    // eslint-disable-next-line no-fallthrough
+      break;
     case MOVIE:
       style = 'badge-cell-bg type-manualProgram';
-    // eslint-disable-next-line no-fallthrough
+      break;
     case PROGRAM:
     default:
       style = 'badge-cell-bg state-recorded';

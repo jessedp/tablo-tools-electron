@@ -3,10 +3,14 @@ import React, { Component } from 'react';
 
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import Col from 'react-bootstrap/Col';
+import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
+import type { SearchAlert } from './Search';
 
 type Props = {
   addItem: (airing: Airing) => void,
@@ -15,24 +19,35 @@ type Props = {
 };
 
 type State = {
+  searchAlert: SearchAlert,
   airingList: Array<Airing>,
   airingRefs: Object,
   actionList: Array<Airing>,
+  searchAlert: SearchAlert,
   loading: boolean
 };
 
 export default class SearchResults extends Component<Props, State> {
   props: Props;
 
+  initialState: State;
+
   constructor() {
     super();
 
-    this.state = {
+    this.initialState = {
       airingRefs: {},
       actionList: [],
       loading: false,
-      airingList: []
+      airingList: [],
+      searchAlert: {
+        type: '',
+        text: '',
+        matches: []
+      }
     };
+
+    this.state = this.initialState;
 
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
@@ -49,6 +64,7 @@ export default class SearchResults extends Component<Props, State> {
     }
 
     this.setState({
+      searchAlert: records.searchAlert,
       loading: records.loading,
       actionList: records.actionList,
       airingList: records.airingList,
@@ -99,7 +115,7 @@ export default class SearchResults extends Component<Props, State> {
 
   render() {
     const { refresh } = this.props;
-    const { actionList, loading, airingRefs } = this.state;
+    const { searchAlert, actionList, loading, airingRefs } = this.state;
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
@@ -130,10 +146,11 @@ export default class SearchResults extends Component<Props, State> {
       );
     }
     return (
-      <>
+      <div className="scrollable-area">
         <Loading loading={loading} />
+        <ShowAlerts alert={searchAlert} loading={loading} />
         <Row className="m-1 mb-4">{rows}</Row>
-      </>
+      </div>
     );
   }
 }
@@ -149,5 +166,33 @@ function Loading(prop) {
     >
       <Spinner animation="grow" variant="warning" />
     </div>
+  );
+}
+
+function ShowAlerts(prop) {
+  const { alert, loading } = prop;
+
+  if (loading || !alert || !alert.matches) return '';
+
+  return (
+    <Row>
+      <Col>
+        <Alert variant={alert.type}>
+          <span className="pr-2">{alert.text}</span>
+          {alert.matches.map(item => {
+            return (
+              <Badge
+                pill
+                className="ml-2"
+                key={Math.random() * 99999999999999}
+                variant="dark"
+              >
+                <h6 className="p-1 m-0">{item.text}</h6>
+              </Badge>
+            );
+          })}
+        </Alert>
+      </Col>
+    </Row>
   );
 }

@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import * as Sentry from '@sentry/electron';
 
-import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -178,185 +177,190 @@ export default class Settings extends Component<Props, ConfigType> {
     } = this.state;
 
     return (
-      <Container>
-        <Alert variant="primary" className="p-2 m-2">
+      <div className="section">
+        <div>
+          <Alert variant="primary" className="p-2 m-2">
+            <Row>
+              <Col md="2" className="pt-2">
+                <h4 className="pl-2">Settings</h4>
+              </Col>
+              <Col>
+                <Button
+                  size="sm"
+                  className="mt-1 ml-5"
+                  variant="outline-light"
+                  type="button"
+                  onClick={this.saveConfig}
+                >
+                  Save
+                </Button>
+              </Col>
+            </Row>
+          </Alert>
           <Row>
-            <Col md="2" className="pt-2">
-              <h4 className="pl-2">Settings</h4>
-            </Col>
             <Col>
-              <Button
-                size="sm"
-                className="mt-1 ml-5"
-                variant="outline-light"
-                type="button"
-                onClick={this.saveConfig}
-              >
-                Save
-              </Button>
+              <SaveStatus invalid={saveData} state={saveState} />
             </Col>
           </Row>
-        </Alert>
-        <Row>
-          <Col>
-            <SaveStatus invalid={saveData} state={saveState} />
-          </Col>
-        </Row>
-
-        <div className="mt-3">
+        </div>
+        <div className="scrollable-area">
           <div>
-            <Checkbox
-              handleChange={this.toggleAutoRebuild}
-              checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
-              label="Enable automatically rebuilding local database?"
+            <div className="mt-3">
+              <div>
+                <Checkbox
+                  handleChange={this.toggleAutoRebuild}
+                  checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
+                  label="Enable automatically rebuilding local database?"
+                />
+                <DurationPicker
+                  value={autoRebuildMinutes}
+                  updateValue={this.setAutoRebuildMinutes}
+                  disabled={!autoRebuild}
+                />
+              </div>
+            </div>
+
+            <Row className="mt-3">
+              <Col>
+                <Checkbox
+                  handleChange={this.toggleNotifyBeta}
+                  checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
+                  label="Show notification of pre-releases (beta, alpha, etc)?"
+                />
+                <div className="pl-4 smaller">
+                  Notifications will always be shown for full/normal releases
+                  that everyone will want. Windows and Linux will auto-update...
+                </div>
+              </Col>
+            </Row>
+
+            <Row className="mt-3">
+              <Col>
+                <Checkbox
+                  handleChange={this.toggleErrorReport}
+                  label="Allow sending Error Reports?"
+                  checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
+                />
+                <div className="pl-4 smaller">
+                  No personal data is collected - this simply notifies of us
+                  errors before you may post about it or even notice a problem.
+                  It does the <i>white screen of death</i> information gathering
+                  for you (and more).
+                </div>
+              </Col>
+            </Row>
+
+            <Row className="p-1 mt-3 mb-2">
+              <Col md="7" className="pt-1 border bg-light">
+                <h6 className="pt-1">Export Paths:</h6>
+              </Col>
+            </Row>
+
+            <Directory
+              label="Series/Episode"
+              onClick={() => this.setPathDialog('episodePath')}
+              onChange={this.setEpisodePath}
+              value={episodePath}
+              disabled={false}
             />
-            <DurationPicker
-              value={autoRebuildMinutes}
-              updateValue={this.setAutoRebuildMinutes}
-              disabled={!autoRebuild}
+            <Directory
+              label="Movie"
+              onClick={() => this.setPathDialog('moviePath')}
+              onChange={this.setMoviePath}
+              value={moviePath}
+              disabled={false}
             />
+            <Directory
+              label="Sport/Event"
+              onClick={() => this.setPathDialog('eventPath')}
+              onChange={this.setEventPath}
+              value={eventPath}
+              disabled={false}
+            />
+            <Directory
+              label="Manual Recording"
+              onClick={() => this.setPathDialog('programPath')}
+              onChange={this.setProgramPath}
+              value={programPath}
+              disabled={false}
+            />
+            <br />
+
+            <Row className="p-1 mb-2">
+              <Col md="7" className="pt-1 border bg-light">
+                <h6 className="pt-1">Advanced:</h6>
+              </Col>
+            </Row>
+
+            <div style={{ width: '375px' }}>
+              <Row>
+                <Col>
+                  <Checkbox
+                    handleChange={this.toggleIpOverride}
+                    checked={enableTestDevice ? CHECKBOX_ON : CHECKBOX_OFF}
+                    label="Enable Test Device?"
+                  />
+                </Col>
+              </Row>
+              <Row className="m-0 p-0">
+                <Col>
+                  <InputGroup size="sm">
+                    <InputGroup.Prepend>
+                      <InputGroup.Text title="Test Device IP address">
+                        <span className="fa fa-network-wired pr-2" />
+                      </InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <Form.Control
+                      value={testDeviceIp}
+                      type="text"
+                      placeholder="Enter IP"
+                      onChange={this.setTestDeviceIp}
+                      disabled={!enableTestDevice}
+                    />
+                  </InputGroup>
+                </Col>
+              </Row>
+              <Row className="mt-4">
+                <Col>
+                  <Checkbox
+                    handleChange={this.toggleDataExport}
+                    checked={enableExportData ? CHECKBOX_ON : CHECKBOX_OFF}
+                    label="Export Tablo Data?"
+                  />
+                  <div className="smaller">
+                    Writes out the raw JSON received from the Tablo to files.
+                  </div>
+                </Col>
+              </Row>
+            </div>
+            <div>
+              <Row>
+                <Col>
+                  <Directory
+                    label="Export Path"
+                    onClick={() => this.setPathDialog('exportDataPath')}
+                    onChange={this.setExportDataPath}
+                    value={exportDataPath}
+                    disabled={!enableExportData}
+                  />
+                </Col>
+              </Row>
+            </div>
+
+            <Row className="p-1 mb-2 mt-5">
+              <Col md="7" className="pt-1 border bg-warning">
+                <h6 className="pt-1 text-white">DEBUG:</h6>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col>
+                <ExportData />
+              </Col>
+            </Row>
           </div>
         </div>
-
-        <Row className="mt-3">
-          <Col>
-            <Checkbox
-              handleChange={this.toggleNotifyBeta}
-              checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
-              label="Show notification of pre-releases (beta, alpha, etc)?"
-            />
-            <div className="pl-4 smaller">
-              Notifications will always be shown for full/normal releases that
-              everyone will want. Windows and Linux will auto-update...
-            </div>
-          </Col>
-        </Row>
-
-        <Row className="mt-3">
-          <Col>
-            <Checkbox
-              handleChange={this.toggleErrorReport}
-              label="Allow sending Error Reports?"
-              checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
-            />
-            <div className="pl-4 smaller">
-              No personal data is collected - this simply notifies of us errors
-              before you may post about it or even notice a problem. It does the{' '}
-              <i>white screen of death</i> information gathering for you (and
-              more).
-            </div>
-          </Col>
-        </Row>
-
-        <Row className="p-1 mt-3 mb-2">
-          <Col md="7" className="pt-1 border bg-light">
-            <h6 className="pt-1">Export Paths:</h6>
-          </Col>
-        </Row>
-
-        <Directory
-          label="Series/Episode"
-          onClick={() => this.setPathDialog('episodePath')}
-          onChange={this.setEpisodePath}
-          value={episodePath}
-          disabled={false}
-        />
-        <Directory
-          label="Movie"
-          onClick={() => this.setPathDialog('moviePath')}
-          onChange={this.setMoviePath}
-          value={moviePath}
-          disabled={false}
-        />
-        <Directory
-          label="Sport/Event"
-          onClick={() => this.setPathDialog('eventPath')}
-          onChange={this.setEventPath}
-          value={eventPath}
-          disabled={false}
-        />
-        <Directory
-          label="Manual Recording"
-          onClick={() => this.setPathDialog('programPath')}
-          onChange={this.setProgramPath}
-          value={programPath}
-          disabled={false}
-        />
-        <br />
-
-        <Row className="p-1 mb-2">
-          <Col md="7" className="pt-1 border bg-light">
-            <h6 className="pt-1">Advanced:</h6>
-          </Col>
-        </Row>
-
-        <div style={{ width: '375px' }}>
-          <Row>
-            <Col>
-              <Checkbox
-                handleChange={this.toggleIpOverride}
-                checked={enableTestDevice ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Enable Test Device?"
-              />
-            </Col>
-          </Row>
-          <Row className="m-0 p-0">
-            <Col>
-              <InputGroup size="sm">
-                <InputGroup.Prepend>
-                  <InputGroup.Text title="Test Device IP address">
-                    <span className="fa fa-network-wired pr-2" />
-                  </InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  value={testDeviceIp}
-                  type="text"
-                  placeholder="Enter IP"
-                  onChange={this.setTestDeviceIp}
-                  disabled={!enableTestDevice}
-                />
-              </InputGroup>
-            </Col>
-          </Row>
-          <Row className="mt-4">
-            <Col>
-              <Checkbox
-                handleChange={this.toggleDataExport}
-                checked={enableExportData ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Export Tablo Data?"
-              />
-              <div className="smaller">
-                Writes out the raw JSON received from the Tablo to files.
-              </div>
-            </Col>
-          </Row>
-        </div>
-        <div>
-          <Row>
-            <Col>
-              <Directory
-                label="Export Path"
-                onClick={() => this.setPathDialog('exportDataPath')}
-                onChange={this.setExportDataPath}
-                value={exportDataPath}
-                disabled={!enableExportData}
-              />
-            </Col>
-          </Row>
-        </div>
-
-        <Row className="p-1 mb-2 mt-5">
-          <Col md="7" className="pt-1 border bg-warning">
-            <h6 className="pt-1 text-white">DEBUG:</h6>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <ExportData />
-          </Col>
-        </Row>
-      </Container>
+      </div>
     );
   }
 }

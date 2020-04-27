@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -83,9 +82,15 @@ export default class ShowsList extends Component<Props, State> {
           );
         } else {
           result.push(
-            <div className="align-content-center p-2 m-2" key={show.id}>
+            <Button
+              onClick={() => {}}
+              onKeyDown={() => {}}
+              variant="light"
+              className="align-content-center"
+              key={show.id}
+            >
               <ShowCover key={show.id} show={show} />
-            </div>
+            </Button>
           );
         }
       });
@@ -97,14 +102,12 @@ export default class ShowsList extends Component<Props, State> {
     const { alertType, alertTxt, display } = this.state;
 
     return (
-      <>
-        <Row>
-          <Col>
-            {display ? <Alert variant={alertType}>{alertTxt}</Alert> : ''}
-          </Col>
-        </Row>
-        <Row className="m-1 mb-4">{display}</Row>
-      </>
+      <div className="section">
+        <div>
+          {display ? <Alert variant={alertType}>{alertTxt}</Alert> : ''}
+        </div>
+        <div className="scrollable-area">{display}</div>
+      </div>
     );
   }
 }

@@ -1,9 +1,6 @@
 // @flow
 import * as React from 'react';
 
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Sidebar from '../components/Sidebar';
 import VersionInfo from '../components/VersionInfo';
 import PermissionRequests from '../components/PermissionRequests';
@@ -18,20 +15,16 @@ export default class App extends React.Component<Props> {
   render() {
     const { children } = this.props;
     return (
-      <>
-        <Container style={{ width: '100%', maxWidth: '100%' }} className="m-0">
-          <PermissionRequests />
-          <VersionInfo />
-          <Row>
-            <Col className="ml-0 pl-0">
-              <Sidebar />
-            </Col>
-          </Row>
-          <Row>
-            <Col>{children}</Col>
-          </Row>
-        </Container>
-      </>
+      <div>
+        <PermissionRequests />
+        <VersionInfo />
+        <div className="top-bar pl-3 pr-3">
+          <Sidebar />
+        </div>
+
+        <div className="page-container pl-3 pr-0">{children}</div>
+      </div>
     );
   }
 }
+// style={{ flex: '1 1 auto', overflowX: 'none', overflowY: 'auto' }}

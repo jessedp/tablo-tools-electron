@@ -43,7 +43,7 @@ export default class RecordingSlim extends Component<Props> {
     if (withShow === 1) {
       showCol = (
         <Col md="1">
-          <TabloImage imageId={airing.background} maxHeight={50} />
+          <TabloImage imageId={airing.background} className="menu-image-md" />
         </Col>
       );
     }

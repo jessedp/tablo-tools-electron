@@ -25,7 +25,7 @@ type State = {
   seasonRefs: Object
 };
 
-export default class RecordingList extends Component<Props, State> {
+export default class EpisodeList extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -144,35 +144,43 @@ export default class RecordingList extends Component<Props, State> {
 
     return (
       <>
-        <Row>
-          <Col md="auto" className="ml-2">
-            <TabloImage imageId={show.thumbnail} maxHeight={200} />
-          </Col>
-          <Col>
-            <Row>
-              <Col md="auto">
-                <h4>{show.title}</h4>
-              </Col>
-              <Col>
-                <Badge className="p-2" variant="dark">
-                  {count} episode{count > 1 ? 's' : ''}
-                </Badge>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md="auto">
-            <SeasonList seasons={seasons} selectSeason={this.selectSeason} />
-          </Col>
-          <Col>
-            <FullList
-              episodes={episodes}
-              seasons={seasons}
-              seasonRefs={seasonRefs}
-            />
-          </Col>
-        </Row>
+        <div>
+          <Row>
+            <Col md="auto" className="ml-2 badge-light pt-2">
+              <TabloImage
+                imageId={show.thumbnail}
+                className="cover-image"
+                title={show.title}
+              />
+            </Col>
+            <Col className="pt-5">
+              <Row>
+                <Col md="auto">
+                  <h4>{show.title}</h4>
+                </Col>
+                <Col>
+                  <Badge className="p-2" variant="dark">
+                    {count} episode{count > 1 ? 's' : ''}
+                  </Badge>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
+        <div className="scrollable-area">
+          <Row className="mb-4">
+            <Col md="auto">
+              <SeasonList seasons={seasons} selectSeason={this.selectSeason} />
+            </Col>
+            <Col>
+              <FullList
+                episodes={episodes}
+                seasons={seasons}
+                seasonRefs={seasonRefs}
+              />
+            </Col>
+          </Row>
+        </div>
       </>
     );
   }

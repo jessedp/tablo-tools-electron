@@ -16,6 +16,8 @@ import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
 import { writeToFile } from '../utils/utils';
+import getConfig from '../utils/config';
+import Show from '../utils/Show';
 
 type Props = { showDbTable: (show: boolean) => void, view?: string };
 type State = {
@@ -132,6 +134,7 @@ export default class Build extends Component<Props, State> {
       const showPaths = [];
       recs.forEach(rec => {
         const airing = new Airing(rec);
+        writeToFile(`airing-${airing.object_id}.json`, rec);
         try {
           if (airing.typePath) showPaths.push(airing.typePath);
         } catch (e) {
@@ -142,6 +145,12 @@ export default class Build extends Component<Props, State> {
       });
 
       const shows = await Api.batch([...new Set(showPaths)]);
+      if (getConfig().enableExportData) {
+        shows.forEach(rec => {
+          const show = new Show(rec);
+          writeToFile(`show-${show.object_id}.json`, rec);
+        });
+      }
 
       cnt = await global.ShowDb.asyncInsert(shows);
       console.log(`${cnt.length} SHOW records added`);

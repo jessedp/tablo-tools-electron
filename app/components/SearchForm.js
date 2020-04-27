@@ -4,7 +4,6 @@ import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
@@ -21,6 +20,7 @@ import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
 import VideoExport from './VideoExport';
 import TabloImage from './TabloImage';
+import type { SearchAlert } from './Search';
 
 type Props = {
   sendResults: Object => void,
@@ -33,6 +33,7 @@ type Season = {
   num: number,
   count: number
 };
+
 type State = {
   skip: number,
   limit: number,
@@ -47,11 +48,7 @@ type State = {
   percent: number,
   percentLocation: number,
   recordCount: number,
-  alert: {
-    type: string,
-    text: string,
-    matches: [] // TODO: another element in state
-  },
+  searchAlert: SearchAlert,
   airingList: Array<Airing>,
   actionList: Array<Airing>,
   seasonList: Array<Season>
@@ -83,7 +80,11 @@ export default class SearchForm extends Component<Props, State> {
       percent: 100,
       percentLocation: 0,
       recordCount: 0,
-      alert: { type: '', text: '', matches: [] },
+      searchAlert: {
+        type: '',
+        text: '',
+        matches: []
+      },
       airingList: [],
       actionList: [],
       seasonList: []
@@ -91,8 +92,15 @@ export default class SearchForm extends Component<Props, State> {
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
 
+    // added v0.10...
     if (storedState.alert && typeof storedState.alert.matches === 'string')
       storedState.alert.matches = [];
+    if (
+      storedState.searchAlert &&
+      typeof storedState.searchAlert.matches === 'string'
+    )
+      storedState.searchAlert.matches = [];
+
     const initialStateCopy = { ...this.initialState };
     // TODO: fix react-paginate to take initial page
     storedState.skip = 0;
@@ -152,7 +160,6 @@ export default class SearchForm extends Component<Props, State> {
 
   async handlePageClick(data: { selected: number }) {
     const { limit } = this.state;
-    console.log(data);
     // this.setState( {skip: 0 });
     const { selected } = data;
     const offset = Math.ceil(selected * limit);
@@ -168,12 +175,16 @@ export default class SearchForm extends Component<Props, State> {
   };
 
   async refresh() {
-    const { view, actionList, alert } = this.state;
+    const { view, actionList, searchAlert } = this.state;
     this.showsList = await showList();
     const { length } = actionList;
     if (view === 'selected' && length >= 0) {
       this.setState({
-        alert: { type: 'light', text: alert.text, matches: alert.matches }
+        searchAlert: {
+          type: 'light',
+          text: searchAlert.text,
+          matches: searchAlert.matches
+        }
       });
       this.viewChange();
     } else {
@@ -184,11 +195,16 @@ export default class SearchForm extends Component<Props, State> {
   viewChange = async () => {
     const { sendResults } = this.props;
     const { actionList } = this.state;
+    let { searchAlert } = this.state;
 
     const len = actionList.length;
     if (len === 0) return;
 
-    await sendResults({ loading: true, airingList: [] });
+    await sendResults({
+      loading: true,
+      airingList: [],
+      searchAlert: this.initialState.searchAlert
+    });
 
     // descending
     const timeSort = (a, b) => {
@@ -198,14 +214,21 @@ export default class SearchForm extends Component<Props, State> {
 
     actionList.sort((a, b) => timeSort(a, b));
 
+    searchAlert = {
+      type: 'light',
+      text: `${len} selected recordings `,
+      matches: []
+    };
+
     this.setState({
       view: 'selected',
-      alert: { type: 'light', text: `${len} selected recordings`, matches: [] }
+      searchAlert
     });
 
     sendResults({
       loading: false,
       airingList: actionList,
+      searchAlert,
       actionList
     });
 
@@ -503,7 +526,7 @@ export default class SearchForm extends Component<Props, State> {
         });
       }
     }
-    console.log(query);
+    // console.log(query);
 
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
@@ -529,21 +552,23 @@ export default class SearchForm extends Component<Props, State> {
 
     const airingList = [];
     let description;
-    if (steps.length > 0) {
-      description = 'matching: ';
-    }
 
     let updateState;
+    let alert: SearchAlert;
     if (!recs || recs.length === 0) {
       description = `No records found`;
+      alert = { type: 'warning', text: description, matches: steps };
       updateState = {
-        alert: { type: 'warning', text: description, matches: steps },
+        searchAlert: alert,
         view: 'search',
         actionList,
         airingList
       };
     } else {
-      sendResults({ loading: true });
+      // sendResults({
+      //   loading: true,
+      //   searchAlert: alert
+      // });
 
       await asyncForEach(recs, async doc => {
         try {
@@ -566,12 +591,13 @@ export default class SearchForm extends Component<Props, State> {
       }
 
       description = `${skip + 1} - ${parseInt(end, 10)} of ${count} recordings`;
+      alert = {
+        type: 'light',
+        text: description,
+        matches: steps
+      };
       updateState = {
-        alert: {
-          type: 'light',
-          text: description,
-          matches: steps
-        },
+        searchAlert: alert,
         recordCount: count,
         view: 'search',
         actionList,
@@ -579,7 +605,13 @@ export default class SearchForm extends Component<Props, State> {
       };
     }
 
-    sendResults({ loading: false, view, airingList, actionList });
+    sendResults({
+      loading: false,
+      view,
+      searchAlert: alert,
+      airingList,
+      actionList
+    });
     updateState.airingList = airingList;
 
     this.setStateStore(updateState);
@@ -594,7 +626,6 @@ export default class SearchForm extends Component<Props, State> {
       comskipFilter,
       showFilter,
       seasonFilter,
-      alert,
       actionList,
       seasonList,
       view,
@@ -785,7 +816,7 @@ export default class SearchForm extends Component<Props, State> {
                       <></>
                     )}
                   </Col>
-                  <Col md="2">
+                  <Col md="2" className="mr-3">
                     <PerPageFilter
                       value={`${limit}`}
                       onChange={this.updatePerPage}
@@ -826,26 +857,6 @@ export default class SearchForm extends Component<Props, State> {
           ) : (
             ''
           )}
-        </Row>
-
-        <Row>
-          <Col>
-            <Alert variant={alert.type}>
-              {alert.text}
-              {alert.matches.map(item => {
-                return (
-                  <Badge
-                    pill
-                    className="ml-2"
-                    key={Math.random() * 99999999999999}
-                    variant="dark"
-                  >
-                    <h6 className="p-1 m-0">{item.text}</h6>
-                  </Badge>
-                );
-              })}
-            </Alert>
-          </Col>
         </Row>
       </>
     );
@@ -950,7 +961,7 @@ function ShowFilter(props: filterProps) {
         value: item.path,
         label: (
           <>
-            <TabloImage imageId={item.thumbnail} maxHeight={30} />
+            <TabloImage imageId={item.thumbnail} className="menu-image-small" />
             <span className="pl-1 pr-1">{item.title} </span>
             <Badge variant="secondary" pill>
               {item.showCounts.airing_count}

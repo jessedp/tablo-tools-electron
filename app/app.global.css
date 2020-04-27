@@ -10,6 +10,41 @@
 @import 'spinner.css';
 @import '~video-react/dist/video-react.css';
 
+/** flex layout **/
+div.top-bar {
+  position: absolute;
+  top: 0;
+  bottom: 60px;
+  left: 0;
+  width: 100%;
+}
+
+div.page-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+div.section {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+
+  /* for Firefox */
+  min-height: 0;
+}
+
+div.scrollable-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 20px;
+}
+
 /** bootstrap4 removed all but sm and lg **/
 .btn-group-xs > .btn,
 .btn-xs {
@@ -17,6 +52,49 @@
   font-size: 0.7rem;
   line-height: 0.5;
   border-radius: 0.2rem;
+}
+
+.search-box {
+  border: #b6c5d5 solid 1px;
+  max-width: 460px !important;
+}
+
+/** TabloImage **/
+.cover-image {
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+  height: 200px;
+  max-height: 200px;
+  min-height: 200px;
+  display: inline-block;
+}
+
+.search-image {
+  padding: 0 0 2px 2px;
+  width: 93px;
+  min-width: 93px;
+  max-width: 93px;
+  height: 125px;
+  max-height: 125px;
+  min-height: 125px;
+  display: inline-block;
+}
+
+.menu-image-small {
+  height: 30px;
+  max-height: 30px;
+  width: 22px;
+  max-width: 22px;
+  display: inline-block;
+}
+
+.menu-image-md {
+  height: 50px;
+  max-height: 50px;
+  width: 38px;
+  max-width: 38px;
+  display: inline-block;
 }
 
 /*** react-paginate ***/
