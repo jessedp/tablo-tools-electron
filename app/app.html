@@ -54,7 +54,7 @@
 
       // navigator.serviceWorker.register('cache-assets.js', { scope: './' })
       navigator.serviceWorker
-        .register('cache-assets.js', { scope: './*' })
+        .register('cache-assets.js', { scope: './' })
         .then(navigator.serviceWorker.ready)
         .then(function() {
           console.log('service worker registered');
