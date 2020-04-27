@@ -5,7 +5,7 @@ import PubSub from 'pubsub-js';
 import Button from 'react-bootstrap/Button';
 
 import ShowsList from './ShowsList';
-import EpisodeList from './RecordingList';
+import EpisodeList from './EpisodeList';
 import Show from '../utils/Show';
 
 type Props = {};

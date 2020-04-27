@@ -23,7 +23,7 @@ export default class ShowCover extends Component<Props> {
       >
         <TabloImage
           imageId={show.thumbnail}
-          maxHeight={197}
+          className="cover-image"
           title={show.title}
         />
         <BottomLine show={show} />

@@ -950,7 +950,7 @@ function ShowFilter(props: filterProps) {
         value: item.path,
         label: (
           <>
-            <TabloImage imageId={item.thumbnail} maxHeight={30} />
+            <TabloImage imageId={item.thumbnail} className="menu-image-small" />
             <span className="pl-1 pr-1">{item.title} </span>
             <Badge variant="secondary" pill>
               {item.showCounts.airing_count}

@@ -4,7 +4,11 @@ import Image from 'react-bootstrap/Image';
 
 import unknownImg from '../../resources/white-question-mark.png';
 
-type Props = { imageId: number, maxHeight?: number, title?: string };
+type Props = {
+  imageId: number,
+  title?: string,
+  className: string
+};
 
 export default class TabloImage extends Component<Props> {
   props: Props;
@@ -12,26 +16,34 @@ export default class TabloImage extends Component<Props> {
   static defaultProps: {};
 
   render() {
-    const { imageId, maxHeight, title } = this.props;
+    const { imageId, title, className } = this.props;
+
     const host = global.Api.device.private_ip;
     const style = {};
-    if (maxHeight) {
-      style.height = `${maxHeight}px`;
-      style.maxHeight = `${maxHeight}px`;
-    }
+    const fullClass = `${className} badge-light pt-5`;
+
     let url = unknownImg;
     if (imageId && parseInt(imageId, 10)) {
       url = `http://${host}:8885/images/${imageId}`;
-      return <Image title={title} style={style} src={url} fluid rounded />;
+      return (
+        <Image
+          title={title}
+          style={style}
+          src={url}
+          className={className}
+          fluid
+          rounded
+        />
+      );
     }
+
     return (
-      <div className="badge-light pt-5" style={style}>
+      <div className={fullClass} style={style}>
         {title}
       </div>
     );
   }
 }
 TabloImage.defaultProps = {
-  maxHeight: 0,
   title: ''
 };

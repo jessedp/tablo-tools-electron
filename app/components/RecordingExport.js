@@ -191,7 +191,7 @@ export default class RecordingExport extends Component<Props, State> {
       <Container className={classes}>
         <Row>
           <Col md="1">
-            <TabloImage imageId={airing.background} maxHeight={50} />
+            <TabloImage imageId={airing.background} className="menu-image-md" />
           </Col>
           <Col md="6">
             <TitleSlim airing={airing} withShow={1} />

@@ -14,7 +14,6 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
 import Checkbox, { CHECKBOX_OFF } from './Checkbox';
 
-import styles from './Recording.css';
 import VideoExport from './VideoExport';
 import Airing from '../utils/Airing';
 
@@ -93,7 +92,7 @@ export default class Recording extends Component<Props, State> {
   render() {
     const { airing, checked } = this.props;
     const { recOverviewOpen } = this.state;
-    const classes = `m-1 pt-1 border ${styles.box}`;
+    const classes = `m-1 pt-1 search-box`;
 
     let overviewClass = 'pl-2 fa ';
     if (recOverviewOpen) {
@@ -119,10 +118,10 @@ export default class Recording extends Component<Props, State> {
     return (
       <Container className={classes}>
         <Row>
-          <Col md="3">
-            <TabloImage imageId={airing.thumbnail} />
+          <Col md="3" className="ml-0 mr-0 pl-0 pr-0">
+            <TabloImage imageId={airing.thumbnail} className="search-image" />
           </Col>
-          <Col md="9">
+          <Col md="9" style={{ display: 'flex', flexDirection: 'column' }}>
             <Row>
               <Col md="11" className="ml-0 mr-0 pl-0 pr-0">
                 <Title airing={airing} />
@@ -130,7 +129,9 @@ export default class Recording extends Component<Props, State> {
               {checkbox}
             </Row>
 
-            <Row className="mt-3">
+            <div style={{ flex: 1 }} />
+
+            <Row>
               <Col md="auto" className="ml-0 mr-0 pl-0 pr-0">
                 <span className="smaller">
                   <b>Duration: </b>
@@ -140,7 +141,7 @@ export default class Recording extends Component<Props, State> {
               </Col>
             </Row>
 
-            <Row>
+            <Row className="pb-1">
               <Col md="7" className="ml-0 pl-0 mr-0 pr-0">
                 <Button
                   variant="outline-secondary"

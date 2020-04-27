@@ -54,6 +54,11 @@ div.scrollable-area {
   border-radius: 0.2rem;
 }
 
+.search-box {
+  border: #b6c5d5 solid 1px;
+  max-width: 460px !important;
+}
+
 /** TabloImage **/
 .cover-image {
   width: 150px;
@@ -62,6 +67,36 @@ div.scrollable-area {
   height: 200px;
   max-height: 200px;
   min-height: 200px;
+  display: inline-block;
+}
+
+.search-image {
+  padding: 0 0 2px 2px;
+
+  /* width: 101px; */
+
+  /* min-width: 101px; */
+
+  /* max-width: 101px; */
+  height: 125px;
+  max-height: 125px;
+  min-height: 125px;
+  display: inline-block;
+}
+
+.menu-image-small {
+  height: 30px;
+  max-height: 30px;
+  width: 22px;
+  max-width: 22px;
+  display: inline-block;
+}
+
+.menu-image-md {
+  height: 50px;
+  max-height: 50px;
+  width: 38px;
+  max-width: 38px;
   display: inline-block;
 }
 
