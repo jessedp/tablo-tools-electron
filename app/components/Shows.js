@@ -69,17 +69,19 @@ export default class Shows extends Component<Props, State> {
 
     if (view === VIEW_EPISODES) {
       return (
-        <>
-          <Button
-            onClick={this.viewShows}
-            variant="outline-dark"
-            className="mb-3"
-          >
-            <i className="fa fa-arrow-left" />
-            <span className="pl-1">Back to Shows</span>
-          </Button>
+        <div className="section">
+          <div>
+            <Button
+              onClick={this.viewShows}
+              variant="outline-dark"
+              className="mb-3"
+            >
+              <i className="fa fa-arrow-left" />
+              <span className="pl-1">Back to Shows</span>
+            </Button>
+          </div>
           <EpisodeList show={show} />
-        </>
+        </div>
       );
     }
 

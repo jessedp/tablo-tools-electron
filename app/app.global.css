@@ -10,6 +10,40 @@
 @import 'spinner.css';
 @import '~video-react/dist/video-react.css';
 
+/** flex layout **/
+div.top-bar {
+  position: absolute;
+  top: 0;
+  bottom: 60px;
+  left: 0;
+  width: 100%;
+}
+
+div.page-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+div.section {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+
+  /* for Firefox */
+  min-height: 0;
+}
+
+div.scrollable-area {
+  flex-grow: 1;
+  overflow: auto;
+  padding-bottom: 20px;
+}
+
 /** bootstrap4 removed all but sm and lg **/
 .btn-group-xs > .btn,
 .btn-xs {

@@ -785,7 +785,7 @@ export default class SearchForm extends Component<Props, State> {
                       <></>
                     )}
                   </Col>
-                  <Col md="2">
+                  <Col md="2" className="mr-3">
                     <PerPageFilter
                       value={`${limit}`}
                       onChange={this.updatePerPage}

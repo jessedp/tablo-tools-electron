@@ -130,10 +130,10 @@ export default class SearchResults extends Component<Props, State> {
       );
     }
     return (
-      <>
+      <div className="scrollable-area">
         <Loading loading={loading} />
         <Row className="m-1 mb-4">{rows}</Row>
-      </>
+      </div>
     );
   }
 }

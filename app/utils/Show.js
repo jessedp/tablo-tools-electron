@@ -182,7 +182,9 @@ export default class Show {
       case EVENT:
         set = this.sport.thumbnail_image;
         break;
-      // return this.sport.thumbnail_image.image_id;
+      case PROGRAM:
+        set = this.background_image;
+        break;
       default:
         return 0;
     }
