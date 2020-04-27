@@ -40,7 +40,8 @@ div.section {
 
 div.scrollable-area {
   flex-grow: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 20px;
 }
 
@@ -51,6 +52,17 @@ div.scrollable-area {
   font-size: 0.7rem;
   line-height: 0.5;
   border-radius: 0.2rem;
+}
+
+/** TabloImage **/
+.cover-image {
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+  height: 200px;
+  max-height: 200px;
+  min-height: 200px;
+  display: inline-block;
 }
 
 /*** react-paginate ***/
