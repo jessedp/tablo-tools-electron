@@ -4,6 +4,11 @@ import PubSub from 'pubsub-js';
 
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
+import compareVersions from 'compare-versions';
+
+const Store = require('electron-store');
+
+const store = new Store();
 
 type Props = {};
 type State = {
@@ -34,6 +39,14 @@ export default class ComskipDetails extends Component<Props, State> {
   psToken = null;
 
   async refresh() {
+    const currentDevice = store.get('CurrentDevice');
+    let comskipAvailable = false;
+    if (currentDevice.server_version) {
+      const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
+      comskipAvailable = compareVersions(testVersion, '2.2.26') >= 0;
+    }
+    if (!comskipAvailable) return;
+
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
     const recs = await global.RecDb.asyncFind({});
 
