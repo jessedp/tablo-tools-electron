@@ -91,6 +91,9 @@ export default class SearchForm extends Component<Props, State> {
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
+    // v0.1.11 - broken when added in v0.1.10
+    if (Number.isNaN(parseInt(storedState.limit, 10)))
+      storedState.limit = this.initialState.limit;
 
     // added v0.10...
     if (storedState.alert && typeof storedState.alert.matches === 'string')
