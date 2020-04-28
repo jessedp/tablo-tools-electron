@@ -3,7 +3,7 @@ layout: main
 projectName: 'Tablo Tools'
 projectUrl: 'https://github.com/jessedp/tablo-tools-electron'
 tagline: 'The control over your Tablo you needed'
-version: '0.1.10'
+version: '0.1.11'
 ---
 
 <div class="header">
@@ -85,6 +85,29 @@ version: '0.1.10'
         security warnings. <a href="#codesigning">More here.</a>
       </li>
     </ul>
+    <div id="config" class="examples">
+      <h2>Configuration Data</h2>
+      Should you ever need to wipe reset the app, the configuration data is
+      located in the following locations by OS:
+      <ul>
+        <li>
+          <span class="fa fa-windows" /><span class="os-label"> Win</span>
+          <span class="os-path"
+            >C:\Users\<i>&lt;username&gt;</i>\AppData\Local\tablo-tools</span
+          >
+        </li>
+        <li>
+          <span class="fa fa-apple" /><span class="os-label">Mac</span>
+          <span class="os-path">~/Library/Application Support/tablo-tools</span>
+        </li>
+        <li>
+          <span class="fa fa-linux" /><span class="os-label">Linux</span>
+          <span class="os-path">~/.config/tablo-tools</span>
+        </li>
+      </ul>
+      This will wipe out anything customized in <b>Settings</b> and cause the
+      recordings to be rebuilt on next open.
+    </div>
     <div id="wsod" class="examples">
       <h2>White Screen of Death</h2>
       <h4>
