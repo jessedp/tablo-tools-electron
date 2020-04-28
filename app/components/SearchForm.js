@@ -531,7 +531,9 @@ export default class SearchForm extends Component<Props, State> {
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
     projection.push(['sort', { 'airing_details.datetime': -1 }]);
-    if (limit !== 'all') {
+    let newLimit = parseInt(limit, 10);
+    newLimit = Number.isNaN(limit) ? this.initialState.limit : limit;
+    if (newLimit !== -1) {
       projection.push(['skip', skip]);
       projection.push(['limit', limit]);
     }
@@ -565,10 +567,10 @@ export default class SearchForm extends Component<Props, State> {
         airingList
       };
     } else {
-      // sendResults({
-      //   loading: true,
-      //   searchAlert: alert
-      // });
+      sendResults({
+        loading: true,
+        searchAlert: this.initialState.searchAlert
+      });
 
       await asyncForEach(recs, async doc => {
         try {
@@ -582,7 +584,7 @@ export default class SearchForm extends Component<Props, State> {
       });
 
       let end = 0;
-      if (limit === 'all') {
+      if (limit === -1) {
         end = count;
       } else {
         end = skip + limit;
@@ -788,7 +790,7 @@ export default class SearchForm extends Component<Props, State> {
               <Col>
                 <Row>
                   <Col>
-                    {recordCount >= limit ? (
+                    {recordCount >= limit && limit !== -1 ? (
                       <ReactPaginate
                         previousLabel={
                           <span
@@ -1055,7 +1057,7 @@ function PerPageFilter(props: filterProps) {
   const { value, onChange } = props;
 
   const options = [
-    { value: 'all', label: 'all' },
+    { value: '-1', label: 'all' },
     { value: '10', label: '10' },
     { value: '50', label: '50' },
     { value: '100', label: '100' }
