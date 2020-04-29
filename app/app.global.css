@@ -97,6 +97,10 @@ div.scrollable-area {
   display: inline-block;
 }
 
+.table-sm {
+  font-size: 12px;
+}
+
 /*** react-paginate ***/
 .pagination {
   padding: 0;
