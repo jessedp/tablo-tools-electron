@@ -129,7 +129,9 @@ export default class ChannelStats extends Component<Props, State> {
     return (
       <Col>
         {network ? (
-          <div className="stats-header">{network.toUpperCase()}</div>
+          <div className="stats-header" style={{ textTransform: 'uppercase' }}>
+            {network}
+          </div>
         ) : (
           ''
         )}
