@@ -47,6 +47,23 @@ export function readableDuration(duration) {
   return str.replace(/^0:/, '');
 }
 
+export function parseSeconds(duration) {
+  let dur = duration;
+  const min = 60;
+  const hour = min * 60;
+  const day = hour * 24;
+  const month = day * 30;
+  const months = parseInt(dur / month, 10);
+  dur -= months * month;
+  const days = parseInt(dur / day, 10);
+  dur -= days * day;
+  const hours = parseInt(dur / hour, 10);
+  dur -= hours * hour;
+  const minutes = parseInt(dur / min, 10);
+
+  return [months, days, hours, minutes];
+}
+
 export function readableBytes(bytes) {
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
