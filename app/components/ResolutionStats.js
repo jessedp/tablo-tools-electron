@@ -142,7 +142,7 @@ function ResolutionModal(prop) {
                   </tr>
                 );
               }
-              return <></>;
+              return null;
             });
             return (
               <Table
