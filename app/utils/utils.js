@@ -13,6 +13,46 @@ export async function asyncForEach(array, callback) {
    */
 }
 
+export function sortableTitle(titleToSort) {
+  let title = titleToSort.toLowerCase().trimLeft();
+
+  const articles = ['a', 'an', 'the'];
+  const words = title.split(' ', 2);
+  if (words.length === 1) {
+    if (/^\d(.*)/.test(title)) {
+      title = `zzz ${title}`;
+    }
+    return title;
+  }
+
+  // console.log(words[0].toLowerCase());
+  // if (words[0].toLowerCase() in articles){
+  if (articles.includes(words[0])) {
+    [, title] = words;
+  }
+
+  if (/^\d(.*)/.test(title)) {
+    title = `zzz ${title}`;
+  }
+
+  return title;
+}
+
+export function ellipse(str: string, length: number, ellipsis: string = '...') {
+  if (str.length > length) return `${str.substr(0, length)}${ellipsis}`;
+  return str;
+}
+
+export function sortObject(obj) {
+  const ordered = {};
+  Object.keys(obj)
+    .sort()
+    .forEach(key => {
+      ordered[key] = obj[key];
+    });
+  return ordered;
+}
+
 export function timeStrToSeconds(str) {
   const arr = str.split(':');
   let retVal =
