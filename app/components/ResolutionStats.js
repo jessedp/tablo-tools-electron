@@ -5,6 +5,7 @@ import PubSub from 'pubsub-js';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import MediumBar from './MediumBar';
 
 type Props = {};
@@ -100,61 +101,66 @@ export default class ResolutionStats extends Component<Props, State> {
           keys={resolutionKeys}
           scheme="set3"
         />
-        <ResolutionTable resolutionData={resolutionData} />
+        <ResolutionModal resolutionData={resolutionData} />
       </Col>
     );
   }
 }
 
-function ResolutionTable(prop) {
+function ResolutionModal(prop) {
   const [show, setShow] = useState(false);
 
   const toggle = () => setShow(!show);
-
   const { resolutionData } = prop;
-  if (!show) {
-    return (
+
+  return (
+    <>
       <Button variant="outline-dark" size="xs" onClick={toggle}>
         <span className="fa fa-chevron-circle-right pr-1" />
         show data
       </Button>
-    );
-  }
-
-  return (
-    <>
-      <Button variant="light" onClick={toggle} size="xs">
-        <span className="fa fa-chevron-circle-up pr-1" />
-        hide
-      </Button>
-      {resolutionData.map(res => {
-        const head = res.resolution;
-        const rows = Object.keys(res).map(key => {
-          if (key !== 'resolution') {
+      <Modal
+        size="sm"
+        show={show}
+        onHide={toggle}
+        animation
+        centered
+        scrollable
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Channel by Resolution</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {resolutionData.map(res => {
+            const head = res.resolution;
+            const rows = Object.keys(res).map(key => {
+              if (key !== 'resolution') {
+                return (
+                  <tr key={`tr-${key}-${res[key]}`}>
+                    <td>{key}</td>
+                    <td>{res[key]}</td>
+                  </tr>
+                );
+              }
+              return <></>;
+            });
             return (
-              <tr key={`tr-${key}-${res[key]}`}>
-                <td>{key}</td>
-                <td>{res[key]}</td>
-              </tr>
+              <Table
+                size="sm"
+                striped
+                key={`resolution-stats-table-${res.resolution}`}
+              >
+                <tbody>
+                  <tr key={`resolution-stats-row-${res.resolution}`}>
+                    <th colSpan="2">{head}</th>
+                  </tr>
+                  {rows}
+                </tbody>
+              </Table>
             );
-          }
-          return <></>;
-        });
-        return (
-          <Table
-            size="sm"
-            striped
-            key={`resolution-stats-table-${res.resolution}`}
-          >
-            <tbody>
-              <tr key={`resolution-stats-row-${res.resolution}`}>
-                <th colSpan="2">{head}</th>
-              </tr>
-              {rows}
-            </tbody>
-          </Table>
-        );
-      })}
+          })}
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
