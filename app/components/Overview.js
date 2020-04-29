@@ -80,8 +80,7 @@ export default class Overview extends Component<Props, State> {
         <Row className="stats-header">
           <Col>
             Recording Time: &nbsp;
-            {duration[0]} months {duration[1]} days {duration[2]} weeks{' '}
-            {duration[3]} minutes
+            <RecordingTime duration={duration} />
           </Col>
           <Col>
             Recording Size: &nbsp;
@@ -133,4 +132,17 @@ export default class Overview extends Component<Props, State> {
       </div>
     );
   }
+}
+
+function RecordingTime(prop) {
+  const { duration } = prop;
+  if (!duration || duration.length === 0) return <></>;
+
+  const parts = [];
+  if (duration[0]) parts.push(`${duration[0]} months `);
+  if (duration[1]) parts.push(`${duration[1]} days `);
+  if (duration[2]) parts.push(`${duration[2]} hours `);
+  if (duration[3]) parts.push(`${duration[2]} minutes `);
+
+  return parts.join(' ');
 }
