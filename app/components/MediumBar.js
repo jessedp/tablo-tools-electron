@@ -7,13 +7,56 @@ type Props = {
   data: Array<any>,
   scheme?: string,
   height?: number,
-  width?: number
+  width?: number,
+  layout?: string,
+  onClick?: Function,
+  back?: Function | null
 };
 
 export default function MediumBar(props: Props) {
-  const { data, scheme, keys, indexBy, height, width } = props;
+  const {
+    data,
+    scheme,
+    keys,
+    indexBy,
+    height,
+    width,
+    layout,
+    onClick,
+    back
+  } = props;
 
-  const margin = { top: 10, right: 0, bottom: 40, left: 40 };
+  let minHeight = height;
+  const min = 12;
+  if (data.length > min) {
+    minHeight += (data.length - min) * 30;
+  }
+
+  keys.sort();
+
+  let colorBy;
+  if (keys.length === 1) colorBy = 'index';
+
+  let margin = { top: 0, right: 0, bottom: 40, left: 40 };
+  if (layout === 'horizontal') {
+    let max = 0;
+    data.forEach(item => {
+      max = Math.max(max, item[indexBy].length);
+    });
+    // giving 10px per letter margin
+    let mult = 10;
+    if (data.length < 9) {
+      mult = 7;
+    } else if (data.length < 12) {
+      mult = 10;
+    } else if (data.length < 15) {
+      mult = 4;
+    } else if (data.length < 25) {
+      mult = 7;
+    }
+    console.log(max, data.length);
+    margin = { top: 0, right: 0, bottom: 40, left: max * mult };
+  }
 
   const styles = {
     root: {
@@ -21,26 +64,25 @@ export default function MediumBar(props: Props) {
       textAlign: 'center',
       position: 'relative',
       width,
-      height,
+      height: minHeight,
       margin: '10px 0 10px 0'
     },
-    overlay: {
+    button: {
       position: 'absolute',
-      top: 0,
-      right: margin.right,
-      bottom: 0,
-      left: margin.left,
-      display: 'flex',
+      bottom: 10,
+      width: 60,
+      height: 20,
+      left: 0,
+      display: 'block',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: 12,
-      color: '#000',
-      // background: "#FFFFFF33",
+      fontSize: 10,
+      color: 'huntergreen',
       textAlign: 'center',
-      // This is important to preserve the chart interactivity
-      pointerEvents: 'none'
+      cursor: 'pointer'
     },
+
     totalLabel: {
       fontSize: 12
     }
@@ -54,8 +96,8 @@ export default function MediumBar(props: Props) {
       justify: false,
       translateX: 120,
       translateY: 0,
-      itemsSpacing: 2,
-      itemWidth: 0,
+      itemsSpacing: 0,
+      itemWidth: 70,
       itemHeight: 20,
       itemDirection: 'left-to-right',
       itemOpacity: 0.85,
@@ -77,11 +119,14 @@ export default function MediumBar(props: Props) {
         data={data}
         keys={keys}
         indexBy={indexBy}
+        onClick={onClick}
         margin={margin}
         padding={0.3}
         colors={{ scheme }}
+        colorBy={colorBy}
         borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
         axisTop={null}
+        layout={layout}
         axisRight={null}
         axisBottom={{
           tickSize: 5,
@@ -101,11 +146,29 @@ export default function MediumBar(props: Props) {
         labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
         enableGridX
       />
+
+      {back ? (
+        <div
+          style={styles.button}
+          onClick={back}
+          onKeyDown={back}
+          role="button"
+          tabIndex="0"
+        >
+          <span className="fa fa-arrow-circle-left pr-1" />
+          back
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 }
 MediumBar.defaultProps = {
   scheme: 'nivo',
   height: 200,
-  width: 300
+  width: 300,
+  layout: 'vertical',
+  onClick: () => {},
+  back: null
 };
