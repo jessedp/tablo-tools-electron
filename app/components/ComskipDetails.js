@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
-import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import compareVersions from 'compare-versions';
+import MediumPie from './MediumPie';
 
 const Store = require('electron-store');
 
@@ -14,6 +13,7 @@ type Props = {};
 type State = {
   skipStats: Object,
   skipErrors: Object,
+  showsData: Array<Object>,
   recCount: number
 };
 
@@ -22,7 +22,7 @@ export default class ComskipDetails extends Component<Props, State> {
 
   constructor() {
     super();
-    this.state = { skipStats: {}, skipErrors: {}, recCount: 0 };
+    this.state = { skipStats: {}, skipErrors: {}, recCount: 0, showsData: [] };
 
     (this: any).refresh = this.refresh.bind(this);
   }
@@ -53,13 +53,15 @@ export default class ComskipDetails extends Component<Props, State> {
     const skipStats = { ready: 0, none: 0, error: 0 };
     const skipErrors = {};
 
+    const shows = {};
     recs.forEach(rec => {
       const cs = rec.video_details.comskip;
-      if (cs.state in skipStats) {
-        skipStats[cs.state] += 1;
-      } else {
-        skipStats[cs.state] = 0;
-      }
+      const title = rec.airing_details.show_title;
+
+      skipStats[cs.state] = skipStats[cs.state] ? skipStats[cs.state] + 1 : 1;
+      if (cs.state === 'ready')
+        shows[title] = shows[title] ? shows[title] + 1 : 1;
+
       // TODO: missing comskip?
       if (cs && cs.error) {
         if (cs.error in skipErrors) {
@@ -70,11 +72,23 @@ export default class ComskipDetails extends Component<Props, State> {
       }
     });
 
-    await this.setState({ recCount: recs.length, skipStats, skipErrors });
+    const showsData = [];
+    Object.keys(shows).forEach(key => {
+      showsData.push({ id: key, label: key, value: shows[key] });
+    });
+
+    await this.setState({
+      recCount: recs.length,
+      skipStats,
+      skipErrors,
+      showsData
+    });
   }
 
   render() {
-    const { recCount, skipStats, skipErrors } = this.state;
+    const { recCount, skipStats, skipErrors, showsData } = this.state;
+
+    if (!skipStats) return <></>;
 
     if (!recCount)
       return (
@@ -82,64 +96,25 @@ export default class ComskipDetails extends Component<Props, State> {
           No recordings loaded yet.
         </Alert>
       );
+    const data = [];
+    Object.keys(skipErrors).forEach(key => {
+      data.push({ id: key, label: key, value: skipErrors[key] });
+    });
+
+    const topStats = [
+      { id: 'ready', label: 'ready', value: skipStats.ready },
+      { id: 'errors', label: 'errors', value: skipStats.error },
+      { id: 'unknown', label: 'unknown', value: skipStats.none }
+    ];
 
     return (
       <>
-        {skipStats ? (
-          <Table striped bordered size="sm">
-            <tbody>
-              <tr>
-                <th style={{ width: '75px' }}>Ready:</th>
-                <td>{skipStats.ready}</td>
-              </tr>
-              <tr>
-                <th>Unknown:</th>
-                <td>{skipStats.none}</td>
-              </tr>
-              <tr>
-                <th>Errors:</th>
-                <td>
-                  {skipStats.error}
-                  {skipErrors ? (
-                    <Table striped size="sm">
-                      <tbody>
-                        <tr>
-                          <th colSpan="2">Types of Errors:</th>
-                        </tr>
-                        <tr>
-                          <td style={{ width: '40px' }}>
-                            {skipErrors.internal}
-                          </td>
-                          <th>internal</th>
-                        </tr>
-                        <tr>
-                          <td>{skipErrors.reception}</td>
-                          <th>reception</th>
-                        </tr>
-                        <tr>
-                          <td>{skipErrors.network}</td>
-                          <th>network</th>
-                        </tr>
-                        <tr>
-                          <td>{skipErrors.unsuitable}</td>
-                          <th>unsuitable</th>
-                        </tr>
-                        <tr>
-                          <td>{skipErrors.filtered}</td>
-                          <th>filtered</th>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  ) : (
-                    ''
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-        ) : (
-          ''
-        )}
+        <MediumPie data={topStats} scheme="accent" />
+
+        <h6>by show</h6>
+        <MediumPie data={showsData} scheme="set2" />
+        <h6>error details</h6>
+        <MediumPie data={data} scheme="set2" />
       </>
     );
   }
