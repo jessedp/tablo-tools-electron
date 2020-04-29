@@ -161,7 +161,7 @@ export default class TimeStats extends Component<Props, State> {
     return (
       <Col>
         {/* by day */}
-        <h6>by day</h6>
+        <div className="stats-header">by day</div>
         <MediumBar
           data={dayData}
           keys={['recordings']}
@@ -170,7 +170,7 @@ export default class TimeStats extends Component<Props, State> {
         />
 
         {/* by hour */}
-        <h6>by hour</h6>
+        <div className="stats-header">by hour</div>
         <MediumBar
           data={hourData}
           keys={['recordings']}
@@ -178,6 +178,9 @@ export default class TimeStats extends Component<Props, State> {
           scheme="set3"
           width={700}
         />
+
+        {/* by month */}
+        <div className="stats-header">by month</div>
         <div
           style={{ height: '400px', width: '600px', border: '1px solid #000' }}
         >

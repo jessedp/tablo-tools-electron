@@ -101,6 +101,17 @@ div.scrollable-area {
   font-size: 12px;
 }
 
+.stats-header {
+  background-color: #f8f5f0 !important;
+  font-weight: bold;
+  text-transform: lowercase;
+  color: #777;
+  padding: 0.25rem !important;
+  margin: 0.25rem !important;
+  font-size: 14px;
+  border: 1px solid #dfd7ca !important;
+}
+
 /*** react-paginate ***/
 .pagination {
   padding: 0;

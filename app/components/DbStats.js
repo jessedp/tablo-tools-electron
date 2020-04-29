@@ -105,13 +105,13 @@ export default class DbStats extends Component<Props, State> {
     return (
       <div>
         {/* total recordings */}
-        <h6>all recordings</h6>
+        <div className="stats-header">all recordings</div>
         <MediumPie data={watchedData} scheme="accent" />
 
-        <h6>by status</h6>
+        <div className="stats-header">by status</div>
         {/* by state */}
         <MediumPie data={stateData} scheme="accent" />
-        <h6>by type</h6>
+        <div className="stats-header">by type</div>
         {/* by type */}
         <MediumPie data={typeData} scheme="category10" />
       </div>

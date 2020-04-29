@@ -77,7 +77,7 @@ export default class Overview extends Component<Props, State> {
 
     return (
       <div className="section">
-        <Row className="p-2 m-2 border bg-light">
+        <Row className="stats-header">
           <Col>
             Recording Time: &nbsp;
             {duration[0]} months {duration[1]} days {duration[2]} weeks{' '}

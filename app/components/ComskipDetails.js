@@ -109,11 +109,13 @@ export default class ComskipDetails extends Component<Props, State> {
 
     return (
       <>
+        <div className="stats-header">by status</div>
         <MediumPie data={topStats} scheme="accent" />
 
-        <h6>by show</h6>
+        <div className="stats-header">by show</div>
+
         <MediumPie data={showsData} scheme="set2" />
-        <h6>error details</h6>
+        <div className="stats-header">error details</div>
         <MediumPie data={data} scheme="set2" />
       </>
     );
