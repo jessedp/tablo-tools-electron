@@ -99,7 +99,7 @@ export default class ResolutionStats extends Component<Props, State> {
           data={resolutionData}
           indexBy="resolution"
           keys={resolutionKeys}
-          scheme="set3"
+          scheme="pastel2"
         />
         <ResolutionModal resolutionData={resolutionData} />
       </Col>
