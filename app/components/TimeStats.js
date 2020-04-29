@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
-import Col from 'react-bootstrap/Col';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import MediumBar from './MediumBar';
 
@@ -159,7 +158,7 @@ export default class TimeStats extends Component<Props, State> {
       );
 
     return (
-      <Col>
+      <>
         {/* by day */}
         <div className="stats-header">by day</div>
         <MediumBar
@@ -181,16 +180,14 @@ export default class TimeStats extends Component<Props, State> {
 
         {/* by month */}
         <div className="stats-header">by month</div>
-        <div
-          style={{ height: '400px', width: '600px', border: '1px solid #000' }}
-        >
+        <div style={{ height: '250px' }}>
           <ResponsiveCalendar
             data={dateData}
             from={firstDate}
             to={lastDate}
             emptyColor="#eeeeee"
             colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
-            margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+            margin={{ top: 10, right: 40, bottom: 10, left: 40 }}
             yearSpacing={40}
             monthBorderColor="#ffffff"
             dayBorderWidth={2}
@@ -209,7 +206,7 @@ export default class TimeStats extends Component<Props, State> {
             ]}
           />
         </div>
-      </Col>
+      </>
     );
   }
 }
