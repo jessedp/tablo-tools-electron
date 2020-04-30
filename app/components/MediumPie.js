@@ -12,7 +12,7 @@ export default function MediumPie(props: Props) {
 
   const total = data.reduce((a, b) => a + (b.value || 0), 0);
 
-  const margin = { top: 0, right: 100, bottom: 0, left: 0 };
+  const margin = { top: 0, right: 85, bottom: 0, left: 0 };
 
   const styles = {
     root: {
