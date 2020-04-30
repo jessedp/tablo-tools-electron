@@ -97,6 +97,27 @@ div.scrollable-area {
   display: inline-block;
 }
 
+.table-sm {
+  font-size: 12px;
+}
+
+.rdt_TableHead,
+.rdt_TableHeadRow,
+.rdt_TableHeadRow > .rdt_TableCol {
+  height: 30px;
+}
+
+.stats-header {
+  background-color: #f8f5f0 !important;
+  font-weight: bold;
+  text-transform: lowercase;
+  color: #777;
+  padding: 0.25rem !important;
+  margin: 0.25rem !important;
+  font-size: 12px;
+  border: 1px solid #dfd7ca !important;
+}
+
 /*** react-paginate ***/
 .pagination {
   padding: 0;

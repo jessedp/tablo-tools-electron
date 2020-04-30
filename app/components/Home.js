@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 
 import ServerInfoTable from './ServerInfoTable';
-import DbInfoTable from './DbInfoTable';
+import DbStats from './DbStats';
 import Build from './Build';
 import Discovery from './Discovery';
 
@@ -99,7 +99,7 @@ export default class Home extends Component<Props, State> {
                 <Build showDbTable={this.showDbTable} />
               </Card.Subtitle>
               <Card.Body className="p-1">
-                {showDbTable ? <DbInfoTable /> : ''}
+                {showDbTable ? <DbStats /> : ''}
               </Card.Body>
             </Card>
           </Col>

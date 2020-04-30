@@ -119,7 +119,10 @@ export default class Recording extends Component<Props, State> {
       <Container className={classes}>
         <Row>
           <Col md="3" className="ml-0 mr-0 pl-0 pr-0">
-            <TabloImage imageId={airing.thumbnail} className="search-image" />
+            <TabloImage
+              imageId={airing.show.thumbnail}
+              className="search-image"
+            />
           </Col>
           <Col md="9" style={{ display: 'flex', flexDirection: 'column' }}>
             <Row>

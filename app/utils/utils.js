@@ -13,6 +13,46 @@ export async function asyncForEach(array, callback) {
    */
 }
 
+export function sortableTitle(titleToSort) {
+  let title = titleToSort.toLowerCase().trimLeft();
+
+  const articles = ['a', 'an', 'the'];
+  const words = title.split(' ', 2);
+  if (words.length === 1) {
+    if (/^\d(.*)/.test(title)) {
+      title = `zzz ${title}`;
+    }
+    return title;
+  }
+
+  // console.log(words[0].toLowerCase());
+  // if (words[0].toLowerCase() in articles){
+  if (articles.includes(words[0])) {
+    [, title] = words;
+  }
+
+  if (/^\d(.*)/.test(title)) {
+    title = `zzz ${title}`;
+  }
+
+  return title;
+}
+
+export function ellipse(str: string, length: number, ellipsis: string = '...') {
+  if (str.length > length) return `${str.substr(0, length)}${ellipsis}`;
+  return str;
+}
+
+export function sortObject(obj) {
+  const ordered = {};
+  Object.keys(obj)
+    .sort()
+    .forEach(key => {
+      ordered[key] = obj[key];
+    });
+  return ordered;
+}
+
 export function timeStrToSeconds(str) {
   const arr = str.split(':');
   let retVal =
@@ -45,6 +85,26 @@ export function readableDuration(duration) {
   date.setSeconds(duration);
   const str = date.toISOString().substr(12, 7);
   return str.replace(/^0:/, '');
+}
+
+export function parseSeconds(duration) {
+  let dur = duration;
+  const min = 60;
+  const hour = min * 60;
+  const day = hour * 24;
+  const month = day * 30;
+  const months = parseInt(dur / month, 10);
+  dur -= months * month;
+  const days = parseInt(dur / day, 10);
+  dur -= days * day;
+  const hours = parseInt(dur / hour, 10);
+  dur -= hours * hour;
+  const minutes = parseInt(dur / min, 10);
+  dur -= minutes * min;
+
+  // console.log(minutes,)
+
+  return [months, days, hours, minutes, dur];
 }
 
 export function readableBytes(bytes) {

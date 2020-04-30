@@ -97,25 +97,8 @@ export default class Airing {
   static async create(data: Object) {
     const airing = new Airing(data);
 
-    const docs = await global.ShowDb.asyncFind({ path: airing.typePath });
-    let piece = new Show();
-    switch (airing.type) {
-      case SERIES:
-        piece = docs[0].series;
-        break;
-      case MOVIE:
-        piece = docs[0].movie;
-        break;
-      case EVENT:
-        piece = docs[0].sport;
-        break;
-      case PROGRAM:
-        break;
-      default:
-        console.error(`Unknown Airing type`, airing);
-        throw Error(`Unknown Airing type "${airing.type}"`);
-    }
-    airing.show = piece;
+    const path = airing.typePath;
+    airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
     return airing;
   }
 
