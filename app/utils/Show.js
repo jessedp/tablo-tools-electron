@@ -169,44 +169,54 @@ export default class Show {
       }
     } catch (e) {
       console.log(e, this);
+      return this.thumbnail;
     }
-    return 0;
   }
 
   get thumbnail() {
     let set = null;
-    switch (this.type) {
-      case SERIES:
-        set = this.series.thumbnail_image;
-        break;
-      // return this.series.thumbnail_image.image_id;
-      case MOVIE:
-        set = this.movie.thumbnail_image;
-        break;
-      // return this.movie.thumbnail_image.image_id;
-      case EVENT:
-        set = this.sport.thumbnail_image;
-        break;
-      case PROGRAM:
-        set = this.background_image;
-        break;
-      default:
-        return 0;
+    try {
+      switch (this.type) {
+        case SERIES:
+          set = this.series.thumbnail_image;
+          break;
+        // return this.series.thumbnail_image.image_id;
+        case MOVIE:
+          set = this.movie.thumbnail_image;
+          break;
+        // return this.movie.thumbnail_image.image_id;
+        case EVENT:
+          set = this.sport.thumbnail_image;
+          break;
+        case PROGRAM:
+          set = this.background_image;
+          break;
+        default:
+          return 0;
+      }
+      if (!set) return 0;
+      return set.image_id;
+    } catch (e) {
+      console.error(e, this);
+      return 0;
     }
-    if (!set) return 0;
-    return set.image_id;
   }
 
   get cover() {
-    switch (this.type) {
-      case SERIES:
-        return this.series.cover_image.image_id;
-      case MOVIE:
-        return this.movie.cover_image.image_id;
-      case EVENT:
-        return this.sport.cover_image.image_id;
-      default:
-        return 0;
+    try {
+      switch (this.type) {
+        case SERIES:
+          return this.series.cover_image.image_id;
+        case MOVIE:
+          return this.movie.cover_image.image_id;
+        case EVENT:
+          return this.sport.cover_image.image_id;
+        default:
+          return 0;
+      }
+    } catch (e) {
+      console.error(e, this);
+      return this.background;
     }
   }
 }
