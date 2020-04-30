@@ -100,8 +100,11 @@ export function parseSeconds(duration) {
   const hours = parseInt(dur / hour, 10);
   dur -= hours * hour;
   const minutes = parseInt(dur / min, 10);
+  dur -= minutes * min;
 
-  return [months, days, hours, minutes];
+  // console.log(minutes,)
+
+  return [months, days, hours, minutes, dur];
 }
 
 export function readableBytes(bytes) {
