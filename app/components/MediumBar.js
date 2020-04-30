@@ -63,7 +63,7 @@ export default function MediumBar(props: Props) {
       fontFamily: 'consolas, sans-serif',
       textAlign: 'center',
       position: 'relative',
-      width,
+      maxWidth: width,
       height: minHeight,
       margin: '10px 0 10px 0'
     },
