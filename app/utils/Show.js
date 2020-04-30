@@ -156,16 +156,21 @@ export default class Show {
   }
 
   get background() {
-    switch (this.type) {
-      case SERIES:
-        return this.series.background_image.image_id;
-      case MOVIE:
-        return this.movie.background_image.image_id;
-      case EVENT:
-        return this.sport.background_image.image_id;
-      default:
-        return 0;
+    try {
+      switch (this.type) {
+        case SERIES:
+          return this.series.background_image.image_id;
+        case MOVIE:
+          return this.movie.background_image.image_id;
+        case EVENT:
+          return this.sport.background_image.image_id;
+        default:
+          return 0;
+      }
+    } catch (e) {
+      console.log(e, this);
     }
+    return 0;
   }
 
   get thumbnail() {
