@@ -16,6 +16,8 @@ import TimeStats from './TimeStats';
 import ResolutionStats from './ResolutionStats';
 import { parseSeconds, readableBytes } from '../utils/utils';
 import ChannelStats from './ChannelStats';
+import ShowStats from './ShowStats';
+import Duration from './Duration';
 
 const Store = require('electron-store');
 
@@ -77,12 +79,12 @@ export default class Overview extends Component<Props, State> {
 
     return (
       <div className="section">
-        <Row className="stats-header">
-          <Col>
+        <Row className="stats-header justify-content-md-center">
+          <Col md="5" className="text-center" align="center">
             Recording Time: &nbsp;
-            <RecordingTime duration={duration} />
+            <Duration duration={duration} />
           </Col>
-          <Col>
+          <Col md="5" align="center">
             Recording Size: &nbsp;
             {readableBytes(size)}
           </Col>
@@ -90,29 +92,38 @@ export default class Overview extends Component<Props, State> {
 
         <div className="scrollable-area">
           <Row>
-            <Col>
+            <Col md="4">
               <Alert variant="primary" className="p-2 m-0">
                 Recordings
               </Alert>
               <DbStats />
             </Col>
 
-            <Col>
-              <Alert variant="primary" className="p-2 m-0">
-                Resolution/Channel Stats
-              </Alert>
-              <ResolutionStats />
+            <Col md="4">
+              <Col>
+                <Alert variant="primary" className="p-2 m-0">
+                  Resolution/Channel Stats
+                </Alert>
+                <ResolutionStats />
+              </Col>
+
+              <Col>
+                <Alert variant="primary" className="p-2 m-0">
+                  Channel/Show Stats
+                </Alert>
+                <ChannelStats />
+              </Col>
             </Col>
 
-            <Col>
+            <Col md="4">
               <Alert variant="primary" className="p-2 m-0">
-                Channel/Show Stats
+                Show Stats
               </Alert>
-              <ChannelStats />
+              <ShowStats />
             </Col>
 
             {comskipAvailable ? (
-              <Col>
+              <Col md="4">
                 <Alert variant="primary" className="p-2 m-0">
                   Commercial Skip Stats
                 </Alert>
@@ -132,17 +143,4 @@ export default class Overview extends Component<Props, State> {
       </div>
     );
   }
-}
-
-function RecordingTime(prop) {
-  const { duration } = prop;
-  if (!duration || duration.length === 0) return <></>;
-
-  const parts = [];
-  if (duration[0]) parts.push(`${duration[0]} months `);
-  if (duration[1]) parts.push(`${duration[1]} days `);
-  if (duration[2]) parts.push(`${duration[2]} hours `);
-  if (duration[3]) parts.push(`${duration[2]} minutes `);
-
-  return parts.join(' ');
 }
