@@ -145,6 +145,14 @@ export default function MediumBar(props: Props) {
         labelSkipHeight={12}
         labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
         enableGridX
+        onMouseEnter={(_data, event) => {
+          // eslint-disable-next-line no-param-reassign
+          event.target.style.cursor = 'pointer';
+        }}
+        onMouseLeave={(_data, event) => {
+          // eslint-disable-next-line no-param-reassign
+          event.target.style.cursor = 'cursor';
+        }}
       />
 
       {back ? (

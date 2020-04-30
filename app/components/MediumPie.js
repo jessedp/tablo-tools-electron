@@ -111,6 +111,14 @@ export default function MediumPie(props: Props) {
         motionStiffness={90}
         motionDamping={15}
         isInteractive
+        onMouseEnter={(_data, event) => {
+          // eslint-disable-next-line no-param-reassign
+          event.target.style.cursor = 'not-allowed';
+        }}
+        onMouseLeave={(_data, event) => {
+          // eslint-disable-next-line no-param-reassign
+          event.target.style.cursor = 'cursor';
+        }}
       />
       <div style={styles.overlay}>
         <span>{total}</span>
