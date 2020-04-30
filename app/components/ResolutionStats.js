@@ -1,11 +1,8 @@
 // @flow
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import Col from 'react-bootstrap/Col';
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import MediumBar from './MediumBar';
 
 type Props = {};
@@ -147,66 +144,7 @@ export default class ResolutionStats extends Component<Props, State> {
           onClick={!selResolution ? this.chartClick : () => {}}
           back={selResolution ? this.clearResolution : null}
         />
-        <ResolutionModal resolutionData={resolutionData} />
       </Col>
     );
   }
-}
-
-function ResolutionModal(prop) {
-  const [show, setShow] = useState(false);
-
-  const toggle = () => setShow(!show);
-  const { resolutionData } = prop;
-
-  return (
-    <>
-      <Button variant="outline-dark" size="xs" onClick={toggle}>
-        <span className="fa fa-chevron-circle-right pr-1" />
-        show data
-      </Button>
-      <Modal
-        size="sm"
-        show={show}
-        onHide={toggle}
-        animation
-        centered
-        scrollable
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Channel by Resolution</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {resolutionData.map(res => {
-            const head = res.resolution;
-            const rows = Object.keys(res).map(key => {
-              if (key !== 'resolution') {
-                return (
-                  <tr key={`tr-${key}-${res[key]}`}>
-                    <td>{key}</td>
-                    <td>{res[key]}</td>
-                  </tr>
-                );
-              }
-              return null;
-            });
-            return (
-              <Table
-                size="sm"
-                striped
-                key={`resolution-stats-table-${res.resolution}`}
-              >
-                <tbody>
-                  <tr key={`resolution-stats-row-${res.resolution}`}>
-                    <th colSpan="2">{head}</th>
-                  </tr>
-                  {rows}
-                </tbody>
-              </Table>
-            );
-          })}
-        </Modal.Body>
-      </Modal>
-    </>
-  );
 }
