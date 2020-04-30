@@ -187,7 +187,7 @@ export default class TimeStats extends Component<Props, State> {
             to={lastDate}
             emptyColor="#eeeeee"
             colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
-            margin={{ top: 10, right: 40, bottom: 10, left: 40 }}
+            margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
             yearSpacing={40}
             monthBorderColor="#ffffff"
             dayBorderWidth={2}
