@@ -252,7 +252,7 @@ export default class ShowStats extends Component<Props, State> {
         ) : (
           ''
         )}
-        <div className="section" style={{ height: '400px' }}>
+        <div className="section" style={{ height: '460px' }}>
           <div className="scrollable-area pr-1" style={{ overflowY: 'auto' }}>
             <DataTable
               columns={columns}
