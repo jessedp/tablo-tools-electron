@@ -101,6 +101,12 @@ div.scrollable-area {
   font-size: 12px;
 }
 
+.rdt_TableHead,
+.rdt_TableHeadRow,
+.rdt_TableHeadRow > .rdt_TableCol {
+  height: 30px;
+}
+
 .stats-header {
   background-color: #f8f5f0 !important;
   font-weight: bold;
