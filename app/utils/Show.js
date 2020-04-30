@@ -168,7 +168,7 @@ export default class Show {
           return 0;
       }
     } catch (e) {
-      console.log(e, this);
+      // console.log(e, this);
       return this.thumbnail;
     }
   }
@@ -197,7 +197,7 @@ export default class Show {
       if (!set) return 0;
       return set.image_id;
     } catch (e) {
-      console.error(e, this);
+      // console.error(e, this);
       return 0;
     }
   }
@@ -215,7 +215,7 @@ export default class Show {
           return 0;
       }
     } catch (e) {
-      console.error(e, this);
+      // console.error(e, this);
       return this.background;
     }
   }
