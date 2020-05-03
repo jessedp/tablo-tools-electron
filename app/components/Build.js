@@ -167,9 +167,14 @@ export default class Build extends Component<Props, State> {
       console.log('Error Building! Resetting...', e);
       console.timeEnd('Building');
       this.building = false;
+      let err = 'Unknown error (network?), e object disappeared';
+      // e "disappeared"? sentry #1c
+      if (e) {
+        err = e.toString();
+      }
       await this.setState({
         loading: STATE_ERROR,
-        status: [e.toString()]
+        status: [err]
       });
     }
 
