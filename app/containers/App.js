@@ -27,4 +27,3 @@ export default class App extends React.Component<Props> {
     );
   }
 }
-// style={{ flex: '1 1 auto', overflowX: 'none', overflowY: 'auto' }}
