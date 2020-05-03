@@ -10,7 +10,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import RecordingExport from './RecordingExport';
-import { throttleActions } from '../utils/utils';
+import { asyncForEach, throttleActions } from '../utils/utils';
 
 type Props = {
   airingList: Array<Airing>,
@@ -73,13 +73,12 @@ export default class VideoExport extends Component<Props, State> {
 
     const actions = [];
 
-    await airingList.forEach(async rec => {
+    await asyncForEach(airingList, rec => {
       const ref = this.airingRefs[rec.object_id];
-      // if (this.airingRefs[id].current)
-      if (ref.current)
-        actions.push(() => {
-          if (this.shouldCancel === false) return ref.current.processVideo();
-        });
+      actions.push(() => {
+        if (ref.current && this.shouldCancel === false)
+          return ref.current.processVideo();
+      });
     });
 
     await throttleActions(actions, atOnce).then(results => {
