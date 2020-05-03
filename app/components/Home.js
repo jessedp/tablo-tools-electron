@@ -27,24 +27,9 @@ export default class Home extends Component<Props, State> {
   constructor() {
     super();
     this.state = { showDbTable: true, showServerInfo: true };
-    // this.discover = this.discover.bind(this);
+
     (this: any).showDbTable = this.showDbTable.bind(this);
     (this: any).showServerInfo = this.showServerInfo.bind(this);
-  }
-
-  async componentDidMount() {
-    /**
-    if (!this.info) {
-      try {
-        this.info = await global.Api.getServerInfo();
-        writeToFile('server-info.json', JSON.stringify(this.info));
-      } catch (err) {
-        console.log(err);
-        this.info = '';
-      }
-    }
-    this.setState({ device: this.info });
-     */
   }
 
   showServerInfo(show: boolean) {
