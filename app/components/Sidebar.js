@@ -65,24 +65,26 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   async componentDidMount(): * {
-    if (getConfig().notifyBeta) {
-      let msg: UpdateMessage = {};
-      try {
-        const resp = await axios.get(
-          'https://api.github.com/repos/jessedp/tablo-tools-electron/releases'
-        );
-        const data = resp.data[0];
-        if (data.prerelease && `v.${app.getVersion()}` !== data.tag_name) {
-          msg = releaseToUpdateMsg(data);
-        }
-      } catch (e) {
-        console.warn('Problem loading releases from GH:', e);
-      }
-      if (msg) this.processUpdate(msg);
-    }
-
-    const checkUpdate = () => {
+    const checkUpdate = async () => {
+      // electron-updater in main proc for full releases
       ipcRenderer.send('update-request');
+
+      // pre-release check
+      if (getConfig().notifyBeta) {
+        let msg: UpdateMessage = {};
+        try {
+          const resp = await axios.get(
+            'https://api.github.com/repos/jessedp/tablo-tools-electron/releases'
+          );
+          const data = resp.data[0];
+          if (data.prerelease && `v.${app.getVersion()}` !== data.tag_name) {
+            msg = releaseToUpdateMsg(data);
+          }
+        } catch (e) {
+          console.warn('Problem loading releases from GH:', e);
+        }
+        if (msg) this.processUpdate(msg);
+      }
     };
 
     if (process.env.NODE_ENV === 'production') {
@@ -133,9 +135,7 @@ export default class Sidebar extends Component<Props, State> {
     const { current, updateAvailable } = this.state;
     let { updateData } = this.state;
 
-    if (!updateData) return <></>;
-
-    updateData = updateData.info;
+    if (updateData) updateData = updateData.info;
 
     const baseClass = '';
     let homeBtnClass = baseClass;
