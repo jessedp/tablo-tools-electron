@@ -366,7 +366,14 @@ export default class Airing {
 
   cancelVideoProcess() {
     const { _id, path } = this;
+    // this is to be clean while Mac doesn't work
+    if (!this.cmd) {
+      console.warn('No cmd process exists while canceling!');
+      return;
+    }
+
     this.cmd.kill();
+
     try {
       fs.unlinkSync(outFile);
     } catch (e) {
