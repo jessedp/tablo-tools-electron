@@ -32,7 +32,8 @@ export default class AppUpdater {
           error,
           info: {}
         };
-        event.sender.send('update-reply', data);
+        // sentry #W
+        if (event && event.sender) event.sender.send('update-reply', data);
       });
 
       /**
