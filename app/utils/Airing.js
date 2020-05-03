@@ -337,7 +337,13 @@ export default class Airing {
   async watch() {
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
-      const data = await global.Api.post(watchPath);
+      let data;
+      try {
+        data = await global.Api.post(watchPath);
+      } catch (e) {
+        console.warn(`Unable o load ${watchPath}`, e);
+        return '';
+      }
       // TODO: better local/forward rewrites (probably elsewhere)
       if (global.Api.device.private_ip === '127.0.0.1') {
         const re = new RegExp(
