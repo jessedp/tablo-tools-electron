@@ -54,16 +54,12 @@ export default class Home extends Component<Props, State> {
     return (
       <Container>
         <Alert variant="primary">
-          <h4 className="mb-2">Welcome to Tablo Tools v{appVersion}</h4>
-          <Alert variant="light" className="m-0">
-            Tablo Tools allows you different views of the recordings on your
-            Tablo as well as options to delete and export your recordings.
-          </Alert>
+          <h4 className="mb-2 pt-1">Welcome to Tablo Tools v{appVersion}</h4>
         </Alert>
 
         <Row>
           <Col md="6">
-            <Card>
+            <Card className="device-card">
               <Card.Title className="mb-0">
                 <Alert variant="dark">Current Tablo</Alert>
               </Card.Title>
@@ -71,7 +67,9 @@ export default class Home extends Component<Props, State> {
                 <Discovery showServerInfo={this.showServerInfo} />
               </Card.Subtitle>
               <Card.Body className="p-1">
-                {showServerInfo ? <ServerInfoTable /> : ''}
+                <div className="">
+                  {showServerInfo ? <ServerInfoTable /> : ''}
+                </div>
               </Card.Body>
             </Card>
           </Col>
