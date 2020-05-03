@@ -341,8 +341,8 @@ export default class Airing {
       try {
         data = await global.Api.post(watchPath);
       } catch (e) {
-        console.warn(`Unable o load ${watchPath}`, e);
-        return '';
+        console.warn(`Unable to load ${watchPath}`, e);
+        throw new Error(e);
       }
       // TODO: better local/forward rewrites (probably elsewhere)
       if (global.Api.device.private_ip === '127.0.0.1') {
