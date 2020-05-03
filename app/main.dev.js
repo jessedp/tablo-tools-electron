@@ -26,7 +26,9 @@ export default class AppUpdater {
 
     ipcMain.on('update-request', event => {
       autoUpdater.on('error', error => {
-        console.error(error);
+        // sentry #R
+        if (!error.toString().match('ENOENT')) console.error(error);
+
         const data = {
           available: false,
           error,
