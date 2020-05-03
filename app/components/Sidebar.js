@@ -11,12 +11,16 @@ import Col from 'react-bootstrap/Col';
 
 import Modal from 'react-bootstrap/Modal';
 import { format } from 'date-fns';
+import axios from 'axios';
+
 import routes from '../constants/routes.json';
 import tabloLogo from '../../resources/tablo_tools_logo.png';
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
+
+const { app } = require('electron').remote;
 
 type File = {
   url: string,
@@ -27,13 +31,15 @@ type File = {
 
 type UpdateMessage = {
   available: boolean,
-  version: string,
-  files: Array<File>,
-  path: string,
-  sha512: string,
-  releaseDate: string,
-  releaseName: string,
-  releaseNotes: string
+  info: {
+    version: string,
+    files: Array<File>,
+    path: string,
+    sha512: string,
+    releaseDate: string,
+    releaseName: string,
+    releaseNotes: string
+  }
 };
 
 type Props = {};
@@ -59,7 +65,26 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   async componentDidMount(): * {
-    const checkUpdate = () => ipcRenderer.send('update-request');
+    if (getConfig().notifyBeta) {
+      let msg: UpdateMessage = {};
+      try {
+        const resp = await axios.get(
+          'https://api.github.com/repos/jessedp/tablo-tools-electron/releases'
+        );
+        const data = resp.data[0];
+        if (data.prerelease && `v.${app.getVersion()}` !== data.tag_name) {
+          msg = releaseToUpdateMsg(data);
+        }
+      } catch (e) {
+        console.warn('Problem loading releases from GH:', e);
+      }
+      if (msg) this.processUpdate(msg);
+    }
+
+    const checkUpdate = () => {
+      ipcRenderer.send('update-request');
+    };
+
     if (process.env.NODE_ENV === 'production') {
       setInterval(checkUpdate, 1000 * 60 * 60);
       setTimeout(checkUpdate, 1000);
@@ -71,7 +96,7 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   async processUpdate(msg: any) {
-    console.log(msg);
+    console.log('updateMsg:', msg);
     if (msg.error) {
       console.error('Problem updating: ', msg.error);
       this.setState({
@@ -80,7 +105,7 @@ export default class Sidebar extends Component<Props, State> {
     }
 
     if (msg.available === true) {
-      await this.setState({ updateAvailable: true, updateData: msg.info });
+      await this.setState({ updateAvailable: true, updateData: msg });
     }
   }
 
@@ -105,7 +130,12 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   render() {
-    const { current, updateAvailable, updateData } = this.state;
+    const { current, updateAvailable } = this.state;
+    let { updateData } = this.state;
+
+    if (!updateData) return <></>;
+
+    updateData = updateData.info;
 
     const baseClass = '';
     let homeBtnClass = baseClass;
@@ -214,20 +244,17 @@ function VersionStatus(prop) {
     color = 'text-secondary';
     isRelease = false;
   }
-  const config = getConfig();
-  let notifyBeta = false;
-  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
-    notifyBeta = config.notifyBeta;
-  }
 
-  if (!notifyBeta) return <></>;
+  if (!isRelease && !getConfig().notifyBeta) return <></>;
 
   const releaseDate = format(
     Date.parse(updateData.releaseDate),
     'ccc M/d/yy @ h:m:s a'
   );
-  const title = `v${updateData.version} available as of ${releaseDate}`;
-  const downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${updateData.version}/${updateData.path}`;
+  const title = `${updateData.version} available as of ${releaseDate}`;
+  let downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/${updateData.version}/${updateData.path}`;
+  if (!updateData.path)
+    downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/tag/${updateData.version}/${updateData.path}`;
 
   return (
     <>
@@ -254,7 +281,7 @@ function VersionStatus(prop) {
         </Modal.Header>
         <Modal.Body>
           <div>
-            {type} v{updateData.version} was released{' '}
+            {type} <b>{updateData.version}</b> was released{' '}
             <RelativeDate date={updateData.releaseDate} />.
           </div>
           {isRelease ? (
@@ -262,7 +289,7 @@ function VersionStatus(prop) {
           ) : (
             <div className="text-danger">
               This is a pre-release. It may be broken. It may be to test a fix.
-              It may not do anyting interesting. You&apos;ve been warned.
+              It may not do anything interesting. You&apos;ve been warned.
             </div>
           )}
           <br />
@@ -274,11 +301,11 @@ function VersionStatus(prop) {
             />
           </code>
           <Button
-            className="pt-2"
+            className="pt-2 mt-3"
             variant="outline-secondary"
             onClick={() => shell.openExternal(downloadUrl)}
           >
-            Download v{updateData.version} now!
+            Download {updateData.version} now!
           </Button>
           <div className="pt-2 smaller">
             Once that&apos;s complete, install it and you&apos;re ready to go!
@@ -294,6 +321,20 @@ function VersionStatus(prop) {
   );
 }
 
+function releaseToUpdateMsg(data): UpdateMessage {
+  return {
+    available: true,
+    info: {
+      version: data.tag_name,
+      files: [],
+      path: '',
+      sha512: '',
+      releaseDate: data.published_at,
+      releaseName: data.name,
+      releaseNotes: data.body
+    }
+  };
+}
 /**
  updateData = {
     available: true,
