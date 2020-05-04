@@ -47,7 +47,7 @@ export default class Checkbox extends Component<Props, State> {
     return (
       <span>
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-        <label>
+        <label className="checkbox-wrap">
           <FullCheckbox
             checked={checked}
             onChange={this.handleCheckboxChange}
