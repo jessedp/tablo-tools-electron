@@ -216,7 +216,7 @@ export default class RecordingExport extends Component<Props, State> {
             <Row>
               <Col>
                 {' '}
-                <FileInfo airing={airing} />{' '}
+                <FileInfo airing={airing} state={exportState} />{' '}
               </Col>
             </Row>
           </Col>
@@ -378,11 +378,35 @@ function FfmpegLog(prop) {
 }
 
 const FileInfo = prop => {
-  const { airing } = prop;
+  const { airing, state } = prop;
   const { exportFile } = airing;
   const exists = fs.existsSync(exportFile);
 
+  const openDir = () => {
+    shell.showItemInFolder(airing.exportFile);
+  };
+
   if (!exists) {
+    if (state === EXP_DONE) {
+      // uh-oh. probably a mac
+      return (
+        <div className="p-0 m-0 smaller font-weight-bold text-danger">
+          <span className="fa fa-exclamation pr-1" />
+          <span className="pr-2">File does not exist after export.</span>
+          <span>
+            {airing.exportFile}
+            <Button
+              variant="link"
+              className="p-0 pl-1"
+              onClick={openDir}
+              title="Open file in directory"
+            >
+              <span className="fa fa-external-link-alt text-warning" />
+            </Button>
+          </span>
+        </div>
+      );
+    }
     return (
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
@@ -391,20 +415,43 @@ const FileInfo = prop => {
     );
   }
   const stats = fs.statSync(exportFile);
-  const openDir = () => {
-    shell.showItemInFolder(airing.exportFile);
-  };
+
+  let showSize = true;
+  let baseClass = 'p-0 m-0 smaller font-weight-bold';
+  let icon = 'fa pr-1 ';
+  if (state === EXP_WORKING) {
+    showSize = false;
+    baseClass = `${baseClass} text-warning`;
+    icon = `${icon} fa-exclamation`;
+  } else if (state === EXP_DONE) {
+    showSize = true;
+    baseClass = `${baseClass} text-success`;
+    icon = `${icon} fa-check-circle`;
+  } else {
+    showSize = true;
+    baseClass = `${baseClass} text-danger`;
+    icon = `${icon} fa-exclamation`;
+  }
 
   return (
-    <div className="p-0 m-0 smaller font-weight-bold text-danger">
-      <span className="fa fa-exclamation pr-1" />
+    <div className={baseClass}>
+      <span className={icon} />
       <span className="pr-3">{airing.exportFile}</span>
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>
-      <span className="pr-1">({readableBytes(stats.size)})</span>
+      {showSize ? (
+        <span className="pr-1">({readableBytes(stats.size)})</span>
+      ) : (
+        ''
+      )}
       <span>
-        <Button variant="link" onClick={openDir} title="Open file in directory">
+        <Button
+          className="p-0 pl-1"
+          variant="link"
+          onClick={openDir}
+          title="Open file in directory"
+        >
           <span className="fa fa-external-link-alt text-warning" />
         </Button>
       </span>
