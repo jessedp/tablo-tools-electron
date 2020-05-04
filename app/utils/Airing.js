@@ -6,7 +6,7 @@ import os from 'os';
 import fs from 'fs';
 import * as fsPath from 'path';
 
-import { readableDuration } from './utils';
+import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
@@ -94,12 +94,20 @@ export default class Airing {
     this.cachedWatch = null;
   }
 
-  static async create(data: Object) {
-    const airing = new Airing(data);
+  static async find(id: number): Promise<Airing> {
+    return Airing.create(await global.RecDb.asyncFindOne({ object_id: id }));
+  }
 
-    const path = airing.typePath;
-    airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
-    return airing;
+  static async create(data: Object): Promise<Airing> {
+    if (data) {
+      const airing = new Airing(data);
+      const path = airing.typePath;
+      airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
+      return airing;
+    }
+
+    console.warn('Airing.create: no data');
+    return new Airing({});
   }
 
   get description() {
@@ -551,8 +559,11 @@ export default class Airing {
 export function ensureAiringArray(list: Array<any>) {
   if (!list || !Array.isArray(list)) return [];
 
-  return list.map<Airing>(item => {
-    if (item instanceof Airing) return item;
-    return Object.assign(new Airing(), item);
+  const ret = [];
+  asyncForEach(list, async item => {
+    if (item instanceof Airing && item.airingDetails) ret.push(item);
+    ret.push(await Airing.find(item.object_id));
   });
+
+  return ret;
 }
