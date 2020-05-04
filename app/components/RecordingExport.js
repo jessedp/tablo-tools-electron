@@ -1,5 +1,7 @@
 // @flow
 import React, { Component, useState } from 'react';
+import { shell } from 'electron';
+import fs from 'fs';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -15,10 +17,12 @@ import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import {
+  readableBytes,
   readableDuration,
   secondsToTimeStr,
   timeStrToSeconds
 } from '../utils/utils';
+import RelativeDate from './RelativeDate';
 
 type Props = {
   airing: Airing
@@ -95,8 +99,6 @@ export default class RecordingExport extends Component<Props, State> {
       exportInc: 0,
       exportLabel: beginTime
     });
-
-    // console.log('starting', airing.object_id, new Date());
 
     this.startTimer();
 
@@ -196,17 +198,27 @@ export default class RecordingExport extends Component<Props, State> {
               className="menu-image-md"
             />
           </Col>
-          <Col md="6">
-            <TitleSlim airing={airing} withShow={1} />
-          </Col>
-          <Col md="5">
-            <ExportProgress
-              label={exportLabel}
-              state={exportState}
-              inc={exportInc}
-              ffmpegLog={ffmpegLog}
-              time={curTime}
-            />
+          <Col md="11">
+            <Row>
+              <Col md="6">
+                <TitleSlim airing={airing} withShow={1} />
+              </Col>
+              <Col md="5">
+                <ExportProgress
+                  label={exportLabel}
+                  state={exportState}
+                  inc={exportInc}
+                  ffmpegLog={ffmpegLog}
+                  time={curTime}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                {' '}
+                <FileInfo airing={airing} />{' '}
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>
@@ -364,3 +376,38 @@ function FfmpegLog(prop) {
     </>
   );
 }
+
+const FileInfo = prop => {
+  const { airing } = prop;
+  const { exportFile } = airing;
+  const exists = fs.existsSync(exportFile);
+
+  if (!exists) {
+    return (
+      <div className="p-0 m-0 smaller font-weight-bold text-success">
+        <span className="fa fa-check-circle pr-1" />
+        {airing.exportFile}
+      </div>
+    );
+  }
+  const stats = fs.statSync(exportFile);
+  const openDir = () => {
+    shell.showItemInFolder(airing.exportFile);
+  };
+
+  return (
+    <div className="p-0 m-0 smaller font-weight-bold text-danger">
+      <span className="fa fa-exclamation pr-1" />
+      <span className="pr-3">{airing.exportFile}</span>
+      <span className="pr-1">
+        created <RelativeDate date={stats.ctime} />
+      </span>
+      <span className="pr-1">({readableBytes(stats.size)})</span>
+      <span>
+        <Button variant="link" onClick={openDir} title="Open file in directory">
+          <span className="fa fa-external-link-alt text-warning" />
+        </Button>
+      </span>
+    </div>
+  );
+};
