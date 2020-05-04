@@ -44,6 +44,7 @@ type State = {
   showFilter: string,
   seasonFilter: string,
   comskipFilter: string,
+  cleanFilter: string,
   view: string,
   percent: number,
   percentLocation: number,
@@ -74,6 +75,7 @@ export default class SearchForm extends Component<Props, State> {
       stateFilter: 'any',
       watchedFilter: 'all',
       comskipFilter: 'all',
+      cleanFilter: 'any',
       showFilter: '',
       seasonFilter: '',
       view: 'search',
@@ -119,6 +121,8 @@ export default class SearchForm extends Component<Props, State> {
     this.watchedChange = this.watchedChange.bind(this);
     this.showChange = this.showChange.bind(this);
     this.seasonChange = this.seasonChange.bind(this);
+    this.comskipChange = this.comskipChange.bind(this);
+    this.cleanChange = this.cleanChange.bind(this);
     this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
@@ -139,7 +143,7 @@ export default class SearchForm extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // // v0.1.12 - make sure we have Airings
+    // v0.1.12 - make sure we have Airings
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
     await this.setState({ actionList });
@@ -336,6 +340,11 @@ export default class SearchForm extends Component<Props, State> {
     this.search();
   };
 
+  cleanChange = async (event: Option) => {
+    await this.setState({ cleanFilter: event.value });
+    this.search();
+  };
+
   showChange = async (event: Option) => {
     await this.setState({ showFilter: event.value });
     const list = [];
@@ -433,6 +442,7 @@ export default class SearchForm extends Component<Props, State> {
       typeFilter,
       watchedFilter,
       comskipFilter,
+      cleanFilter,
       showFilter,
       seasonFilter
     } = this.state;
@@ -483,6 +493,16 @@ export default class SearchForm extends Component<Props, State> {
         type: 'state',
         value: stateFilter,
         text: `${stateFilter}`
+      });
+    }
+
+    if (cleanFilter !== 'any') {
+      query['video_details.clean'] = cleanFilter !== 'dirty';
+
+      steps.push({
+        type: 'clean',
+        value: cleanFilter,
+        text: `is ${cleanFilter}`
       });
     }
 
@@ -634,6 +654,7 @@ export default class SearchForm extends Component<Props, State> {
       typeFilter,
       watchedFilter,
       comskipFilter,
+      cleanFilter,
       showFilter,
       seasonFilter,
       actionList,
@@ -671,6 +692,7 @@ export default class SearchForm extends Component<Props, State> {
                 onChange={this.comskipChange}
                 value={comskipFilter}
               />
+              <CleanFilter onChange={this.cleanChange} value={cleanFilter} />
               <ShowFilter
                 onChange={this.showChange}
                 value={showFilter}
@@ -1060,6 +1082,27 @@ function ComskipFilter(props: filterProps) {
   );
 }
 ComskipFilter.defaultProps = { shows: [], seasons: [] };
+
+function CleanFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    { value: 'any', label: 'any' },
+    { value: 'clean', label: 'clean' },
+    { value: 'dirty', label: 'dirty' }
+  ];
+
+  return (
+    <FilterSelect
+      name="cleanFilter"
+      placeholder="clean"
+      options={options}
+      onChange={onChange}
+      value={value}
+    />
+  );
+}
+CleanFilter.defaultProps = { shows: [], seasons: [] };
 
 function PerPageFilter(props: filterProps) {
   const { value, onChange } = props;
