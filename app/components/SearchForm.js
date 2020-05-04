@@ -21,6 +21,7 @@ import { showList } from './ShowsList';
 import VideoExport from './VideoExport';
 import TabloImage from './TabloImage';
 import type { SearchAlert } from './Search';
+import { comskipAvailable } from '../utils/Tablo';
 
 type Props = {
   sendResults: Object => void,
@@ -688,10 +689,14 @@ export default class SearchForm extends Component<Props, State> {
                 onChange={this.watchedChange}
                 value={watchedFilter}
               />
-              <ComskipFilter
-                onChange={this.comskipChange}
-                value={comskipFilter}
-              />
+              {comskipAvailable() ? (
+                <ComskipFilter
+                  onChange={this.comskipChange}
+                  value={comskipFilter}
+                />
+              ) : (
+                ''
+              )}
               <CleanFilter onChange={this.cleanChange} value={cleanFilter} />
               <ShowFilter
                 onChange={this.showChange}

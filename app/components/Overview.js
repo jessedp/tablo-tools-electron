@@ -2,10 +2,7 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
-import compareVersions from 'compare-versions';
-
 import Alert from 'react-bootstrap/Alert';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -18,6 +15,7 @@ import { parseSeconds, readableBytes } from '../utils/utils';
 import ChannelStats from './ChannelStats';
 import ShowStats from './ShowStats';
 import Duration from './Duration';
+import { comskipAvailable } from '../utils/Tablo';
 
 const Store = require('electron-store');
 
@@ -71,12 +69,6 @@ export default class Overview extends Component<Props, State> {
     if (!currentDevice)
       return <Alert variant="warning">No device selected</Alert>;
 
-    let comskipAvailable = false;
-    if (currentDevice.server_version) {
-      const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
-      comskipAvailable = compareVersions(testVersion, '2.2.26') >= 0;
-    }
-
     return (
       <div className="section">
         <Row className="stats-header justify-content-md-center">
@@ -122,7 +114,7 @@ export default class Overview extends Component<Props, State> {
               <ShowStats />
             </Col>
 
-            {comskipAvailable ? (
+            {comskipAvailable() ? (
               <Col md="4">
                 <Alert variant="primary" className="p-2 m-0">
                   Commercial Skip Stats

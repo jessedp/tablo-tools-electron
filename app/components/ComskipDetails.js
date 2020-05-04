@@ -2,12 +2,8 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Alert from 'react-bootstrap/Alert';
-import compareVersions from 'compare-versions';
 import MediumPie from './MediumPie';
-
-const Store = require('electron-store');
-
-const store = new Store();
+import { comskipAvailable } from '../utils/Tablo';
 
 type Props = {};
 type State = {
@@ -29,23 +25,18 @@ export default class ComskipDetails extends Component<Props, State> {
 
   async componentDidMount() {
     this.refresh();
-    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
+    if (comskipAvailable())
+      this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount(): * {
-    PubSub.unsubscribe(this.psToken);
+    if (this.psToken !== null) PubSub.unsubscribe(this.psToken);
   }
 
   psToken = null;
 
   async refresh() {
-    const currentDevice = store.get('CurrentDevice');
-    let comskipAvailable = false;
-    if (currentDevice.server_version) {
-      const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
-      comskipAvailable = compareVersions(testVersion, '2.2.26') >= 0;
-    }
-    if (!comskipAvailable) return;
+    if (!comskipAvailable()) return;
 
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
     const recs = await global.RecDb.asyncFind({});
