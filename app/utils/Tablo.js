@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/electron';
 import Store from 'electron-store';
 
 import Tablo from 'tablo-api';
+import compareVersions from 'compare-versions';
 import getConfig from './config';
 import { dbCreatedKey } from './db';
 
@@ -103,3 +104,12 @@ export async function checkConnection() {
     });
   });
 }
+
+export const comskipAvailable = () => {
+  const currentDevice = store.get('CurrentDevice');
+  if (currentDevice.server_version) {
+    const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
+    return compareVersions(testVersion, '2.2.26') >= 0;
+  }
+  return false;
+};
