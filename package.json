@@ -1,6 +1,6 @@
 {
   "name": "tablo-tools",
-  "version": "0.1.12-beta.1",
+  "version": "0.1.12",
   "productName": "tablo-tools",
   "description": "Tools for messing with your Tablo DVR",
   "scripts": {
@@ -40,7 +40,7 @@
   },
   "lint-staged": {
     "*.{js,jsx}": [
-      "cross-env NODE_ENV=development eslint --cache --format=pretty",
+      "cross-env NODE_ENV=development eslint --cache --format=pretty --fix",
       "prettier --ignore-path .eslintignore --single-quote --write",
       "git add"
     ],
