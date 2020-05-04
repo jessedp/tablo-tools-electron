@@ -29,7 +29,13 @@ This was built using <a href="https://github.com/electron-react-boilerplate/elec
 #### Setup
 
 Something like this should work...
-`bash $ clone this repo $ yarn install $ yarn dev`
+
+```bash
+ (clone this repo via git or https)
+$ git clone git@github.com:jessedp/tablo-tools-electron.git
+$ yarn install
+$ yarn dev
+```
 
 #### Packaging
 
