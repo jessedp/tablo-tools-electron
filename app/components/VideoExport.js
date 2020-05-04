@@ -99,13 +99,6 @@ export default class VideoExport extends Component<Props, State> {
       if (ref.current) await ref.current.cancelProcess();
     });
 
-    /**
-    await Object.keys(this.airingRefs).forEach(async id => {
-      if (this.airingRefs[id].current)
-        await this.airingRefs[id].current.cancelProcess();
-    });
-     * */
-
     if (updateState) this.setState({ exportState: EXP_CANCEL });
   };
 
