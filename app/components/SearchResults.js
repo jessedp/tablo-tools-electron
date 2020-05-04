@@ -23,7 +23,6 @@ type State = {
   airingList: Array<Airing>,
   airingRefs: Object,
   actionList: Array<Airing>,
-  searchAlert: SearchAlert,
   loading: boolean
 };
 
@@ -119,7 +118,6 @@ export default class SearchResults extends Component<Props, State> {
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
-    // console.log('SearchResults render');
 
     const rows = [];
     if (!loading) {
@@ -161,10 +159,10 @@ function Loading(prop) {
 
   return (
     <div
-      className="d-flex justify-content-center m-0 p-0"
-      style={{ maxWidth: '500px' }}
+      className="d-flex justify-content-center m-0 p-0 mt-5"
+      style={{ maxWidth: '400px' }}
     >
-      <Spinner animation="grow" variant="warning" />
+      <Spinner animation="border" size="xl" variant="primary" />
     </div>
   );
 }
