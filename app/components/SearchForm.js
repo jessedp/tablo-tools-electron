@@ -91,6 +91,7 @@ export default class SearchForm extends Component<Props, State> {
     };
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
+
     // v0.1.11 - broken when added in v0.1.10
     if (Number.isNaN(parseInt(storedState.limit, 10)))
       storedState.limit = this.initialState.limit;
@@ -138,6 +139,10 @@ export default class SearchForm extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    // // v0.1.12 - make sure we have Airings
+    let { actionList } = this.state;
+    actionList = await ensureAiringArray(actionList);
+    await this.setState({ actionList });
     this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
@@ -181,7 +186,7 @@ export default class SearchForm extends Component<Props, State> {
     const { view, actionList, searchAlert } = this.state;
     this.showsList = await showList();
     const { length } = actionList;
-    if (view === 'selected' && length >= 0) {
+    if (view === 'selected' && length > 0) {
       this.setState({
         searchAlert: {
           type: 'light',
@@ -875,7 +880,7 @@ function SelectedDisplay(prop) {
 
   return (
     <Button onClick={view} variant="outline-primary" style={{ width: '125px' }}>
-      <span className="fa fa-file-video" /> {len} selected
+      <span className="fa fa-file-video pr-1" /> {len} selected
     </Button>
   );
 }
