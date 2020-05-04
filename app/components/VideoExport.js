@@ -1,5 +1,7 @@
 // @flow
 import React, { Component } from 'react';
+import os from 'os';
+
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 // import InputGroup from 'react-bootstrap/InputGroup';
@@ -8,6 +10,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
+import { Badge } from 'react-bootstrap';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import { asyncForEach, throttleActions } from '../utils/utils';
@@ -163,7 +166,18 @@ export default class VideoExport extends Component<Props, State> {
           scrollable
         >
           <Modal.Header closeButton>
-            <Modal.Title>Exporting:</Modal.Title>
+            <Modal.Title>
+              Export
+              {os.platform() === 'darwin' ? (
+                <Badge variant="warning" className="ml-4">
+                  <span className="fab fa-apple  pr-1" />
+                  Uh-oh! Exporting on Macs currently (probably) doesn&apos;t
+                  work
+                </Badge>
+              ) : (
+                ''
+              )}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {airingList.map(airing => {
