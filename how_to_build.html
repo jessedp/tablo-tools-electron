@@ -1,0 +1,136 @@
+---
+layout: main
+projectName: 'Tablo Tools'
+projectUrl: 'https://github.com/jessedp/tablo-tools-electron'
+tagline: 'The control over your Tablo you needed'
+version: '0.1.12'
+---
+
+<div class="header">
+  <div class="container">
+    <h1 class="logo">
+      <a href="/">
+        <img
+          src="resources/tablo_tools_title_large.png"
+          alt="Tablo Tools"
+          height="75px"
+        />
+      </a>
+    </h1>
+  </div>
+</div>
+
+<div class="main">
+  <div class="container">
+    <h1>Building and Running Locally to Export</h1>
+    This is intended for <b>Mac</b> users since there is a bug in the built
+    application <code>.dmg</code> which prevents it from exporting recordings.
+    <i>However</i>, when run in <i>development mode</i>, it does work. This
+    attempts to get you up and running. <br /><br />
+    <h2 class="warning">Warning</h2>
+    <b>If these instructions don't go perfectly, this may not be easy</b>
+    <br /><br />
+    <b>Doing this makes updating the app more difficult</b>
+    <br /><br />
+    You CAN run this and the normal app at the same time
+    <br /><br />
+    Most of these steps are not specific to this project, so if errors occur,
+    look that way for common solutions unless noted.
+
+    <div>
+      <h2>Tools</h2>
+      Everything we do is going to be in the <b>Terminal</b>. If you have a
+      tool, skip over that. If you have a better way to install, do that :)
+
+      <h3>Git</h3>
+      See if it exists...
+      <code class="cmd-example">
+        $ git --version <br />
+        git version 2.20.1
+      </code>
+      If it says <code> git: command not found </code> or similar
+      <a
+        href="https://www.atlassian.com/git/tutorials/install-git"
+        target="_blank"
+        >go install it</a
+      >.
+
+      <h3>Homebrew (needed for yarn)</h3>
+      See if it exists...
+      <code class="cmd-example">
+        $ brew --version <br />
+        &lt; some version info &gt;
+      </code>
+      If it says <code> brew: command not found </code> or similar, you'll need
+      to <a href="https://brew.sh/" target="_blank">go install it</a>. Be
+      patient, this one takes many minutes.
+
+      <h3>Yarn</h3>
+      See if it exists...
+      <code class="cmd-example">
+        $ yarn --version <br />
+        1.22.4
+      </code>
+      If it says <code> yarn: command not found </code> or similar, you need to
+      install it. Run:
+      <code class="cmd-example">
+        $ brew install yarn
+      </code>
+
+      That should be it. Now we'll work with the actual code.
+    </div>
+
+    <h2>Code Setup</h2>
+    From here on, <code>~/Downloads</code> is used as a base directory. It can
+    be anything. You just want the resulting
+    <code>~/Downloads/tablo-tools-electron</code> directory somewhere you won't
+    accidentally delete it.
+    <ol>
+      <li>
+        First, we'll <i>clone</i> the code repository
+        <code class="cmd-example">
+          $ cd ~/Downloads<br />
+          $ git clone https://github.com/jessedp/tablo-tools-electron.git
+        </code>
+      </li>
+      <li>
+        That put a slew of files in
+        <code>~/Downloads/tablo-tools-electron</code>.<br />
+        Now, we'll go there to install <b>a lot</b> of packages
+        <code class="cmd-example">
+          $ cd tablo-tools-electron <br />
+          $ yarn install
+        </code>
+        That's prints a ton of information to the screen and takes a while. If
+        it fails the first time, run it again just in case (I know).
+      </li>
+    </ol>
+    <h2>Running the App</h2>
+    <b>You made it!</b> Everything should now be installed and ready to go.<br /><br />
+    Try to run the app:
+    <code class="cmd-example">
+      $ yarn dev
+    </code>
+    That should open the app very much like you are used to.
+
+    <h2>What's next?</h2>
+    <ul>
+      <li>
+        Close the Developer Tools that open up in the way - you don't need them
+      </li>
+      <li>Maybe create a shortcut to the <code>yarn dev</code> command</li>
+      <li>
+        Updating to new Releases:
+        <code class="cmd-example">
+          $ cd ~/Downloads/tablo-tools-electron <br />
+          $ git pull --rebase
+        </code>
+      </li>
+      <li>
+        Don't change files in this
+        <code>~/Downloads/tablo-tools-electron</code> directory. Or do so at
+        your own peril.
+      </li>
+    </ul>
+  </div>
+</div>
