@@ -312,3 +312,14 @@ div.slider img {
   font-size: 24px;
   font-family: monospace;
 }
+
+.cmd-example {
+  padding: 5px 0 10px 15px;
+  display: block;
+}
+
+.warning {
+  color: crimson;
+  padding: 0 0 5px 0;
+  margin-bottom: 5px;
+}
