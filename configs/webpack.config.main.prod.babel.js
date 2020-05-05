@@ -85,7 +85,11 @@ export default merge.smart(baseConfig, {
       ],
       configFile: 'sentry.properties',
       dryRun: false,
-      release: version
+      release: version,
+      setCommits: {
+        repo: 'jessedp/tablo-tools-electron',
+        auto: true
+      }
     })
   ],
   /**
