@@ -5,6 +5,7 @@ import { exec } from 'child_process';
 import os from 'os';
 import fs from 'fs';
 import * as fsPath from 'path';
+import log from 'electron-log';
 
 import { asyncForEach, readableDuration } from './utils';
 
@@ -396,15 +397,29 @@ export default class Airing {
   }
 
   async processVideo(callback: Function = null) {
-    const debug = false;
+    const debug = getConfig().enableDebug;
+    let date = new Date()
+      .toISOString()
+      .replace('T', '_')
+      .replace(/:/g, '-')
+      .replace(/ /g, '_');
 
-    if (debug) console.log('start processVideo', new Date());
-    if (debug) console.log('ffmpeg', ffmpeg);
-    if (debug) console.log('ffmpeg.path', ffmpeg.path);
+    date = date.substr(0, date.indexOf('.'));
+    log.transports.file.fileName = `${this.object_id}-${sanitize(
+      this.showTitle
+    )}-${date}.log`;
+    log.transports.file.maxSize = 1048576; // 1mb
+    if (!debug) {
+      log.transports.file.level = false;
+    }
+
+    if (debug) log.info('start processVideo', new Date());
+    if (debug) log.info('ffmpeg', ffmpeg);
+    if (debug) log.info('ffmpeg.path', ffmpeg.path);
 
     const ffmpegPath = ffmpeg.path;
 
-    if (debug) console.log('ffmpegPath', ffmpegPath);
+    if (debug) log.info('ffmpegPath', ffmpegPath);
     let ffmpegPath2;
     /** In dev, the prod path gets returned, so "fix" that * */
     // *nix
@@ -420,7 +435,7 @@ export default class Airing {
         '\\node_modules\\ffmpeg-static-electron-jdp\\'
       );
     }
-    if (debug) console.log('after "app" replacements', ffmpegPath2);
+    if (debug) log.info('after "app" replacements', ffmpegPath2);
 
     // $FlowFixMe  dirty, but flow complains about process.resourcesPath
     const resourcePath = `${process.resourcesPath}`;
@@ -429,38 +444,32 @@ export default class Airing {
       '/electron/dist/resources',
       '/ffmpeg-static-electron-jdp/bin'
     );
-    if (debug) console.log('resourcePath', resourcePath);
-    if (debug) console.log('prodPath', psuedoProdPath);
+    if (debug) log.info('resourcePath', resourcePath);
+    if (debug) log.info('prodPath', psuedoProdPath);
 
     const ffmpegOpts = [
       '-c copy',
       '-y' // overwrite existing files
     ];
 
-    if (debug) console.log('env', process.env.NODE_ENV);
-    if (debug) console.log('prodPath exists', fs.existsSync(psuedoProdPath));
+    if (debug) log.info('env', process.env.NODE_ENV);
+    if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
     // In true prod (not yarn build/start), ffmpeg is built into resources dir
     if (process.env.NODE_ENV === 'production') {
       const testStartPath = ffmpegPath2.replace(/^[/|\\]bin/, psuedoProdPath);
       if (fs.existsSync(testStartPath)) {
         if (debug)
-          console.log(
-            'START replacing ffmpegPath2 for prodPath',
-            psuedoProdPath
-          );
+          log.info('START replacing ffmpegPath2 for prodPath', psuedoProdPath);
         ffmpegPath2 = testStartPath;
-        if (debug) console.log('START replaced prodPath for prod', ffmpegPath2);
+        if (debug) log.info('START replaced prodPath for prod', ffmpegPath2);
       } else {
         if (debug)
-          console.log(
-            'PROD replacing ffmpegPath2 for prodPath',
-            psuedoProdPath
-          );
+          log.info('PROD replacing ffmpegPath2 for prodPath', psuedoProdPath);
         ffmpegPath2 = psuedoProdPath.replace(
           /[/|\\]resources/,
           `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
         );
-        if (debug) console.log('PROD replaced prodPath for prod', ffmpegPath2);
+        if (debug) log.info('PROD replaced prodPath for prod', ffmpegPath2);
       }
     } else {
       // otherwise we can hit the node_modules dir
@@ -472,12 +481,12 @@ export default class Airing {
       ffmpegOpts.push('-v 40');
     }
 
-    if (debug) console.log(`ffmpegPath2 : ${ffmpegPath2}`);
+    if (debug) log.info(`ffmpegPath2 : ${ffmpegPath2}`);
 
     if (os.platform() === 'darwin') {
       // mac is giving an EACCES - maybe it needs to be chmod'd?
       exec(`chmod +x ${ffmpegPath2}`, (error, stdout) => {
-        console.log('chmod stdout: ', stdout, ' error: ', error);
+        log.info('chmod stdout: ', stdout, ' error: ', error);
       });
     }
     FfmpegCommand.setFfmpegPath(ffmpegPath2);
@@ -491,8 +500,8 @@ export default class Airing {
     outFile = this.exportFile;
     const outPath = this.exportPath;
 
-    if (debug) console.log('exporting to path:', outPath);
-    if (debug) console.log('exporting to file:', outFile);
+    if (debug) log.info('exporting to path:', outPath);
+    if (debug) log.info('exporting to file:', outFile);
 
     fs.mkdirSync(outPath, { recursive: true });
 
@@ -505,17 +514,17 @@ export default class Airing {
         .output(outFile)
         .addOutputOptions(ffmpegOpts)
         .on('end', () => {
-          // console.log('Finished processing');
+          // log.info('Finished processing');
           if (typeof callback === 'function') {
             callback({ finished: true });
           }
-          if (debug) console.log('result', ffmpegLog);
-          if (debug) console.log('end processVideo', new Date());
+          if (debug) log.info('result', ffmpegLog);
+          if (debug) log.info('end processVideo', new Date());
 
           resolve(ffmpegLog);
         })
         .on('error', err => {
-          console.log(`An error occurred: ${err}`);
+          log.info(`An error occurred: ${err}`);
           // reject(err);
           resolve(ffmpegLog);
         })
@@ -540,7 +549,7 @@ export default class Airing {
               record = true;
             }
             if (record) ffmpegLog.push(stderrLine);
-            if (debug) console.log(`Stderr output: ${stderrLine}`);
+            if (debug) log.info(`Stderr output: ${stderrLine}`);
           }
         })
         .on('progress', progress => {

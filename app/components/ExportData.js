@@ -270,7 +270,7 @@ export default class ExportData extends Component<Props, State> {
     } = this.state;
 
     return (
-      <div className="p-1 mb-3 mt-1">
+      <div className="p-1 mb-3 mt-3">
         <Row>
           <Col md="3">
             <h5>Submit Device Data</h5>
