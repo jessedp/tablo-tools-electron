@@ -13,6 +13,7 @@ export type ConfigType = {
   enableExportData: boolean,
   exportDataPath: string,
   allowErrorReport: boolean,
+  enableDebug: boolean,
   // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number,
   saveData: Array<string>
@@ -31,6 +32,7 @@ export const defaultConfig: ConfigType = {
   enableExportData: false,
   exportDataPath: `${os.tmpdir()}/tablo-data/`,
   allowErrorReport: true,
+  enableDebug: false,
   saveData: []
 };
 

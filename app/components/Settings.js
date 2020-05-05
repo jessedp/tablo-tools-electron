@@ -50,6 +50,7 @@ export default class Settings extends Component<Props, ConfigType> {
     this.toggleErrorReport = this.toggleErrorReport.bind(this);
     this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
 
+    this.toggleEnableDebug = this.toggleEnableDebug.bind(this);
     this.toggleDataExport = this.toggleDataExport.bind(this);
     this.setExportDataPath = this.setExportDataPath.bind(this);
 
@@ -138,6 +139,11 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ enableExportData: !enableExportData });
   };
 
+  toggleEnableDebug = () => {
+    const { enableDebug } = this.state;
+    this.setState({ enableDebug: !enableDebug });
+  };
+
   setExportDataPath = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ exportDataPath: event.currentTarget.value });
   };
@@ -170,6 +176,7 @@ export default class Settings extends Component<Props, ConfigType> {
       testDeviceIp,
       enableExportData,
       exportDataPath,
+      enableDebug,
       episodePath,
       moviePath,
       eventPath,
@@ -347,9 +354,22 @@ export default class Settings extends Component<Props, ConfigType> {
               </Row>
             </div>
 
-            <Row className="p-1 mb-2 mt-5">
+            <Row className="p-1 mb-2 mt-4">
               <Col md="7" className="pt-1 border bg-warning">
                 <h6 className="pt-1 text-white">DEBUG:</h6>
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Col>
+                <Checkbox
+                  handleChange={this.toggleEnableDebug}
+                  label="Enable Debug logging"
+                  checked={enableDebug ? CHECKBOX_ON : CHECKBOX_OFF}
+                />
+                <div className="pl-4 smaller">
+                  These go to files you can delete at any time. This won&apos;t
+                  clean them up.
+                </div>
               </Col>
             </Row>
 
