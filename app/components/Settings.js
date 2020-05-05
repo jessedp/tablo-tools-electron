@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import path from 'path';
 import * as Sentry from '@sentry/electron';
 
 import Alert from 'react-bootstrap/Alert';
@@ -191,7 +192,7 @@ export default class Settings extends Component<Props, ConfigType> {
     const mat = logsPath.match(test);
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${app.name}/`, '');
+        logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
     }
 
     console.log('logs path', `${logsPath}/main.log`);
