@@ -267,11 +267,11 @@ function ExportProgress(prop: EPProp) {
     return (
       <Alert variant="warning" className="m-0 muted smaller">
         <Row>
-          <Col md="8">
+          <Col md="9">
             <span className="fa fa-check-circle pr-2" />
             <span className="pr-5">Canceled after {timeStr}</span>
           </Col>
-          <Col md="4" className="text-right">
+          <Col md="3" className="text-right">
             <FfmpegLog log={ffmpegLog} />
           </Col>
         </Row>
