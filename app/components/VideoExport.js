@@ -97,9 +97,10 @@ export default class VideoExport extends Component<Props, State> {
 
     this.shouldCancel = true;
 
-    await airingList.forEach(async rec => {
+    await asyncForEach(airingList, async rec => {
       const ref = this.airingRefs[rec.object_id];
-      if (ref.current) await ref.current.cancelProcess();
+      if (ref && ref.current) await ref.current.cancelProcess();
+      return new Promise();
     });
 
     if (updateState) this.setState({ exportState: EXP_CANCEL });
