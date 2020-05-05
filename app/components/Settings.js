@@ -23,7 +23,7 @@ const SAVE_SUCCESS = 2;
 
 type Props = {};
 
-const { dialog } = require('electron').remote;
+const { app, shell, dialog } = require('electron').remote;
 
 export default class Settings extends Component<Props, ConfigType> {
   props: Props;
@@ -182,6 +182,20 @@ export default class Settings extends Component<Props, ConfigType> {
       eventPath,
       programPath
     } = this.state;
+
+    let logsPath = app.getPath('logs');
+
+    // TODO: This has to be an Electron (8) bug
+    //  Name (might) double up, so replace it
+    const test = new RegExp(`${app.name}`, 'g');
+    const mat = logsPath.match(test);
+    if (mat && mat.length > 1) {
+      for (let i = 1; i < mat.length; i += 1)
+        logsPath = logsPath.replace(`${app.name}/`, '');
+    }
+
+    console.log('logs path', `${logsPath}/main.log`);
+    const openLogs = () => shell.showItemInFolder(`${logsPath}/main.log`);
 
     return (
       <div className="section">
@@ -355,7 +369,7 @@ export default class Settings extends Component<Props, ConfigType> {
             </div>
 
             <Row className="p-1 mb-2 mt-4">
-              <Col md="7" className="pt-1 border bg-warning">
+              <Col md="8" className="pt-1 border bg-warning">
                 <h6 className="pt-1 text-white">DEBUG:</h6>
               </Col>
             </Row>
@@ -367,8 +381,25 @@ export default class Settings extends Component<Props, ConfigType> {
                   checked={enableDebug ? CHECKBOX_ON : CHECKBOX_OFF}
                 />
                 <div className="pl-4 smaller">
-                  These go to files you can delete at any time. This won&apos;t
-                  clean them up.
+                  This doesn&apos;t clean itself up, so turn it off when you
+                  don&apos;t need it and delete the logs files if you want.
+                  <br />
+                </div>
+                <div className="p-2 pl-4 bg-light border col-md-6">
+                  All Logs are in: <br />
+                  <span className="ml-1 text-danger">{logsPath}</span>
+                  <Button
+                    className="p-0 pl-1"
+                    variant="link"
+                    onClick={openLogs}
+                    title="Open logs directory"
+                  >
+                    <span className="pl-2 font-weight-bolder fa fa-external-link-alt text-primary" />
+                  </Button>
+                  <br />
+                  <i className="smaller">
+                    main.log and renderer.log are general internal logs
+                  </i>
                 </div>
               </Col>
             </Row>
