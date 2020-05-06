@@ -22,6 +22,8 @@ import VideoExport from './VideoExport';
 import TabloImage from './TabloImage';
 import type { SearchAlert } from './Search';
 import { comskipAvailable } from '../utils/Tablo';
+import SavedSearch from './SavedSearch';
+import MatchesToBadges from './SearchFilterMatches';
 
 type Props = {
   sendResults: Object => void,
@@ -35,7 +37,7 @@ type Season = {
   count: number
 };
 
-type State = {
+export type SearchState = {
   skip: number,
   limit: number,
   searchValue: string,
@@ -46,6 +48,7 @@ type State = {
   seasonFilter: string,
   comskipFilter: string,
   cleanFilter: string,
+  savedSearchFilter: string,
   view: string,
   percent: number,
   percentLocation: number,
@@ -56,12 +59,14 @@ type State = {
   seasonList: Array<Season>
 };
 
-export default class SearchForm extends Component<Props, State> {
+export default class SearchForm extends Component<Props, SearchState> {
   props: Props;
 
-  initialState: State;
+  initialState: SearchState;
 
   showsList: Array<Show>;
+
+  savedSearchList: Array<string>; // TODO: savedSearchList type
 
   psToken: null;
 
@@ -78,6 +83,7 @@ export default class SearchForm extends Component<Props, State> {
       comskipFilter: 'all',
       cleanFilter: 'any',
       showFilter: '',
+      savedSearchFilter: '',
       seasonFilter: '',
       view: 'search',
       percent: 100,
@@ -113,6 +119,7 @@ export default class SearchForm extends Component<Props, State> {
     storedState.skip = 0;
     this.state = Object.assign(initialStateCopy, storedState);
     this.showsList = [];
+    this.savedSearchList = [];
 
     this.search = this.search.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
@@ -124,6 +131,8 @@ export default class SearchForm extends Component<Props, State> {
     this.seasonChange = this.seasonChange.bind(this);
     this.comskipChange = this.comskipChange.bind(this);
     this.cleanChange = this.cleanChange.bind(this);
+    this.savedSearchChange = this.savedSearchChange.bind(this);
+    this.savedSearchUpdate = this.savedSearchUpdate.bind(this);
     this.viewChange = this.viewChange.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
@@ -147,6 +156,7 @@ export default class SearchForm extends Component<Props, State> {
     // v0.1.12 - make sure we have Airings
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
+
     await this.setState({ actionList });
     this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
@@ -164,7 +174,7 @@ export default class SearchForm extends Component<Props, State> {
 
   setStateStore(...args: Array<Object>) {
     const values = args[0];
-
+    // console.log(values);
     this.setState(values);
     const cleanState = this.state;
 
@@ -190,6 +200,7 @@ export default class SearchForm extends Component<Props, State> {
   async refresh() {
     const { view, actionList, searchAlert } = this.state;
     this.showsList = await showList();
+    this.savedSearchList = await global.SearchDb.asyncFind({});
     const { length } = actionList;
     if (view === 'selected' && length > 0) {
       this.setState({
@@ -315,8 +326,10 @@ export default class SearchForm extends Component<Props, State> {
 
   resetSearch = async () => {
     const { actionList } = this.state;
-    const newState = this.initialState;
+    const newState = { ...this.initialState };
     newState.actionList = actionList;
+    newState.savedSearchFilter = '';
+    newState.skip = 0;
     await this.setStateStore(newState);
     await this.search();
   };
@@ -373,6 +386,33 @@ export default class SearchForm extends Component<Props, State> {
   seasonChange = async (event: Option) => {
     await this.setState({ seasonFilter: event.value });
     this.search();
+  };
+
+  updateSavedSearch = async (searchId: string) => {
+    console.log('updateSavedSearch searchId', searchId);
+    const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
+    console.log('updateSavedSearch find rec', rec);
+    // eslint-disable-next-line no-underscore-dangle
+    delete rec._id;
+
+    this.savedSearchList = await global.SearchDb.asyncFind({});
+
+    rec.state.savedSearchFilter = searchId;
+
+    // const initialStateCopy = { ...this.initialState };
+    const newState = Object.assign(this.initialState, rec.state);
+    // console.log('newState', newState);
+    // console.log('newState spread', { ...newState });
+    await this.setState(newState);
+    await this.search();
+  };
+
+  savedSearchChange = async (event: Option) => {
+    this.updateSavedSearch(event.value);
+  };
+
+  savedSearchUpdate = async (searchId: string) => {
+    this.updateSavedSearch(searchId);
   };
 
   searchChange = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -557,6 +597,8 @@ export default class SearchForm extends Component<Props, State> {
     }
     // console.log(query);
 
+    // TODO: savedSearchFilter
+
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
     projection.push(['sort', { 'airing_details.datetime': -1 }]);
@@ -593,7 +635,8 @@ export default class SearchForm extends Component<Props, State> {
         searchAlert: alert,
         view: 'search',
         actionList,
-        airingList
+        airingList,
+        recordCount: 0
       };
     } else {
       sendResults({
@@ -658,6 +701,7 @@ export default class SearchForm extends Component<Props, State> {
       cleanFilter,
       showFilter,
       seasonFilter,
+      savedSearchFilter,
       actionList,
       seasonList,
       view,
@@ -703,7 +747,7 @@ export default class SearchForm extends Component<Props, State> {
                 value={showFilter}
                 shows={this.showsList}
               />
-              {seasonList.length > 0 ? (
+              {seasonList && seasonList.length > 0 ? (
                 <SeasonFilter
                   onChange={this.seasonChange}
                   value={seasonFilter}
@@ -743,19 +787,25 @@ export default class SearchForm extends Component<Props, State> {
               </InputGroup.Append>
             </InputGroup>
           </Col>
-          <Col md="2" className="pt-1">
+          <Col md="3" className="pt-1">
             <InputGroup size="sm" className="d-inline">
               <Button
-                className="mb-3 mr-3"
+                className="mb-3 mr-2"
                 size="xs"
                 variant="outline-dark"
                 onClick={this.resetSearch}
               >
                 <span className="fa fa-recycle pr-1" /> reset
               </Button>
+
+              <SavedSearch
+                updateValue={this.savedSearchUpdate}
+                searchState={this.state}
+                recordCount={recordCount}
+              />
             </InputGroup>
           </Col>
-          <Col md="7">
+          <Col md="6">
             <label
               className="smaller justify-content-center mb-3"
               style={{ width: '95%' }}
@@ -824,6 +874,20 @@ export default class SearchForm extends Component<Props, State> {
               </Col>
               <Col>
                 <Row>
+                  <Col md="5" className="p-0">
+                    <Row>
+                      <Col className="p-0">
+                        <SavedSearchFilter
+                          onChange={this.savedSearchChange}
+                          value={savedSearchFilter}
+                          searches={this.savedSearchList}
+                        />
+                      </Col>
+                      <Col md="auto" className="p-0 align-bottom">
+                        <span className="fa fa-edit pl-1 pt-1" />
+                      </Col>
+                    </Row>
+                  </Col>
                   <Col>
                     {recordCount >= limit && limit !== -1 ? (
                       <ReactPaginate
@@ -918,7 +982,9 @@ type filterProps = {
   // eslint-disable-next-line react/no-unused-prop-types
   shows?: Array<Show>,
   // eslint-disable-next-line react/no-unused-prop-types
-  seasons?: Array<Season>
+  seasons?: Array<Season>,
+  // eslint-disable-next-line react/no-unused-prop-types
+  searches?: Array<Object>
 };
 
 function StateFilter(props: filterProps) {
@@ -941,7 +1007,7 @@ function StateFilter(props: filterProps) {
     />
   );
 }
-StateFilter.defaultProps = { shows: [], seasons: [] };
+StateFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function TypeFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -964,7 +1030,7 @@ function TypeFilter(props: filterProps) {
     />
   );
 }
-TypeFilter.defaultProps = { shows: [], seasons: [] };
+TypeFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function WatchedFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -985,7 +1051,7 @@ function WatchedFilter(props: filterProps) {
     />
   );
 }
-WatchedFilter.defaultProps = { shows: [], seasons: [] };
+WatchedFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function ShowFilter(props: filterProps) {
   const { value, onChange, shows } = props;
@@ -1019,7 +1085,7 @@ function ShowFilter(props: filterProps) {
     />
   );
 }
-ShowFilter.defaultProps = { shows: [], seasons: [] };
+ShowFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function SeasonFilter(props: filterProps) {
   const { value, onChange, seasons } = props;
@@ -1051,7 +1117,7 @@ function SeasonFilter(props: filterProps) {
     />
   );
 }
-SeasonFilter.defaultProps = { shows: [], seasons: [] };
+SeasonFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function ComskipFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -1086,7 +1152,7 @@ function ComskipFilter(props: filterProps) {
     />
   );
 }
-ComskipFilter.defaultProps = { shows: [], seasons: [] };
+ComskipFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function CleanFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -1107,7 +1173,49 @@ function CleanFilter(props: filterProps) {
     />
   );
 }
-CleanFilter.defaultProps = { shows: [], seasons: [] };
+CleanFilter.defaultProps = { shows: [], seasons: [], searches: [] };
+
+function SavedSearchFilter(props: filterProps) {
+  const { value, onChange, searches } = props;
+
+  const options = [];
+  if (searches && searches.length > 0) {
+    console.log(searches);
+    searches.forEach(item =>
+      options.push({
+        // eslint-disable-next-line no-underscore-dangle
+        value: item._id,
+        label: (
+          <>
+            {item.name}
+            <MatchesToBadges
+              matches={item.state.searchAlert.matches}
+              prefix="select-list"
+              className="badge-sm"
+            />
+          </>
+        )
+      })
+    );
+  } else {
+    options.push({
+      value: -1,
+      label: '... once you save one!'
+    });
+  }
+
+  return (
+    <Select
+      options={options}
+      placeholder="use a saved search..."
+      name="savedSearchFilter"
+      onChange={onChange}
+      styles={FilterStyles('30px', 250)}
+      value={options.filter(option => option.value === value)}
+    />
+  );
+}
+SavedSearchFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 function PerPageFilter(props: filterProps) {
   const { value, onChange } = props;
@@ -1137,7 +1245,7 @@ function PerPageFilter(props: filterProps) {
     </div>
   );
 }
-PerPageFilter.defaultProps = { shows: [], seasons: [] };
+PerPageFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 type Option = {
   value: string,
