@@ -328,8 +328,7 @@ export default class SearchForm extends Component<Props, SearchState> {
     const { actionList } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
-    newState.savedSearchFilter = '';
-    newState.skip = 0;
+
     await this.setStateStore(newState);
     await this.search();
   };
@@ -389,9 +388,7 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   updateSavedSearch = async (searchId: string) => {
-    console.log('updateSavedSearch searchId', searchId);
     const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
-    console.log('updateSavedSearch find rec', rec);
     // eslint-disable-next-line no-underscore-dangle
     delete rec._id;
 
@@ -399,9 +396,9 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     rec.state.savedSearchFilter = searchId;
 
-    // const initialStateCopy = { ...this.initialState };
-    const newState = Object.assign(this.initialState, rec.state);
-    // console.log('newState', newState);
+    const initialStateCopy = { ...this.initialState };
+    const newState = Object.assign(initialStateCopy, rec.state);
+    console.log('newState', newState);
     // console.log('newState spread', { ...newState });
     await this.setState(newState);
     await this.search();
@@ -1180,7 +1177,7 @@ function SavedSearchFilter(props: filterProps) {
 
   const options = [];
   if (searches && searches.length > 0) {
-    console.log(searches);
+    // console.log(searches);
     searches.forEach(item =>
       options.push({
         // eslint-disable-next-line no-underscore-dangle

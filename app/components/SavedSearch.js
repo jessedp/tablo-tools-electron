@@ -138,13 +138,11 @@ export default class SavedSearch extends Component<Props, State> {
   render() {
     const { show, searchName, alertText, alertType } = this.state;
     const { searchState, recordCount } = this.props;
-    console.log(searchState);
     // need to get the saved search list here???
     const matches =
       searchState && searchState.searchAlert
         ? searchState.searchAlert.matches
         : [];
-    // console.log(this.state);
     return (
       <>
         <Button
