@@ -53,10 +53,8 @@ export default class ShowStats extends Component<Props, State> {
     const { show } = this.state;
     let recTotal;
     if (!show) {
-      console.log('Fetching all Shows');
       recTotal = await RecDb.asyncCount({});
     } else {
-      console.log(`Fetching - ${show}`);
       recTotal = await RecDb.asyncCount({
         'airing_details.show_title': show
       });
@@ -98,7 +96,6 @@ export default class ShowStats extends Component<Props, State> {
           shows[key].last > datetime ? shows[key].last : datetime;
       }
     });
-    console.log(shows);
 
     Object.keys(shows).forEach(key => {
       data.push({
@@ -113,8 +110,6 @@ export default class ShowStats extends Component<Props, State> {
       });
     });
     data.sort((a, b) => (a.show > b.show ? 1 : -1));
-
-    console.log(data);
 
     this.setState({
       recTotal,

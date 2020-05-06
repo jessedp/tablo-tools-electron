@@ -54,7 +54,6 @@ export default function MediumBar(props: Props) {
     } else if (data.length < 25) {
       mult = 7;
     }
-    console.log(max, data.length);
     margin = { top: 0, right: 0, bottom: 40, left: max * mult };
   }
 

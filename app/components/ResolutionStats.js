@@ -81,7 +81,6 @@ export default class ResolutionStats extends Component<Props, State> {
         }
       }
     });
-    console.log('resCounts', resCounts);
 
     const resolutionData = [];
     const resolutionKeys = [];
@@ -100,7 +99,6 @@ export default class ResolutionStats extends Component<Props, State> {
 
     resolutionData.sort((a, b) => (a.resolution > b.resolution ? 1 : -1));
 
-    console.log(resolutionData);
     this.setState({
       recTotal,
       resolutionData,
