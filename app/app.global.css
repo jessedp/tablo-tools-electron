@@ -98,6 +98,16 @@ div.scrollable-area {
   height: 6rem;
 }
 
+.badge-med {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.badge-sm {
+  font-size: 12px;
+  font-weight: normal;
+}
+
 .spinner-border-xl {
   width: 6rem;
   height: 6rem;
