@@ -79,6 +79,6 @@ export const makeSearchDb = () => {
 export const setupDb = async () => {
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
-  global.Searches = makeSearchDb();
+  global.SearchDb = makeSearchDb();
   PubSub.publish('DB_CHANGE', true);
 };
