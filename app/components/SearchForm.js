@@ -23,8 +23,8 @@ import TabloImage from './TabloImage';
 import type { SearchAlert } from './Search';
 import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
-import MatchesToBadges from './SearchFilterMatches';
 import SelectStyles from './SelectStyles';
+import SavedSearchEdit from './SavedSearchEdit';
 
 type Props = {
   sendResults: Object => void,
@@ -401,8 +401,6 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     const initialStateCopy = { ...this.initialState };
     const newState = Object.assign(initialStateCopy, rec.state);
-    console.log('newState', newState);
-    // console.log('newState spread', { ...newState });
     await this.setState(newState);
     await this.search();
   };
@@ -885,7 +883,7 @@ export default class SearchForm extends Component<Props, SearchState> {
                         />
                       </Col>
                       <Col md="auto" className="p-0 align-bottom">
-                        <span className="fa fa-edit pl-1 pt-1" />
+                        <SavedSearchEdit onClose={this.refresh} />
                       </Col>
                     </Row>
                   </Col>
@@ -1185,16 +1183,7 @@ function SavedSearchFilter(props: filterProps) {
       options.push({
         // eslint-disable-next-line no-underscore-dangle
         value: item._id,
-        label: (
-          <>
-            {item.name}
-            <MatchesToBadges
-              matches={item.state.searchAlert.matches}
-              prefix="select-list"
-              className="badge-sm"
-            />
-          </>
-        )
+        label: <span className="pl-1"> {item.name}</span>
       })
     );
   } else {

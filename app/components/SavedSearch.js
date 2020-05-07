@@ -209,8 +209,6 @@ export default class SavedSearch extends Component<Props, State> {
 
     const options = [];
 
-    console.log(this.state);
-
     searches.forEach(item => {
       options.push({
         // eslint-disable-next-line no-underscore-dangle
