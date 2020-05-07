@@ -88,7 +88,9 @@ div.scrollable-area {
   line-height: 0.5;
   border-radius: 0.2rem;
 }
-
+.checkbox-wrap {
+  max-height: 16px;
+}
 .checkbox-wrap:hover {
   cursor: pointer;
 }
@@ -96,6 +98,16 @@ div.scrollable-area {
 .spinner-grow-xl {
   width: 6rem;
   height: 6rem;
+}
+
+.badge-med {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.badge-sm {
+  font-size: 12px;
+  font-weight: normal;
 }
 
 .spinner-border-xl {

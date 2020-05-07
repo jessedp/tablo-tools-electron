@@ -5,12 +5,12 @@ import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
-import Badge from 'react-bootstrap/Badge';
 
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import type { SearchAlert } from './Search';
+import MatchesToBadges from './SearchFilterMatches';
 
 type Props = {
   addItem: (airing: Airing) => void,
@@ -177,18 +177,7 @@ function ShowAlerts(prop) {
       <Col>
         <Alert variant={alert.type}>
           <span className="pr-2">{alert.text}</span>
-          {alert.matches.map(item => {
-            return (
-              <Badge
-                pill
-                className="ml-2"
-                key={Math.random() * 99999999999999}
-                variant="dark"
-              >
-                <h6 className="p-1 m-0">{item.text}</h6>
-              </Badge>
-            );
-          })}
+          <MatchesToBadges matches={alert.matches} prefix="result" />
         </Alert>
       </Col>
     </Row>

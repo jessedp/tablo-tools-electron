@@ -63,8 +63,22 @@ export const makeShowDb = () => {
   });
 };
 
+export const makeSearchDb = () => {
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const showDbName = `${device.serverid}-search.db`;
+  const showFile = path.join(dataDir, showDbName);
+
+  return new AsyncNedb({
+    filename: showFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
 export const setupDb = async () => {
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
+  global.SearchDb = makeSearchDb();
   PubSub.publish('DB_CHANGE', true);
 };
