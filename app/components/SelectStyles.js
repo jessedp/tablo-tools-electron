@@ -13,6 +13,8 @@ export default function SelectStyles(height: string, width?: number) {
       maxWidth: 600,
       background: '#fff',
       borderColor: '#9e9e9e',
+      overflowX: 'hidden',
+      overflowY: 'hidden',
       boxShadow: state.isFocused ? null : null,
       borderRadius: '1px',
       color: '#CCC',
