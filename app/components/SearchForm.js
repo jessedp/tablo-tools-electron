@@ -24,6 +24,7 @@ import type { SearchAlert } from './Search';
 import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 import MatchesToBadges from './SearchFilterMatches';
+import SelectStyles from './SelectStyles';
 
 type Props = {
   sendResults: Object => void,
@@ -66,7 +67,7 @@ export default class SearchForm extends Component<Props, SearchState> {
 
   showsList: Array<Show>;
 
-  savedSearchList: Array<string>; // TODO: savedSearchList type
+  savedSearchList: Array<Object>; // TODO: savedSearchList type
 
   psToken: null;
 
@@ -156,6 +157,7 @@ export default class SearchForm extends Component<Props, SearchState> {
     // v0.1.12 - make sure we have Airings
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
+    this.savedSearchList = await global.SearchDb.asyncFind({});
 
     await this.setState({ actionList });
     this.refresh();
@@ -201,6 +203,7 @@ export default class SearchForm extends Component<Props, SearchState> {
     const { view, actionList, searchAlert } = this.state;
     this.showsList = await showList();
     this.savedSearchList = await global.SearchDb.asyncFind({});
+
     const { length } = actionList;
     if (view === 'selected' && length > 0) {
       this.setState({
@@ -799,6 +802,7 @@ export default class SearchForm extends Component<Props, SearchState> {
                 updateValue={this.savedSearchUpdate}
                 searchState={this.state}
                 recordCount={recordCount}
+                searches={this.savedSearchList}
               />
             </InputGroup>
           </Col>
@@ -1177,7 +1181,6 @@ function SavedSearchFilter(props: filterProps) {
 
   const options = [];
   if (searches && searches.length > 0) {
-    // console.log(searches);
     searches.forEach(item =>
       options.push({
         // eslint-disable-next-line no-underscore-dangle
@@ -1207,7 +1210,7 @@ function SavedSearchFilter(props: filterProps) {
       placeholder="use a saved search..."
       name="savedSearchFilter"
       onChange={onChange}
-      styles={FilterStyles('30px', 250)}
+      styles={SelectStyles('30px', 250)}
       value={options.filter(option => option.value === value)}
     />
   );
@@ -1234,7 +1237,7 @@ function PerPageFilter(props: filterProps) {
             name="per page"
             onChange={onChange}
             placeholder="per page"
-            styles={FilterStyles(height, 75)}
+            styles={SelectStyles(height, 75)}
             value={options.filter(option => `${option.value}` === `${value}`)}
           />
         </div>
@@ -1281,7 +1284,7 @@ function FilterSelect(props: fullFilterProps) {
             placeholder={placeholder}
             name={name}
             onChange={onChange}
-            styles={FilterStyles(height, maxLen)}
+            styles={SelectStyles(height, maxLen)}
             value={options.filter(option => option.value === value)}
           />
         </div>
@@ -1289,62 +1292,3 @@ function FilterSelect(props: fullFilterProps) {
     </div>
   );
 }
-
-const FilterStyles = (height: string, width?: number) => {
-  return {
-    container: base => ({
-      ...base,
-      flex: 1
-    }),
-    control: (provided, state) => ({
-      ...provided,
-      height,
-      minHeight: height,
-      minWidth: 75,
-      width: '100%',
-      maxWidth: 600,
-      background: '#fff',
-      borderColor: '#9e9e9e',
-      boxShadow: state.isFocused ? null : null,
-      borderRadius: '1px',
-      color: '#CCC',
-      fontSize: 12
-      // margin: 0,
-      // padding: '1px'
-    }),
-    valueContainer: provided => ({
-      ...provided,
-      height,
-      padding: '0 3px'
-    }),
-    menu: provided => ({
-      ...provided,
-      minWidth: width || 50,
-      width: '100%',
-      maxWidth: 500,
-      zIndex: '99999'
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      fontSize: '12px',
-      color: '#3E3F3A',
-      borderBottom: '1px dotted #8E8C84',
-      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor,
-      overflowX: 'hidden'
-    }),
-    input: provided => ({
-      ...provided,
-      margin: '0px'
-    }),
-    singleValue: () => ({
-      color: 'hsl(0, 0%, 50%)'
-    }),
-    indicatorSeparator: () => ({
-      display: 'none'
-    }),
-    indicatorsContainer: provided => ({
-      ...provided,
-      height
-    })
-  };
-};
