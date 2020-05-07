@@ -88,7 +88,9 @@ div.scrollable-area {
   line-height: 0.5;
   border-radius: 0.2rem;
 }
-
+.checkbox-wrap {
+  max-height: 16px;
+}
 .checkbox-wrap:hover {
   cursor: pointer;
 }
