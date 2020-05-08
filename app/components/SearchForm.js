@@ -12,7 +12,12 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import ReactPaginate from 'react-paginate';
 import Select, { components } from 'react-select';
 
-import { asyncForEach, throttleActions } from '../utils/utils';
+import {
+  asyncForEach,
+  readableBytes,
+  readableDuration,
+  throttleActions
+} from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
 import ConfirmDelete from './ConfirmDelete';
@@ -250,12 +255,23 @@ export default class SearchForm extends Component<Props, SearchState> {
       return -1;
     };
 
+    const stats = [];
     actionList.sort((a, b) => timeSort(a, b));
+
+    const size = readableBytes(
+      actionList.reduce((a, b) => a + (b.videoDetails.size || 0), 0)
+    );
+    stats.push({ text: size });
+    const duration = readableDuration(
+      actionList.reduce((a, b) => a + (b.videoDetails.duration || 0), 0)
+    );
+    stats.push({ text: duration });
 
     searchAlert = {
       type: 'light',
-      text: `${len} selected recordings `,
-      matches: []
+      text: `${len} selected recordings`,
+      matches: [],
+      stats
     };
 
     this.setState({
@@ -617,7 +633,7 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
-    // projection.push(['sort', { 'airing_details.datetime': -1 }]);
+
     switch (sortFilter) {
       case SORT_DURATION_ASC:
         projection.push(['sort', { 'video_details.duration': 1 }]);
@@ -700,12 +716,24 @@ export default class SearchForm extends Component<Props, SearchState> {
         if (count > skip && count < end) end = count;
       }
 
+      const stats = [];
+      const size = readableBytes(
+        recs.reduce((a, b) => a + (b.video_details.size || 0), 0)
+      );
+      stats.push({ text: size });
+      const duration = readableDuration(
+        recs.reduce((a, b) => a + (b.video_details.duration || 0), 0)
+      );
+      stats.push({ text: duration });
+
       description = `${skip + 1} - ${parseInt(end, 10)} of ${count} recordings`;
       alert = {
         type: 'light',
         text: description,
-        matches: steps
+        matches: steps,
+        stats
       };
+
       updateState = {
         searchAlert: alert,
         recordCount: count,

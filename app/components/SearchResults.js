@@ -179,9 +179,16 @@ function ShowAlerts(prop) {
           <span className="pr-2">{alert.text}</span>
           <MatchesToBadges
             matches={alert.matches}
-            prefix="result"
+            prefix="result_matches"
             className=""
           />
+          <div className="d-inline-block float-right">
+            <MatchesToBadges
+              matches={alert.stats}
+              prefix="result_stats"
+              className="bg-secondary"
+            />
+          </div>
         </Alert>
       </Col>
     </Row>

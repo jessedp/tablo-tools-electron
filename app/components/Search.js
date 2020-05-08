@@ -77,5 +77,6 @@ export default class Search extends Component<Props> {
 export type SearchAlert = {
   type: string,
   text: string,
-  matches: []
+  matches: [],
+  stats?: []
 };
