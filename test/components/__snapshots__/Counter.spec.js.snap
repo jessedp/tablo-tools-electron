@@ -8,7 +8,7 @@ exports[`Counter component should match exact snapshot 1`] = `
       data-tid="backButton"
     >
       <a
-        href="/"
+        href="/home"
         onClick={[Function]}
       >
         <i
