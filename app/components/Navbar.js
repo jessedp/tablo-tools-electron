@@ -49,19 +49,14 @@ type State = {
   updateData?: UpdateMessage
 };
 
-export default class Sidebar extends Component<Props, State> {
+export default class Navbar extends Component<Props, State> {
   props: Props;
 
   constructor() {
     super();
     this.state = {
-      current: routes.HOME,
       updateAvailable: false
     };
-    (this: any).setHome = this.setHome.bind(this);
-    (this: any).setOvw = this.setOvw.bind(this);
-    (this: any).setBrowse = this.setBrowse.bind(this);
-    (this: any).setSettings = this.setSettings.bind(this);
   }
 
   async componentDidMount(): * {
@@ -97,7 +92,7 @@ export default class Sidebar extends Component<Props, State> {
     });
   }
 
-  async processUpdate(msg: any) {
+  async processUpdate(msg: Object) {
     console.log('updateMsg:', msg);
     if (msg.error) {
       console.error('Problem updating: ', msg.error);
@@ -111,112 +106,53 @@ export default class Sidebar extends Component<Props, State> {
     }
   }
 
-  async setView(view: string) {
-    await this.setState({ current: view });
-  }
-
-  async setHome() {
-    await this.setState({ current: routes.HOME });
-  }
-
-  async setOvw() {
-    await this.setState({ current: routes.OVERVIEW });
-  }
-
-  async setBrowse() {
-    await this.setState({ current: routes.BROWSE });
-  }
-
-  async setSettings() {
-    await this.setState({ current: routes.SETTINGS });
-  }
-
   render() {
-    const { current, updateAvailable } = this.state;
+    const { updateAvailable } = this.state;
     let { updateData } = this.state;
 
     if (updateData) updateData = updateData.info;
-
-    const baseClass = '';
-    let homeBtnClass = baseClass;
-    let ovwBtnClass = baseClass;
-    let browseBtnClass = baseClass;
-    let settingsBtnClass = baseClass;
-
-    switch (current) {
-      case routes.HOME:
-        homeBtnClass = 'active';
-        break;
-      case routes.OVERVIEW:
-        ovwBtnClass = 'active';
-        break;
-      case routes.SETTINGS:
-        settingsBtnClass = 'active';
-        break;
-      case routes.BROWSE:
-      default:
-        browseBtnClass = 'active';
-    }
 
     return (
       <Row className="mb-2">
         <Col md="1">
           <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
         </Col>
-        <Col className="ml-2 mt-2">
-          <ButtonGroup className="ml-5" style={{ minWidth: '250px' }}>
-            <LinkContainer
-              activeClassName=""
-              onClick={this.setHome}
-              to={routes.HOME}
-            >
-              <Button className={`${homeBtnClass}`} size="sm" variant="primary">
+        <Col md="7" className="ml-2 mt-2">
+          <ButtonGroup className="ml-5">
+            <LinkContainer activeClassName="active" to={routes.HOME}>
+              <Button size="sm" variant="outline-primary">
                 Home
               </Button>
             </LinkContainer>
-            <LinkContainer
-              activeClassName=""
-              onClick={this.setOvw}
-              to={routes.OVERVIEW}
-            >
-              <Button className={`${ovwBtnClass}`} size="sm" variant="primary">
+
+            <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
+              <Button size="sm" variant="outline-primary">
                 Overview
               </Button>
             </LinkContainer>
-            <LinkContainer
-              activeClassName=""
-              onClick={this.setBrowse}
-              to={routes.BROWSE}
-            >
-              <Button
-                className={`${browseBtnClass}`}
-                size="sm"
-                variant="primary"
-              >
-                Browse
+
+            <LinkContainer activeClassName="active" to={routes.SHOWS}>
+              <Button size="sm" variant="outline-primary">
+                Shows
+              </Button>
+            </LinkContainer>
+
+            <LinkContainer activeClassName="active" to={routes.SEARCH}>
+              <Button size="sm" variant="outline-primary">
+                Search
               </Button>
             </LinkContainer>
           </ButtonGroup>
         </Col>
-        <Col md="auto" className="float-right mt-2 smaller pt-1" />
-        <Col md="auto" className="float-right mt-2 smaller pt-1">
+        <Col md="auto" className="smaller pt-1">
           <DbStatus />
         </Col>
-        <Col md="auto" className="float-right mt-2">
+        <Col md="auto" className="align-middle text-right">
           <PingStatus />
         </Col>
-        <Col md="auto" className="float-right">
-          <LinkContainer
-            activeClassName=""
-            onClick={this.setSettings}
-            to={routes.SETTINGS}
-          >
-            <Button
-              className={`${settingsBtnClass}`}
-              size="sm"
-              variant="outline-dark"
-              title="Settings"
-            >
+        <Col md="1" className="pr-0 text-right">
+          <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+            <Button size="sm" variant="outline-dark" title="Settings">
               <i className="fa fa-cogs" />
             </Button>
           </LinkContainer>
