@@ -10,7 +10,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 import ReactPaginate from 'react-paginate';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 
 import { asyncForEach, throttleActions } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
@@ -50,6 +50,7 @@ export type SearchState = {
   comskipFilter: string,
   cleanFilter: string,
   savedSearchFilter: string,
+  sortFilter: number,
   view: string,
   percent: number,
   percentLocation: number,
@@ -59,6 +60,13 @@ export type SearchState = {
   actionList: Array<Airing>,
   seasonList: Array<Season>
 };
+
+const SORT_REC_ASC = 1;
+const SORT_REC_DSC = 2;
+const SORT_SIZE_ASC = 3;
+const SORT_SIZE_DSC = 4;
+const SORT_DURATION_ASC = 5;
+const SORT_DURATION_DSC = 6;
 
 export default class SearchForm extends Component<Props, SearchState> {
   props: Props;
@@ -86,6 +94,7 @@ export default class SearchForm extends Component<Props, SearchState> {
       showFilter: '',
       savedSearchFilter: '',
       seasonFilter: '',
+      sortFilter: SORT_REC_DSC,
       view: 'search',
       percent: 100,
       percentLocation: 0,
@@ -147,6 +156,8 @@ export default class SearchForm extends Component<Props, SearchState> {
     this.selectAll = this.selectAll.bind(this);
     this.unselectAll = this.unselectAll.bind(this);
     this.deleteAll = this.deleteAll.bind(this);
+
+    (this: any).sortChange = this.sortChange.bind(this);
 
     (this: any).handlePageClick = this.handlePageClick.bind(this);
     (this: any).updatePerPage = this.updatePerPage.bind(this);
@@ -328,10 +339,11 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   resetSearch = async () => {
-    const { actionList } = this.state;
+    const { actionList, sortFilter, limit } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
-
+    newState.sortFilter = sortFilter;
+    newState.limit = limit;
     await this.setStateStore(newState);
     await this.search();
   };
@@ -353,6 +365,11 @@ export default class SearchForm extends Component<Props, SearchState> {
 
   comskipChange = async (event: Option) => {
     await this.setState({ comskipFilter: event.value });
+    this.search();
+  };
+
+  sortChange = async (event: Option) => {
+    await this.setState({ sortFilter: parseInt(event.value, 10) });
     this.search();
   };
 
@@ -483,7 +500,8 @@ export default class SearchForm extends Component<Props, SearchState> {
       comskipFilter,
       cleanFilter,
       showFilter,
-      seasonFilter
+      seasonFilter,
+      sortFilter
     } = this.state;
 
     const query = {};
@@ -599,7 +617,27 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
-    projection.push(['sort', { 'airing_details.datetime': -1 }]);
+    // projection.push(['sort', { 'airing_details.datetime': -1 }]);
+    switch (sortFilter) {
+      case SORT_DURATION_ASC:
+        projection.push(['sort', { 'video_details.duration': 1 }]);
+        break;
+      case SORT_DURATION_DSC:
+        projection.push(['sort', { 'video_details.duration': -1 }]);
+        break;
+      case SORT_SIZE_ASC:
+        projection.push(['sort', { 'video_details.size': 1 }]);
+        break;
+      case SORT_SIZE_DSC:
+        projection.push(['sort', { 'video_details.size': -1 }]);
+        break;
+      case SORT_REC_ASC:
+        projection.push(['sort', { 'airing_details.datetime': 1 }]);
+        break;
+      case SORT_REC_DSC:
+      default:
+        projection.push(['sort', { 'airing_details.datetime': -1 }]);
+    }
     let newLimit = parseInt(limit, 10);
     newLimit = Number.isNaN(limit) ? this.initialState.limit : limit;
     if (newLimit !== -1) {
@@ -700,6 +738,7 @@ export default class SearchForm extends Component<Props, SearchState> {
       showFilter,
       seasonFilter,
       savedSearchFilter,
+      sortFilter,
       actionList,
       seasonList,
       view,
@@ -712,13 +751,6 @@ export default class SearchForm extends Component<Props, SearchState> {
     const pctLabel = `${percent}%`;
 
     if (!percentLocation) percentLocation = 0;
-
-    let selectControl = (
-      <Col md="2">
-        <SelectedDisplay actionList={actionList} view={this.viewChange} />
-      </Col>
-    );
-    if (view === 'selected') selectControl = '';
 
     return (
       <>
@@ -785,7 +817,7 @@ export default class SearchForm extends Component<Props, SearchState> {
               </InputGroup.Append>
             </InputGroup>
           </Col>
-          <Col md="3" className="pt-1">
+          <Col md="2" className="pt-1">
             <InputGroup size="sm" className="d-inline">
               <Button
                 className="mb-3 mr-2"
@@ -804,7 +836,22 @@ export default class SearchForm extends Component<Props, SearchState> {
               />
             </InputGroup>
           </Col>
-          <Col md="6">
+          <Col md="4" className="">
+            <Row>
+              <Col className="p-0">
+                <SavedSearchFilter
+                  onChange={this.savedSearchChange}
+                  value={savedSearchFilter}
+                  searches={this.savedSearchList}
+                />
+              </Col>
+              <Col md="auto" className="p-0 align-bottom">
+                <SavedSearchEdit onClose={this.refresh} />
+              </Col>
+            </Row>
+          </Col>
+
+          <Col md="3">
             <label
               className="smaller justify-content-center mb-3"
               style={{ width: '95%' }}
@@ -837,10 +884,15 @@ export default class SearchForm extends Component<Props, SearchState> {
         </Row>
 
         <Row>
-          {selectControl}
           {view !== 'selected' ? (
             <>
-              <Col className="pt-1" md="3">
+              <Col md="2">
+                <SelectedDisplay
+                  actionList={actionList}
+                  view={this.viewChange}
+                />
+              </Col>
+              <Col md="3" className="pt-1">
                 <Button
                   variant="outline-info"
                   size="xs"
@@ -871,23 +923,9 @@ export default class SearchForm extends Component<Props, SearchState> {
                   empty
                 </Button>
               </Col>
-              <Col>
+              <Col md="7">
                 <Row>
-                  <Col md="5" className="p-0">
-                    <Row>
-                      <Col className="p-0">
-                        <SavedSearchFilter
-                          onChange={this.savedSearchChange}
-                          value={savedSearchFilter}
-                          searches={this.savedSearchList}
-                        />
-                      </Col>
-                      <Col md="auto" className="p-0 align-bottom">
-                        <SavedSearchEdit onClose={this.refresh} />
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Col>
+                  <Col md="8">
                     {recordCount >= limit && limit !== -1 ? (
                       <ReactPaginate
                         previousLabel={
@@ -916,11 +954,17 @@ export default class SearchForm extends Component<Props, SearchState> {
                       <></>
                     )}
                   </Col>
-                  <Col md="2" className="mr-3">
-                    <PerPageFilter
-                      value={`${limit}`}
-                      onChange={this.updatePerPage}
-                    />
+                  <Col md="3" className="mr-0">
+                    <div className="d-flex flex-row">
+                      <PerPageFilter
+                        value={`${limit}`}
+                        onChange={this.updatePerPage}
+                      />
+                      <SortFilter
+                        value={`${sortFilter}`}
+                        onChange={this.sortChange}
+                      />
+                    </div>
                   </Col>
                 </Row>
               </Col>
@@ -1205,6 +1249,147 @@ function SavedSearchFilter(props: filterProps) {
   );
 }
 SavedSearchFilter.defaultProps = { shows: [], seasons: [], searches: [] };
+
+function SortFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    {
+      value: SORT_REC_ASC,
+      label: (
+        <span>
+          date
+          <span className="fa fa-chevron-up pl-2 muted" />
+        </span>
+      )
+    },
+    {
+      value: SORT_REC_DSC,
+      label: (
+        <span>
+          date
+          <span className="fa fa-chevron-down pl-2 muted" />
+        </span>
+      )
+    },
+    {
+      value: SORT_SIZE_ASC,
+      label: (
+        <span>
+          size
+          <span className="fa fa-chevron-up pl-2 muted" />
+        </span>
+      )
+    },
+    {
+      value: SORT_SIZE_DSC,
+      label: (
+        <span>
+          size
+          <span className="fa fa-chevron-down pl-2 muted" />
+        </span>
+      )
+    },
+    {
+      value: SORT_DURATION_ASC,
+      label: (
+        <span>
+          duration
+          <span className="fa fa-chevron-up pl-2 muted" />
+        </span>
+      )
+    },
+    {
+      value: SORT_DURATION_DSC,
+      label: (
+        <span>
+          duration
+          <span className="fa fa-chevron-down pl-2 muted" />
+        </span>
+      )
+    }
+  ];
+
+  const height = '24px';
+  const customStyles = {
+    container: base => ({
+      ...base,
+      flex: 1,
+      fontSize: '10px'
+    }),
+    control: provided => ({
+      ...provided,
+      height,
+      minHeight: height,
+      minWidth: 75,
+      width: '100%',
+      maxWidth: 600,
+      background: '#fff',
+      border: 0,
+      marginLeft: '5px'
+    }),
+    valueContainer: provided => ({
+      ...provided,
+      height,
+      paddingLeft: '10px'
+    }),
+    menu: provided => ({
+      ...provided,
+      minWidth: 75,
+      width: '100%',
+      maxWidth: 500,
+      zIndex: '99999'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      fontSize: '12px',
+      borderBottom: '1px solid #CCC',
+      padding: '10px 0 10px 5px',
+      color: '#3E3F3A',
+      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor
+    }),
+    indicatorSeparator: base => ({ ...base, display: 'none' }),
+    dropdownIndicator: base => ({ ...base, display: 'none' })
+  };
+
+  return (
+    <div>
+      <div className="input-group input-group-sm" title="Sort...">
+        <div>
+          <Select
+            options={options}
+            name="sort"
+            onChange={onChange}
+            placeholder="sort by..."
+            styles={customStyles}
+            value={options.filter(option => `${option.value}` === `${value}`)}
+            components={{ DropdownIndicator }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+SortFilter.defaultProps = { shows: [], seasons: [], searches: [] };
+
+const DropdownIndicator = props => {
+  // eslint-disable-next-line react/prop-types
+  const { selectProps } = props;
+  // eslint-disable-next-line react/prop-types
+  const { menuIsOpen } = selectProps;
+  return (
+    components.DropdownIndicator && (
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      <components.DropdownIndicator {...props}>
+        {menuIsOpen ? (
+          <span className="fa fa-chevron-up" />
+        ) : (
+          <span className="fa fa-chevron-down" />
+        )}
+      </components.DropdownIndicator>
+    )
+  );
+};
 
 function PerPageFilter(props: filterProps) {
   const { value, onChange } = props;
