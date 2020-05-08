@@ -159,8 +159,8 @@ function Loading(prop) {
 
   return (
     <div
-      className="d-flex justify-content-center m-0 p-0 mt-5"
-      style={{ maxWidth: '400px' }}
+      className="d-flex justify-content-center"
+      style={{ maxWidth: '400px', marginTop: '75px' }}
     >
       <Spinner animation="border" size="xl" variant="primary" />
     </div>
@@ -177,7 +177,11 @@ function ShowAlerts(prop) {
       <Col>
         <Alert variant={alert.type}>
           <span className="pr-2">{alert.text}</span>
-          <MatchesToBadges matches={alert.matches} prefix="result" />
+          <MatchesToBadges
+            matches={alert.matches}
+            prefix="result"
+            className=""
+          />
         </Alert>
       </Col>
     </Row>
