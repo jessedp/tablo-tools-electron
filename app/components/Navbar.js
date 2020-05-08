@@ -44,7 +44,6 @@ type UpdateMessage = {
 
 type Props = {};
 type State = {
-  current: string,
   updateAvailable: boolean,
   updateData?: UpdateMessage
 };
@@ -114,11 +113,9 @@ export default class Navbar extends Component<Props, State> {
 
     return (
       <Row className="mb-2">
-        <Col md="1">
+        <Col md="6">
           <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
-        </Col>
-        <Col md="7" className="ml-2 mt-2">
-          <ButtonGroup className="ml-5">
+          <ButtonGroup className="ml-2">
             <LinkContainer activeClassName="active" to={routes.HOME}>
               <Button size="sm" variant="outline-primary">
                 Home
@@ -144,20 +141,29 @@ export default class Navbar extends Component<Props, State> {
             </LinkContainer>
           </ButtonGroup>
         </Col>
-        <Col md="auto" className="smaller pt-1">
-          <DbStatus />
+        <Col md="4" className="offset-md-2 smaller pt-1  align-items">
+          <div className="d-flex flex-row-reverse">
+            <div>
+              <VersionStatus
+                updateData={updateData}
+                available={updateAvailable}
+              />
+            </div>
+            <div className="pr-2">
+              <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+                <Button size="sm" variant="outline-dark" title="Settings">
+                  <i className="fa fa-cogs" />
+                </Button>
+              </LinkContainer>
+            </div>
+            <div className="pr-4 pt-2">
+              <PingStatus />
+            </div>
+            <div className="pr-3 pt-2">
+              <DbStatus />
+            </div>
+          </div>
         </Col>
-        <Col md="auto" className="align-middle text-right">
-          <PingStatus />
-        </Col>
-        <Col md="1" className="pr-0 text-right">
-          <LinkContainer activeClassName="active" to={routes.SETTINGS}>
-            <Button size="sm" variant="outline-dark" title="Settings">
-              <i className="fa fa-cogs" />
-            </Button>
-          </LinkContainer>
-        </Col>
-        <VersionStatus updateData={updateData} available={updateAvailable} />
       </Row>
     );
   }
