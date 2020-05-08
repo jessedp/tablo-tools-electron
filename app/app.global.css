@@ -45,6 +45,13 @@ div.scrollable-area {
   padding-bottom: 20px;
 }
 
+a:focus,
+a.btn:focus,
+button:focus {
+  outline: none !important;
+}
+
+/** Overview - Device/discover **/
 .device-card {
   display: block;
   position: relative;
@@ -67,20 +74,9 @@ div.scrollable-area {
   filter: opacity(10%);
 }
 
-.device-card1::before {
-  content: '';
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.9;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  z-index: -1;
-}
+/** bootstrap4 extras **/
 
-/** bootstrap4 removed all but sm and lg **/
+/** -  btns removed all but sm and lg **/
 .btn-group-xs > .btn,
 .btn-xs {
   padding: 0.25rem 0.4rem;
@@ -115,6 +111,26 @@ div.scrollable-area {
   height: 6rem;
 }
 
+/** ---  modals **/
+
+.modal-1000 {
+  max-width: 1000px !important;
+}
+
+.modal-md {
+  width: 50%;
+  max-width: 600px !important;
+}
+
+.modal-lg {
+  max-width: 80% !important;
+}
+
+.modal-xl {
+  max-width: 95% !important;
+}
+
+/** Search ***/
 .search-box {
   border: #b6c5d5 solid 1px;
   max-width: 460px !important;
@@ -162,6 +178,7 @@ div.scrollable-area {
   font-size: 12px;
 }
 
+/** react-data-table **/
 .rdt_TableHead,
 .rdt_TableHeadRow,
 .rdt_TableHeadRow > .rdt_TableCol {
@@ -219,24 +236,6 @@ div.scrollable-area {
 }
 .break-me {
   padding: 0 2px 0 2px;
-}
-
-/** bootstrap4 override width of bootstrap4 modal **/
-
-.modal-1000 {
-  max-width: 1000px !important;
-}
-
-.modal-md {
-  width: 50%;
-  max-width: 600px !important;
-}
-
-.modal-lg {
-  max-width: 80% !important;
-}
-.modal-xl {
-  max-width: 95% !important;
 }
 
 html,

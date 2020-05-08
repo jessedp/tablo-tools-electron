@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 
-import Sidebar from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 import VersionInfo from '../components/VersionInfo';
 import PermissionRequests from '../components/PermissionRequests';
 
@@ -19,7 +19,7 @@ export default class App extends React.Component<Props> {
         <PermissionRequests />
         <VersionInfo />
         <div className="top-bar pl-3 pr-3">
-          <Sidebar />
+          <Navbar />
         </div>
 
         <div className="page-container pl-3 pr-0">{children}</div>

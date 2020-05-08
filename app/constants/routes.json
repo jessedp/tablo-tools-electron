@@ -1,8 +1,9 @@
 {
-  "HOME": "/",
+  "HOME": "/home",
   "COUNTER": "/counter",
   "OVERVIEW": "/overview",
   "BUILD": "/build",
-  "BROWSE": "/browse",
+  "SHOWS": "/shows",
+  "SEARCH": "/search",
   "SETTINGS": "/settings"
 }
