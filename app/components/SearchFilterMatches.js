@@ -10,6 +10,9 @@ type Props = {
 export default function MatchesToBadges(props: Props) {
   const { matches, prefix } = props;
   let { className } = props;
+
+  if (!matches) return <></>;
+
   if (!className) className = 'badge-med';
 
   className = `${className} ml-2 p-1`;
