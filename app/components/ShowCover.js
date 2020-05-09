@@ -59,7 +59,9 @@ function BottomLine(prop) {
   return (
     <>
       <div className={style}>
-        {showCounts.unwatched_count} of {showCounts.airing_count} unwatched
+        {showCounts
+          ? `${showCounts.unwatched_count} of ${showCounts.airing_count} unwatched`
+          : ''}
       </div>
     </>
   );
@@ -72,7 +74,7 @@ function Badge(prop) {
   const { show } = prop;
   const { showCounts } = show;
 
-  if (showCounts.unwatched_count === 0) return '';
+  if (!showCounts || showCounts.unwatched_count === 0) return '';
   let style;
 
   switch (show.type) {
@@ -94,7 +96,11 @@ function Badge(prop) {
   return (
     <div className="badge-cell">
       <div className={style} />
-      <div className="badge-cell-text">{showCounts.unwatched_count}</div>
+      {showCounts ? (
+        <div className="badge-cell-text">{showCounts.unwatched_count}</div>
+      ) : (
+        ''
+      )}
     </div>
   );
 }

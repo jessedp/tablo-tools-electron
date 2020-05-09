@@ -290,7 +290,7 @@
     "prop-types": "^15.7.2",
     "pubsub-js": "^1.8.0",
     "react": "^16.12.0",
-    "react-bootstrap": "^1.0.0",
+    "react-bootstrap": "^1.0.1",
     "react-data-table-component": "^6.9.0",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.21",

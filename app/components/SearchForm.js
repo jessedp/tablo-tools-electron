@@ -527,7 +527,7 @@ export default class SearchForm extends Component<Props, SearchState> {
       actionList = [];
     }
 
-    if (searchValue) {
+    if (searchValue.trim()) {
       const escapeRegExp = (text: string) => {
         return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
       };
@@ -541,21 +541,21 @@ export default class SearchForm extends Component<Props, SearchState> {
         { 'event.description': { $regex: re } }
       ];
 
-      if (typeFilter !== 'any') {
-        const typeRe = new RegExp(typeFilter, 'i');
-        query.path = { $regex: typeRe };
-
-        steps.push({
-          type: 'type',
-          value: typeFilter,
-          text: `is: ${typeFilter}`
-        });
-      }
-
       steps.push({
         type: 'search',
         value: searchValue,
         text: `title or description contains "${searchValue}"`
+      });
+    }
+
+    if (typeFilter !== 'any') {
+      const typeRe = new RegExp(typeFilter, 'i');
+      query.path = { $regex: typeRe };
+
+      steps.push({
+        type: 'type',
+        value: typeFilter,
+        text: `is: ${typeFilter}`
       });
     }
 
