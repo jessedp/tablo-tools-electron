@@ -55,8 +55,6 @@ export default class RecordingDurationStats extends Component<Props, State> {
       durReal[a] > durReal[b] ? 1 : -1
     );
 
-    console.log('durKeys', durKeys);
-
     const durData = [];
     durKeys.forEach(key => {
       durData.push({
@@ -65,11 +63,6 @@ export default class RecordingDurationStats extends Component<Props, State> {
         value: durs[key]
       });
     });
-
-    // durData.sort((a, b) => {
-    //   return a.value > b.value ? -1 : 1;
-    // });
-    console.log(durData);
 
     this.setState({
       recTotal,
