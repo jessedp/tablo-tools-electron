@@ -255,7 +255,7 @@ body,
   font-size: smaller;
 }
 
-/* Main container */
+/* TabloImage missing images */
 .overlay-image {
   position: relative;
   width: 100%;
@@ -291,46 +291,38 @@ body,
   transform: rotate(45deg);
 }
 
-/**
-.container { max-width: 100%}
-
-body {
-  position: relative;
-  color: white;
-  height: 100vh;
-  background-color: #232c39;
-  background-image: linear-gradient(45deg, rgba(0, 216, 255, 0.5) 10%, rgba(0, 1, 127, 0.7));
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
-  overflow-y: hidden;
+/* Program block */
+.program-cover {
+  width: 147px;
+  height: 200px;
+  border: #dfd7ca solid 1px;
+}
+.program-title {
+  border-bottom: darkgray solid 1px;
+  margin-left: -10px;
 }
 
-h2 {
-  margin: 0;
-  font-size: 2.25rem;
-  font-weight: bold;
-  letter-spacing: -0.025em;
-  color: #fff;
+.Aligner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-p {
-  font-size: 24px;
+.Aligner-item {
+  flex: 1;
+  min-width: 100%;
+  width: 100%;
 }
 
-li {
-  list-style: none;
+.Aligner-item-top {
+  align-self: flex-start;
 }
 
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
+.Aligner-item-bottom {
+  align-self: flex-end;
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-  cursor: pointer;
+.Aligner-item-fixed {
+  flex: none;
+  max-width: 50%;
 }
-
-
-**/
