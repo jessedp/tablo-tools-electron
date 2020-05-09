@@ -15,6 +15,7 @@ type Props = {};
 type State = {
   recTotal: number,
   show: string,
+  width: number,
   data: Array<Object>
 };
 
@@ -30,6 +31,7 @@ export default class ShowStats extends Component<Props, State> {
     this.state = {
       recTotal: 0,
       show: '',
+      width: window.innerWidth,
       data: []
     };
     this.buttonRef = React.createRef();
@@ -37,9 +39,12 @@ export default class ShowStats extends Component<Props, State> {
     (this: any).refresh = this.refresh.bind(this);
     (this: any).tableClick = this.tableClick.bind(this);
     (this: any).clearShow = this.clearShow.bind(this);
+    (this: any).resize = this.resize.bind(this);
   }
 
   async componentDidMount() {
+    window.addEventListener('resize', () => this.resize());
+
     await this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
@@ -47,6 +52,10 @@ export default class ShowStats extends Component<Props, State> {
   componentWillUnmount(): * {
     PubSub.unsubscribe(this.psToken);
   }
+
+  resize = () => {
+    this.setState({ width: window.innerWidth });
+  };
 
   async refresh() {
     const { RecDb } = global;
@@ -85,9 +94,8 @@ export default class ShowStats extends Component<Props, State> {
         shows[key].duration = shows[key].duration
           ? shows[key].duration + duration
           : duration;
-        shows[key].size = shows[key].size
-          ? shows[key].size + shows[key].size
-          : size;
+        shows[key].size = shows[key].size ? shows[key].size + size : size;
+
         if (!shows[key].first) shows[key].first = new Date();
         if (!shows[key].last) shows[key].last = new Date('1985-01-01');
         shows[key].first =
@@ -102,7 +110,7 @@ export default class ShowStats extends Component<Props, State> {
         object_id: shows[key].object_id,
         cover: shows[key].cover,
         show: key,
-        count: shows[key].count,
+        count: shows[key].count.toLocaleString(),
         duration: shows[key].duration,
         size: shows[key].size,
         first: shows[key].first,
@@ -133,7 +141,7 @@ export default class ShowStats extends Component<Props, State> {
   };
 
   render() {
-    const { recTotal, show, data } = this.state;
+    const { recTotal, show, width, data } = this.state;
 
     if (!recTotal)
       return (
@@ -141,6 +149,16 @@ export default class ShowStats extends Component<Props, State> {
           No recordings loaded yet.
         </Alert>
       );
+
+    // '450px' title 1100w good , less clipped
+    let titleMinWidth = 0;
+    let titleWidth = 450;
+    if (width < 1100) {
+      const diff = 1100 - width;
+      if (diff > 130) titleWidth = 450 - 130;
+      else titleWidth = 450 - diff;
+      titleMinWidth = titleWidth;
+    }
 
     const customStyles = {
       rows: {
@@ -169,14 +187,14 @@ export default class ShowStats extends Component<Props, State> {
         name: 'Show',
         selector: 'show',
         sortable: true,
-        width: '175px',
-        maxWidth: '175px',
+        minWidth: `${titleMinWidth}px`,
+        width: `${titleWidth}px`,
         defaultSortField: true,
         format: row => (
-          <>
+          <div>
             <TabloImage imageId={row.cover} className="menu-image-md mr-2" />
             {row.show}
-          </>
+          </div>
         )
       },
       {
@@ -191,7 +209,7 @@ export default class ShowStats extends Component<Props, State> {
       },
       {
         name: '#',
-        width: '15px',
+        width: '50px',
         selector: 'count',
         sortable: true,
         right: true
@@ -201,6 +219,7 @@ export default class ShowStats extends Component<Props, State> {
         selector: 'duration',
         sortable: true,
         right: true,
+        width: '210px',
         format: row => Duration({ duration: parseSeconds(row.duration) })
       },
       {
@@ -208,7 +227,7 @@ export default class ShowStats extends Component<Props, State> {
         selector: 'size',
         sortable: true,
         right: true,
-        width: '70px',
+        width: '80px',
         format: row => readableBytes(row.size)
       },
       {
@@ -216,7 +235,7 @@ export default class ShowStats extends Component<Props, State> {
         selector: 'first',
         sortable: true,
         right: true,
-        width: '115px',
+        width: '130px',
         format: row => moment(row.first).format('M/D/YY h:mm a')
       },
       {
@@ -224,7 +243,7 @@ export default class ShowStats extends Component<Props, State> {
         selector: 'last',
         sortable: true,
         right: true,
-        width: '115px',
+        width: '130px',
         format: row => moment(row.last).format('M/D/YY h:mm a')
       }
     ];
@@ -247,7 +266,7 @@ export default class ShowStats extends Component<Props, State> {
         ) : (
           ''
         )}
-        <div className="section" style={{ height: '460px' }}>
+        <div className="section" style={{ height: '800px' }}>
           <div className="scrollable-area pr-1" style={{ overflowY: 'auto' }}>
             <DataTable
               columns={columns}
