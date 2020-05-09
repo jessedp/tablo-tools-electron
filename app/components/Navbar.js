@@ -2,6 +2,7 @@
 /** This is poorly named - the SideBar is actually the TopBar * */
 import { ipcRenderer, shell } from 'electron';
 import React, { Component, useState } from 'react';
+import { withRouter } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -13,6 +14,7 @@ import Modal from 'react-bootstrap/Modal';
 import { format } from 'date-fns';
 import axios from 'axios';
 
+import { Dropdown } from 'react-bootstrap';
 import routes from '../constants/routes.json';
 import tabloLogo from '../../resources/tablo_tools_logo.png';
 import PingStatus from './PingStatus';
@@ -42,13 +44,13 @@ type UpdateMessage = {
   }
 };
 
-type Props = {};
+type Props = { location: Object };
 type State = {
   updateAvailable: boolean,
   updateData?: UpdateMessage
 };
 
-export default class Navbar extends Component<Props, State> {
+class Navbar extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -111,9 +113,23 @@ export default class Navbar extends Component<Props, State> {
 
     if (updateData) updateData = updateData.info;
 
+    // dropdown state
+    let ddText = 'Browse Recordings';
+    let ddClass = '';
+    const { location } = this.props;
+    if (location.pathname === routes.SHOWS) {
+      ddText = 'Shows';
+      ddClass = 'active';
+    }
+
+    if (location.pathname === routes.MOVIES) {
+      ddText = 'Movies';
+      ddClass = 'active';
+    }
+
     return (
       <Row className="mb-2">
-        <Col md="6">
+        <Col md="7">
           <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
           <ButtonGroup className="ml-2">
             <LinkContainer activeClassName="active" to={routes.HOME}>
@@ -128,17 +144,23 @@ export default class Navbar extends Component<Props, State> {
               </Button>
             </LinkContainer>
 
-            <LinkContainer activeClassName="active" to={routes.SHOWS}>
-              <Button size="sm" variant="outline-primary">
-                Shows
+            <Dropdown as={ButtonGroup} drop="right">
+              <Button size="sm" variant="outline-primary" className={ddClass}>
+                {ddText}
               </Button>
-            </LinkContainer>
 
-            <LinkContainer activeClassName="active" to={routes.MOVIES}>
-              <Button size="sm" variant="outline-primary">
-                Movies
-              </Button>
-            </LinkContainer>
+              <Dropdown.Toggle size="sm" split variant="outline-primary" />
+
+              <Dropdown.Menu variant="outline-secondary">
+                <LinkContainer activeClassName="active" to={routes.SHOWS}>
+                  <Dropdown.Item>Shows</Dropdown.Item>
+                </LinkContainer>
+
+                <LinkContainer activeClassName="active" to={routes.MOVIES}>
+                  <Dropdown.Item>Movies</Dropdown.Item>
+                </LinkContainer>
+              </Dropdown.Menu>
+            </Dropdown>
 
             <LinkContainer activeClassName="active" to={routes.SEARCH}>
               <Button size="sm" variant="outline-primary">
@@ -147,7 +169,8 @@ export default class Navbar extends Component<Props, State> {
             </LinkContainer>
           </ButtonGroup>
         </Col>
-        <Col md="4" className="offset-md-2 smaller pt-1  align-items">
+
+        <Col md="4" className="offset-md-1 smaller pt-1  align-items">
           <div className="d-flex flex-row-reverse">
             <div>
               <VersionStatus
@@ -330,3 +353,5 @@ function releaseToUpdateMsg(data): UpdateMessage {
   error: null
 };
  */
+
+export default withRouter(Navbar);
