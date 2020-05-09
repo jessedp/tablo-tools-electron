@@ -9,6 +9,7 @@ import Alert from 'react-bootstrap/Alert';
 
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
+import { asyncForEach } from '../utils/utils';
 
 type Props = { viewEpisodes: (show: Show) => {} };
 type State = {
@@ -113,13 +114,12 @@ export default class ShowsList extends Component<Props, State> {
 }
 
 export async function showList() {
-  const query = {};
-
-  const recs = await global.ShowDb.asyncFind(query);
+  const recType = new RegExp('series');
+  const recs = await global.ShowDb.asyncFind({ path: { $regex: recType } });
 
   const objRecs = [];
 
-  recs.forEach(rec => {
+  await asyncForEach(recs, async rec => {
     const show = new Show(rec);
     objRecs.push(show);
   });
