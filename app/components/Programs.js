@@ -2,10 +2,10 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
-import { Alert } from 'react-bootstrap';
+import { Alert, Row } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
-import ShowCover from './ShowCover';
+import ProgramCover from './ProgramCover';
 
 type Props = {};
 type State = { airings: Array<Airing>, alertType: string, alertTxt: string };
@@ -58,7 +58,7 @@ export default class Programs extends Component<Props, State> {
     const { airings, alertTxt, alertType } = this.state;
 
     return (
-      <>
+      <div className="section">
         {alertTxt ? (
           <Alert className="fade m-2" variant={alertType}>
             {alertTxt}
@@ -66,10 +66,14 @@ export default class Programs extends Component<Props, State> {
         ) : (
           ''
         )}
-        {airings.map(rec => {
-          return <ShowCover show={rec.show} key={`program-${rec.object_id}`} />;
-        })}
-      </>
+        <Row>
+          {airings.map(rec => {
+            return (
+              <ProgramCover airing={rec} key={`program-${rec.object_id}`} />
+            );
+          })}
+        </Row>
+      </div>
     );
   }
 }
@@ -86,7 +90,7 @@ export async function programList() {
   });
 
   const titleSort = (a, b) => {
-    if (a.show.sortableTitle > b.show.sortableTitle) return 1;
+    if (a.datetime > b.datetime) return 1;
     return -1;
   };
 
