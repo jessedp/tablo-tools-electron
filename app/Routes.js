@@ -10,6 +10,8 @@ import OverviewPage from './containers/OverviewPage';
 import Build from './components/Build';
 import Shows from './components/Shows';
 import Movies from './components/Movies';
+import Programs from './components/Programs';
+import Events from './components/Events';
 import Search from './components/Search';
 import Settings from './components/Settings';
 
@@ -36,6 +38,8 @@ export default () => {
         <Route path={routes.BUILD} component={Build} />
         <Route path={routes.SHOWS} component={Shows} />
         <Route path={routes.MOVIES} component={Movies} />
+        <Route path={routes.SPORTS} component={Events} />
+        <Route path={routes.PROGRAMS} component={Programs} />
         <Route path={routes.SEARCH} component={Search} />
         <Route path={routes.SETTINGS} component={Settings} />
 

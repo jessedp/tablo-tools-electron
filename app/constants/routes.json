@@ -5,6 +5,8 @@
   "BUILD": "/build",
   "SHOWS": "/shows",
   "MOVIES": "/movies",
+  "SPORTS": "/sports",
+  "PROGRAMS": "/programs",
   "SEARCH": "/search",
   "SETTINGS": "/settings"
 }

@@ -118,12 +118,22 @@ class Navbar extends Component<Props, State> {
     let ddClass = '';
     const { location } = this.props;
     if (location.pathname === routes.SHOWS) {
-      ddText = 'Shows';
+      ddText = 'Shows & Series';
       ddClass = 'active';
     }
 
     if (location.pathname === routes.MOVIES) {
       ddText = 'Movies';
+      ddClass = 'active';
+    }
+
+    if (location.pathname === routes.SPORTS) {
+      ddText = 'Sports & Events';
+      ddClass = 'active';
+    }
+
+    if (location.pathname === routes.PROGRAMS) {
+      ddText = 'Manual';
       ddClass = 'active';
     }
 
@@ -153,11 +163,19 @@ class Navbar extends Component<Props, State> {
 
               <Dropdown.Menu variant="outline-secondary">
                 <LinkContainer activeClassName="active" to={routes.SHOWS}>
-                  <Dropdown.Item>Shows</Dropdown.Item>
+                  <Dropdown.Item>Shows & Series</Dropdown.Item>
                 </LinkContainer>
 
                 <LinkContainer activeClassName="active" to={routes.MOVIES}>
                   <Dropdown.Item>Movies</Dropdown.Item>
+                </LinkContainer>
+
+                <LinkContainer activeClassName="active" to={routes.SPORTS}>
+                  <Dropdown.Item>Sports & Events</Dropdown.Item>
+                </LinkContainer>
+
+                <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
+                  <Dropdown.Item>Manual</Dropdown.Item>
                 </LinkContainer>
               </Dropdown.Menu>
             </Dropdown>
