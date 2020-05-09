@@ -3,12 +3,12 @@ import { ResponsivePie } from '@nivo/pie';
 
 type Props = {
   data: Array<any>,
-  scheme?: string
+  scheme?: string,
+  totalFormat?: number => string
 };
 
 export default function MediumPie(props: Props) {
-  const { data } = props;
-  const { scheme } = props;
+  const { data, scheme, totalFormat } = props;
 
   const total = data.reduce((a, b) => a + (b.value || 0), 0);
 
@@ -76,10 +76,10 @@ export default function MediumPie(props: Props) {
       anchor: 'right',
       direction: 'column',
       justify: false,
-      translateX: 120,
+      translateX: 140,
       translateY: 0,
       itemsSpacing: 2,
-      itemWidth: 100,
+      itemWidth: 150,
       itemHeight: 14,
       itemOpacity: 0.85,
       itemTextColor: '#999',
@@ -102,7 +102,7 @@ export default function MediumPie(props: Props) {
         margin={margin}
         data={data}
         colors={{ scheme }}
-        innerRadius={0.5}
+        innerRadius={0.6}
         enableRadialLabels={false}
         enableSlicesLabels={false}
         theme={theme}
@@ -113,7 +113,7 @@ export default function MediumPie(props: Props) {
         isInteractive
         onMouseEnter={(_data, event) => {
           // eslint-disable-next-line no-param-reassign
-          event.target.style.cursor = 'not-allowed';
+          event.target.style.cursor = 'currentDur';
         }}
         onMouseLeave={(_data, event) => {
           // eslint-disable-next-line no-param-reassign
@@ -121,11 +121,12 @@ export default function MediumPie(props: Props) {
         }}
       />
       <div style={styles.overlay}>
-        <span>{total}</span>
+        <span>{totalFormat(total)}</span>
       </div>
     </div>
   );
 }
 MediumPie.defaultProps = {
-  scheme: 'nivo'
+  scheme: 'nivo',
+  totalFormat: val => `${val}`
 };
