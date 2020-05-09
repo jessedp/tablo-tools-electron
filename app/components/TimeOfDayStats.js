@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import { ResponsiveCalendar } from '@nivo/calendar';
+import Col from 'react-bootstrap/Col';
 import MediumBar from './MediumBar';
 
 type Props = {};
@@ -148,51 +149,54 @@ export default class TimeOfDayStats extends Component<Props, State> {
 
     return (
       <>
-        {}
-        <div className="stats-header">by day</div>
-        <MediumBar
-          data={dayData}
-          keys={['recordings']}
-          indexBy="day"
-          scheme="nivo"
-        />
-        {}
-        <div className="stats-header">by hour</div>
-        <MediumBar
-          data={hourData}
-          keys={['recordings']}
-          indexBy="hour"
-          scheme="set3"
-          width={700}
-        />
-        {}
-        <div className="stats-header">by month</div>
-        <div style={{ height: '250px' }}>
-          <ResponsiveCalendar
-            data={dateData}
-            from={firstDate}
-            to={lastDate}
-            emptyColor="#eeeeee"
-            colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
-            margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
-            yearSpacing={40}
-            monthBorderColor="#ffffff"
-            dayBorderWidth={2}
-            dayBorderColor="#ffffff"
-            legends={[
-              {
-                anchor: 'bottom-right',
-                direction: 'row',
-                translateY: 36,
-                itemCount: 4,
-                itemWidth: 42,
-                itemHeight: 36,
-                itemsSpacing: 14,
-                itemDirection: 'right-to-left'
-              }
-            ]}
+        <Col md="2">
+          <div className="stats-header">by day</div>
+          <MediumBar
+            data={dayData}
+            keys={['recordings']}
+            indexBy="day"
+            scheme="nivo"
           />
-        </div>
+        </Col>
+        <Col>
+          <div className="stats-header">by hour</div>
+          <MediumBar
+            data={hourData}
+            keys={['recordings']}
+            indexBy="hour"
+            scheme="set3"
+            width={700}
+          />
+        </Col>
+        <Col>
+          <div className="stats-header">by month</div>
+          <div style={{ height: '250px' }}>
+            <ResponsiveCalendar
+              data={dateData}
+              from={firstDate}
+              to={lastDate}
+              emptyColor="#eeeeee"
+              colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
+              margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
+              yearSpacing={40}
+              monthBorderColor="#ffffff"
+              dayBorderWidth={2}
+              dayBorderColor="#ffffff"
+              legends={[
+                {
+                  anchor: 'bottom-right',
+                  direction: 'row',
+                  translateY: 36,
+                  itemCount: 4,
+                  itemWidth: 42,
+                  itemHeight: 36,
+                  itemsSpacing: 14,
+                  itemDirection: 'right-to-left'
+                }
+              ]}
+            />
+          </div>
+        </Col>
       </>
     );
   }
