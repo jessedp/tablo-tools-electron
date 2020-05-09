@@ -118,7 +118,7 @@ export default class Navbar extends Component<Props, State> {
           <ButtonGroup className="ml-2">
             <LinkContainer activeClassName="active" to={routes.HOME}>
               <Button size="sm" variant="outline-primary">
-                Home
+                <span className="fa fa-home" />
               </Button>
             </LinkContainer>
 

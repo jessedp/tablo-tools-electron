@@ -14,7 +14,7 @@ type State = {
   resolutionKeys: Array<string>
 };
 
-export default class ResolutionStats extends Component<Props, State> {
+export default class ResolutionChannelStats extends Component<Props, State> {
   props: Props;
 
   psToken: null;
@@ -47,14 +47,9 @@ export default class ResolutionStats extends Component<Props, State> {
     const { selResolution } = this.state;
     const recTotal = await RecDb.asyncCount({});
 
-    /** resolution * */
     const recs = await RecDb.asyncFind({});
     const resCounts = {};
-    const resMap = {
-      hd_1080: 'HD 1080',
-      hd_720: 'HD 720',
-      sd: 'SD'
-    };
+    const resMap = { hd_1080: 'HD 1080', hd_720: 'HD 720', sd: 'SD' };
 
     const counter = [];
     recs.forEach(rec => {
@@ -64,13 +59,7 @@ export default class ResolutionStats extends Component<Props, State> {
       const title = channel.network;
 
       if (selResolution === resMap[resolution]) {
-        console.log(
-          'selResolution === resolution',
-          selResolution,
-          resMap[resolution]
-        );
         resCounts[title] = resCounts[title] ? resCounts[title] + 1 : 1;
-        console.log(resCounts[title]);
       } else if (!selResolution) {
         const key = `${title}`;
         if (!counter.includes(key)) {

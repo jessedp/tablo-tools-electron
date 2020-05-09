@@ -27,7 +27,7 @@ export default function MediumBar(props: Props) {
   } = props;
 
   let minHeight = height;
-  const min = 12;
+  const min = 8;
   if (data.length > min) {
     minHeight += (data.length - min) * 30;
   }
@@ -37,7 +37,7 @@ export default function MediumBar(props: Props) {
   let colorBy;
   if (keys.length === 1) colorBy = 'index';
 
-  let margin = { top: 0, right: 0, bottom: 40, left: 40 };
+  let margin = { top: 0, right: 5, bottom: 50, left: 40 };
   if (layout === 'horizontal') {
     let max = 0;
     data.forEach(item => {
@@ -64,7 +64,8 @@ export default function MediumBar(props: Props) {
       position: 'relative',
       maxWidth: width,
       height: minHeight,
-      margin: '10px 0 10px 0'
+      margin: '10px 0 10px 0',
+      minWidth: '250px'
     },
     button: {
       position: 'absolute',
@@ -129,8 +130,8 @@ export default function MediumBar(props: Props) {
         axisRight={null}
         axisBottom={{
           tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0
+          tickPadding: 7,
+          tickRotation: 60
         }}
         axisLeft={{
           tickSize: 10,

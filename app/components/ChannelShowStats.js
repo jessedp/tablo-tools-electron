@@ -15,19 +15,14 @@ type State = {
   showKeys: Array<string>
 };
 
-export default class ChannelStats extends Component<Props, State> {
+export default class ChannelShowStats extends Component<Props, State> {
   props: Props;
 
   psToken: null;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      recTotal: 0,
-      network: '',
-      showData: [],
-      showKeys: []
-    };
+    this.state = { recTotal: 0, network: '', showData: [], showKeys: [] };
     (this: any).refresh = this.refresh.bind(this);
     (this: any).chartClick = this.chartClick.bind(this);
     (this: any).clearNetwork = this.clearNetwork.bind(this);
@@ -47,7 +42,6 @@ export default class ChannelStats extends Component<Props, State> {
     const { network } = this.state;
     const recTotal = await RecDb.asyncCount({});
 
-    /** channel/show * */
     const recs = await RecDb.asyncFind({});
     const showCounts = {};
 
@@ -64,14 +58,6 @@ export default class ChannelStats extends Component<Props, State> {
           counter.push(key);
           showCounts[netwrk] = showCounts[netwrk] ? showCounts[netwrk] + 1 : 1;
         }
-
-        /**
-        const title = rec.airing_details.show_title;
-        if (!showCounts[network]) showCounts[network] = {};
-        showCounts[network][title] = showCounts[network][title]
-          ? showCounts[network][title] + 1
-          : 1;
-         */
       }
     });
 
@@ -98,11 +84,7 @@ export default class ChannelStats extends Component<Props, State> {
       return a.channel > b.channel ? -1 : 1;
     });
 
-    this.setState({
-      recTotal,
-      showData,
-      showKeys: [...new Set(showKeys)]
-    });
+    this.setState({ recTotal, showData, showKeys: [...new Set(showKeys)] });
   }
 
   chartClick = async (data: Object) => {

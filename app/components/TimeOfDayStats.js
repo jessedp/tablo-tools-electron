@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import { ResponsiveCalendar } from '@nivo/calendar';
+import Col from 'react-bootstrap/Col';
 import MediumBar from './MediumBar';
 
 type Props = {};
@@ -16,7 +17,7 @@ type State = {
   lastDate: Date
 };
 
-export default class TimeStats extends Component<Props, State> {
+export default class TimeOfDayStats extends Component<Props, State> {
   props: Props;
 
   psToken: null;
@@ -47,7 +48,6 @@ export default class TimeStats extends Component<Props, State> {
     const { RecDb } = global;
     const recTotal = await RecDb.asyncCount({});
 
-    /** day / time * */
     const recs = await RecDb.asyncFind({});
     const dayCounts = {};
     const hourCounts = {};
@@ -68,7 +68,6 @@ export default class TimeStats extends Component<Props, State> {
       dateCounts[date] = dateCounts[date] ? dateCounts[date] + 1 : 1;
     });
 
-    // Sunday - Saturday : 0 - 6
     const dayNames = {
       '0': 'Sun',
       '1': 'Mon',
@@ -78,7 +77,7 @@ export default class TimeStats extends Component<Props, State> {
       '5': 'Fri',
       '6': 'Sat'
     };
-    // TODO: I hate myself for this. Now must add 24hr time option. Just for this.
+
     const hourNames = {
       '0': '12am',
       '1': '1am',
@@ -108,26 +107,17 @@ export default class TimeStats extends Component<Props, State> {
 
     const dayData = [];
     Object.keys(dayCounts).forEach(key => {
-      dayData.push({
-        day: dayNames[key],
-        recordings: dayCounts[key]
-      });
+      dayData.push({ day: dayNames[key], recordings: dayCounts[key] });
     });
 
     const hourData = [];
     Object.keys(hourCounts).forEach(key => {
-      hourData.push({
-        hour: hourNames[key],
-        recordings: hourCounts[key]
-      });
+      hourData.push({ hour: hourNames[key], recordings: hourCounts[key] });
     });
 
     const dateData = [];
     Object.keys(dateCounts).forEach(key => {
-      dateData.push({
-        day: key,
-        value: dateCounts[key]
-      });
+      dateData.push({ day: key, value: dateCounts[key] });
     });
 
     this.setState({
@@ -159,53 +149,54 @@ export default class TimeStats extends Component<Props, State> {
 
     return (
       <>
-        {/* by day */}
-        <div className="stats-header">by day</div>
-        <MediumBar
-          data={dayData}
-          keys={['recordings']}
-          indexBy="day"
-          scheme="nivo"
-        />
-
-        {/* by hour */}
-        <div className="stats-header">by hour</div>
-        <MediumBar
-          data={hourData}
-          keys={['recordings']}
-          indexBy="hour"
-          scheme="set3"
-          width={700}
-        />
-
-        {/* by month */}
-        <div className="stats-header">by month</div>
-        <div style={{ height: '250px' }}>
-          <ResponsiveCalendar
-            data={dateData}
-            from={firstDate}
-            to={lastDate}
-            emptyColor="#eeeeee"
-            colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
-            margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
-            yearSpacing={40}
-            monthBorderColor="#ffffff"
-            dayBorderWidth={2}
-            dayBorderColor="#ffffff"
-            legends={[
-              {
-                anchor: 'bottom-right',
-                direction: 'row',
-                translateY: 36,
-                itemCount: 4,
-                itemWidth: 42,
-                itemHeight: 36,
-                itemsSpacing: 14,
-                itemDirection: 'right-to-left'
-              }
-            ]}
+        <Col md="2">
+          <div className="stats-header">by day</div>
+          <MediumBar
+            data={dayData}
+            keys={['recordings']}
+            indexBy="day"
+            scheme="nivo"
           />
-        </div>
+        </Col>
+        <Col>
+          <div className="stats-header">by hour</div>
+          <MediumBar
+            data={hourData}
+            keys={['recordings']}
+            indexBy="hour"
+            scheme="set3"
+            width={700}
+          />
+        </Col>
+        <Col>
+          <div className="stats-header">by month</div>
+          <div style={{ height: '250px' }}>
+            <ResponsiveCalendar
+              data={dateData}
+              from={firstDate}
+              to={lastDate}
+              emptyColor="#eeeeee"
+              colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
+              margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
+              yearSpacing={40}
+              monthBorderColor="#ffffff"
+              dayBorderWidth={2}
+              dayBorderColor="#ffffff"
+              legends={[
+                {
+                  anchor: 'bottom-right',
+                  direction: 'row',
+                  translateY: 36,
+                  itemCount: 4,
+                  itemWidth: 42,
+                  itemHeight: 36,
+                  itemsSpacing: 14,
+                  itemDirection: 'right-to-left'
+                }
+              ]}
+            />
+          </div>
+        </Col>
       </>
     );
   }

@@ -51,6 +51,11 @@ button:focus {
   outline: none !important;
 }
 
+.stat-small {
+  min-width: 330px;
+  margin-bottom: 100px;
+}
+
 /** Overview - Device/discover **/
 .device-card {
   display: block;
@@ -81,7 +86,7 @@ button:focus {
 .btn-xs {
   padding: 0.25rem 0.4rem;
   font-size: 0.7rem;
-  line-height: 0.5;
+  line-height: 1.2;
   border-radius: 0.2rem;
 }
 .checkbox-wrap {
