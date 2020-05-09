@@ -48,7 +48,7 @@ export default class Events extends Component<Props, State> {
     } else {
       this.setState({
         alertType: 'info',
-        alertTxt: `${recs.length} movies found`,
+        alertTxt: `${recs.length} events found`,
         airings: recs
       });
     }
