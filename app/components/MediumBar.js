@@ -130,7 +130,7 @@ export default function MediumBar(props: Props) {
         axisBottom={{
           tickSize: 5,
           tickPadding: 7,
-          tickRotation: 45
+          tickRotation: 60
         }}
         axisLeft={{
           tickSize: 10,
