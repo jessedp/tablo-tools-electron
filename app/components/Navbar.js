@@ -134,6 +134,12 @@ export default class Navbar extends Component<Props, State> {
               </Button>
             </LinkContainer>
 
+            <LinkContainer activeClassName="active" to={routes.MOVIES}>
+              <Button size="sm" variant="outline-primary">
+                Movies
+              </Button>
+            </LinkContainer>
+
             <LinkContainer activeClassName="active" to={routes.SEARCH}>
               <Button size="sm" variant="outline-primary">
                 Search

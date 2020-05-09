@@ -4,6 +4,7 @@
   "OVERVIEW": "/overview",
   "BUILD": "/build",
   "SHOWS": "/shows",
+  "MOVIES": "/movies",
   "SEARCH": "/search",
   "SETTINGS": "/settings"
 }

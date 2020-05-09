@@ -9,6 +9,7 @@ import CounterPage from './containers/CounterPage';
 import OverviewPage from './containers/OverviewPage';
 import Build from './components/Build';
 import Shows from './components/Shows';
+import Movies from './components/Movies';
 import Search from './components/Search';
 import Settings from './components/Settings';
 
@@ -34,6 +35,7 @@ export default () => {
         <Route path={routes.COUNTER} component={CounterPage} />
         <Route path={routes.BUILD} component={Build} />
         <Route path={routes.SHOWS} component={Shows} />
+        <Route path={routes.MOVIES} component={Movies} />
         <Route path={routes.SEARCH} component={Search} />
         <Route path={routes.SETTINGS} component={Settings} />
 
