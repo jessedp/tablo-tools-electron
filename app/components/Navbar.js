@@ -116,6 +116,7 @@ class Navbar extends Component<Props, State> {
     // dropdown state
     let ddText = 'Browse Recordings';
     let ddClass = '';
+    let toggleClass = 'outline-primary';
     const { location } = this.props;
     if (location.pathname === routes.SHOWS) {
       ddText = 'Shows & Series';
@@ -136,6 +137,7 @@ class Navbar extends Component<Props, State> {
       ddText = 'Manual';
       ddClass = 'active';
     }
+    if (ddClass) toggleClass = `${toggleClass} active`;
 
     return (
       <Row className="mb-2">
@@ -154,12 +156,12 @@ class Navbar extends Component<Props, State> {
               </Button>
             </LinkContainer>
 
-            <Dropdown as={ButtonGroup} drop="right">
+            <Dropdown as={ButtonGroup} drop="down" style={{ width: '160px' }}>
               <Button size="sm" variant="outline-primary" className={ddClass}>
                 {ddText}
               </Button>
 
-              <Dropdown.Toggle size="sm" split variant="outline-primary" />
+              <Dropdown.Toggle size="sm" split variant={toggleClass} />
 
               <Dropdown.Menu variant="outline-secondary">
                 <LinkContainer activeClassName="active" to={routes.SHOWS}>
