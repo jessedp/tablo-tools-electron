@@ -9,13 +9,15 @@ import Col from 'react-bootstrap/Col';
 import DbStats from './DbStats';
 
 import ComskipDetails from './ComskipDetails';
-import TimeStats from './TimeStats';
-import ResolutionStats from './ResolutionStats';
+import TimeOfDayStats from './TimeOfDayStats';
+import ResolutionChannelStats from './ResolutionChannelStats';
 import { parseSeconds, readableBytes } from '../utils/utils';
-import ChannelStats from './ChannelStats';
+import ChannelShowStats from './ChannelShowStats';
 import ShowStats from './ShowStats';
 import Duration from './Duration';
 import { comskipAvailable } from '../utils/Tablo';
+import ResolutionSizeStats from './ResolutionSizeStats';
+import RecordingDurationStats from './RecordingDurationStats';
 
 const Store = require('electron-store');
 
@@ -96,15 +98,25 @@ export default class Overview extends Component<Props, State> {
                 <Alert variant="primary" className="p-2 m-0">
                   Resolution/Channel Stats
                 </Alert>
-                <ResolutionStats />
+                <ResolutionChannelStats />
               </Col>
 
               <Col>
                 <Alert variant="primary" className="p-2 m-0">
                   Channel/Show Stats
                 </Alert>
-                <ChannelStats />
+                <ChannelShowStats />
               </Col>
+            </Col>
+            <Col md="4">
+              <Alert variant="primary" className="p-2 m-0">
+                Resolution/Size Stats
+              </Alert>
+              <ResolutionSizeStats />
+              <Alert variant="primary" className="p-2 m-0 mt-4">
+                Duration Stats
+              </Alert>
+              <RecordingDurationStats />
             </Col>
 
             <Col md="4">
@@ -126,9 +138,9 @@ export default class Overview extends Component<Props, State> {
             )}
             <Col>
               <Alert variant="primary" className="p-2 m-0">
-                Time Stats
+                Time of Day Stats
               </Alert>
-              <TimeStats />
+              <TimeOfDayStats />
             </Col>
           </Row>
         </div>

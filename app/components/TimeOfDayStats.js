@@ -16,7 +16,7 @@ type State = {
   lastDate: Date
 };
 
-export default class TimeStats extends Component<Props, State> {
+export default class TimeOfDayStats extends Component<Props, State> {
   props: Props;
 
   psToken: null;
@@ -47,7 +47,6 @@ export default class TimeStats extends Component<Props, State> {
     const { RecDb } = global;
     const recTotal = await RecDb.asyncCount({});
 
-    /** day / time * */
     const recs = await RecDb.asyncFind({});
     const dayCounts = {};
     const hourCounts = {};
@@ -68,7 +67,6 @@ export default class TimeStats extends Component<Props, State> {
       dateCounts[date] = dateCounts[date] ? dateCounts[date] + 1 : 1;
     });
 
-    // Sunday - Saturday : 0 - 6
     const dayNames = {
       '0': 'Sun',
       '1': 'Mon',
@@ -78,7 +76,7 @@ export default class TimeStats extends Component<Props, State> {
       '5': 'Fri',
       '6': 'Sat'
     };
-    // TODO: I hate myself for this. Now must add 24hr time option. Just for this.
+
     const hourNames = {
       '0': '12am',
       '1': '1am',
@@ -108,26 +106,17 @@ export default class TimeStats extends Component<Props, State> {
 
     const dayData = [];
     Object.keys(dayCounts).forEach(key => {
-      dayData.push({
-        day: dayNames[key],
-        recordings: dayCounts[key]
-      });
+      dayData.push({ day: dayNames[key], recordings: dayCounts[key] });
     });
 
     const hourData = [];
     Object.keys(hourCounts).forEach(key => {
-      hourData.push({
-        hour: hourNames[key],
-        recordings: hourCounts[key]
-      });
+      hourData.push({ hour: hourNames[key], recordings: hourCounts[key] });
     });
 
     const dateData = [];
     Object.keys(dateCounts).forEach(key => {
-      dateData.push({
-        day: key,
-        value: dateCounts[key]
-      });
+      dateData.push({ day: key, value: dateCounts[key] });
     });
 
     this.setState({
@@ -159,7 +148,7 @@ export default class TimeStats extends Component<Props, State> {
 
     return (
       <>
-        {/* by day */}
+        {}
         <div className="stats-header">by day</div>
         <MediumBar
           data={dayData}
@@ -167,8 +156,7 @@ export default class TimeStats extends Component<Props, State> {
           indexBy="day"
           scheme="nivo"
         />
-
-        {/* by hour */}
+        {}
         <div className="stats-header">by hour</div>
         <MediumBar
           data={hourData}
@@ -177,8 +165,7 @@ export default class TimeStats extends Component<Props, State> {
           scheme="set3"
           width={700}
         />
-
-        {/* by month */}
+        {}
         <div className="stats-header">by month</div>
         <div style={{ height: '250px' }}>
           <ResponsiveCalendar
