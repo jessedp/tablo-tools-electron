@@ -8,7 +8,9 @@ let cachedConfig = {};
 
 const logsPath = app.getPath('userData');
 
-const CONFIG_FILE_NAME = path.normalize(`${logsPath}/tablo_tools_config.json`);
+export const CONFIG_FILE_NAME = path.normalize(
+  `${logsPath}/tablo_tools_config.json`
+);
 
 export type ConfigType = {
   autoRebuild: boolean,

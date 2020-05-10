@@ -16,7 +16,8 @@ import { discover } from '../utils/Tablo';
 import getConfig, {
   ConfigType,
   defaultConfig,
-  setConfig
+  setConfig,
+  CONFIG_FILE_NAME
 } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
@@ -380,6 +381,20 @@ export default class Settings extends Component<Props, ConfigType> {
                 <h6 className="pt-1 text-white">DEBUG:</h6>
               </Col>
             </Row>
+            <Row className="mt-3">
+              <div className="p-2 pl-4 bg-light border col-md-6">
+                Your settings <span className="smaller">(all of this)</span> are
+                in: <br />
+                <span className="ml-1 text-danger">{CONFIG_FILE_NAME}</span>
+                <br />
+                <i className="smaller">
+                  You can back that up if you want to nuke the app directory but
+                  retain settings. <br />
+                  You probably should not edit it.
+                </i>
+              </div>
+            </Row>
+
             <Row className="mt-3">
               <Col>
                 <Checkbox
