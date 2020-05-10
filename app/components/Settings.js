@@ -13,7 +13,12 @@ import Col from 'react-bootstrap/Col';
 
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, { ConfigType, defaultConfig } from '../utils/config';
+import getConfig, {
+  ConfigType,
+  defaultConfig,
+  setConfig,
+  CONFIG_FILE_NAME
+} from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
@@ -94,7 +99,9 @@ export default class Settings extends Component<Props, ConfigType> {
         console.error('Unable to set Sentry reporting value');
       }
 
-      localStorage.setItem('AppConfig', JSON.stringify(cleanState));
+      setConfig(cleanState);
+
+      // in case they changed the test device.
       discover();
       result = SAVE_SUCCESS;
       setTimeout(() => {
@@ -195,8 +202,8 @@ export default class Settings extends Component<Props, ConfigType> {
         logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
     }
 
-    console.log('logs path', `${logsPath}/main.log`);
-    const openLogs = () => shell.showItemInFolder(`${logsPath}/main.log`);
+    const openLogs = () =>
+      shell.showItemInFolder(path.normalize(`${logsPath}${path.sep}main.log`));
 
     return (
       <div className="section">
@@ -374,6 +381,20 @@ export default class Settings extends Component<Props, ConfigType> {
                 <h6 className="pt-1 text-white">DEBUG:</h6>
               </Col>
             </Row>
+            <Row className="mt-3">
+              <div className="p-2 pl-4 bg-light border col-md-6">
+                Your settings <span className="smaller">(all of this)</span> are
+                in: <br />
+                <span className="ml-1 text-danger">{CONFIG_FILE_NAME}</span>
+                <br />
+                <i className="smaller">
+                  You can back that up if you want to nuke the app directory but
+                  retain settings. <br />
+                  You probably should not edit it.
+                </i>
+              </div>
+            </Row>
+
             <Row className="mt-3">
               <Col>
                 <Checkbox
