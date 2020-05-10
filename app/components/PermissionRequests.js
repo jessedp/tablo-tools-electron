@@ -12,11 +12,13 @@ type Props = {};
 type State = { show: boolean, requests: PermissionRequestsType };
 
 export type PermissionRequestsType = {
-  allowErrorReport: boolean
+  allowErrorReport: boolean,
+  allowAutoUpdate: boolean
 };
 
 export const defaultPermissionRequests: PermissionRequestsType = {
-  allowErrorReport: false
+  allowErrorReport: false,
+  allowAutoUpdate: false
 };
 
 export default class PermissionRequests extends Component<Props, State> {
@@ -40,10 +42,6 @@ export default class PermissionRequests extends Component<Props, State> {
     (this: any).setOption = this.setOption.bind(this);
   }
 
-  async componentDidMount() {
-    // this.setState({ show: true, releases: releases.data });
-  }
-
   setOption = (
     evt: SyntheticEvent<HTMLInputElement>,
     optionName: string
@@ -61,6 +59,11 @@ export default class PermissionRequests extends Component<Props, State> {
       setConfigItem(optionName, !requests[optionName]);
       this.setState({ requests });
     }
+    if (optionName === 'allowAutoUpdate') {
+      requests[optionName] = !requests[optionName];
+      setConfigItem(optionName, !requests[optionName]);
+      this.setState({ requests });
+    }
   };
 
   handleClose() {
@@ -70,13 +73,12 @@ export default class PermissionRequests extends Component<Props, State> {
     Object.keys(requests).forEach(key => {
       markedRequests[key] = true;
     });
-    console.log('closing: ', markedRequests);
     store.set('PermissionRequests', markedRequests);
     this.setState({ show: false });
   }
 
   render() {
-    const { show } = this.state;
+    const { show, requests } = this.state;
     const config = getConfig();
 
     return (
@@ -90,22 +92,52 @@ export default class PermissionRequests extends Component<Props, State> {
       >
         <Modal.Body>
           <h5 className="text-danger">
-            Here are some <b>Settings</b> you should know about
+            Here are some <b className="text-dark">Settings</b> you should know
+            about
           </h5>
+
           <div className="smaller muted mb-3">
-            <i>We&apos;ll only ask once...</i>
+            <i>
+              We&apos;ll only ask once... You can change them anytime under
+              Settings <span className="fa fa-cogs pl-1 pr-1" />{' '}
+            </i>
           </div>
-          <Checkbox
-            handleChange={evt => this.setOption(evt, 'allowErrorReport')}
-            label="Allow sending Error Reports?"
-            checked={config.allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
-          />
-          <div className="pl-4 smaller">
-            No personal data is collected - this simply notifies of us errors
-            before you may post about it or even notice a problem. It does the{' '}
-            <i>white screen of death</i> information gathering for you (and
-            more).
-          </div>
+
+          {!requests.allowErrorReport ? (
+            <>
+              <Checkbox
+                handleChange={evt => this.setOption(evt, 'allowErrorReport')}
+                label="Allow sending Error Reports?"
+                checked={config.allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
+              />
+
+              <div className="pl-4 smaller">
+                No personal data is collected - this simply notifies of us
+                errors before you may post about it or even notice a problem. It
+                does the <i>white screen of death</i> information gathering for
+                you (and more).
+              </div>
+            </>
+          ) : (
+            ''
+          )}
+
+          {!requests.allowAutoUpdate ? (
+            <>
+              <Checkbox
+                handleChange={evt => this.setOption(evt, 'autoUpdate')}
+                label="Allow Automatic Updates?"
+                checked={config.autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
+              />
+              <div className="pl-4 smaller">
+                On Linux and Windows, try to automatically download and install{' '}
+                <b>new releases</b>. Regardless of this setting, a notification
+                will appear when a new release is available.
+              </div>
+            </>
+          ) : (
+            ''
+          )}
         </Modal.Body>
         <Modal.Footer className="p-1">
           <Button size="sm" variant="secondary" onClick={this.handleClose}>
