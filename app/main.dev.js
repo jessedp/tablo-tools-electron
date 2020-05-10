@@ -14,6 +14,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import getConfig from './utils/config';
 
 require('./sentry');
 
@@ -21,7 +22,14 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.autoDownload = true;
+    if (getConfig().autoUpdate) {
+      autoUpdater.autoDownload = true;
+      autoUpdater.autoInstallOnAppQuit = true;
+    } else {
+      autoUpdater.autoDownload = true;
+      autoUpdater.autoInstallOnAppQuit = true;
+    }
+
     autoUpdater.allowPrerelease = false;
 
     ipcMain.on('update-request', event => {

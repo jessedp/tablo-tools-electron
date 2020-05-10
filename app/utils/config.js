@@ -2,11 +2,25 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 
-const { app } = require('electron').remote;
+const electron = require('electron');
+
+//
+export function getPath(key) {
+  if (!process.versions.electron) {
+    // Node.js process
+    return '';
+  }
+  if (process.type === 'renderer') {
+    // Electron renderer process
+    return electron.remote.app.getPath(key);
+  }
+  // Electron main process
+  return electron.app.getPath(key);
+}
 
 let cachedConfig = {};
 
-const logsPath = app.getPath('userData');
+const logsPath = getPath('userData');
 
 export const CONFIG_FILE_NAME = path.normalize(
   `${logsPath}/tablo_tools_config.json`
@@ -15,6 +29,7 @@ export const CONFIG_FILE_NAME = path.normalize(
 export type ConfigType = {
   autoRebuild: boolean,
   autoRebuildMinutes: number,
+  autoUpdate: boolean,
   notifyBeta: boolean,
   episodePath: string,
   moviePath: string,

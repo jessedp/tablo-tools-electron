@@ -51,6 +51,7 @@ export default class Settings extends Component<Props, ConfigType> {
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
+    this.toggleAutoUpdate = this.toggleAutoUpdate.bind(this);
     this.setAutoRebuildMinutes = this.setAutoRebuildMinutes.bind(this);
     this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
     this.toggleErrorReport = this.toggleErrorReport.bind(this);
@@ -126,6 +127,11 @@ export default class Settings extends Component<Props, ConfigType> {
     this.setState({ autoRebuild: !autoRebuild });
   };
 
+  toggleAutoUpdate = () => {
+    const { autoUpdate } = this.state;
+    this.setState({ autoUpdate: !autoUpdate });
+  };
+
   setAutoRebuildMinutes = (minutes: number | null) => {
     console.log('setAutoRebuildMinutes', minutes);
     // this.setState({ autoRebuildMinutes: event.currentTarget.value });
@@ -178,6 +184,7 @@ export default class Settings extends Component<Props, ConfigType> {
       saveState,
       autoRebuild,
       autoRebuildMinutes,
+      autoUpdate,
       notifyBeta,
       allowErrorReport,
       enableTestDevice,
@@ -250,6 +257,22 @@ export default class Settings extends Component<Props, ConfigType> {
             </div>
 
             <Row className="mt-3">
+              <Col md="8">
+                <Checkbox
+                  handleChange={this.toggleAutoUpdate}
+                  checked={autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
+                  label="Enable automatic updates?"
+                />
+                <div className="pl-4 smaller">
+                  On Linux and Windows, try to automatically download and
+                  install <b>new releases</b>. Regardless of this setting, a
+                  notification will appear when a new release is available (or
+                  based on your choice below).
+                </div>
+              </Col>
+            </Row>
+
+            <Row className="mt-3">
               <Col>
                 <Checkbox
                   handleChange={this.toggleNotifyBeta}
@@ -264,7 +287,7 @@ export default class Settings extends Component<Props, ConfigType> {
             </Row>
 
             <Row className="mt-3">
-              <Col>
+              <Col md="8">
                 <Checkbox
                   handleChange={this.toggleErrorReport}
                   label="Allow sending Error Reports?"
@@ -357,7 +380,8 @@ export default class Settings extends Component<Props, ConfigType> {
                     label="Export Tablo Data?"
                   />
                   <div className="smaller">
-                    Writes out the raw JSON received from the Tablo to files.
+                    Writes out (some of) the raw JSON received from the Tablo to
+                    files.
                   </div>
                 </Col>
               </Row>
