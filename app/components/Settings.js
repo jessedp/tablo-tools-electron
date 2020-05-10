@@ -210,7 +210,7 @@ export default class Settings extends Component<Props, ConfigType> {
     }
 
     const openLogs = () =>
-      shell.showItemInFolder(path.normalize(`${logsPath}${path.sep}main.log`));
+      shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
 
     return (
       <div className="section">
