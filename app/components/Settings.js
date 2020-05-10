@@ -13,7 +13,11 @@ import Col from 'react-bootstrap/Col';
 
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, { ConfigType, defaultConfig } from '../utils/config';
+import getConfig, {
+  ConfigType,
+  defaultConfig,
+  setConfig
+} from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
@@ -94,7 +98,9 @@ export default class Settings extends Component<Props, ConfigType> {
         console.error('Unable to set Sentry reporting value');
       }
 
-      localStorage.setItem('AppConfig', JSON.stringify(cleanState));
+      setConfig(cleanState);
+
+      // in case they changed the test device.
       discover();
       result = SAVE_SUCCESS;
       setTimeout(() => {
@@ -195,8 +201,8 @@ export default class Settings extends Component<Props, ConfigType> {
         logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
     }
 
-    console.log('logs path', `${logsPath}/main.log`);
-    const openLogs = () => shell.showItemInFolder(`${logsPath}/main.log`);
+    const openLogs = () =>
+      shell.showItemInFolder(path.normalize(`${logsPath}${path.sep}main.log`));
 
     return (
       <div className="section">

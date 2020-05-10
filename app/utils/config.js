@@ -1,4 +1,14 @@
 import os from 'os';
+import fs from 'fs';
+import path from 'path';
+
+const { app } = require('electron').remote;
+
+let cachedConfig = {};
+
+const logsPath = app.getPath('userData');
+
+const CONFIG_FILE_NAME = path.normalize(`${logsPath}/tablo_tools_config.json`);
 
 export type ConfigType = {
   autoRebuild: boolean,
@@ -37,34 +47,54 @@ export const defaultConfig: ConfigType = {
 };
 
 export function setConfigItem(key: string, val: string) {
-  const storedConfig = getConfig();
-  storedConfig[key] = val;
-  localStorage.setItem('AppConfig', JSON.stringify(storedConfig));
+  cachedConfig[key] = val;
+  fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
+}
+
+export function setConfig(data: ConfigType) {
+  cachedConfig = data;
+  fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
 }
 
 // TODO: should do setConfig. Should redo all of this config mess.
 // setConfig Partial<ConfigType> react-hot-loader
 export default function getConfig(): ConfigType {
-  const storedConfig: ConfigType = JSON.parse(
-    localStorage.getItem('AppConfig') || '{}'
-  );
+  if (!cachedConfig || !Object.keys(cachedConfig).length) {
+    if (fs.existsSync(CONFIG_FILE_NAME)) {
+      cachedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE_NAME) || '{}');
+    } else {
+      // TODO: from 0.0.14 - remove localStorage conversion at some point
+      const lsConfig = localStorage.getItem('AppConfig');
+      if (lsConfig) {
+        const storedConfig: ConfigType = JSON.parse(
+          localStorage.getItem('AppConfig') || '{}'
+        );
 
-  let upgrade = false; // just rewrite it...
-  // TODO: remove after 0.0.7
-  // change: enableIpOverride => enableTestDevice
-  if (Object.prototype.hasOwnProperty.call(storedConfig, 'enableIpOverride')) {
-    storedConfig.enableTestDevice = storedConfig.enableIpOverride;
-    delete storedConfig.enableIpOverride;
-    upgrade = true;
+        if (Object.keys(storedConfig).length > 0) {
+          // TODO: remove sometime after 0.0.7
+          // change: enableIpOverride => enableTestDevice
+          if (
+            Object.prototype.hasOwnProperty.call(
+              storedConfig,
+              'enableIpOverride'
+            )
+          ) {
+            storedConfig.enableTestDevice = storedConfig.enableIpOverride;
+            delete storedConfig.enableIpOverride;
+          }
+          // change: overrideIp => testDeviceIp
+          if (
+            Object.prototype.hasOwnProperty.call(storedConfig, 'overrideIp')
+          ) {
+            storedConfig.testDeviceIp = storedConfig.overrideIp;
+            delete storedConfig.overrideIp;
+          }
+        }
+        // localStorage.removeItem('AppConfig');
+        cachedConfig = storedConfig;
+        fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
+      }
+    }
   }
-  // change: overrideIp => testDeviceIp
-  if (Object.prototype.hasOwnProperty.call(storedConfig, 'overrideIp')) {
-    storedConfig.testDeviceIp = storedConfig.overrideIp;
-    delete storedConfig.overrideIp;
-    upgrade = true;
-  }
-  if (upgrade) {
-    localStorage.setItem('AppConfig', JSON.stringify(storedConfig));
-  }
-  return Object.assign(defaultConfig, storedConfig);
+  return Object.assign(defaultConfig, cachedConfig);
 }
