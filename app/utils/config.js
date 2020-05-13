@@ -49,6 +49,7 @@ export type ConfigType = {
 export const defaultConfig: ConfigType = {
   autoRebuild: true,
   autoRebuildMinutes: 30,
+  autoUpdate: true,
   notifyBeta: false,
   episodePath: path.normalize(`${os.homedir()}/TabloRecordings/TV`),
   moviePath: path.normalize(`${os.homedir()}/TabloRecordings/Movies`),
