@@ -91,6 +91,10 @@ class Navbar extends Component<Props, State> {
     ipcRenderer.on('update-reply', (event, msg) => {
       this.processUpdate(msg);
     });
+
+
+
+
   }
 
   async processUpdate(msg: Object) {
@@ -110,6 +114,10 @@ class Navbar extends Component<Props, State> {
   render() {
     const { updateAvailable } = this.state;
     let { updateData } = this.state;
+
+    const { actionList } = global;
+
+    const len = actionList.length;
 
     if (updateData) updateData = updateData.info;
 
@@ -141,8 +149,23 @@ class Navbar extends Component<Props, State> {
 
     return (
       <Row className="mb-2">
-        <Col md="7">
-          <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
+        <Col md="8" className="border">
+          <div className="selected-basket">
+            {len > 0 ? (
+              <Image
+                src={tabloLogo}
+                style={{ width: '125px', padding: '5px' }}
+              />
+            ) : (
+              <Button
+                onClick={() => {}}
+                variant="outline-primary"
+                style={{ width: '125px' }}
+              >
+                <span className="fa fa-file-video pr-1" /> {len} selected
+              </Button>
+            )}
+          </div>
           <ButtonGroup className="ml-2">
             <LinkContainer activeClassName="active" to={routes.HOME}>
               <Button size="sm" variant="outline-primary">
@@ -190,7 +213,7 @@ class Navbar extends Component<Props, State> {
           </ButtonGroup>
         </Col>
 
-        <Col md="4" className="offset-md-1 smaller pt-1  align-items">
+        <Col md="4" className="smaller pt-1  align-items">
           <div className="d-flex flex-row-reverse">
             <div>
               <VersionStatus

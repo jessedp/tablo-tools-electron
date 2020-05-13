@@ -291,12 +291,21 @@ body,
   transform: rotate(45deg);
 }
 
+/** nav bar Image / sel box **/
+.selected-basket {
+  width: 120px;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+}
+
 /* Program block */
 .program-cover {
   width: 147px;
   height: 200px;
   border: #dfd7ca solid 1px;
 }
+
 .program-title {
   border-bottom: darkgray solid 1px;
   margin-left: -10px;
