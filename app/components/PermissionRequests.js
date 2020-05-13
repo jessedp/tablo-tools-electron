@@ -104,7 +104,7 @@ export default class PermissionRequests extends Component<Props, State> {
           </div>
 
           {!requests.allowErrorReport ? (
-            <>
+            <div className="mb-2">
               <Checkbox
                 handleChange={evt => this.setOption(evt, 'allowErrorReport')}
                 label="Allow sending Error Reports?"
@@ -117,13 +117,13 @@ export default class PermissionRequests extends Component<Props, State> {
                 does the <i>white screen of death</i> information gathering for
                 you (and more).
               </div>
-            </>
+            </div>
           ) : (
             ''
           )}
 
           {!requests.allowAutoUpdate ? (
-            <>
+            <div className="mb-2">
               <Checkbox
                 handleChange={evt => this.setOption(evt, 'autoUpdate')}
                 label="Allow Automatic Updates?"
@@ -134,7 +134,7 @@ export default class PermissionRequests extends Component<Props, State> {
                 <b>new releases</b>. Regardless of this setting, a notification
                 will appear when a new release is available.
               </div>
-            </>
+            </div>
           ) : (
             ''
           )}
