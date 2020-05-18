@@ -118,7 +118,7 @@ function DiscoveryStatus(prop) {
   if (state === STATE_NONE) {
     return (
       <Alert variant="danger" className="fade m-2">
-        Unable to find any Tablos
+        No Tablos found.
       </Alert>
     );
   }
