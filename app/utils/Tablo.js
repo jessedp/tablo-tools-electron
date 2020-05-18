@@ -13,6 +13,7 @@ const store = new Store();
 
 export async function setupApi() {
   global.Api = new Tablo();
+  global.CONNECTED = false;
 
   await discover();
   // TODO - updating to v0.0.7, remove in some time
@@ -99,6 +100,7 @@ export async function checkConnection() {
   // this is easily grosser and more wronger than it looks
   return new Promise(resolve => {
     client.on('close', () => {
+      global.CONNECTED = status;
       // console.log('resolve status', status);
       resolve(status);
     });
