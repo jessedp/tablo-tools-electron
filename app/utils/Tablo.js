@@ -106,6 +106,7 @@ export async function checkConnection() {
   // this is easily grosser and more wronger than it looks
   return new Promise(resolve => {
     client.on('close', () => {
+      global.CONNECTED = status;
       // console.log('resolve status', status);
       resolve(status);
     });
