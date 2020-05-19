@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import Navbar from '../components/Navbar';
 import VersionInfo from '../components/VersionInfo';
+import IssueSearch from '../components/IssueSearch';
 import PermissionRequests from '../components/PermissionRequests';
 
 type Props = {
@@ -18,6 +19,7 @@ export default class App extends React.Component<Props> {
       <div>
         <PermissionRequests />
         <VersionInfo />
+        <IssueSearch />
         <div className="top-bar pl-3 pr-3">
           <Navbar />
         </div>
