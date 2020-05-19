@@ -94,6 +94,10 @@ export default class Build extends Component<Props, State> {
       console.log('trying to double build');
       return;
     }
+    if (!global.CONNECTED) {
+      console.log('Not connected, not bulding...');
+      return;
+    }
 
     this.building = true;
     console.time('Building');
