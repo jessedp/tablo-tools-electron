@@ -1,5 +1,5 @@
 // @flow
-import { app, Menu, shell, BrowserWindow } from 'electron';
+import { app, Menu, shell, BrowserWindow, ipcMain } from 'electron';
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -254,7 +254,7 @@ export default class MenuBuilder {
               ]
       },
       {
-        label: 'Help',
+        label: '&Help',
         submenu: [
           {
             label: 'Website',
@@ -275,9 +275,11 @@ export default class MenuBuilder {
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal(
-                'https://github.com/jessedp/tablo-tools-electron/issues'
-              );
+              ipcMain.emit('search-issues', '');
+
+              // shell.openExternal(
+              //   'https://github.com/jessedp/tablo-tools-electron/issues'
+              // );
             }
           }
         ]

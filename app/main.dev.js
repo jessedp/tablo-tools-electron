@@ -32,6 +32,12 @@ export default class AppUpdater {
 
     autoUpdater.allowPrerelease = false;
 
+    // this is coming from menu.js
+    ipcMain.on('search-issues', () => {
+      // $FlowFixMe but .send() works in dev!
+      mainWindow.send('search-issues', 'open');
+    });
+
     ipcMain.on('update-request', event => {
       autoUpdater.on('error', error => {
         // sentry #R
