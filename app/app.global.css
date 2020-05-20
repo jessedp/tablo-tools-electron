@@ -292,11 +292,27 @@ body,
 }
 
 /** nav bar Image / sel box **/
+.top-bar {
+  height: 50px;
+}
+
 .selected-basket {
-  width: 120px;
-  margin: 0;
-  padding: 0;
+  min-width: 125px;
+  width: 125px;
+  min-height: 50px;
+  height: 50px;
+  margin: 0 10px 0 0;
+  padding: 5px;
   display: inline-block;
+}
+
+.menu-buttons {
+  display: inline-block;
+  min-height: 50px;
+  height: 50px;
+  margin: 0;
+  padding: 5px 0;
+  vertical-align: bottom;
 }
 
 /* Program block */
