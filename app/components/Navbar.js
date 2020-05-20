@@ -1,12 +1,10 @@
 // @flow
-/** This is poorly named - the SideBar is actually the TopBar * */
 import { ipcRenderer, shell } from 'electron';
 import React, { Component, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
-import Image from 'react-bootstrap/Image';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -16,11 +14,12 @@ import axios from 'axios';
 
 import { Dropdown } from 'react-bootstrap';
 import routes from '../constants/routes.json';
-import tabloLogo from '../../resources/tablo_tools_logo.png';
+
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
+import SelectLogoBox from './SelectLogoBox';
 
 const { app } = require('electron').remote;
 
@@ -91,10 +90,6 @@ class Navbar extends Component<Props, State> {
     ipcRenderer.on('update-reply', (event, msg) => {
       this.processUpdate(msg);
     });
-
-
-
-
   }
 
   async processUpdate(msg: Object) {
@@ -114,10 +109,6 @@ class Navbar extends Component<Props, State> {
   render() {
     const { updateAvailable } = this.state;
     let { updateData } = this.state;
-
-    const { actionList } = global;
-
-    const len = actionList.length;
 
     if (updateData) updateData = updateData.info;
 
@@ -146,74 +137,60 @@ class Navbar extends Component<Props, State> {
       ddClass = 'active';
     }
     if (ddClass) toggleClass = `${toggleClass} active`;
-
     return (
-      <Row className="mb-2">
-        <Col md="8" className="border">
-          <div className="selected-basket">
-            {len > 0 ? (
-              <Image
-                src={tabloLogo}
-                style={{ width: '125px', padding: '5px' }}
-              />
-            ) : (
-              <Button
-                onClick={() => {}}
-                variant="outline-primary"
-                style={{ width: '125px' }}
-              >
-                <span className="fa fa-file-video pr-1" /> {len} selected
-              </Button>
-            )}
+      <Row className="mb-2 top-bar">
+        <Col md="8">
+          <SelectLogoBox />
+          <div className="menu-buttons">
+            <ButtonGroup className="ml-2 pt-2">
+              <LinkContainer activeClassName="active" to={routes.HOME}>
+                <Button size="sm" variant="outline-primary">
+                  <span className="fa fa-home" />
+                </Button>
+              </LinkContainer>
+
+              <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
+                <Button size="sm" variant="outline-primary">
+                  Overview
+                </Button>
+              </LinkContainer>
+
+              <Dropdown as={ButtonGroup} drop="down" style={{ width: '160px' }}>
+                <Button size="sm" variant="outline-primary" className={ddClass}>
+                  {ddText}
+                </Button>
+
+                <Dropdown.Toggle size="sm" variant={toggleClass} />
+
+                <Dropdown.Menu variant="outline-secondary">
+                  <LinkContainer activeClassName="active" to={routes.SHOWS}>
+                    <Dropdown.Item>Shows & Series</Dropdown.Item>
+                  </LinkContainer>
+
+                  <LinkContainer activeClassName="active" to={routes.MOVIES}>
+                    <Dropdown.Item>Movies</Dropdown.Item>
+                  </LinkContainer>
+
+                  <LinkContainer activeClassName="active" to={routes.SPORTS}>
+                    <Dropdown.Item>Sports & Events</Dropdown.Item>
+                  </LinkContainer>
+
+                  <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
+                    <Dropdown.Item>Manual</Dropdown.Item>
+                  </LinkContainer>
+                </Dropdown.Menu>
+              </Dropdown>
+
+              <LinkContainer activeClassName="active" to={routes.SEARCH}>
+                <Button size="sm" variant="outline-primary">
+                  Search
+                </Button>
+              </LinkContainer>
+            </ButtonGroup>
           </div>
-          <ButtonGroup className="ml-2">
-            <LinkContainer activeClassName="active" to={routes.HOME}>
-              <Button size="sm" variant="outline-primary">
-                <span className="fa fa-home" />
-              </Button>
-            </LinkContainer>
-
-            <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
-              <Button size="sm" variant="outline-primary">
-                Overview
-              </Button>
-            </LinkContainer>
-
-            <Dropdown as={ButtonGroup} drop="down" style={{ width: '160px' }}>
-              <Button size="sm" variant="outline-primary" className={ddClass}>
-                {ddText}
-              </Button>
-
-              <Dropdown.Toggle size="sm" split variant={toggleClass} />
-
-              <Dropdown.Menu variant="outline-secondary">
-                <LinkContainer activeClassName="active" to={routes.SHOWS}>
-                  <Dropdown.Item>Shows & Series</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.MOVIES}>
-                  <Dropdown.Item>Movies</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.SPORTS}>
-                  <Dropdown.Item>Sports & Events</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
-                  <Dropdown.Item>Manual</Dropdown.Item>
-                </LinkContainer>
-              </Dropdown.Menu>
-            </Dropdown>
-
-            <LinkContainer activeClassName="active" to={routes.SEARCH}>
-              <Button size="sm" variant="outline-primary">
-                Search
-              </Button>
-            </LinkContainer>
-          </ButtonGroup>
         </Col>
 
-        <Col md="4" className="smaller pt-1  align-items">
+        <Col md="4" className="smaller pt-1  align-items menu-buttons">
           <div className="d-flex flex-row-reverse">
             <div>
               <VersionStatus
