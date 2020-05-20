@@ -160,7 +160,7 @@ function DiscoveryTitle(prop) {
   const { device, localDiscover, state } = prop;
 
   let checked;
-  if (device) {
+  if (global.CONNECTED) {
     if (state === STATE_MULTI) return <></>;
     checked = new Date(device.inserted);
     return (

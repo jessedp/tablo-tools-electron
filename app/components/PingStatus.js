@@ -67,7 +67,7 @@ export default class PingStatus extends Component<PingProps, PingState> {
       pingStatus = 'text-success';
     }
     const { discoveredDevices } = global;
-    if (discoveredDevices.length === 1) {
+    if (!device && discoveredDevices.length === 1) {
       return (
         <span title={device.private_ip}>
           <span className="d-inline text-muted smaller pr-2">

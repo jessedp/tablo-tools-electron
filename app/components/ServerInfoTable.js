@@ -28,7 +28,7 @@ export default class ServerInfoTable extends Component<Props, State> {
 
   componentDidMount = async () => {
     this.psToken = PubSub.subscribe('DEVICE_CHANGE', this.refresh);
-    await this.refresh();
+    this.refresh();
   };
 
   componentWillUnmount() {
