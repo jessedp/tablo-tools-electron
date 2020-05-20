@@ -49,6 +49,7 @@ export type ConfigType = {
 export const defaultConfig: ConfigType = {
   autoRebuild: true,
   autoRebuildMinutes: 30,
+  autoUpdate: true,
   notifyBeta: false,
   episodePath: path.normalize(`${os.homedir()}/TabloRecordings/TV`),
   moviePath: path.normalize(`${os.homedir()}/TabloRecordings/Movies`),
@@ -79,6 +80,8 @@ export default function getConfig(): ConfigType {
   if (!cachedConfig || !Object.keys(cachedConfig).length) {
     if (fs.existsSync(CONFIG_FILE_NAME)) {
       cachedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE_NAME) || '{}');
+    } else if (typeof localStorage === 'undefined') {
+      cachedConfig = defaultConfig;
     } else {
       // TODO: from 0.0.14 - remove localStorage conversion at some point
       const lsConfig = localStorage.getItem('AppConfig');
