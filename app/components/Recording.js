@@ -1,10 +1,15 @@
 // @flow
 
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+
+import * as ActionListActions from '../actions/actionList';
 
 import Title from './Title';
 import TabloImage from './TabloImage';
@@ -14,19 +19,21 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
 import Checkbox, { CHECKBOX_OFF } from './Checkbox';
 
+// import { addAiring, remAiring } from '../actions/actionList';
+
 import VideoExport from './VideoExport';
 import Airing from '../utils/Airing';
 
 type Props = {
   doDelete: () => ?Promise<any>,
-  addItem: (item: Airing) => void,
-  delItem: (item: Airing) => void,
   airing: Airing,
-  checked?: number
+  checked?: number,
+  addAiring: Airing => void,
+  remAiring: Airing => void
 };
 type State = { recOverviewOpen: boolean };
 
-export default class Recording extends Component<Props, State> {
+class Recording extends Component<Props, State> {
   props: Props;
 
   static defaultProps: {};
@@ -49,7 +56,7 @@ export default class Recording extends Component<Props, State> {
   }
 
   toggleSelection() {
-    const { airing, addItem, delItem } = this.props;
+    const { airing, addAiring, remAiring } = this.props;
 
     // FIXME: gross, don't know if this is correct way to do this
     if (
@@ -65,9 +72,9 @@ export default class Recording extends Component<Props, State> {
 
     // we get this value before it's set, so the test is backwards
     if (!checked) {
-      addItem(airing);
+      addAiring(airing);
     } else {
-      delItem(airing);
+      remAiring(airing);
     }
   }
 
@@ -185,3 +192,19 @@ export default class Recording extends Component<Props, State> {
 Recording.defaultProps = {
   checked: CHECKBOX_OFF
 };
+
+const mapStateToProps = (state: any) => {
+  // console.log('mapStateToProps', state);
+  return {
+    actionList: state.actionList
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Recording);

@@ -302,6 +302,7 @@
     "react-select": "^3.1.0",
     "react-sticky-el": "^1.1.0",
     "redux": "^4.0.4",
+    "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.16",
@@ -326,4 +327,3 @@
     }
   }
 }
-
