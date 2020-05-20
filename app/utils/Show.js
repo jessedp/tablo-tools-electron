@@ -1,5 +1,5 @@
 // @flow
-import { TabloImage, ShowCounts } from '../reducers/types';
+import { TabloImage, ShowCounts } from './types';
 
 export const SERIES = 'episode';
 export const MOVIE = 'movie';
