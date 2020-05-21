@@ -17,7 +17,7 @@ import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
-import Checkbox, { CHECKBOX_OFF } from './Checkbox';
+import Checkbox from './Checkbox';
 
 // import { addAiring, remAiring } from '../actions/actionList';
 
@@ -27,7 +27,7 @@ import Airing from '../utils/Airing';
 type Props = {
   doDelete: () => ?Promise<any>,
   airing: Airing,
-  checked?: number,
+  checked: number,
   addAiring: Airing => void,
   remAiring: Airing => void
 };
@@ -35,8 +35,6 @@ type State = { recOverviewOpen: boolean };
 
 class Recording extends Component<Props, State> {
   props: Props;
-
-  static defaultProps: {};
 
   // for 2 way interaction you're maybe not supposed to do for this reason
   // TODO: figure out the type.
@@ -55,7 +53,7 @@ class Recording extends Component<Props, State> {
     (this: any).processVideo = this.processVideo.bind(this);
   }
 
-  toggleSelection() {
+  toggleSelection = async () => {
     const { airing, addAiring, remAiring } = this.props;
 
     // FIXME: gross, don't know if this is correct way to do this
@@ -65,18 +63,20 @@ class Recording extends Component<Props, State> {
     )
       return;
 
-    if (!this.checkboxRef) return;
     const { state } = this.checkboxRef;
     if (!state) return;
+
     const { checked } = state;
 
     // we get this value before it's set, so the test is backwards
     if (!checked) {
+      // await this.setState({ checked: CHECKBOX_ON });
       addAiring(airing);
     } else {
+      // await this.setState({ checked: CHECKBOX_OFF });
       remAiring(airing);
     }
-  }
+  };
 
   toggleRecOverview() {
     const { recOverviewOpen } = this.state;
@@ -189,22 +189,9 @@ class Recording extends Component<Props, State> {
     );
   }
 }
-Recording.defaultProps = {
-  checked: CHECKBOX_OFF
-};
-
-const mapStateToProps = (state: any) => {
-  // console.log('mapStateToProps', state);
-  return {
-    actionList: state.actionList
-  };
-};
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
-  mapStateToProps,
-  mapDispatchToProps
-)(Recording);
+export default connect<*, *, *, *, *, *>(null, mapDispatchToProps)(Recording);

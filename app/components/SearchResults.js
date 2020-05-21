@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
@@ -13,16 +14,12 @@ import type { SearchAlert } from './Search';
 import MatchesToBadges from './SearchFilterMatches';
 
 type Props = {
-  addItem: (airing: Airing) => void,
-  delItem: (airing: Airing) => void,
   refresh: () => void
 };
 
 type State = {
   searchAlert: SearchAlert,
   airingList: Array<Airing>,
-  airingRefs: Object,
-  actionList: Array<Airing>,
   loading: boolean
 };
 
@@ -35,8 +32,6 @@ export default class SearchResults extends Component<Props, State> {
     super();
 
     this.initialState = {
-      airingRefs: {},
-      actionList: [],
       loading: false,
       airingList: [],
       searchAlert: {
@@ -47,74 +42,26 @@ export default class SearchResults extends Component<Props, State> {
     };
 
     this.state = this.initialState;
-
-    this.addItem = this.addItem.bind(this);
-    this.delItem = this.delItem.bind(this);
-    // this.search = this.search.bind(this);
     this.delete = this.delete.bind(this);
   }
 
   receiveResults = (records: Object) => {
-    const refs = {};
-    if (records.airingList) {
-      records.airingList.forEach(item => {
-        refs[item.object_id] = React.createRef();
-      });
-    }
-
     this.setState({
       searchAlert: records.searchAlert,
       loading: records.loading,
-      actionList: records.actionList,
-      airingList: records.airingList,
-      airingRefs: refs
-    });
-  };
-
-  addItem = (item: Airing) => {
-    const { addItem } = this.props;
-    addItem(item);
-  };
-
-  delItem = (item: Airing) => {
-    const { delItem } = this.props;
-    delItem(item);
-  };
-
-  toggle = (item: Airing, type: number) => {
-    const { airingRefs } = this.state;
-    if (airingRefs[item.object_id])
-      airingRefs[item.object_id].current.checkboxRef.toggle(type);
-  };
-
-  selectAll = () => {
-    const { airingRefs } = this.state;
-    Object.keys(airingRefs).forEach(id => {
-      if (airingRefs[id])
-        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
-          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_ON);
-    });
-  };
-
-  unselectAll = () => {
-    const { airingRefs } = this.state;
-    Object.keys(airingRefs).forEach(id => {
-      if (airingRefs[id])
-        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
-          // typeof check is because there are no checkboxes on episodes being recorded
-          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_OFF);
+      airingList: records.airingList
     });
   };
 
   delete = async () => {
     const { refresh } = this.props;
-    // TODO: make this work if need be
+    // TODO: See if this is necessary
     await refresh();
   };
 
   render() {
     const { refresh } = this.props;
-    const { searchAlert, actionList, loading, airingRefs } = this.state;
+    const { searchAlert, loading } = this.state;
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
@@ -123,21 +70,13 @@ export default class SearchResults extends Component<Props, State> {
     if (!loading) {
       rows.push(
         airingList.map(airing => {
-          let checked = CHECKBOX_OFF;
-          if (actionList.find(item => item.object_id === airing.object_id)) {
-            checked = CHECKBOX_ON;
-          }
-
           return (
             <Recording
               key={`recording-${airing.object_id}`}
-              ref={airingRefs[airing.object_id]}
               search={refresh}
               doDelete={this.delete}
               airing={airing}
-              addItem={this.addItem}
-              delItem={this.delItem}
-              checked={checked}
+              checked={CHECKBOX_OFF}
             />
           );
         })
@@ -194,3 +133,11 @@ function ShowAlerts(prop) {
     </Row>
   );
 }
+
+connect(
+  connect(({ actionList }, { airing }) => ({
+    checked: actionList.find(item => item.object_id === airing.object_id)
+      ? CHECKBOX_ON
+      : CHECKBOX_OFF
+  }))
+)(Recording);
