@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { render } from 'react-dom';
 import { AppContainer as ReactHotAppContainer } from 'react-hot-loader';
+import { persistStore } from 'redux-persist';
 import PubSub from 'pubsub-js';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
@@ -11,6 +12,8 @@ import { setupDb } from './utils/db';
 require('./sentry');
 
 const store = configureStore();
+
+const persistor = persistStore(configureStore());
 
 const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;
 
@@ -37,7 +40,7 @@ run
   .then(() => {
     return render(
       <AppContainer>
-        <Root store={store} history={history} />
+        <Root store={store} history={history} persistor={persistor} />
       </AppContainer>,
       document.getElementById('root')
     );

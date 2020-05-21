@@ -3,6 +3,9 @@ import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'connected-react-router';
 import { createLogger } from 'redux-logger';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+
 import createRootReducer from '../reducers';
 import * as counterActions from '../actions/counter';
 import * as actionListActions from '../actions/actionList';
@@ -13,6 +16,19 @@ const history = createHashHistory();
 const rootReducer = createRootReducer(history);
 
 const configureStore = (initialState?: actionListType) => {
+  // Middleware: Redux Persist Config
+  const persistConfig = {
+    // Root
+    key: 'root',
+    storage,
+    // Whitelist (Save Specific Reducers)
+    whitelist: ['manageActionList'],
+    // Blacklist (Don't Save Specific Reducers)
+    blacklist: ['counterReducer']
+  };
+  // Middleware: Redux Persist Persisted Reducer
+  const persistedReducer = persistReducer(persistConfig, rootReducer);
+
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -56,7 +72,7 @@ const configureStore = (initialState?: actionListType) => {
   const enhancer = composeEnhancers(...enhancers);
 
   // Create Store
-  const store = createStore(rootReducer, initialState, enhancer);
+  const store = createStore(persistedReducer, initialState, enhancer);
 
   if (module.hot) {
     module.hot.accept(

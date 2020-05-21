@@ -47,8 +47,6 @@ class SelectLogoBox extends Component<Props, State> {
   render() {
     const { actionList } = this.props;
 
-    console.log('SLB-actionList', actionList);
-
     if (!actionList || actionList.length === 0) {
       return (
         <div className="selected-basket border">

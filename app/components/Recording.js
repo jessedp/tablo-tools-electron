@@ -17,7 +17,7 @@ import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
-import Checkbox from './Checkbox';
+import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 // import { addAiring, remAiring } from '../actions/actionList';
 
@@ -190,8 +190,21 @@ class Recording extends Component<Props, State> {
   }
 }
 
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { airing } = ownProps;
+  return {
+    checked: actionList.find(item => item.object_id === airing.object_id)
+      ? CHECKBOX_ON
+      : CHECKBOX_OFF
+  };
+};
+
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(null, mapDispatchToProps)(Recording);
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Recording);

@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
@@ -9,7 +8,7 @@ import Alert from 'react-bootstrap/Alert';
 
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
-import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
+
 import type { SearchAlert } from './Search';
 import MatchesToBadges from './SearchFilterMatches';
 
@@ -76,7 +75,6 @@ export default class SearchResults extends Component<Props, State> {
               search={refresh}
               doDelete={this.delete}
               airing={airing}
-              checked={CHECKBOX_OFF}
             />
           );
         })
@@ -133,11 +131,3 @@ function ShowAlerts(prop) {
     </Row>
   );
 }
-
-connect(
-  connect(({ actionList }, { airing }) => ({
-    checked: actionList.find(item => item.object_id === airing.object_id)
-      ? CHECKBOX_ON
-      : CHECKBOX_OFF
-  }))
-)(Recording);
