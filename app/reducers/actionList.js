@@ -19,9 +19,11 @@ export default function manageActionList(
         return [...actionList, airing];
       }
       return state;
-    case REM_AIRING:
-      return actionList.filter(rec => rec.object_id !== airing.object_id);
-
+    case REM_AIRING: {
+      return ([...actionList].filter(
+        rec => rec.object_id !== airing.object_id
+      ): ActionListStateType);
+    }
     default:
       return state;
   }
