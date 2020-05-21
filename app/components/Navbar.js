@@ -12,14 +12,16 @@ import Modal from 'react-bootstrap/Modal';
 import { format } from 'date-fns';
 import axios from 'axios';
 
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
+import DropdownItem from 'react-bootstrap/DropdownItem';
 import routes from '../constants/routes.json';
 
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
-import SelectLogoBox from './SelectLogoBox';
+import SelectedBox from './SelectedBox';
+import LogoBox from './Logo';
 
 const { app } = require('electron').remote;
 
@@ -114,33 +116,33 @@ class Navbar extends Component<Props, State> {
 
     // dropdown state
     let ddText = 'Browse Recordings';
-    let ddClass = '';
-    let toggleClass = 'outline-primary';
+    // let ddClass = '';
+    // let toggleClass = 'outline-primary';
     const { location } = this.props;
     if (location.pathname === routes.SHOWS) {
       ddText = 'Shows & Series';
-      ddClass = 'active';
+      // ddClass = 'active';
     }
 
     if (location.pathname === routes.MOVIES) {
       ddText = 'Movies';
-      ddClass = 'active';
+      // ddClass = 'active';
     }
 
     if (location.pathname === routes.SPORTS) {
       ddText = 'Sports & Events';
-      ddClass = 'active';
+      // ddClass = 'active';
     }
 
     if (location.pathname === routes.PROGRAMS) {
       ddText = 'Manual';
-      ddClass = 'active';
+      // ddClass = 'active';
     }
-    if (ddClass) toggleClass = `${toggleClass} active`;
+    // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
-      <Row className="mb-2 top-bar">
-        <Col md="8">
-          <SelectLogoBox />
+      <Row className="mb-2 top-bar border">
+        <Col md="7">
+          <LogoBox />
           <div className="menu-buttons">
             <ButtonGroup className="ml-2 pt-2">
               <LinkContainer activeClassName="active" to={routes.HOME}>
@@ -155,31 +157,32 @@ class Navbar extends Component<Props, State> {
                 </Button>
               </LinkContainer>
 
-              <Dropdown as={ButtonGroup} drop="down" style={{ width: '160px' }}>
-                <Button size="sm" variant="outline-primary" className={ddClass}>
-                  {ddText}
-                </Button>
-
-                <Dropdown.Toggle size="sm" variant={toggleClass} />
-
-                <Dropdown.Menu variant="outline-secondary">
+              <DropdownButton
+                as={ButtonGroup}
+                style={{ width: '160px' }}
+                title={ddText}
+              >
+                <DropdownItem>
                   <LinkContainer activeClassName="active" to={routes.SHOWS}>
                     <Dropdown.Item>Shows & Series</Dropdown.Item>
                   </LinkContainer>
-
+                </DropdownItem>
+                <DropdownItem>
                   <LinkContainer activeClassName="active" to={routes.MOVIES}>
                     <Dropdown.Item>Movies</Dropdown.Item>
                   </LinkContainer>
-
+                </DropdownItem>
+                <DropdownItem>
                   <LinkContainer activeClassName="active" to={routes.SPORTS}>
                     <Dropdown.Item>Sports & Events</Dropdown.Item>
                   </LinkContainer>
-
+                </DropdownItem>
+                <DropdownItem>
                   <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
                     <Dropdown.Item>Manual</Dropdown.Item>
                   </LinkContainer>
-                </Dropdown.Menu>
-              </Dropdown>
+                </DropdownItem>
+              </DropdownButton>
 
               <LinkContainer activeClassName="active" to={routes.SEARCH}>
                 <Button size="sm" variant="outline-primary">
@@ -190,7 +193,7 @@ class Navbar extends Component<Props, State> {
           </div>
         </Col>
 
-        <Col md="4" className="smaller pt-1  align-items menu-buttons">
+        <Col md="5" className="smaller pt-1  align-items menu-buttons border">
           <div className="d-flex flex-row-reverse">
             <div>
               <VersionStatus
@@ -211,6 +214,7 @@ class Navbar extends Component<Props, State> {
             <div className="pr-3 pt-2">
               <DbStatus />
             </div>
+            <SelectedBox />
           </div>
         </Col>
       </Row>
