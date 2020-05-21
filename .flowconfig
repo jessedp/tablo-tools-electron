@@ -4,6 +4,7 @@
 <PROJECT_ROOT>/app/dist/.*
 <PROJECT_ROOT>/resources/.*
 <PROJECT_ROOT>/node_modules/webpack-cli
+<PROJECT_ROOT>/node_modules/redux-persist/lib/persistReducer.js.flow
 
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
