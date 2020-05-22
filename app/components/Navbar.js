@@ -116,44 +116,49 @@ class Navbar extends Component<Props, State> {
 
     // dropdown state
     let ddText = 'Browse Recordings';
-    // let ddClass = '';
+    let ddClass = 'outline-primary';
     // let toggleClass = 'outline-primary';
     const { location } = this.props;
     if (location.pathname === routes.SHOWS) {
       ddText = 'Shows & Series';
-      // ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.MOVIES) {
       ddText = 'Movies';
-      // ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.SPORTS) {
       ddText = 'Sports & Events';
-      // ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.PROGRAMS) {
       ddText = 'Manual';
-      // ddClass = 'active';
+      ddClass = 'primary';
     }
     // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
-      <Row className="mb-2 top-bar border">
+      <Row className="mb-2 top-bar">
         <Col md="7">
           <LogoBox />
           <div className="menu-buttons">
-            <ButtonGroup className="ml-2 pt-2">
+            <ButtonGroup className="ml-2 pt-1">
               <LinkContainer activeClassName="active" to={routes.HOME}>
-                <Button size="sm" variant="outline-primary">
+                <Button size="sm" variant="outline-primary" as="button">
                   <span className="fa fa-home" />
                 </Button>
               </LinkContainer>
 
               <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
-                <Button size="sm" variant="outline-primary">
-                  Overview
+                <Button
+                  as="button"
+                  size="sm"
+                  variant="outline-primary"
+                  className="align-middle"
+                >
+                  <span>Overview</span>
                 </Button>
               </LinkContainer>
 
@@ -161,6 +166,7 @@ class Navbar extends Component<Props, State> {
                 as={ButtonGroup}
                 style={{ width: '160px' }}
                 title={ddText}
+                variant={ddClass}
               >
                 <DropdownItem>
                   <LinkContainer activeClassName="active" to={routes.SHOWS}>
@@ -185,37 +191,42 @@ class Navbar extends Component<Props, State> {
               </DropdownButton>
 
               <LinkContainer activeClassName="active" to={routes.SEARCH}>
-                <Button size="sm" variant="outline-primary">
+                <Button size="sm" variant="outline-primary" as="button">
                   Search
                 </Button>
               </LinkContainer>
             </ButtonGroup>
           </div>
         </Col>
-
-        <Col md="5" className="smaller pt-1  align-items menu-buttons border">
-          <div className="d-flex flex-row-reverse">
-            <div>
-              <VersionStatus
-                updateData={updateData}
-                available={updateAvailable}
-              />
-            </div>
-            <div className="pr-2">
-              <LinkContainer activeClassName="active" to={routes.SETTINGS}>
-                <Button size="sm" variant="outline-dark" title="Settings">
-                  <i className="fa fa-cogs" />
-                </Button>
-              </LinkContainer>
-            </div>
-            <div className="pr-4 pt-2">
-              <PingStatus />
-            </div>
-            <div className="pr-3 pt-2">
-              <DbStatus />
-            </div>
-            <SelectedBox />
-          </div>
+        <Col md="5">
+          <Row>
+            <Col md="4">
+              <SelectedBox />
+            </Col>
+            <Col md="8" className="smaller pt-1  align-items menu-buttons">
+              <div className="d-flex flex-row-reverse">
+                <div>
+                  <VersionStatus
+                    updateData={updateData}
+                    available={updateAvailable}
+                  />
+                </div>
+                <div>
+                  <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+                    <Button size="sm" variant="outline-dark" title="Settings">
+                      <i className="fa fa-cogs" />
+                    </Button>
+                  </LinkContainer>
+                </div>
+                <div className="p-0 pr-0 pt-2">
+                  <DbStatus />
+                </div>
+                <div className="pt-2 pr-0 ">
+                  <PingStatus />
+                </div>
+              </div>
+            </Col>
+          </Row>
         </Col>
       </Row>
     );

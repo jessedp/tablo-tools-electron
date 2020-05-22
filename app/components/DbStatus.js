@@ -109,11 +109,11 @@ export default class DbStatus extends Component<DbProps, DbState> {
         className="text-muted"
         style={{
           maxHeight: '16px',
-          width: '110px'
+          width: '120px'
         }}
       >
         <Row>
-          <Col md="2" className="pt-1 pr-0 mr-0">
+          <Col md="2" className="ml-2 pr-0 mr-0 pl-0 btn btn-xs smaller">
             <Build
               view="spinner"
               showDbTable={() => {}}
@@ -127,7 +127,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
               onKeyDown={this.forceBuild}
               role="button"
               tabIndex="0"
-              className="pl-2"
+              className="pl-0 btn btn-xs smaller pr-0"
             >
               <span className={`fa fa-database pr-1 ${color}`} />
 
