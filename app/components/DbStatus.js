@@ -105,9 +105,15 @@ export default class DbStatus extends Component<DbProps, DbState> {
     }
 
     return (
-      <div className="text-muted" style={{ maxHeight: '16px' }}>
+      <div
+        className="text-muted"
+        style={{
+          maxHeight: '16px',
+          width: '110px'
+        }}
+      >
         <Row>
-          <Col md="auto" className="pt-1 pr-0 mr-0">
+          <Col md="2" className="pt-1 pr-0 mr-0">
             <Build
               view="spinner"
               showDbTable={() => {}}
