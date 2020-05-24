@@ -4,12 +4,14 @@ import { connect } from 'react-redux';
 
 import { bindActionCreators } from 'redux';
 
-import { Image } from 'react-bootstrap';
+import { DropdownButton, ButtonGroup, Dropdown } from 'react-bootstrap';
 
+import DropdownItem from 'react-bootstrap/DropdownItem';
+import { LinkContainer } from 'react-router-bootstrap';
+import routes from '../constants/routes.json';
 import * as ActionListActions from '../actions/actionList';
 
 import Airing from '../utils/Airing';
-import tabloLogo from '../../resources/tablo_tools_logo.png';
 
 type State = {};
 type Props = {
@@ -18,22 +20,6 @@ type Props = {
 
 class SelectLogoBox extends Component<Props, State> {
   initialState: State;
-
-  // constructor() {
-  //   super();
-  //   // this.initialState = {
-  //   //   actionList: []
-  //   // };
-
-  //   // const storedState = JSON.parse(
-  //   //   localStorage.getItem('SelectLogoBoxState') || '{}'
-  //   // );
-
-  //   // const initialStateCopy = { ...this.initialState };
-  //   // this.state = Object.assign(initialStateCopy, storedState);
-
-  //   // this.forceBuild = this.forceBuild.bind(this);
-  // }
 
   setStateStore(...args: Array<Object>) {
     const values = args[0];
@@ -48,17 +34,28 @@ class SelectLogoBox extends Component<Props, State> {
     const { actionList } = this.props;
 
     if (!actionList || actionList.length === 0) {
-      return (
-        <div className="selected-basket border">
-          <Image src={tabloLogo} style={{ width: '125px' }} />
-        </div>
-      );
+      return <></>;
     }
-
-    return (
-      <div className="selected-basket border">
+    const title = (
+      <>
         <span className="fa fa-file-video pr-1" />
         {actionList.length} selected
+      </>
+    );
+
+    return (
+      <div className="selected-basket smaller text-primary pt-2">
+        <DropdownButton
+          as={ButtonGroup}
+          title={title}
+          variant="outline-secondary"
+        >
+          <DropdownItem>
+            <LinkContainer activeClassName="active" to={routes.SHOWS}>
+              <Dropdown.Item>View</Dropdown.Item>
+            </LinkContainer>
+          </DropdownItem>
+        </DropdownButton>
       </div>
     );
   }
