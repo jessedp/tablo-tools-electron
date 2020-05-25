@@ -37,6 +37,7 @@ export default function manageActionList(
           actionList.push(item);
         }
       });
+
       return [...actionList];
 
     case BULK_REM_AIRINGS:
