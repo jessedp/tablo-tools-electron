@@ -132,7 +132,6 @@ export default class SavedSearch extends Component<Props, State> {
     searchState.seasonList = [];
     searchState.skip = 0;
     searchState.recordCount = 0;
-    searchState.view = '';
 
     let show = true;
     if (searchId === 0 || chkNew === CHECKBOX_ON) {

@@ -1,5 +1,8 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
@@ -30,12 +33,16 @@ import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 import SelectStyles from './SelectStyles';
 import SavedSearchEdit from './SavedSearchEdit';
+import { VIEW_SELECTED } from '../reducers/constants';
+import * as SearchActions from '../actions/search';
 
 type Props = {
   sendResults: Object => void,
   sendSelectAll: () => void,
   sendUnselectAll: () => void,
-  toggleItem: (Airing, number) => void
+  toggleItem: (Airing, number) => void,
+  view: string,
+  changeView: string => void
 };
 
 type Season = {
@@ -56,7 +63,6 @@ export type SearchState = {
   cleanFilter: string,
   savedSearchFilter: string,
   sortFilter: number,
-  view: string,
   percent: number,
   percentLocation: number,
   recordCount: number,
@@ -73,7 +79,7 @@ const SORT_SIZE_DSC = 4;
 const SORT_DURATION_ASC = 5;
 const SORT_DURATION_DSC = 6;
 
-export default class SearchForm extends Component<Props, SearchState> {
+class SearchForm extends Component<Props, SearchState> {
   props: Props;
 
   initialState: SearchState;
@@ -100,7 +106,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       savedSearchFilter: '',
       seasonFilter: '',
       sortFilter: SORT_REC_DSC,
-      view: 'search',
       percent: 100,
       percentLocation: 0,
       recordCount: 0,
@@ -180,6 +185,13 @@ export default class SearchForm extends Component<Props, SearchState> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { view } = this.props;
+    if (prevProps.view !== view) {
+      this.refresh();
+    }
+  }
+
   componentWillUnmount() {
     const cleanState = { ...this.state };
     PubSub.unsubscribe(this.psToken);
@@ -216,7 +228,9 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   async refresh() {
-    const { view, actionList, searchAlert } = this.state;
+    const { view } = this.props;
+    const { actionList, searchAlert } = this.state;
+
     this.showsList = await showList();
     this.savedSearchList = await global.SearchDb.asyncFind({});
 
@@ -275,7 +289,6 @@ export default class SearchForm extends Component<Props, SearchState> {
     };
 
     this.setState({
-      view: 'selected',
       searchAlert
     });
 
@@ -507,7 +520,6 @@ export default class SearchForm extends Component<Props, SearchState> {
     const {
       skip,
       limit,
-      view,
       percent,
       searchValue,
       stateFilter,
@@ -685,7 +697,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       alert = { type: 'warning', text: description, matches: steps };
       updateState = {
         searchAlert: alert,
-        view: 'search',
         actionList,
         airingList,
         recordCount: 0
@@ -737,7 +748,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       updateState = {
         searchAlert: alert,
         recordCount: count,
-        view: 'search',
         actionList,
         airingList
       };
@@ -745,7 +755,6 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     sendResults({
       loading: false,
-      view,
       searchAlert: alert,
       airingList,
       actionList
@@ -756,6 +765,8 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   render() {
+    const { changeView } = this.props;
+
     const {
       searchValue,
       stateFilter,
@@ -769,11 +780,13 @@ export default class SearchForm extends Component<Props, SearchState> {
       sortFilter,
       actionList,
       seasonList,
-      view,
       percent,
       recordCount,
       limit
     } = this.state;
+
+    const { view } = this.props;
+
     let { percentLocation } = this.state;
 
     const pctLabel = `${percent}%`;
@@ -912,14 +925,9 @@ export default class SearchForm extends Component<Props, SearchState> {
         </Row>
 
         <Row>
-          {view !== 'selected' ? (
+          {view !== VIEW_SELECTED ? (
             <>
-              <Col md="2">
-                <SelectedDisplay
-                  actionList={actionList}
-                  view={this.viewChange}
-                />
-              </Col>
+              <Col md="2">&nbsp;</Col>
               <Col md="3" className="pt-1">
                 <Button
                   variant="outline-info"
@@ -1001,19 +1009,18 @@ export default class SearchForm extends Component<Props, SearchState> {
             ''
           )}
 
-          {view === 'selected' ? (
+          {view === VIEW_SELECTED ? (
             <>
               <Col md="1">
-                <Col md="2" className="pt-1">
-                  <Button
-                    variant="outline-secondary"
-                    size="xs"
-                    onClick={this.search}
-                    title="Back"
-                  >
-                    <span className="fa fa-arrow-left" />
-                  </Button>
-                </Col>
+                <Button
+                  variant="outline-secondary"
+                  size="xs"
+                  onClick={changeView}
+                  title="Back"
+                  className="mt-2"
+                >
+                  <span className="fa fa-arrow-left" /> Back
+                </Button>
               </Col>
               <Col md="2" className="pt-1">
                 <ConfirmDelete
@@ -1033,18 +1040,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       </>
     );
   }
-}
-
-function SelectedDisplay(prop) {
-  const { actionList, view } = prop;
-
-  const len = actionList.length;
-
-  return (
-    <Button onClick={view} variant="outline-primary" style={{ width: '125px' }}>
-      <span className="fa fa-file-video pr-1" /> {len} selected
-    </Button>
-  );
 }
 
 type filterProps = {
@@ -1494,3 +1489,18 @@ function FilterSelect(props: fullFilterProps) {
     </div>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(SearchActions, dispatch);
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    view: state.view
+  };
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchForm);

@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import MatchesToBadges from './SearchFilterMatches';
 import RelativeDate from './RelativeDate';
 
-type Props = { onClose: Function => void };
+type Props = { onClose: Function => Promise<any> };
 type State = { show: boolean };
 
 export default class SavedSearchEdit extends Component<Props, State> {

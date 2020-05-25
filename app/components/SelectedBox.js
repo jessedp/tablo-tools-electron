@@ -10,12 +10,14 @@ import DropdownItem from 'react-bootstrap/DropdownItem';
 import { LinkContainer } from 'react-router-bootstrap';
 import routes from '../constants/routes.json';
 import * as ActionListActions from '../actions/actionList';
+import * as SearchActions from '../actions/search';
 
 import Airing from '../utils/Airing';
 
 type State = {};
 type Props = {
-  actionList: Array<Airing>
+  actionList: Array<Airing>,
+  changeView: string => void
 };
 
 class SelectLogoBox extends Component<Props, State> {
@@ -23,7 +25,6 @@ class SelectLogoBox extends Component<Props, State> {
 
   setStateStore(...args: Array<Object>) {
     const values = args[0];
-    // console.log(values);
     this.setState(values);
     const cleanState = this.state;
 
@@ -31,7 +32,7 @@ class SelectLogoBox extends Component<Props, State> {
   }
 
   render() {
-    const { actionList } = this.props;
+    const { actionList, changeView } = this.props;
 
     if (!actionList || actionList.length === 0) {
       return <></>;
@@ -51,8 +52,33 @@ class SelectLogoBox extends Component<Props, State> {
           variant="outline-secondary"
         >
           <DropdownItem>
-            <LinkContainer activeClassName="active" to={routes.SHOWS}>
-              <Dropdown.Item>View</Dropdown.Item>
+            <Dropdown.Item>
+              <div
+                role="button"
+                onClick={() => changeView('selected')}
+                onKeyDown={() => changeView('selected')}
+                className="btn"
+                tabIndex="0"
+              >
+                <span className="fa fa-search pr-2" />
+                View
+              </div>
+            </Dropdown.Item>
+          </DropdownItem>
+          <DropdownItem>
+            <LinkContainer activeClassName="active" to={routes.EXPORT}>
+              <Dropdown.Item>
+                <span className="fa fa-download pr-2" />
+                Export
+              </Dropdown.Item>
+            </LinkContainer>
+          </DropdownItem>
+          <DropdownItem>
+            <LinkContainer activeClassName="active" to={routes.DELETE}>
+              <Dropdown.Item>
+                <span className="fa fa-trash pr-2" />
+                Delete
+              </Dropdown.Item>
             </LinkContainer>
           </DropdownItem>
         </DropdownButton>
@@ -62,7 +88,10 @@ class SelectLogoBox extends Component<Props, State> {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators(ActionListActions, dispatch);
+  return bindActionCreators(
+    { ...ActionListActions, ...SearchActions },
+    dispatch
+  );
 };
 
 const mapStateToProps = (state: any) => {
