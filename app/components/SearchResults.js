@@ -20,7 +20,8 @@ import * as ActionListActions from '../actions/actionList';
 type Props = {
   refresh: () => void,
   bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void
+  bulkRemAirings: (Array<Airing>) => void,
+  results: Object
 };
 
 type State = {
@@ -51,11 +52,19 @@ class SearchResults extends Component<Props, State> {
     this.delete = this.delete.bind(this);
   }
 
-  receiveResults = (records: Object) => {
+  componentDidUpdate(prevProps: Props) {
+    const { results } = this.props;
+    if (prevProps.results !== results) {
+      this.refresh();
+    }
+  }
+
+  refresh = () => {
+    const { results } = this.props;
     this.setState({
-      searchAlert: records.searchAlert,
-      loading: records.loading,
-      airingList: records.airingList
+      searchAlert: results.searchAlert,
+      loading: results.loading,
+      airingList: results.airingList
     });
   };
 
@@ -166,7 +175,13 @@ const mapDispatchToProps = dispatch => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
+const mapStateToProps = (state: any) => {
+  return {
+    results: state.results
+  };
+};
+
 export default connect<*, *, *, *, *, *>(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(SearchResults);

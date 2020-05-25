@@ -24,7 +24,6 @@ import {
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
 import ConfirmDelete from './ConfirmDelete';
-import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
 import VideoExport from './VideoExport';
 import TabloImage from './TabloImage';
@@ -38,9 +37,6 @@ import * as SearchActions from '../actions/search';
 
 type Props = {
   sendResults: Object => void,
-  sendSelectAll: () => void,
-  sendUnselectAll: () => void,
-  toggleItem: (Airing, number) => void,
   view: string,
   changeView: string => void
 };
@@ -159,12 +155,6 @@ class SearchForm extends Component<Props, SearchState> {
 
     this.percentDrag = this.percentDrag.bind(this);
 
-    this.addItem = this.addItem.bind(this);
-    this.delItem = this.delItem.bind(this);
-    this.emptyItems = this.emptyItems.bind(this);
-
-    this.selectAll = this.selectAll.bind(this);
-    this.unselectAll = this.unselectAll.bind(this);
     this.deleteAll = this.deleteAll.bind(this);
 
     (this: any).sortChange = this.sortChange.bind(this);
@@ -301,48 +291,6 @@ class SearchForm extends Component<Props, SearchState> {
 
     const cleanState = { ...this.state };
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
-  };
-
-  addItem = (item: Airing) => {
-    const { actionList } = this.state;
-    if (!actionList.find(rec => rec.object_id === item.object_id)) {
-      actionList.push(item);
-      this.setState({ actionList });
-    }
-  };
-
-  delItem = (item: Airing) => {
-    let { actionList } = this.state;
-    actionList = actionList.filter(
-      airing => airing.object_id !== item.object_id
-    );
-    this.setState({ actionList });
-  };
-
-  selectAll = () => {
-    const { sendSelectAll } = this.props;
-    const { airingList } = this.state;
-    sendSelectAll();
-    airingList.forEach(airing => {
-      this.addItem(airing);
-    });
-  };
-
-  unselectAll = () => {
-    const { sendUnselectAll } = this.props;
-    // const { airingList } = this.state;
-    sendUnselectAll();
-    this.setState({ actionList: [] });
-  };
-
-  emptyItems = () => {
-    const { sendUnselectAll, toggleItem } = this.props;
-    const { actionList } = this.state;
-    actionList.forEach(item => {
-      toggleItem(item, CHECKBOX_OFF);
-    });
-    sendUnselectAll();
-    this.setState({ actionList: [] });
   };
 
   deleteAll = async (countCallback: Function) => {
@@ -927,38 +875,7 @@ class SearchForm extends Component<Props, SearchState> {
         <Row>
           {view !== VIEW_SELECTED ? (
             <>
-              <Col md="2">&nbsp;</Col>
-              <Col md="3" className="pt-1">
-                <Button
-                  variant="outline-info"
-                  size="xs"
-                  onClick={this.selectAll}
-                >
-                  <span
-                    className="fa fa-plus pr-1"
-                    style={{ color: 'green' }}
-                  />
-                  all
-                </Button>
-                &nbsp;
-                <Button
-                  variant="outline-info"
-                  size="xs"
-                  onClick={this.unselectAll}
-                >
-                  <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
-                  all
-                </Button>
-                &nbsp;
-                <Button
-                  variant="outline-danger"
-                  size="xs"
-                  onClick={this.emptyItems}
-                >
-                  <span className="fa fa-times-circle pr-1" />
-                  empty
-                </Button>
-              </Col>
+              <Col md="5" />
               <Col md="7">
                 <Row>
                   <Col md="8">
