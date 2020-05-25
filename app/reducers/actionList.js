@@ -32,7 +32,12 @@ export default function manageActionList(
     }
 
     case BULK_ADD_AIRINGS:
-      return airings;
+      airings.forEach(item => {
+        if (!actionList.find(rec => rec.object_id === item.object_id)) {
+          actionList.push(item);
+        }
+      });
+      return [...actionList];
 
     case BULK_REM_AIRINGS:
       return [];

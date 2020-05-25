@@ -2,25 +2,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { bindActionCreators } from 'redux';
-
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
-import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
 
-import { Button } from 'react-bootstrap';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 
 import type { SearchAlert } from './Search';
-import MatchesToBadges from './SearchFilterMatches';
-import * as ActionListActions from '../actions/actionList';
+import SearchResultAlerts from './SearchResultAlerts';
 
 type Props = {
-  refresh: () => void,
-  bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void,
   results: Object
 };
 
@@ -49,7 +40,7 @@ class SearchResults extends Component<Props, State> {
     };
 
     this.state = this.initialState;
-    this.delete = this.delete.bind(this);
+    // this.delete = this.delete.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -68,42 +59,39 @@ class SearchResults extends Component<Props, State> {
     });
   };
 
-  delete = async () => {
-    const { refresh } = this.props;
-    // TODO: See if this is necessary
-    await refresh();
-  };
+  // delete = async () => {
+  //   const { refresh } = this.props;
+  //   // TODO: See if this is necessary
+  //   await refresh();
+  // };
 
   render() {
-    const { refresh, bulkAddAirings, bulkRemAirings } = this.props;
+    // const { refresh } = this.props;
     const { searchAlert, loading } = this.state;
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
 
-    const rows = [];
+    let rows = [];
     if (!loading) {
-      rows.push(
-        airingList.map(airing => {
-          return (
-            <Recording
-              key={`recording-${airing.object_id}`}
-              search={refresh}
-              doDelete={this.delete}
-              airing={airing}
-            />
-          );
-        })
-      );
+      rows = airingList.map(airing => {
+        return (
+          <Recording
+            key={`recording-${airing.object_id}`}
+            //     search={refresh}
+            // doDelete={this.delete}
+            airing={airing}
+          />
+        );
+      });
     }
     return (
       <div className="scrollable-area">
         <Loading loading={loading} />
-        <ShowAlerts
+        <SearchResultAlerts
           alert={searchAlert}
           loading={loading}
-          bulkAddAirings={bulkAddAirings}
-          bulkRemAirings={bulkRemAirings}
+          airingList={airingList}
         />
         <Row className="m-1 mb-4">{rows}</Row>
       </div>
@@ -125,63 +113,10 @@ function Loading(prop) {
   );
 }
 
-function ShowAlerts(prop) {
-  const { alert, loading, bulkAddAirings, bulkRemAirings } = prop;
-
-  if (loading || !alert || !alert.matches) return '';
-
-  return (
-    <Row>
-      <Col>
-        <Alert variant={alert.type}>
-          <span className="pr-2">{alert.text}</span>
-          <MatchesToBadges
-            matches={alert.matches}
-            prefix="result_matches"
-            className=""
-          />
-
-          <div className="d-inline-block float-right">
-            <MatchesToBadges
-              matches={alert.stats}
-              prefix="result_stats"
-              className="bg-secondary"
-            />
-          </div>
-          <div className="d-inline-block float-right pr-3">
-            <Button
-              variant="outline-secondary"
-              className="mr-1"
-              size="xs"
-              onClick={bulkAddAirings}
-            >
-              <span className="fa fa-plus" /> all
-            </Button>
-            <Button
-              variant="outline-secondary"
-              size="xs"
-              onClick={bulkRemAirings}
-            >
-              <span className="fa fa-minus" /> all
-            </Button>
-          </div>
-        </Alert>
-      </Col>
-    </Row>
-  );
-}
-
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators(ActionListActions, dispatch);
-};
-
 const mapStateToProps = (state: any) => {
   return {
     results: state.results
   };
 };
 
-export default connect<*, *, *, *, *, *>(
-  mapStateToProps,
-  mapDispatchToProps
-)(SearchResults);
+export default connect<*, *, *, *, *, *>(mapStateToProps)(SearchResults);

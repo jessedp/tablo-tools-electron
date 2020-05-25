@@ -53,6 +53,13 @@ class Recording extends Component<Props, State> {
     (this: any).processVideo = this.processVideo.bind(this);
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { checked } = this.props;
+    if (prevProps.checked !== checked) {
+      this.render();
+    }
+  }
+
   toggleSelection = async () => {
     const { airing, addAiring, remAiring } = this.props;
 

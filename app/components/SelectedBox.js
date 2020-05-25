@@ -34,14 +34,11 @@ class SelectedBox extends Component<Props, State> {
   render() {
     const { actionList, changeView } = this.props;
 
-    if (!actionList || actionList.length === 0) {
-      return <></>;
-    }
     const title = (
       <>
         <span className="fa fa-shopping-cart pr-1" />
         {actionList.length}
-      </>
+      </> //
     );
 
     return (
@@ -51,24 +48,36 @@ class SelectedBox extends Component<Props, State> {
           title={title}
           variant="outline-secondary"
         >
+          {actionList.length > 0 ? (
+            <>
+              <DropdownItem onClick={() => changeView('selected')}>
+                <span>
+                  <span className="fa fa-search pr-2" />
+                  View
+                </span>
+              </DropdownItem>
+              <DropdownItem>
+                <LinkContainer activeClassName="active" to={routes.EXPORT}>
+                  <span>
+                    <span className="fa fa-download pr-2" />
+                    Export
+                  </span>
+                </LinkContainer>
+              </DropdownItem>
+              <DropdownItem href={routes.OVERVIEW}>
+                <span>
+                  <span className="fa fa-trash pr-2" />
+                  Delete
+                </span>
+              </DropdownItem>
+            </> //
+          ) : (
+            ''
+          )}
           <DropdownItem onClick={() => changeView('selected')}>
             <span>
-              <span className="fa fa-search pr-2" />
-              View
-            </span>
-          </DropdownItem>
-          <DropdownItem>
-            <LinkContainer activeClassName="active" to={routes.EXPORT}>
-              <span>
-                <span className="fa fa-download pr-2" />
-                Export
-              </span>
-            </LinkContainer>
-          </DropdownItem>
-          <DropdownItem href={routes.OVERVIEW}>
-            <span>
-              <span className="fa fa-trash pr-2" />
-              Delete
+              <span className="fa fa-plus pr-2" />
+              Add All Recordings
             </span>
           </DropdownItem>
         </DropdownButton>

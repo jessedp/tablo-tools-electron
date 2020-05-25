@@ -22,14 +22,14 @@ export function remAiring(airing: Airing) {
   };
 }
 
-export function bulkAddAiring(airings: Array<Airing>) {
+export function bulkAddAirings(airings: Array<Airing>) {
   return {
     type: BULK_ADD_AIRINGS,
     airings
   };
 }
 
-export function bulkRemAiring(airings: Array<Airing>) {
+export function bulkRemAirings(airings: Array<Airing>) {
   return {
     type: BULK_REM_AIRINGS,
     airings
