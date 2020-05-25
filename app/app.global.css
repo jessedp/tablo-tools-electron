@@ -306,6 +306,10 @@ body,
   display: inline-block;
 }
 
+.menu-icon {
+  width: 24px;
+}
+
 .menu-buttons {
   display: inline-block;
   min-height: 50px;
