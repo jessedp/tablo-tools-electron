@@ -222,7 +222,7 @@ class Navbar extends Component<Props, State> {
                     </Button>
                   </LinkContainer>
                 </div>
-                <div className="p-0 pr-0">
+                <div className="pt-2 p-0 pr-0">
                   <DbStatus />
                 </div>
                 <div className="pt-2 pr-0 mr-4">

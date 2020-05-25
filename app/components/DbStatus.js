@@ -109,7 +109,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
         className="text-muted"
         style={{
           maxHeight: '16px',
-          width: '120px'
+          width: '140px'
         }}
       >
         <Row>
