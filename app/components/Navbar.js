@@ -13,7 +13,6 @@ import { format } from 'date-fns';
 import axios from 'axios';
 
 import { Dropdown, DropdownButton } from 'react-bootstrap';
-import DropdownItem from 'react-bootstrap/DropdownItem';
 import routes from '../constants/routes.json';
 
 import PingStatus from './PingStatus';
@@ -110,6 +109,7 @@ class Navbar extends Component<Props, State> {
 
   render() {
     const { updateAvailable } = this.state;
+
     let { updateData } = this.state;
 
     if (updateData) updateData = updateData.info;
@@ -168,26 +168,30 @@ class Navbar extends Component<Props, State> {
                 title={ddText}
                 variant={ddClass}
               >
-                <DropdownItem>
-                  <LinkContainer activeClassName="active" to={routes.SHOWS}>
-                    <Dropdown.Item>Shows & Series</Dropdown.Item>
-                  </LinkContainer>
-                </DropdownItem>
-                <DropdownItem>
-                  <LinkContainer activeClassName="active" to={routes.MOVIES}>
-                    <Dropdown.Item>Movies</Dropdown.Item>
-                  </LinkContainer>
-                </DropdownItem>
-                <DropdownItem>
-                  <LinkContainer activeClassName="active" to={routes.SPORTS}>
-                    <Dropdown.Item>Sports & Events</Dropdown.Item>
-                  </LinkContainer>
-                </DropdownItem>
-                <DropdownItem>
-                  <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
-                    <Dropdown.Item>Manual</Dropdown.Item>
-                  </LinkContainer>
-                </DropdownItem>
+                <LinkContainer activeClassName="active" to={routes.SHOWS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-tv pr-2" />
+                    Shows & Series
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.MOVIES}>
+                  <Dropdown.Item>
+                    <span className="fa fa-film pr-2" />
+                    Movies
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.SPORTS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-quidditch pr-2" />
+                    Sports & Events
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-keyboard pr-2" />
+                    Manual
+                  </Dropdown.Item>
+                </LinkContainer>
               </DropdownButton>
 
               <LinkContainer activeClassName="active" to={routes.ALL}>
@@ -200,10 +204,10 @@ class Navbar extends Component<Props, State> {
         </Col>
         <Col md="5">
           <Row>
-            <Col md="4">
+            <Col md="2">
               <SelectedBox />
             </Col>
-            <Col md="8" className="smaller pt-1  align-items menu-buttons">
+            <Col md="10" className="smaller pt-1  align-items menu-buttons">
               <div className="d-flex flex-row-reverse">
                 <div>
                   <VersionStatus
@@ -218,10 +222,10 @@ class Navbar extends Component<Props, State> {
                     </Button>
                   </LinkContainer>
                 </div>
-                <div className="p-0 pr-0 pt-2">
+                <div className="p-0 pr-0">
                   <DbStatus />
                 </div>
-                <div className="pt-2 pr-0 ">
+                <div className="pt-2 pr-0 mr-4">
                   <PingStatus />
                 </div>
               </div>

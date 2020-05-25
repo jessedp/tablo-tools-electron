@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { bindActionCreators } from 'redux';
 
-import { DropdownButton, ButtonGroup, Dropdown } from 'react-bootstrap';
+import { DropdownButton, ButtonGroup } from 'react-bootstrap';
 
 import DropdownItem from 'react-bootstrap/DropdownItem';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -39,8 +39,8 @@ class SelectLogoBox extends Component<Props, State> {
     }
     const title = (
       <>
-        <span className="fa fa-file-video pr-1" />
-        {actionList.length} selected
+        <span className="fa fa-shopping-cart pr-1" />
+        {actionList.length}
       </>
     );
 
@@ -51,35 +51,25 @@ class SelectLogoBox extends Component<Props, State> {
           title={title}
           variant="outline-secondary"
         >
-          <DropdownItem>
-            <Dropdown.Item>
-              <div
-                role="button"
-                onClick={() => changeView('selected')}
-                onKeyDown={() => changeView('selected')}
-                className="btn"
-                tabIndex="0"
-              >
-                <span className="fa fa-search pr-2" />
-                View
-              </div>
-            </Dropdown.Item>
+          <DropdownItem onClick={() => changeView('selected')}>
+            <span>
+              <span className="fa fa-search pr-2" />
+              View
+            </span>
           </DropdownItem>
           <DropdownItem>
             <LinkContainer activeClassName="active" to={routes.EXPORT}>
-              <Dropdown.Item>
+              <span>
                 <span className="fa fa-download pr-2" />
                 Export
-              </Dropdown.Item>
+              </span>
             </LinkContainer>
           </DropdownItem>
-          <DropdownItem>
-            <LinkContainer activeClassName="active" to={routes.DELETE}>
-              <Dropdown.Item>
-                <span className="fa fa-trash pr-2" />
-                Delete
-              </Dropdown.Item>
-            </LinkContainer>
+          <DropdownItem href={routes.OVERVIEW}>
+            <span>
+              <span className="fa fa-trash pr-2" />
+              Delete
+            </span>
           </DropdownItem>
         </DropdownButton>
       </div>
