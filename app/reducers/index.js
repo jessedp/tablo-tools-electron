@@ -3,12 +3,13 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import type { HashHistory } from 'history';
 import manageActionList from './actionList';
-import changeView from './search';
+import { changeView, sendResults } from './search';
 
 export default function createRootReducer(history: HashHistory) {
   return combineReducers<{}, *>({
     router: connectRouter(history),
     actionList: manageActionList,
-    view: changeView
+    view: changeView,
+    results: sendResults
   });
 }
