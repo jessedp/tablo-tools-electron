@@ -7,6 +7,10 @@
   "MOVIES": "/movies",
   "SPORTS": "/sports",
   "PROGRAMS": "/programs",
-  "SEARCH": "/search",
-  "SETTINGS": "/settings"
+  "SEARCH": "/search/:type",
+  "SETTINGS": "/settings",
+  "EXPORT": "/export",
+  "DELETE": "/delete",
+  "SELECTED": "/search/selected",
+  "ALL": "/search/grid"
 }
