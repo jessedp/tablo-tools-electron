@@ -170,25 +170,25 @@ class Navbar extends Component<Props, State> {
               >
                 <LinkContainer activeClassName="active" to={routes.SHOWS}>
                   <Dropdown.Item>
-                    <span className="fa fa-tv pr-2" />
+                    <span className="fa fa-tv pr-2 menu-icon" />
                     Shows & Series
                   </Dropdown.Item>
                 </LinkContainer>
                 <LinkContainer activeClassName="active" to={routes.MOVIES}>
                   <Dropdown.Item>
-                    <span className="fa fa-film pr-2" />
+                    <span className="fa fa-film pr-2 menu-icon" />
                     Movies
                   </Dropdown.Item>
                 </LinkContainer>
                 <LinkContainer activeClassName="active" to={routes.SPORTS}>
                   <Dropdown.Item>
-                    <span className="fa fa-quidditch pr-2" />
+                    <span className="fa fa-quidditch pr-2 menu-icon" />
                     Sports & Events
                   </Dropdown.Item>
                 </LinkContainer>
                 <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
                   <Dropdown.Item>
-                    <span className="fa fa-keyboard pr-2" />
+                    <span className="fa fa-keyboard pr-2 menu-icon" />
                     Manual
                   </Dropdown.Item>
                 </LinkContainer>
