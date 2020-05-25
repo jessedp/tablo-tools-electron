@@ -20,7 +20,7 @@ type Props = {
   changeView: string => void
 };
 
-class SelectLogoBox extends Component<Props, State> {
+class SelectedBox extends Component<Props, State> {
   initialState: State;
 
   setStateStore(...args: Array<Object>) {
@@ -93,4 +93,4 @@ const mapStateToProps = (state: any) => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(SelectLogoBox);
+)(SelectedBox);
