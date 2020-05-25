@@ -1,19 +1,26 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
+import { bindActionCreators } from 'redux';
 
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 
+import { Button } from 'react-bootstrap';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 
 import type { SearchAlert } from './Search';
 import MatchesToBadges from './SearchFilterMatches';
+import * as ActionListActions from '../actions/actionList';
 
 type Props = {
-  refresh: () => void
+  refresh: () => void,
+  bulkAddAirings: (Array<Airing>) => void,
+  bulkRemAirings: (Array<Airing>) => void
 };
 
 type State = {
@@ -22,7 +29,7 @@ type State = {
   loading: boolean
 };
 
-export default class SearchResults extends Component<Props, State> {
+class SearchResults extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -59,7 +66,7 @@ export default class SearchResults extends Component<Props, State> {
   };
 
   render() {
-    const { refresh } = this.props;
+    const { refresh, bulkAddAirings, bulkRemAirings } = this.props;
     const { searchAlert, loading } = this.state;
     let { airingList } = this.state;
 
@@ -83,7 +90,12 @@ export default class SearchResults extends Component<Props, State> {
     return (
       <div className="scrollable-area">
         <Loading loading={loading} />
-        <ShowAlerts alert={searchAlert} loading={loading} />
+        <ShowAlerts
+          alert={searchAlert}
+          loading={loading}
+          bulkAddAirings={bulkAddAirings}
+          bulkRemAirings={bulkRemAirings}
+        />
         <Row className="m-1 mb-4">{rows}</Row>
       </div>
     );
@@ -105,7 +117,7 @@ function Loading(prop) {
 }
 
 function ShowAlerts(prop) {
-  const { alert, loading } = prop;
+  const { alert, loading, bulkAddAirings, bulkRemAirings } = prop;
 
   if (loading || !alert || !alert.matches) return '';
 
@@ -119,6 +131,7 @@ function ShowAlerts(prop) {
             prefix="result_matches"
             className=""
           />
+
           <div className="d-inline-block float-right">
             <MatchesToBadges
               matches={alert.stats}
@@ -126,8 +139,34 @@ function ShowAlerts(prop) {
               className="bg-secondary"
             />
           </div>
+          <div className="d-inline-block float-right pr-3">
+            <Button
+              variant="outline-secondary"
+              className="mr-1"
+              size="xs"
+              onClick={bulkAddAirings}
+            >
+              <span className="fa fa-plus" /> all
+            </Button>
+            <Button
+              variant="outline-secondary"
+              size="xs"
+              onClick={bulkRemAirings}
+            >
+              <span className="fa fa-minus" /> all
+            </Button>
+          </div>
         </Alert>
       </Col>
     </Row>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  null,
+  mapDispatchToProps
+)(SearchResults);
