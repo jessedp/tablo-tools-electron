@@ -1,10 +1,7 @@
 // @flow
 import { TabloImage, ShowCounts } from './types';
 
-export const SERIES = 'episode';
-export const MOVIE = 'movie';
-export const EVENT = 'event';
-export const PROGRAM = 'program';
+import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
 
 export default class Show {
   // eslint-disable-next-line camelcase
