@@ -59,12 +59,6 @@ class SearchResults extends Component<Props, State> {
     });
   };
 
-  // delete = async () => {
-  //   const { refresh } = this.props;
-  //   // TODO: See if this is necessary
-  //   await refresh();
-  // };
-
   render() {
     // const { refresh } = this.props;
     const { searchAlert, loading } = this.state;
@@ -76,12 +70,7 @@ class SearchResults extends Component<Props, State> {
     if (!loading) {
       rows = airingList.map(airing => {
         return (
-          <Recording
-            key={`recording-${airing.object_id}`}
-            //     search={refresh}
-            // doDelete={this.delete}
-            airing={airing}
-          />
+          <Recording key={`recording-${airing.object_id}`} airing={airing} />
         );
       });
     }

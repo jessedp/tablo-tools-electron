@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import PubSub from 'pubsub-js';
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -24,7 +26,6 @@ import VideoExport from './VideoExport';
 import Airing from '../utils/Airing';
 
 type Props = {
-  doDelete: () => ?Promise<any>,
   airing: Airing,
   checked: number,
   addAiring: Airing => void,
@@ -97,9 +98,9 @@ class Recording extends Component<Props, State> {
   }
 
   async deleteAiring() {
-    const { airing, doDelete } = this.props;
+    const { airing } = this.props;
     await airing.delete();
-    doDelete();
+    PubSub.publish('DB_CHANGE');
   }
 
   render() {
