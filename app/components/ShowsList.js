@@ -73,9 +73,8 @@ export default class ShowsList extends Component<Props, State> {
           result.push(
             <Button
               onClick={() => viewEpisodes(show)}
-              onKeyDown={() => viewEpisodes(show)}
               variant="light"
-              className="align-content-center"
+              className="cover align-content-center d-inline-block"
               key={show.id}
             >
               <ShowCover key={show.id} show={show} />

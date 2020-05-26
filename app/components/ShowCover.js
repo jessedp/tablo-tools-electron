@@ -1,16 +1,44 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as ActionListActions from '../actions/actionList';
 
 import TabloImage from './TabloImage';
-import Show, { SERIES, MOVIE, EVENT, PROGRAM } from '../utils/Show';
+import Show, { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';
+import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
-type Props = { show: Show };
+type Props = {
+  show: Show,
+  checked: number,
+  addShow: Show => void
+  //  remShow: Show => void
+};
 
-export default class ShowCover extends Component<Props> {
+class ShowCover extends Component<Props> {
   props: Props;
 
+  constructor() {
+    super();
+    this.toggle = this.toggle.bind(this);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { checked } = this.props;
+    if (prevProps.checked !== checked) {
+      this.render();
+    }
+  }
+
+  toggle = (event: any) => {
+    const { show, addShow } = this.props;
+    console.log('event!', event);
+    addShow(show);
+  };
+
   render() {
-    const { show } = this.props;
+    const { show, checked } = this.props;
     return (
       <div
         className="overlay-image"
@@ -28,6 +56,9 @@ export default class ShowCover extends Component<Props> {
         />
         <BottomLine show={show} />
         <Badge show={show} />
+        <div className="cover-checkbox">
+          <Checkbox checked={checked} handleChange={this.toggle} />
+        </div>
       </div>
     );
   }
@@ -104,3 +135,25 @@ function Badge(prop) {
     </div>
   );
 }
+
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { show } = ownProps;
+  const recCount = actionList.reduce(
+    (a, b) => a + (b.show.object_id === show.object || 0),
+    0
+  );
+  return {
+    checked:
+      recCount === show.showCounts.airing_count ? CHECKBOX_ON : CHECKBOX_OFF
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ShowCover);

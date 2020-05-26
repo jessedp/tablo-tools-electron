@@ -3,9 +3,14 @@ import {
   ADD_AIRING,
   REM_AIRING,
   BULK_ADD_AIRINGS,
-  BULK_REM_AIRINGS
+  BULK_REM_AIRINGS,
+  ADD_SHOW,
+  REM_SHOW,
+  REQ_EP_BY_SHOW,
+  RCV_EP_BY_SHOW
 } from '../actions/actionList';
 import type { Action } from './types';
+
 import Airing from '../utils/Airing';
 
 export type ActionListStateType = Array<Airing>;
@@ -17,6 +22,7 @@ export default function manageActionList(
   action: Action
 ) {
   const { airing, airings } = action;
+  const { show } = action;
   const actionList = state;
   switch (action.type) {
     case ADD_AIRING:
@@ -42,6 +48,29 @@ export default function manageActionList(
 
     case BULK_REM_AIRINGS:
       return [];
+
+    case REM_SHOW: {
+      actionList.slice(0, actionList.length);
+      const newList = [];
+      actionList.forEach(item => {
+        if (item.path !== show.path) {
+          newList.push(item);
+        }
+      });
+      return [...newList];
+    }
+
+    case ADD_SHOW:
+    case REQ_EP_BY_SHOW:
+      return [...actionList];
+
+    case RCV_EP_BY_SHOW:
+      airings.forEach(item => {
+        if (!actionList.find(rec => rec.object_id === item.object_id)) {
+          actionList.push(item);
+        }
+      });
+      return [...actionList];
 
     default:
       return state;

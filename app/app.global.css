@@ -260,6 +260,7 @@ body,
   position: relative;
   width: 100%;
   overflow: hidden;
+  z-index: 2;
 }
 
 /* Original image */
@@ -267,6 +268,7 @@ body,
   display: block;
   width: 100%;
   height: auto;
+  z-index: 3;
 }
 
 /* Original text overlay */
@@ -281,6 +283,7 @@ body,
   left: 50%;
   transform: translate(-50%, -50%);
   width: 101%;
+  z-index: 2;
 }
 
 /* banner in top right corner */
@@ -289,6 +292,7 @@ body,
   top: 0;
   right: 0;
   transform: rotate(45deg);
+  z-index: 3;
 }
 
 /** nav bar Image / sel box **/
@@ -308,6 +312,17 @@ body,
 
 .menu-icon {
   width: 24px;
+}
+
+.cover {
+  z-index: -1;
+}
+.cover-checkbox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  z-index: 1000;
 }
 
 .menu-buttons {

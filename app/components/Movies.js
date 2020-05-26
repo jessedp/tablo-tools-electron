@@ -69,7 +69,7 @@ export default class Movies extends Component<Props, State> {
         {airings.map(rec => {
           return <ShowCover show={rec.show} key={`movie-${rec.object_id}`} />;
         })}
-      </>
+      </> //
     );
   }
 }

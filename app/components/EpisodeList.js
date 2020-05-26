@@ -1,5 +1,8 @@
 // @flow
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import Sticky from 'react-sticky-el';
 
 import Container from 'react-bootstrap/Container';
@@ -10,13 +13,20 @@ import Badge from 'react-bootstrap/Badge';
 import Alert from 'react-bootstrap/Alert';
 import ListGroup from 'react-bootstrap/ListGroup';
 
+import { Button } from 'react-bootstrap';
+import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import { asyncForEach } from '../utils/utils';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
 
-type Props = { show: Show };
+type Props = {
+  show: Show,
+  selectedCount: number,
+  addShow: Show => void,
+  remShow: Show => void
+};
 type State = {
   episodes: Object,
   seasons: Object,
@@ -25,7 +35,7 @@ type State = {
   seasonRefs: Object
 };
 
-export default class EpisodeList extends Component<Props, State> {
+class EpisodeList extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -140,6 +150,7 @@ export default class EpisodeList extends Component<Props, State> {
 
   render() {
     const { count, episodes, seasons, seasonRefs } = this.state;
+    const { selectedCount, addShow, remShow } = this.props;
     const { show } = this.props;
 
     return (
@@ -164,6 +175,25 @@ export default class EpisodeList extends Component<Props, State> {
                   </Badge>
                 </Col>
               </Row>
+              <Row>
+                <Button
+                  size="xs"
+                  className="ml-3 mr-2"
+                  variant="outline-secondary"
+                  onClick={() => addShow(show)}
+                >
+                  <span className="fa fa-plus" /> All Episodes
+                </Button>
+                <Button
+                  size="xs"
+                  className="mr-2"
+                  variant="outline-secondary"
+                  onClick={() => remShow(show)}
+                >
+                  <span className="fa fa-minus" /> All Episodes
+                </Button>
+                <Badge>{selectedCount}</Badge>
+              </Row>
             </Col>
           </Row>
         </div>
@@ -181,7 +211,7 @@ export default class EpisodeList extends Component<Props, State> {
             </Col>
           </Row>
         </div>
-      </>
+      </> //
     );
   }
 }
@@ -212,9 +242,11 @@ function FullList(prop) {
   return output;
 }
 
+// TODO: Convert to class
 function SeasonList(prop) {
-  const [active, setActive] = useState(0);
-
+  // const [active, setActive] = useState(0);
+  const active = false;
+  const setActive = key => key;
   const { seasons, selectSeason } = prop;
   const output = [];
   let first = true;
@@ -256,3 +288,24 @@ function SeasonList(prop) {
     </div>
   );
 }
+
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { show } = ownProps;
+  const selectedCount = actionList.reduce(
+    (a, b) => a + (b.show.object_id === show.object || 0),
+    0
+  );
+  return {
+    selectedCount
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(EpisodeList);
