@@ -152,53 +152,6 @@ export default class Show {
     return this.type === EVENT;
   }
 
-  get background() {
-    try {
-      switch (this.type) {
-        case SERIES:
-          return this.series.background_image.image_id;
-        case MOVIE:
-          return this.movie.background_image.image_id;
-        case EVENT:
-          return this.sport.background_image.image_id;
-        default:
-          return 0;
-      }
-    } catch (e) {
-      // console.log(e, this);
-      return this.thumbnail;
-    }
-  }
-
-  get thumbnail() {
-    let set = null;
-    try {
-      switch (this.type) {
-        case SERIES:
-          set = this.series.thumbnail_image;
-          break;
-        // return this.series.thumbnail_image.image_id;
-        case MOVIE:
-          set = this.movie.thumbnail_image;
-          break;
-        // return this.movie.thumbnail_image.image_id;
-        case EVENT:
-          set = this.sport.thumbnail_image;
-          break;
-        case PROGRAM:
-          set = this.background_image;
-          break;
-        default:
-          return 0;
-      }
-      if (!set) return 0;
-      return set.image_id;
-    } catch (e) {
-      // console.error(e, this);
-      return 0;
-    }
-  }
-
   get cover() {
     try {
       switch (this.type) {
@@ -212,8 +165,43 @@ export default class Show {
           return 0;
       }
     } catch (e) {
-      // console.error(e, this);
       return this.background;
+    }
+  }
+
+  get background() {
+    try {
+      switch (this.type) {
+        case SERIES:
+          return this.series.background_image.image_id;
+        case MOVIE:
+          return this.movie.background_image.image_id;
+        case EVENT:
+          return this.sport.background_image.image_id;
+        default:
+          return 0;
+      }
+    } catch (e) {
+      return this.thumbnail;
+    }
+  }
+
+  get thumbnail() {
+    try {
+      switch (this.type) {
+        case SERIES:
+          return this.series.thumbnail_image.image_id;
+        case MOVIE:
+          return this.movie.thumbnail_image.image_id;
+        case EVENT:
+          return this.sport.thumbnail_image.image_id;
+        case PROGRAM:
+          return 0;
+        default:
+          return 0;
+      }
+    } catch (e) {
+      return 0;
     }
   }
 }

@@ -251,23 +251,28 @@ export default class Airing {
   }
 
   get background() {
-    if (!this.show.background_image) {
+    if (!this.show.background) {
       return this.image;
     }
-    return this.show.background_image.image_id;
+    return this.show.background;
   }
 
   get thumbnail(): number {
-    if (!this.show.thumbnail_image) {
+    if (!this.show.thumbnail) {
       return this.image;
     }
-    return this.show.thumbnail_image.image_id;
+    return this.show.thumbnail;
   }
 
+  // Just cycle through most to least specific...
   get image() {
     const { snapshotImage } = this;
     if (snapshotImage && snapshotImage.image_id) {
       return snapshotImage.image_id;
+    }
+    const { show } = this;
+    if (show) {
+      return show.cover;
     }
     return 0;
   }
