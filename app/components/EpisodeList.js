@@ -242,12 +242,12 @@ function SeasonList(prop) {
   });
 
   return (
-    <div className="mt-2" style={{ width: '100px', cursor: 'pointer' }}>
+    <div className="mt-2" style={{ width: '120px', cursor: 'pointer' }}>
       <Sticky stickyStyle={{ zIndex: '10000' }}>
         <ListGroup
           as="ul"
           className="bg-white"
-          style={{ zIndex: '10000', width: '100px' }}
+          style={{ zIndex: '10000', width: '120px' }}
         >
           {output}
         </ListGroup>
