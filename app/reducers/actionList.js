@@ -46,20 +46,12 @@ export default function manageActionList(
 
       return [...actionList];
 
-    case BULK_REM_AIRINGS:
-      return [];
-
-    case REM_SHOW: {
-      actionList.slice(0, actionList.length);
-      const newList = [];
-      actionList.forEach(item => {
-        if (item.path !== show.path) {
-          newList.push(item);
-        }
-      });
-      return [...newList];
+    case BULK_REM_AIRINGS: {
+      return ([...actionList].filter(
+        rec => !airings.find(item => item.object_id === rec.object_id)
+      ): ActionListStateType);
     }
-
+    /** addShow w/ callback action jazz */
     case ADD_SHOW:
     case REQ_EP_BY_SHOW:
       return [...actionList];
@@ -71,6 +63,17 @@ export default function manageActionList(
         }
       });
       return [...actionList];
+
+    /** remShow w/ callback action */
+    case REM_SHOW: {
+      const newList = [];
+      actionList.forEach(item => {
+        if (item.path !== show.path) {
+          newList.push(item);
+        }
+      });
+      return [...newList];
+    }
 
     default:
       return state;
