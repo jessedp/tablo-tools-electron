@@ -7,8 +7,8 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 
 import createRootReducer from '../reducers';
-import * as counterActions from '../actions/counter';
 import * as actionListActions from '../actions/actionList';
+import * as searchActions from '../actions/search';
 import type { actionListType } from '../reducers/types';
 
 const history = createHashHistory();
@@ -22,9 +22,9 @@ const configureStore = (initialState?: actionListType) => {
     key: 'root',
     storage,
     // Whitelist (Save Specific Reducers)
-    whitelist: ['manageActionList'],
+    whitelist: ['manageActionList', 'changeView'],
     // Blacklist (Don't Save Specific Reducers)
-    blacklist: ['counterReducer']
+    blacklist: ['sendResults']
   };
   // Middleware: Redux Persist Persisted Reducer
   const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -53,8 +53,8 @@ const configureStore = (initialState?: actionListType) => {
 
   // Redux DevTools Configuration
   const actionCreators = {
-    ...counterActions,
     ...actionListActions,
+    ...searchActions,
     ...routerActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
