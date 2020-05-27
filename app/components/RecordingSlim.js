@@ -13,6 +13,9 @@ import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
+import { ON, OFF } from '../constants/app';
+import VideoExport from './VideoExport';
+import TabloVideoPlayer from './TabloVideoPlayer';
 
 type Props = {
   doDelete: () => void,
@@ -21,7 +24,7 @@ type Props = {
   addAiring: Airing => void,
   remAiring: Airing => void,
   withShow?: number,
-  progress?: Object
+  withSelect?: number
 };
 
 class RecordingSlim extends Component<Props> {
@@ -58,58 +61,61 @@ class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing, checked, withShow, progress } = this.props;
+    const { airing, checked, withShow, withSelect } = this.props;
 
     // const classes = `border pb-1 mb-2 pt-1`;
 
     let showCol = '';
-    if (withShow === 1) {
+    let chkCol = '';
+    if (withShow === ON) {
       showCol = (
-        <Col md="1">
-          <TabloImage imageId={airing.background} className="menu-image-md" />
-        </Col>
+        <div className="d-inline-block align-top mr-2 ">
+          <TabloImage imageId={airing.image} className="menu-image-md" />
+        </div>
+      );
+    }
+
+    if (withSelect === ON) {
+      chkCol = (
+        <div className="pl-2 pt-1 d-inline-block">
+          <Checkbox checked={checked} handleChange={this.toggleSelection} />
+        </div>
       );
     }
 
     return (
       <>
         <Row className="border-bottom mb-1 pb-1">
-          {showCol}
-          <Col md="7">
-            <TitleSlim airing={airing} withShow={withShow} />
+          <Col md="8">
+            {showCol}
+            <TitleSlim airing={airing} withShow={OFF} />
           </Col>
-          <Col md="5">
-            <Row>
-              <Col md="6">
-                <div className="float-right">
-                  <AiringStatus airing={airing} />
-                </div>
-              </Col>
-              <Col md="4" className="p-0">
-                <span className="smaller float-right">
-                  <span className="fa fa-clock pr-1" />
-                  {airing.actualDuration} / {airing.duration}
-                </span>
-              </Col>
-              <Col md="2">
-                <Checkbox
-                  checked={checked}
-                  handleChange={this.toggleSelection}
-                />
-              </Col>
-            </Row>
+          <Col md="4" className="">
+            <div className="d-flex flex-row-reverse">
+              {chkCol}
+              <div className="smaller text-secondary align-top d-inline-block pt-1">
+                <span className="fa fa-clock pr-1" />
+                {airing.actualDuration} / {airing.duration}
+              </div>
+              <div className="d-inline-block mr-3">
+                <AiringStatus airing={airing} />
+              </div>
+            </div>
+
+            <div className="d-flex flex-row-reverse">
+              <VideoExport airingList={[airing]} />
+              &nbsp;
+              <TabloVideoPlayer airing={airing} />
+            </div>
           </Col>
-        </Row>
-        <Row>
-          <Col>{progress}</Col>
         </Row>
       </> //
     );
   }
 }
 RecordingSlim.defaultProps = {
-  withShow: 0,
-  progress: null
+  withShow: OFF,
+  withSelect: OFF
 };
 
 const mapStateToProps = (state, ownProps) => {

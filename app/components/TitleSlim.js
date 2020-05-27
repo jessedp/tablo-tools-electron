@@ -6,43 +6,74 @@ import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import Description from './Description';
 import Airing from '../utils/Airing';
+import { SERIES, ON, OFF } from '../constants/app';
 
 type Props = { airing: Airing, withShow?: number };
 
 export default class TitleSlim extends Component<Props> {
   props: Props;
 
-  static defaultProps = { withShow: 0 };
+  static defaultProps = { withShow: OFF };
 
   render() {
     const { airing, withShow } = this.props;
 
-    let episodeContent = '';
-    if (airing.isEpisode) {
-      episodeContent = (
-        <Badge pill className="p-1" variant="dark">
-          Ep. {airing.episode.number}
-        </Badge>
+    if (airing.type === SERIES) {
+      let episodeContent = '';
+      if (airing.isEpisode) {
+        episodeContent = (
+          <div className="d-inline-block mr-2" style={{ width: '40px' }}>
+            <Badge className="p-1" variant="dark">
+              Ep. {airing.episode.number}
+            </Badge>
+          </div>
+        );
+      }
+
+      let showTitle = '';
+      if (withShow === ON) {
+        showTitle = (
+          <div className="text-primary d-inline-block mr-2">
+            {airing.showTitle}
+          </div>
+        );
+      }
+
+      return (
+        <div className="d-inline-block">
+          <Row style={{ fontSize: 'small' }}>
+            <Col>
+              {episodeContent}
+              {showTitle}
+              <Title title={airing.title} />
+              <Description description={airing.description} />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <span className="smaller" style={{ paddingLeft: '48px' }}>
+                {airing.datetime}
+              </span>
+            </Col>
+          </Row>
+        </div>
       );
     }
 
-    let showBlock = '';
-    if (withShow === 1) {
-      showBlock = <div className="text-primary">{airing.showTitle}</div>;
-    }
-
     return (
-      <Row style={{ fontSize: 'small' }}>
-        <Col md="1">{episodeContent}</Col>
-        <Col md="3" className="pr-0">
-          <span className="smaller">{airing.datetime}</span>
-        </Col>
-        <Col md="8">
-          {showBlock}
-          <Title title={airing.title} />
-          <Description description={airing.description} />
-        </Col>
-      </Row>
+      <div className="d-inline-block">
+        <Row style={{ fontSize: 'small' }}>
+          <Col>
+            <Title title={airing.title} />
+            <Description description={airing.description} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <span className="smaller">{airing.datetime}</span>
+          </Col>
+        </Row>
+      </div>
     );
   }
 }

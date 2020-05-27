@@ -7,6 +7,7 @@ import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import Show from '../utils/Show';
 import * as ActionListActions from '../actions/actionList';
+import { ON, OFF } from '../constants/app';
 
 type Props = {
   // eslint-disable-next-line react/no-unused-prop-types
@@ -81,7 +82,8 @@ class SeasonEpisodeList extends Component<Props, State> {
               key={airing.object_id}
               airing={airing}
               doDelete={() => {}}
-              withShow={0}
+              withShow={OFF}
+              withSelect={ON}
             />
           );
         })}
