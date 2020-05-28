@@ -11,3 +11,9 @@ export const EMPTY_SEARCHALERT = {
   text: '',
   matches: []
 };
+
+export const EXP_WAITING = 1;
+export const EXP_WORKING = 2;
+export const EXP_DONE = 3;
+export const EXP_CANCEL = 4;
+export const EXP_FAIL = 5;
