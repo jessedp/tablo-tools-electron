@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 
-import type { SearchAlert } from './Search';
+import type { SearchAlert } from '../constants/app';
 import MatchesToBadges from './SearchFilterMatches';
 import * as ActionListActions from '../actions/actionList';
 
