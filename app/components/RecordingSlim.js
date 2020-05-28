@@ -14,7 +14,7 @@ import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import { ON, OFF } from '../constants/app';
-import VideoExport from './VideoExport';
+import VideoExport from './VideoExportModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 
 type Props = {

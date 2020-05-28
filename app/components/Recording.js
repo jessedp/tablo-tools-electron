@@ -22,7 +22,7 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 // import { addAiring, remAiring } from '../actions/actionList';
 
-import VideoExport from './VideoExport';
+import VideoExport from './VideoExportModal';
 import Airing from '../utils/Airing';
 
 type Props = {

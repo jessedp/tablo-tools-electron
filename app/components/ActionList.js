@@ -20,7 +20,7 @@ import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
-import VideoExport from './VideoExport';
+import VideoExport from './VideoExportModal';
 
 type Props = {
   sendResults: Object => void,
