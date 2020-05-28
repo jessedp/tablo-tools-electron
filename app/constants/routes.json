@@ -7,10 +7,10 @@
   "MOVIES": "/movies",
   "SPORTS": "/sports",
   "PROGRAMS": "/programs",
-  "SEARCH": "/search/:type",
+  "SEARCH": "/search/:view",
   "SETTINGS": "/settings",
   "EXPORT": "/export",
   "DELETE": "/delete",
-  "SELECTED": "/search/selected",
+  "SELECTED": "/selected",
   "ALL": "/search/grid"
 }

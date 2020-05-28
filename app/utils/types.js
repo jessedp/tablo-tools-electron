@@ -10,3 +10,10 @@ export type ShowCounts = {
   watched_and_protected_count: number,
   failed_count: number
 };
+
+export type SearchAlert = {
+  type: string,
+  text: string,
+  matches: [],
+  stats?: []
+};
