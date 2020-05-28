@@ -32,7 +32,7 @@ export default () => {
   return (
     <App>
       <Switch>
-        <Redirect exact from="/" to={routes.ALL} />
+        <Redirect exact from="/" to={routes.SEARCH} />
         <Route path={routes.OVERVIEW} component={OverviewPage} />
         <Route path={routes.BUILD} component={Build} />
         <Route path={routes.SHOWS} component={Shows} />

@@ -194,7 +194,7 @@ class Navbar extends Component<Props, State> {
                 </LinkContainer>
               </DropdownButton>
 
-              <LinkContainer activeClassName="active" to={routes.ALL}>
+              <LinkContainer activeClassName="active" to={routes.SEARCH}>
                 <Button size="sm" variant="outline-primary" as="button">
                   Search
                 </Button>
