@@ -11,8 +11,9 @@ import Shows from './components/Shows';
 import Movies from './components/Movies';
 import Programs from './components/Programs';
 import Events from './components/Events';
-import Search from './components/Search';
+import SearchForm from './components/SearchForm';
 import Settings from './components/Settings';
+import ActionList from './components/ActionList';
 
 export default () => {
   const history = useHistory();
@@ -31,14 +32,15 @@ export default () => {
   return (
     <App>
       <Switch>
-        <Redirect exact from="/" to={lastPath} />
+        <Redirect exact from="/" to={routes.ALL} />
         <Route path={routes.OVERVIEW} component={OverviewPage} />
         <Route path={routes.BUILD} component={Build} />
         <Route path={routes.SHOWS} component={Shows} />
         <Route path={routes.MOVIES} component={Movies} />
         <Route path={routes.SPORTS} component={Events} />
         <Route path={routes.PROGRAMS} component={Programs} />
-        <Route path={routes.SEARCH} component={Search} />
+        <Route path={routes.SEARCH} component={SearchForm} />
+        <Route path={routes.SELECTED} component={ActionList} />
         <Route path={routes.SETTINGS} component={Settings} />
 
         {/* Put anything not HOME above this!! */}

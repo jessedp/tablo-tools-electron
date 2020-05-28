@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import { bindActionCreators } from 'redux';
 
@@ -18,9 +19,9 @@ import { asyncForEach } from '../utils/utils';
 type State = {};
 type Props = {
   actionList: Array<Airing>,
-  changeView: string => void,
   bulkAddAirings: (airings: Array<Airing>) => void,
-  bulkRemAirings: () => void
+  bulkRemAirings: () => void,
+  history: any
 };
 
 class SelectedBox extends Component<Props, State> {
@@ -52,7 +53,7 @@ class SelectedBox extends Component<Props, State> {
   };
 
   render() {
-    const { actionList, changeView, bulkRemAirings } = this.props;
+    const { actionList, bulkRemAirings } = this.props;
 
     const title = (
       <>
@@ -60,7 +61,7 @@ class SelectedBox extends Component<Props, State> {
         {actionList.length}
       </> //
     );
-
+    const { history } = this.props;
     return (
       <div className="selected-basket smaller text-primary pt-2">
         <DropdownButton
@@ -70,7 +71,7 @@ class SelectedBox extends Component<Props, State> {
         >
           {actionList.length > 0 ? (
             <>
-              <DropdownItem onClick={() => changeView('selected')}>
+              <DropdownItem onClick={() => history.push(routes.SELECTED)}>
                 <span>
                   <span className="fa fa-search pr-2" />
                   View
@@ -129,4 +130,4 @@ const mapStateToProps = (state: any) => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(SelectedBox);
+)(withRouter(SelectedBox));

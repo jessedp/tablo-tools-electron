@@ -8,8 +8,9 @@ import Spinner from 'react-bootstrap/Spinner';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 
-import type { SearchAlert } from './Search';
+import type { SearchAlert } from '../utils/types';
 import SearchResultAlerts from './SearchResultAlerts';
+import RecordingSlim from './RecordingSlim';
 
 type Props = {
   results: Object
@@ -18,6 +19,7 @@ type Props = {
 type State = {
   searchAlert: SearchAlert,
   airingList: Array<Airing>,
+  view: string,
   loading: boolean
 };
 
@@ -32,6 +34,7 @@ class SearchResults extends Component<Props, State> {
     this.initialState = {
       loading: false,
       airingList: [],
+      view: '',
       searchAlert: {
         type: '',
         text: '',
@@ -55,13 +58,13 @@ class SearchResults extends Component<Props, State> {
     this.setState({
       searchAlert: results.searchAlert,
       loading: results.loading,
-      airingList: results.airingList
+      airingList: results.airingList,
+      view: results.view
     });
   };
 
   render() {
-    // const { refresh } = this.props;
-    const { searchAlert, loading } = this.state;
+    const { searchAlert, loading, view } = this.state;
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
@@ -69,6 +72,14 @@ class SearchResults extends Component<Props, State> {
     let rows = [];
     if (!loading) {
       rows = airingList.map(airing => {
+        if (view === 'slim') {
+          return (
+            <RecordingSlim
+              key={`recording-${airing.object_id}`}
+              airing={airing}
+            />
+          );
+        }
         return (
           <Recording key={`recording-${airing.object_id}`} airing={airing} />
         );
