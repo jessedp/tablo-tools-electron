@@ -85,7 +85,7 @@ class RecordingSlim extends Component<Props> {
 
     return (
       <>
-        <Row className="border-bottom mb-1 pb-1 pr-2">
+        <Row className="border-bottom mb-1 pb-1 pr-2" style={{ width: '100%' }}>
           <Col md="8">
             {showCol}
             <TitleSlim airing={airing} withShow={OFF} />
