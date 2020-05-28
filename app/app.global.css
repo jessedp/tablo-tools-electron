@@ -10,6 +10,10 @@
 @import 'spinner.css';
 @import '~video-react/dist/video-react.css';
 
+.smallerish {
+  font-size: 13px;
+}
+
 /** flex layout **/
 div.top-bar {
   position: absolute;
