@@ -154,6 +154,8 @@ button:focus {
   max-height: 200px;
   min-height: 200px;
   display: inline-block;
+  position: relative;
+  overflow: hidden;
 }
 
 .search-image {
@@ -326,7 +328,7 @@ body,
   top: 0;
   right: 0;
   width: 20px;
-  z-index: 1000;
+  z-index: 5;
 }
 
 .menu-buttons {

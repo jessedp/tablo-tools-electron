@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
-import { Alert } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
@@ -58,18 +58,32 @@ export default class Movies extends Component<Props, State> {
     const { airings, alertTxt, alertType } = this.state;
 
     return (
-      <>
-        {alertTxt ? (
-          <Alert className="fade m-2" variant={alertType}>
-            {alertTxt}
-          </Alert>
-        ) : (
-          ''
-        )}
-        {airings.map(rec => {
-          return <ShowCover show={rec.show} key={`movie-${rec.object_id}`} />;
-        })}
-      </> //
+      <div className="section">
+        <div>
+          {alertTxt ? (
+            <Alert className="fade m-2" variant={alertType}>
+              {alertTxt}
+            </Alert>
+          ) : (
+            ''
+          )}
+        </div>
+        <div className="scrollable-area">
+          {airings.map(rec => {
+            return (
+              <Button
+                onClick={() => {}}
+                onKeyDown={() => {}}
+                variant="light"
+                className="align-content-center"
+                key={rec.object_id}
+              >
+                <ShowCover show={rec.show} key={`movie-${rec.object_id}`} />;
+              </Button>
+            );
+          })}
+        </div>
+      </div>
     );
   }
 }
