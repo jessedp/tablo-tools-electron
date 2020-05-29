@@ -12,8 +12,8 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 type Props = {
   show: Show,
   checked: number,
-  addShow: Show => void
-  //  remShow: Show => void
+  addShow: Show => void,
+  remShow: Show => void
 };
 
 class ShowCover extends Component<Props> {
@@ -32,28 +32,20 @@ class ShowCover extends Component<Props> {
   }
 
   toggle = (event: any) => {
-    const { show, addShow } = this.props;
+    const { show, addShow, remShow, checked } = this.props;
     console.log('event!', event);
-    addShow(show);
+    if (checked === CHECKBOX_ON) {
+      remShow(show);
+    } else {
+      addShow(show);
+    }
   };
 
   render() {
     const { show, checked } = this.props;
     return (
-      <div
-        className="overlay-image"
-        style={{
-          position: 'relative',
-          width: '147px',
-          maxHeight: '196px',
-          display: 'inline-block'
-        }}
-      >
-        <TabloImage
-          imageId={show.thumbnail}
-          className="cover-image"
-          title={show.title}
-        />
+      <div className="cover-image">
+        <TabloImage imageId={show.thumbnail} className="" title={show.title} />
         <BottomLine show={show} />
         <Badge show={show} />
         <div className="cover-checkbox">
@@ -94,7 +86,7 @@ function BottomLine(prop) {
           ? `${showCounts.unwatched_count} of ${showCounts.airing_count} unwatched`
           : ''}
       </div>
-    </>
+    </> //
   );
 }
 
@@ -140,7 +132,7 @@ const mapStateToProps = (state, ownProps) => {
   const { actionList } = state;
   const { show } = ownProps;
   const recCount = actionList.reduce(
-    (a, b) => a + (b.show.object_id === show.object || 0),
+    (a, b) => a + (b.show.object_id === show.object_id || 0),
     0
   );
   return {

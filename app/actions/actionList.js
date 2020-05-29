@@ -11,7 +11,8 @@ export const BULK_REM_AIRINGS = 'BULK_REM_AIRINGS';
 export const ADD_SHOW = 'ADD_SHOW';
 export const REM_SHOW = 'REM_SHOW';
 export const REQ_EP_BY_SHOW = 'REQ_EP_BY_SHOW';
-export const RCV_EP_BY_SHOW = 'RCV_EP_BY_SHOW';
+export const ADD_EP_BY_SHOW = 'ADD_EP_BY_SHOW';
+export const REM_EP_BY_SHOW = 'REM_EP_BY_SHOW';
 
 export function addAiring(airing: Airing) {
   return {
@@ -41,20 +42,6 @@ export function bulkRemAirings(airings: Array<Airing>) {
   };
 }
 
-export function addShowOrig(show: Show) {
-  return {
-    type: ADD_SHOW,
-    show
-  };
-}
-
-export function remShow(show: Show) {
-  return {
-    type: REM_SHOW,
-    show
-  };
-}
-
 export function reqEpisodesByShow(show: Show) {
   return {
     type: REQ_EP_BY_SHOW,
@@ -62,9 +49,16 @@ export function reqEpisodesByShow(show: Show) {
   };
 }
 
-export function rcvEpisodesByShow(airings: Array<Airing>) {
+export function addEpisodesByShow(airings: Array<Airing>) {
   return {
-    type: RCV_EP_BY_SHOW,
+    type: ADD_EP_BY_SHOW,
+    airings
+  };
+}
+
+export function remEpisodesByShow(airings: Array<Airing>) {
+  return {
+    type: REM_EP_BY_SHOW,
     airings
   };
 }
@@ -73,7 +67,17 @@ export function addShow(show: Show) {
   return (dispatch: any) => {
     dispatch(reqEpisodesByShow(show));
     return getEpisodesByShow(show).then(airings => {
-      dispatch(rcvEpisodesByShow(airings));
+      dispatch(addEpisodesByShow(airings));
+      return airings; // does nothing but make linter shutup
+    });
+  };
+}
+
+export function remShow(show: Show) {
+  return (dispatch: any) => {
+    dispatch(reqEpisodesByShow(show));
+    return getEpisodesByShow(show).then(airings => {
+      dispatch(remEpisodesByShow(airings));
       return airings; // does nothing but make linter shutup
     });
   };

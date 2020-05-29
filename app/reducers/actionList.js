@@ -7,7 +7,8 @@ import {
   ADD_SHOW,
   REM_SHOW,
   REQ_EP_BY_SHOW,
-  RCV_EP_BY_SHOW
+  ADD_EP_BY_SHOW,
+  REM_EP_BY_SHOW
 } from '../actions/actionList';
 import type { Action } from './types';
 
@@ -22,7 +23,7 @@ export default function manageActionList(
   action: Action
 ) {
   const { airing, airings } = action;
-  const { show } = action;
+
   const actionList = state;
   switch (action.type) {
     case ADD_AIRING:
@@ -54,10 +55,11 @@ export default function manageActionList(
     }
     /** addShow w/ callback action jazz */
     case ADD_SHOW:
+    case REM_SHOW:
     case REQ_EP_BY_SHOW:
       return [...actionList];
 
-    case RCV_EP_BY_SHOW:
+    case ADD_EP_BY_SHOW:
       airings.forEach(item => {
         if (!actionList.find(rec => rec.object_id === item.object_id)) {
           actionList.push(item);
@@ -66,10 +68,10 @@ export default function manageActionList(
       return [...actionList];
 
     /** remShow w/ callback action */
-    case REM_SHOW: {
+    case REM_EP_BY_SHOW: {
       const newList = [];
       actionList.forEach(item => {
-        if (item.path !== show.path) {
+        if (!airings.find(rec => rec.object_id === item.object_id)) {
           newList.push(item);
         }
       });
