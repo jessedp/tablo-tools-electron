@@ -585,7 +585,7 @@ export const getEpisodesByShow = async (show: Show): Promise<Array<Airing>> => {
       recs = await global.RecDb.asyncFind({ series_path: show.path });
       break;
     case EVENT:
-      recs = await global.RecDb.asyncFind({ event_path: show.path });
+      recs = await global.RecDb.asyncFind({ sport_path: show.path });
       break;
     case MOVIE:
       recs = await global.RecDb.asyncFind({ movie_path: show.path });
