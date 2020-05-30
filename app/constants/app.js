@@ -1,5 +1,10 @@
+import { SearchAlert } from '../utils/types';
+
 export const ON = 1;
-export const OFF = 1;
+export const OFF = 0;
+
+export const YES = 1;
+export const NO = 0;
 
 export const SERIES = 'episode';
 export const MOVIE = 'movie';
@@ -12,7 +17,7 @@ export const EXP_DONE = 3;
 export const EXP_CANCEL = 4;
 export const EXP_FAIL = 5;
 
-export const EMPTY_SEARCHALERT = {
+export const EMPTY_SEARCHALERT: SearchAlert = {
   type: '',
   text: '',
   matches: []
