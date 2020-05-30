@@ -42,7 +42,6 @@ class RecordingSlim extends Component<Props> {
 
   componentDidUpdate(prevProps: Props) {
     const { checked } = this.props;
-    console.log('recslim CDU');
     if (prevProps.checked !== checked) {
       this.render();
     }
