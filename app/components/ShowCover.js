@@ -34,9 +34,9 @@ class ShowCover extends Component<Props> {
   toggle = () => {
     const { show, addShow, remShow, checked } = this.props;
     if (checked === CHECKBOX_ON) {
-      remShow(show);
-    } else {
       addShow(show);
+    } else {
+      remShow(show);
     }
   };
 
