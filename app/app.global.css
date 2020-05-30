@@ -342,9 +342,11 @@ body,
 
 /* Program block */
 .program-cover {
-  width: 147px;
+  width: 150px;
   height: 200px;
   border: #dfd7ca solid 1px;
+  position: relative;
+  overflow: hidden;
 }
 
 .program-title {
