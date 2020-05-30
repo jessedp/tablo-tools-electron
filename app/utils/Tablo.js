@@ -13,6 +13,7 @@ const store = new Store();
 
 export async function setupApi() {
   global.Api = new Tablo();
+  global.CONNECTED = false;
 
   await discover();
   // TODO - updating to v0.0.7, remove in some time

@@ -79,7 +79,7 @@ button:focus {
   height: 100%;
 
   /* background: inherit; */
-  z-index: 1;
+  z-index: 0;
   filter: opacity(10%);
 }
 

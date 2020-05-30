@@ -25,13 +25,13 @@ export default class PingStatus extends Component<PingProps, PingState> {
 
   async componentDidMount() {
     const checkConn = async () => {
-      const test = await checkConnection();
+      const test = checkConnection();
       //  console.log('conn: ', test);
       this.setState({ pingInd: test });
     };
     // this.devListToken = PubSub.subscribe('DEVLIST_CHANGE', this.updateDevices);
     this.devToken = PubSub.subscribe('DEVICE_CHANGE', this.checkConn);
-    await checkConn();
+    checkConn();
     this.timer = setInterval(await checkConn, 5000);
     this.changeDevice = this.changeDevice.bind(this);
   }

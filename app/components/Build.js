@@ -58,17 +58,18 @@ export default class Build extends Component<Props, State> {
 
   async componentDidMount(): * {
     const { Api } = global;
-    const created = recDbCreated();
+    let created = recDbCreated();
     // TODO: some const export?
     if (!created) {
       let i = 0;
       const autoBuild = async () => {
-        if (!Api.device) {
+        created = recDbCreated();
+        if (!Api.device && !created) {
           if (i > 0) return;
           i += 1;
-          setTimeout(await autoBuild, 1000);
+          setTimeout(await autoBuild, 5000);
         }
-        if (Api.device) this.build();
+        if (Api.device && !created) this.build();
       };
       autoBuild();
     }

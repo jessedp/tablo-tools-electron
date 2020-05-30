@@ -34,7 +34,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
     this.state = { dbAge: -1 };
     this.buildRef = React.createRef();
     this.shortTimer = true;
-    this.emptyPollInterval = 1000; // 1 second
+    this.emptyPollInterval = 5000; // 1 second
     this.rebuildPollInterval = 30000; // 30 seconds
     this.autoRebuildInterval = 30; // 30 minutes
 
@@ -42,9 +42,11 @@ export default class DbStatus extends Component<DbProps, DbState> {
   }
 
   async componentDidMount() {
-    this.timer = setInterval(this.checkAge, this.emptyPollInterval);
+    const created = recDbCreated();
+    if (!created)
+      this.timer = setInterval(this.checkAge, this.emptyPollInterval);
+    else this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     this.psToken = PubSub.subscribe('DB_CHANGE', () => this.checkAge(false));
-    // this.psToken = PubSub.subscribe('DB_BUILT', () => this.checkAge(false));
   }
 
   componentWillUnmount() {
@@ -56,9 +58,10 @@ export default class DbStatus extends Component<DbProps, DbState> {
     const created = recDbCreated();
 
     if (!created && !forceBuild) {
+      // if we're coming back through after 1st build,
       if (!this.shortTimer) {
         clearInterval(this.timer);
-        this.timer = setInterval(this.checkAge, this.emptyPollInterval);
+        this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
       }
       return;
     }
@@ -80,8 +83,9 @@ export default class DbStatus extends Component<DbProps, DbState> {
     }
 
     if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
-      await this.buildRef.build();
-      this.checkAge();
+      if (global.CONNECTED) this.buildRef.build();
+      clearInterval(this.timer);
+      this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     }
   };
 

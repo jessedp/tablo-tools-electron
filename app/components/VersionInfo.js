@@ -66,7 +66,7 @@ export default class VersionInfo extends Component<Props, State> {
   render() {
     const { show, releases } = this.state;
 
-    if (!releases) return <></>;
+    if (!releases) return <></>; //
 
     return (
       <Modal
@@ -80,7 +80,7 @@ export default class VersionInfo extends Component<Props, State> {
         <Modal.Header closeButton>
           <Modal.Title>
             Welcome to Tablo Tools &nbsp;
-            <span className="text-danger">v.{app.getVersion()}</span>
+            <span className="text-danger">v{app.getVersion()}</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -112,7 +112,7 @@ function Release(prop) {
   }
 
   const beta = !!app.getVersion().match(/[a-zA-Z]/);
-  if (!beta && !notifyBeta && data.prerelease) return <></>;
+  if (!beta && !notifyBeta && data.prerelease) return <></>; //
 
   const bg = 'light';
   // const text = 'dark';

@@ -28,7 +28,8 @@ export default class ServerInfoTable extends Component<Props, State> {
 
   componentDidMount = async () => {
     this.psToken = PubSub.subscribe('DEVICE_CHANGE', this.refresh);
-    this.refresh();
+    // TODO: this should a PubSub instead of hoping it beats the 1st ping
+    setTimeout(this.refresh, 500);
   };
 
   componentWillUnmount() {
@@ -36,12 +37,13 @@ export default class ServerInfoTable extends Component<Props, State> {
   }
 
   refresh = async () => {
-    try {
-      const serverInfo = await global.Api.getServerInfo();
-      this.setState({ serverInfo });
-    } catch (e) {
-      console.error(e);
-      this.setState({ serverInfo: {} });
+    if (global.CONNECTED) {
+      try {
+        const serverInfo = await global.Api.getServerInfo();
+        this.setState({ serverInfo });
+      } catch (e) {
+        this.setState({ serverInfo: {} });
+      }
     }
   };
 

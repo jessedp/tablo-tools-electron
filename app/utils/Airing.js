@@ -1,7 +1,7 @@
 // @flow
 // import ffmpeg from 'ffmpeg-static-electron';
 import ffmpeg from 'ffmpeg-static-electron-jdp';
-import { exec } from 'child_process';
+
 import os from 'os';
 import fs from 'fs';
 import * as fsPath from 'path';
@@ -415,32 +415,15 @@ export default class Airing {
     }
 
     if (debug) log.info('start processVideo', new Date());
-    if (debug) log.info('ffmpeg', ffmpeg);
-    if (debug) log.info('ffmpeg.path', ffmpeg.path);
+    if (debug) log.info('env', process.env.NODE_ENV);
 
     const ffmpegPath = ffmpeg.path;
-
     if (debug) log.info('ffmpegPath', ffmpegPath);
-    let ffmpegPath2;
-    /** In dev, the prod path gets returned, so "fix" that * */
-    // *nix
-    ffmpegPath2 = ffmpegPath.replace(
-      '/app/',
-      '/node_modules/ffmpeg-static-electron-jdp/'
-    );
-
-    if (ffmpegPath2 === ffmpegPath) {
-      // win
-      ffmpegPath2 = ffmpegPath.replace(
-        '\\app\\',
-        '\\node_modules\\ffmpeg-static-electron-jdp\\'
-      );
-    }
-    if (debug) log.info('after "app" replacements', ffmpegPath2);
 
     // $FlowFixMe  dirty, but flow complains about process.resourcesPath
     const resourcePath = `${process.resourcesPath}`;
 
+    // TODO - figure out why I did this...
     const psuedoProdPath = resourcePath.replace(
       '/electron/dist/resources',
       '/ffmpeg-static-electron-jdp/bin'
@@ -448,33 +431,70 @@ export default class Airing {
     if (debug) log.info('resourcePath', resourcePath);
     if (debug) log.info('prodPath', psuedoProdPath);
 
+    let ffmpegPathReal = ffmpegPath;
+
+    /** In dev, the prod path gets returned, so "fix" that * */
+    if (process.env.NODE_ENV === 'development') {
+      if (os.platform() === 'win') {
+        if (ffmpegPathReal === ffmpegPath) {
+          ffmpegPathReal = ffmpegPath.replace(
+            '\\app\\',
+            '\\node_modules\\ffmpeg-static-electron-jdp\\'
+          );
+        }
+      } else {
+        // *nix
+        ffmpegPathReal = ffmpegPath.replace(
+          '/app/',
+          '/node_modules/ffmpeg-static-electron-jdp/'
+        );
+      }
+    }
+
+    if (debug) log.info('after "app" replacements for dev', ffmpegPathReal);
+
     const ffmpegOpts = [
       '-c copy',
       '-y' // overwrite existing files
     ];
 
-    if (debug) log.info('env', process.env.NODE_ENV);
     if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
     // In true prod (not yarn build/start), ffmpeg is built into resources dir
+    // this will likely fall on it's face with "yarn start"
     if (process.env.NODE_ENV === 'production') {
-      const testStartPath = ffmpegPath2.replace(/^[/|\\]bin/, psuedoProdPath);
-      if (fs.existsSync(testStartPath)) {
-        if (debug)
-          log.info('START replacing ffmpegPath2 for prodPath', psuedoProdPath);
-        ffmpegPath2 = testStartPath;
-        if (debug) log.info('START replaced prodPath for prod', ffmpegPath2);
+      if (os.platform() === 'darwin') {
+        ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
       } else {
-        if (debug)
-          log.info('PROD replacing ffmpegPath2 for prodPath', psuedoProdPath);
-        ffmpegPath2 = psuedoProdPath.replace(
-          /[/|\\]resources/,
-          `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+        const testStartPath = ffmpegPathReal.replace(
+          /^[/|\\]bin/,
+          psuedoProdPath
         );
-        if (debug) log.info('PROD replaced prodPath for prod', ffmpegPath2);
+        if (fs.existsSync(testStartPath)) {
+          if (debug)
+            log.info(
+              'START replacing ffmpegPathReal for prodPath',
+              psuedoProdPath
+            );
+          ffmpegPathReal = testStartPath;
+          if (debug)
+            log.info('START replaced prodPath for prod', ffmpegPathReal);
+        } else {
+          if (debug)
+            log.info(
+              'PROD replacing ffmpegPathReal for prodPath',
+              psuedoProdPath
+            );
+          ffmpegPathReal = psuedoProdPath.replace(
+            /[/|\\]resources/,
+            `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+          );
+          if (debug)
+            log.info('PROD replaced prodPath for prod', ffmpegPathReal);
+        }
       }
     } else {
       // otherwise we can hit the node_modules dir
-      // ffmpegPath2 = ffmpegPath2.replace(
+      // ffmpegPathReal = ffmpegPathReal.replace(
       //  /^\/bin\//,
       //  './node_modules/ffmpeg-static-electron-jdp/bin/'
       // );
@@ -482,15 +502,9 @@ export default class Airing {
       ffmpegOpts.push('-v 40');
     }
 
-    if (debug) log.info(`ffmpegPath2 : ${ffmpegPath2}`);
+    if (debug) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
 
-    if (os.platform() === 'darwin') {
-      // mac is giving an EACCES - maybe it needs to be chmod'd?
-      exec(`chmod +x ${ffmpegPath2}`, (error, stdout) => {
-        log.info('chmod stdout: ', stdout, ' error: ', error);
-      });
-    }
-    FfmpegCommand.setFfmpegPath(ffmpegPath2);
+    FfmpegCommand.setFfmpegPath(ffmpegPathReal);
 
     const watchPath = await this.watch();
     const input = watchPath.playlist_url;
