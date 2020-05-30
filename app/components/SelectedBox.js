@@ -85,7 +85,7 @@ class SelectedBox extends Component<Props, State> {
                   </span>
                 </LinkContainer>
               </DropdownItem>
-              <DropdownItem href={routes.OVERVIEW}>
+              <DropdownItem onClick={() => {}}>
                 <span>
                   <span className="fa fa-trash pr-2" />
                   Delete
