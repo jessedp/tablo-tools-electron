@@ -2,6 +2,7 @@
 import React, { Component, useState } from 'react';
 import { shell } from 'electron';
 import fs from 'fs';
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -9,13 +10,21 @@ import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
+
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
+import {
+  EXP_WAITING,
+  EXP_WORKING,
+  EXP_DONE,
+  EXP_CANCEL,
+  EXP_FAIL
+} from '../constants/app';
+
 import {
   readableBytes,
   readableDuration,
@@ -36,11 +45,6 @@ type State = {
   startTime: number,
   curTime: number
 };
-
-const EXP_WAITING = 1;
-const EXP_WORKING = 2;
-const EXP_DONE = 3;
-const EXP_CANCEL = 4;
 
 const beginTime = '00:00 / 00:00';
 
@@ -91,7 +95,7 @@ export default class RecordingExport extends Component<Props, State> {
 
   async processVideo() {
     const { exportState } = this.state;
-    if (exportState === EXP_DONE) return;
+    if (exportState === EXP_WORKING) return;
     const { airing } = this.props;
 
     this.setState({
@@ -101,8 +105,20 @@ export default class RecordingExport extends Component<Props, State> {
     });
 
     this.startTimer();
-
-    const ffmpegLog = await airing.processVideo(this.updateProgress);
+    let ffmpegLog = [];
+    try {
+      ffmpegLog = await airing.processVideo(this.updateProgress);
+    } catch (e) {
+      this.stopTimer();
+      await this.setState({
+        exportState: EXP_FAIL,
+        exportInc: 0,
+        exportLabel: beginTime,
+        ffmpegLog
+      });
+      console.log(`Failed exporting ${airing.object_id} - ${e}`);
+      return;
+    }
 
     this.stopTimer();
 
@@ -241,7 +257,7 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_WAITING) {
     return (
-      <Alert variant="light" className="m-0 muted smaller">
+      <Alert variant="light" className="m-0 smallerish">
         <span className="fa fa-pause-circle" /> waiting...
       </Alert>
     );
@@ -249,7 +265,7 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_DONE) {
     return (
-      <Alert variant="success" className="m-0 muted smaller">
+      <Alert variant="success" className="m-0 smallerish">
         <Row>
           <Col md="8">
             <span className="fa fa-check-circle pr-2" />
@@ -265,7 +281,7 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_CANCEL) {
     return (
-      <Alert variant="warning" className="m-0 muted smaller">
+      <Alert variant="warning" className="m-0 smallerish">
         <Row>
           <Col md="9">
             <span className="fa fa-check-circle pr-2" />
@@ -279,11 +295,27 @@ function ExportProgress(prop: EPProp) {
     );
   }
 
+  if (state === EXP_FAIL) {
+    return (
+      <Alert variant="danger " className="m-0 smallerish">
+        <Row>
+          <Col md="9">
+            <span className="fa fa-check-circle pr-2" />
+            <span className="pr-5">Failed after {timeStr}</span>
+          </Col>
+          <Col md="3" className="text-right">
+            <FfmpegLog log={ffmpegLog} />
+          </Col>
+        </Row>
+      </Alert>
+    );
+  }
+
   if (inc === 0) {
     return (
       <Alert
         variant="light"
-        className="m-0 muted smaller p-1 pl-3"
+        className="m-0 smallerish p-1 pl-3"
         size="sm"
         style={{ maxHeight: '30px' }}
       >
@@ -299,7 +331,7 @@ function ExportProgress(prop: EPProp) {
   // if (exportState === EXP_WORKING)
   const pctLbl = `${Math.round(inc)} %`;
   return (
-    <Alert variant="light" className="m-0 muted smaller p-1">
+    <Alert variant="light " className="m-0 smallerish p-1">
       <div className="d-flex flex-row pt-1">
         <div style={{ width: '100%' }}>
           <ProgressBar

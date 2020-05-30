@@ -1,33 +1,55 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as ActionListActions from '../actions/actionList';
 
 import TabloImage from './TabloImage';
-import Show, { SERIES, MOVIE, EVENT, PROGRAM } from '../utils/Show';
+import Show, { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';
+import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
-type Props = { show: Show };
+type Props = {
+  show: Show,
+  checked: number,
+  addShow: Show => void,
+  remShow: Show => void
+};
 
-export default class ShowCover extends Component<Props> {
+class ShowCover extends Component<Props> {
   props: Props;
 
+  constructor() {
+    super();
+    this.toggle = this.toggle.bind(this);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { checked } = this.props;
+    if (prevProps.checked !== checked) {
+      this.render();
+    }
+  }
+
+  toggle = () => {
+    const { show, addShow, remShow, checked } = this.props;
+    if (checked === CHECKBOX_ON) {
+      addShow(show);
+    } else {
+      remShow(show);
+    }
+  };
+
   render() {
-    const { show } = this.props;
+    const { show, checked } = this.props;
     return (
-      <div
-        className="overlay-image"
-        style={{
-          position: 'relative',
-          width: '147px',
-          maxHeight: '196px',
-          display: 'inline-block'
-        }}
-      >
-        <TabloImage
-          imageId={show.thumbnail}
-          className="cover-image"
-          title={show.title}
-        />
+      <div className="cover-image">
+        <TabloImage imageId={show.thumbnail} className="" title={show.title} />
         <BottomLine show={show} />
         <Badge show={show} />
+        <div className="cover-checkbox">
+          <Checkbox checked={checked} handleChange={this.toggle} />
+        </div>
       </div>
     );
   }
@@ -63,7 +85,7 @@ function BottomLine(prop) {
           ? `${showCounts.unwatched_count} of ${showCounts.airing_count} unwatched`
           : ''}
       </div>
-    </>
+    </> //
   );
 }
 
@@ -104,3 +126,25 @@ function Badge(prop) {
     </div>
   );
 }
+
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { show } = ownProps;
+  const recCount = actionList.reduce(
+    (a, b) => a + (b.show.object_id === show.object_id || 0),
+    0
+  );
+  return {
+    checked:
+      recCount === show.showCounts.airing_count ? CHECKBOX_ON : CHECKBOX_OFF
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ShowCover);

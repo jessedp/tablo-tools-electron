@@ -14,12 +14,15 @@ export default function RelativeDate(props: Props) {
 
   if (!date) return <>Never</>;
 
+  let distance = formatDistanceToNow(date);
+  if (distance === 'less than a minute') distance = '< 1 minute';
+
   return (
     <span
       title={format(date, 'ccc M/d/yy @ h:m:s a')}
       style={{ textDecoration: 'underline', textDecorationStyle: 'dotted' }}
     >
-      {formatDistanceToNow(date)} {term}
+      {distance} {term}
     </span>
   );
 }

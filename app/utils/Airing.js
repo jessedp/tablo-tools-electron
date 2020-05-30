@@ -11,16 +11,12 @@ import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
+import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
 
 const FfmpegCommand = require('fluent-ffmpeg');
-
-const SERIES = 'episode';
-const MOVIE = 'movie';
-const EVENT = 'event';
-const PROGRAM = 'program';
 
 let outFile = '';
 
@@ -255,23 +251,28 @@ export default class Airing {
   }
 
   get background() {
-    if (!this.show.background_image) {
+    if (!this.show.background) {
       return this.image;
     }
-    return this.show.background_image.image_id;
+    return this.show.background;
   }
 
   get thumbnail(): number {
-    if (!this.show.thumbnail_image) {
+    if (!this.show.thumbnail) {
       return this.image;
     }
-    return this.show.thumbnail_image.image_id;
+    return this.show.thumbnail;
   }
 
+  // Just cycle through most to least specific...
   get image() {
     const { snapshotImage } = this;
     if (snapshotImage && snapshotImage.image_id) {
       return snapshotImage.image_id;
+    }
+    const { show } = this;
+    if (show) {
+      return show.cover;
     }
     return 0;
   }
@@ -590,3 +591,30 @@ export function ensureAiringArray(list: Array<any>) {
 
   return ret;
 }
+
+export const getEpisodesByShow = async (show: Show): Promise<Array<Airing>> => {
+  let recs = [];
+  switch (show.type) {
+    case SERIES:
+      recs = await global.RecDb.asyncFind({ series_path: show.path });
+      break;
+    case EVENT:
+      recs = await global.RecDb.asyncFind({ sport_path: show.path });
+      break;
+    case MOVIE:
+      recs = await global.RecDb.asyncFind({ movie_path: show.path });
+      break;
+    case PROGRAM:
+    default:
+      // manual? would be path files above don't
+      return [];
+  }
+
+  const airings = [];
+  await asyncForEach(recs, async rec => {
+    const airing = await Airing.create(rec);
+    airings.push(airing);
+  });
+
+  return airings;
+};

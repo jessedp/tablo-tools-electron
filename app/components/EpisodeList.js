@@ -1,31 +1,39 @@
 // @flow
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import Sticky from 'react-sticky-el';
 
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Alert from 'react-bootstrap/Alert';
 import ListGroup from 'react-bootstrap/ListGroup';
 
+import { Button } from 'react-bootstrap';
+import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
-import RecordingSlim from './RecordingSlim';
+
 import { asyncForEach } from '../utils/utils';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
+import SeasonEpisodeList from './SeasonEpisodeList';
 
-type Props = { show: Show };
+type Props = {
+  show: Show,
+  selectedCount: number,
+  bulkAddAirings: (Array<Airing>) => void,
+  bulkRemAirings: (Array<Airing>) => void
+};
 type State = {
+  airings: Array<Airing>,
   episodes: Object,
   seasons: Object,
-  count: number,
   selSeason: null,
   seasonRefs: Object
 };
 
-export default class EpisodeList extends Component<Props, State> {
+class EpisodeList extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -34,9 +42,9 @@ export default class EpisodeList extends Component<Props, State> {
     super();
 
     this.initialState = {
+      airings: [],
       episodes: {},
       seasons: {},
-      count: 0,
       selSeason: null,
       seasonRefs: []
     };
@@ -50,6 +58,13 @@ export default class EpisodeList extends Component<Props, State> {
 
   async componentDidMount() {
     await this.search();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { selectedCount } = this.props;
+    if (prevProps.selectedCount !== selectedCount) {
+      this.render();
+    }
   }
 
   setSeasonRefs(refs: Object) {
@@ -88,59 +103,37 @@ export default class EpisodeList extends Component<Props, State> {
       ]
     ]);
 
-    const objRecs = [];
+    const airings = [];
     const seasons = {};
+    const episodes = {};
     const refs = {};
-    const result = {};
 
     await asyncForEach(recs, async rec => {
       const airing = await Airing.create(rec);
-      objRecs.push(airing);
-      // console.log(airing);
+      airings.push(airing);
       const seasonNo = airing.episode.season_number;
       if (!(seasonNo in seasons)) {
-        result[seasonNo] = [];
+        episodes[seasonNo] = [];
         seasons[seasonNo] = [];
       }
+      episodes[seasonNo].push(airing);
+
       refs[`season-${seasonNo}`] = React.createRef();
       seasons[seasonNo].push(airing.episode.number);
     });
 
-    if (!objRecs || objRecs.length === 0) {
-      await this.setState({ count: 0 });
-    } else {
-      this.setState({
-        episodes: (
-          <Container>
-            <Row className="pl-lg-5">
-              <Spinner animation="grow" variant="info" />
-            </Row>
-          </Container>
-        )
-      });
-
-      objRecs.forEach(airing => {
-        result[airing.episode.season_number].push(
-          <RecordingSlim
-            key={airing.object_id}
-            airing={airing}
-            doDelete={() => {}}
-            withShow={0}
-          />
-        );
-      });
-    }
     await this.setState({
-      episodes: result,
+      airings,
+      episodes,
       seasons,
-      seasonRefs: refs,
-      count: objRecs.length
+      seasonRefs: refs
     });
   }
 
   render() {
-    const { count, episodes, seasons, seasonRefs } = this.state;
-    const { show } = this.props;
+    const { airings, episodes, seasons, seasonRefs } = this.state;
+    const { selectedCount } = this.props;
+    const { show, bulkAddAirings, bulkRemAirings } = this.props;
 
     return (
       <>
@@ -160,9 +153,31 @@ export default class EpisodeList extends Component<Props, State> {
                 </Col>
                 <Col>
                   <Badge className="p-2" variant="dark">
-                    {count} episode{count > 1 ? 's' : ''}
+                    {airings.length} episode{airings.length > 1 ? 's' : ''}
                   </Badge>
                 </Col>
+              </Row>
+              <Row>
+                <Button
+                  size="xs"
+                  className="ml-3 mr-2"
+                  variant="outline-secondary"
+                  onClick={() => bulkAddAirings(airings)}
+                >
+                  <span className="fa fa-plus" /> All Episodes
+                </Button>
+                <Button
+                  size="xs"
+                  className="mr-2"
+                  variant="outline-secondary"
+                  onClick={() => bulkRemAirings(airings)}
+                >
+                  <span className="fa fa-minus" /> All Episodes
+                </Button>
+                <div className="text-secondary ml-3 smaller">
+                  <span className="fa fa-shopping-cart pr-2" />
+                  {selectedCount}
+                </div>
               </Row>
             </Col>
           </Row>
@@ -173,48 +188,32 @@ export default class EpisodeList extends Component<Props, State> {
               <SeasonList seasons={seasons} selectSeason={this.selectSeason} />
             </Col>
             <Col>
-              <FullList
-                episodes={episodes}
-                seasons={seasons}
-                seasonRefs={seasonRefs}
-              />
+              {Object.keys(seasons).map(key => {
+                const refKey = `season-${key}`;
+                return (
+                  <SeasonEpisodeList
+                    key={refKey}
+                    show={show}
+                    seasonNumber={key}
+                    airings={episodes[key]}
+                    ref={seasonRefs[key]}
+                    refKey={refKey}
+                  />
+                );
+              })}
             </Col>
           </Row>
         </div>
-      </>
+      </> //
     );
   }
 }
 
-function FullList(prop) {
-  const { seasons, episodes, seasonRefs } = prop;
-  const output = [];
-
-  Object.keys(seasons).forEach(key => {
-    const refKey = `season-${key}`;
-    const count = episodes[key].length;
-    output.push(
-      <div className="pt-2" key={refKey} ref={seasonRefs[refKey]}>
-        <Alert variant="light" key={refKey}>
-          <span className="mr-3">Season {key}</span>
-          <Badge className="p-2" variant="primary">
-            {count} episode{count > 1 ? 's' : ''}
-          </Badge>
-        </Alert>
-      </div>
-    );
-
-    episodes[key].forEach(rec => {
-      output.push(rec);
-    });
-  });
-
-  return output;
-}
-
+// TODO: Convert to class
 function SeasonList(prop) {
-  const [active, setActive] = useState(0);
-
+  // const [active, setActive] = useState(0);
+  const active = false;
+  const setActive = key => key;
   const { seasons, selectSeason } = prop;
   const output = [];
   let first = true;
@@ -243,12 +242,12 @@ function SeasonList(prop) {
   });
 
   return (
-    <div className="mt-2" style={{ width: '100px', cursor: 'pointer' }}>
+    <div className="mt-2" style={{ width: '120px', cursor: 'pointer' }}>
       <Sticky stickyStyle={{ zIndex: '10000' }}>
         <ListGroup
           as="ul"
           className="bg-white"
-          style={{ zIndex: '10000', width: '100px' }}
+          style={{ zIndex: '10000', width: '120px' }}
         >
           {output}
         </ListGroup>
@@ -256,3 +255,24 @@ function SeasonList(prop) {
     </div>
   );
 }
+
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { show } = ownProps;
+  const selectedCount = actionList.reduce(
+    (a, b) => a + (b.show.object_id === show.object_id || 0),
+    0
+  );
+  return {
+    selectedCount
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(EpisodeList);

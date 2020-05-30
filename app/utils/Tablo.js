@@ -53,12 +53,19 @@ export function setCurrentDevice(device, publish = true) {
 }
 
 export const discover = async () => {
-  const devices = await global.Api.discover();
-  const deviceArray = Object.keys(devices).map(i => devices[i]);
-
+  let deviceArray = [];
+  let devices = [];
+  try {
+    devices = await global.Api.discover();
+    deviceArray = Object.keys(devices).map(i => devices[i]);
+  } catch (e) {
+    console.warn('Device Discovery failed', e);
+  }
   const cfg = getConfig();
   if (cfg.enableTestDevice) {
-    const overDevice = { ...devices[0] };
+    let overDevice = {};
+    if (devices.length > 0) overDevice = { ...devices[0] };
+
     const fakeServerId = cfg.testDeviceIp.replace(/\./g, '-');
     overDevice.name = 'Test Device';
     overDevice.serverid = `TID_${fakeServerId}`;

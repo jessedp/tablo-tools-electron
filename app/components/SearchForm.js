@@ -1,5 +1,10 @@
 // @flow
 import React, { Component } from 'react';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { withRouter } from 'react-router-dom';
+
 import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
@@ -20,22 +25,21 @@ import {
 } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
-import ConfirmDelete from './ConfirmDelete';
-import { CHECKBOX_OFF } from './Checkbox';
 import { showList } from './ShowsList';
-import VideoExport from './VideoExport';
 import TabloImage from './TabloImage';
-import type { SearchAlert } from './Search';
+import type { SearchAlert } from '../utils/types';
 import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 import SelectStyles from './SelectStyles';
 import SavedSearchEdit from './SavedSearchEdit';
+import * as SearchActions from '../actions/search';
+import routes from '../constants/routes.json';
+import SearchResults from './SearchResults';
+import { EMPTY_SEARCHALERT } from '../constants/app';
 
 type Props = {
   sendResults: Object => void,
-  sendSelectAll: () => void,
-  sendUnselectAll: () => void,
-  toggleItem: (Airing, number) => void
+  history: any
 };
 
 type Season = {
@@ -56,7 +60,6 @@ export type SearchState = {
   cleanFilter: string,
   savedSearchFilter: string,
   sortFilter: number,
-  view: string,
   percent: number,
   percentLocation: number,
   recordCount: number,
@@ -73,7 +76,7 @@ const SORT_SIZE_DSC = 4;
 const SORT_DURATION_ASC = 5;
 const SORT_DURATION_DSC = 6;
 
-export default class SearchForm extends Component<Props, SearchState> {
+class SearchForm extends Component<Props, SearchState> {
   props: Props;
 
   initialState: SearchState;
@@ -100,15 +103,10 @@ export default class SearchForm extends Component<Props, SearchState> {
       savedSearchFilter: '',
       seasonFilter: '',
       sortFilter: SORT_REC_DSC,
-      view: 'search',
       percent: 100,
       percentLocation: 0,
       recordCount: 0,
-      searchAlert: {
-        type: '',
-        text: '',
-        matches: []
-      },
+      searchAlert: EMPTY_SEARCHALERT,
       airingList: [],
       actionList: [],
       seasonList: []
@@ -148,19 +146,11 @@ export default class SearchForm extends Component<Props, SearchState> {
     this.cleanChange = this.cleanChange.bind(this);
     this.savedSearchChange = this.savedSearchChange.bind(this);
     this.savedSearchUpdate = this.savedSearchUpdate.bind(this);
-    this.viewChange = this.viewChange.bind(this);
+    this.showSelected = this.showSelected.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
 
     this.percentDrag = this.percentDrag.bind(this);
-
-    this.addItem = this.addItem.bind(this);
-    this.delItem = this.delItem.bind(this);
-    this.emptyItems = this.emptyItems.bind(this);
-
-    this.selectAll = this.selectAll.bind(this);
-    this.unselectAll = this.unselectAll.bind(this);
-    this.deleteAll = this.deleteAll.bind(this);
 
     (this: any).sortChange = this.sortChange.bind(this);
 
@@ -216,29 +206,17 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   async refresh() {
-    const { view, actionList, searchAlert } = this.state;
     this.showsList = await showList();
     this.savedSearchList = await global.SearchDb.asyncFind({});
 
-    const { length } = actionList;
-    if (view === 'selected' && length > 0) {
-      this.setState({
-        searchAlert: {
-          type: 'light',
-          text: searchAlert.text,
-          matches: searchAlert.matches
-        }
-      });
-      this.viewChange();
-    } else {
-      await this.search();
-    }
+    this.search();
   }
 
-  viewChange = async () => {
+  showSelected = async () => {
     const { sendResults } = this.props;
     const { actionList } = this.state;
     let { searchAlert } = this.state;
+    console.log('showSelected');
 
     const len = actionList.length;
     if (len === 0) return;
@@ -249,7 +227,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       searchAlert: this.initialState.searchAlert
     });
 
-    // descending
     const timeSort = (a, b) => {
       if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
       return -1;
@@ -274,10 +251,7 @@ export default class SearchForm extends Component<Props, SearchState> {
       stats
     };
 
-    this.setState({
-      view: 'selected',
-      searchAlert
-    });
+    this.setState({ searchAlert });
 
     sendResults({
       loading: false,
@@ -288,48 +262,6 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     const cleanState = { ...this.state };
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
-  };
-
-  addItem = (item: Airing) => {
-    const { actionList } = this.state;
-    if (!actionList.find(rec => rec.object_id === item.object_id)) {
-      actionList.push(item);
-      this.setState({ actionList });
-    }
-  };
-
-  delItem = (item: Airing) => {
-    let { actionList } = this.state;
-    actionList = actionList.filter(
-      airing => airing.object_id !== item.object_id
-    );
-    this.setState({ actionList });
-  };
-
-  selectAll = () => {
-    const { sendSelectAll } = this.props;
-    const { airingList } = this.state;
-    sendSelectAll();
-    airingList.forEach(airing => {
-      this.addItem(airing);
-    });
-  };
-
-  unselectAll = () => {
-    const { sendUnselectAll } = this.props;
-    // const { airingList } = this.state;
-    sendUnselectAll();
-    this.setState({ actionList: [] });
-  };
-
-  emptyItems = () => {
-    const { sendUnselectAll, toggleItem } = this.props;
-    const { actionList } = this.state;
-    actionList.forEach(item => {
-      toggleItem(item, CHECKBOX_OFF);
-    });
-    sendUnselectAll();
-    this.setState({ actionList: [] });
   };
 
   deleteAll = async (countCallback: Function) => {
@@ -344,7 +276,7 @@ export default class SearchForm extends Component<Props, SearchState> {
       .then(async () => {
         // let ConfirmDelete display success for 1 sec
         setTimeout(() => {
-          this.search(true);
+          this.search();
         }, 1000);
         return false;
       })
@@ -355,13 +287,14 @@ export default class SearchForm extends Component<Props, SearchState> {
   };
 
   resetSearch = async () => {
+    const { history } = this.props;
     const { actionList, sortFilter, limit } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
     newState.sortFilter = sortFilter;
     newState.limit = limit;
     await this.setStateStore(newState);
-    await this.search();
+    history.push(routes.ALL);
   };
 
   stateChange = async (event: Option) => {
@@ -500,14 +433,12 @@ export default class SearchForm extends Component<Props, SearchState> {
     }, 1000);
   };
 
-  search = async (resetActionList?: boolean) => {
+  search = async () => {
     const { sendResults } = this.props;
-    let { actionList } = this.state;
 
     const {
       skip,
       limit,
-      view,
       percent,
       searchValue,
       stateFilter,
@@ -522,10 +453,6 @@ export default class SearchForm extends Component<Props, SearchState> {
 
     const query = {};
     const steps = [];
-
-    if (resetActionList === true) {
-      actionList = [];
-    }
 
     if (searchValue.trim()) {
       const escapeRegExp = (text: string) => {
@@ -685,8 +612,6 @@ export default class SearchForm extends Component<Props, SearchState> {
       alert = { type: 'warning', text: description, matches: steps };
       updateState = {
         searchAlert: alert,
-        view: 'search',
-        actionList,
         airingList,
         recordCount: 0
       };
@@ -737,18 +662,14 @@ export default class SearchForm extends Component<Props, SearchState> {
       updateState = {
         searchAlert: alert,
         recordCount: count,
-        view: 'search',
-        actionList,
         airingList
       };
     }
 
     sendResults({
       loading: false,
-      view,
       searchAlert: alert,
-      airingList,
-      actionList
+      airingList
     });
     updateState.airingList = airingList;
 
@@ -767,13 +688,12 @@ export default class SearchForm extends Component<Props, SearchState> {
       seasonFilter,
       savedSearchFilter,
       sortFilter,
-      actionList,
       seasonList,
-      view,
       percent,
       recordCount,
       limit
     } = this.state;
+
     let { percentLocation } = this.state;
 
     const pctLabel = `${percent}%`;
@@ -912,139 +832,54 @@ export default class SearchForm extends Component<Props, SearchState> {
         </Row>
 
         <Row>
-          {view !== 'selected' ? (
-            <>
-              <Col md="2">
-                <SelectedDisplay
-                  actionList={actionList}
-                  view={this.viewChange}
-                />
-              </Col>
-              <Col md="3" className="pt-1">
-                <Button
-                  variant="outline-info"
-                  size="xs"
-                  onClick={this.selectAll}
-                >
-                  <span
-                    className="fa fa-plus pr-1"
-                    style={{ color: 'green' }}
+          <Col md="5" />
+          <Col md="7">
+            <Row>
+              <Col md="8">
+                {recordCount >= limit && limit !== -1 ? (
+                  <ReactPaginate
+                    previousLabel={
+                      <span
+                        className="fa fa-arrow-left"
+                        title="previous page"
+                      />
+                    }
+                    nextLabel={
+                      <span className="fa fa-arrow-right" title="next page" />
+                    }
+                    breakLabel="..."
+                    breakClassName="break-me"
+                    pageCount={Math.ceil(recordCount / limit)}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={parseInt(limit, 10)}
+                    onPageChange={this.handlePageClick}
+                    containerClassName="pagination"
+                    subContainerClassName="pages pagination"
+                    activeClassName="active-page"
                   />
-                  all
-                </Button>
-                &nbsp;
-                <Button
-                  variant="outline-info"
-                  size="xs"
-                  onClick={this.unselectAll}
-                >
-                  <span className="fa fa-minus pr-1" style={{ color: 'red' }} />
-                  all
-                </Button>
-                &nbsp;
-                <Button
-                  variant="outline-danger"
-                  size="xs"
-                  onClick={this.emptyItems}
-                >
-                  <span className="fa fa-times-circle pr-1" />
-                  empty
-                </Button>
+                ) : (
+                  <></> //
+                )}
               </Col>
-              <Col md="7">
-                <Row>
-                  <Col md="8">
-                    {recordCount >= limit && limit !== -1 ? (
-                      <ReactPaginate
-                        previousLabel={
-                          <span
-                            className="fa fa-arrow-left"
-                            title="previous page"
-                          />
-                        }
-                        nextLabel={
-                          <span
-                            className="fa fa-arrow-right"
-                            title="next page"
-                          />
-                        }
-                        breakLabel="..."
-                        breakClassName="break-me"
-                        pageCount={Math.ceil(recordCount / limit)}
-                        marginPagesDisplayed={2}
-                        pageRangeDisplayed={parseInt(limit, 10)}
-                        onPageChange={this.handlePageClick}
-                        containerClassName="pagination"
-                        subContainerClassName="pages pagination"
-                        activeClassName="active-page"
-                      />
-                    ) : (
-                      <></>
-                    )}
-                  </Col>
-                  <Col md="3" className="mr-0">
-                    <div className="d-flex flex-row">
-                      <PerPageFilter
-                        value={`${limit}`}
-                        onChange={this.updatePerPage}
-                      />
-                      <SortFilter
-                        value={`${sortFilter}`}
-                        onChange={this.sortChange}
-                      />
-                    </div>
-                  </Col>
-                </Row>
+              <Col md="3" className="mr-0">
+                <div className="d-flex flex-row">
+                  <PerPageFilter
+                    value={`${limit}`}
+                    onChange={this.updatePerPage}
+                  />
+                  <SortFilter
+                    value={`${sortFilter}`}
+                    onChange={this.sortChange}
+                  />
+                </div>
               </Col>
-            </>
-          ) : (
-            ''
-          )}
-
-          {view === 'selected' ? (
-            <>
-              <Col md="1">
-                <Col md="2" className="pt-1">
-                  <Button
-                    variant="outline-secondary"
-                    size="xs"
-                    onClick={this.search}
-                    title="Back"
-                  >
-                    <span className="fa fa-arrow-left" />
-                  </Button>
-                </Col>
-              </Col>
-              <Col md="2" className="pt-1">
-                <ConfirmDelete
-                  airingList={actionList}
-                  onDelete={this.deleteAll}
-                  label="delete selected"
-                />
-              </Col>
-              <Col className="pt-1">
-                <VideoExport airingList={actionList} label="export selected" />
-              </Col>
-            </>
-          ) : (
-            ''
-          )}
+            </Row>
+          </Col>
         </Row>
+        <SearchResults />
       </>
     );
   }
-}
-
-function SelectedDisplay(prop) {
-  const { actionList, view } = prop;
-
-  const len = actionList.length;
-
-  return (
-    <Button onClick={view} variant="outline-primary" style={{ width: '125px' }}>
-      <span className="fa fa-file-video pr-1" /> {len} selected
-    </Button>
-  );
 }
 
 type filterProps = {
@@ -1494,3 +1329,18 @@ function FilterSelect(props: fullFilterProps) {
     </div>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(SearchActions, dispatch);
+};
+
+// const mapStateToProps = (state: any) => {
+//   return {
+//     // view: state.view
+//   };
+// };
+
+export default connect<*, *, *, *, *, *>(
+  null,
+  mapDispatchToProps
+)(withRouter(SearchForm));

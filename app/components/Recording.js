@@ -1,10 +1,16 @@
 // @flow
-
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import PubSub from 'pubsub-js';
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+
+import * as ActionListActions from '../actions/actionList';
 
 import Title from './Title';
 import TabloImage from './TabloImage';
@@ -12,24 +18,23 @@ import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
-import Checkbox, { CHECKBOX_OFF } from './Checkbox';
+import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
-import VideoExport from './VideoExport';
+// import { addAiring, remAiring } from '../actions/actionList';
+
+import VideoExport from './VideoExportModal';
 import Airing from '../utils/Airing';
 
 type Props = {
-  doDelete: () => ?Promise<any>,
-  addItem: (item: Airing) => void,
-  delItem: (item: Airing) => void,
   airing: Airing,
-  checked?: number
+  checked: number,
+  addAiring: Airing => void,
+  remAiring: Airing => void
 };
 type State = { recOverviewOpen: boolean };
 
-export default class Recording extends Component<Props, State> {
+class Recording extends Component<Props, State> {
   props: Props;
-
-  static defaultProps: {};
 
   // for 2 way interaction you're maybe not supposed to do for this reason
   // TODO: figure out the type.
@@ -48,8 +53,15 @@ export default class Recording extends Component<Props, State> {
     (this: any).processVideo = this.processVideo.bind(this);
   }
 
-  toggleSelection() {
-    const { airing, addItem, delItem } = this.props;
+  componentDidUpdate(prevProps: Props) {
+    const { checked } = this.props;
+    if (prevProps.checked !== checked) {
+      this.render();
+    }
+  }
+
+  toggleSelection = async () => {
+    const { airing, addAiring, remAiring } = this.props;
 
     // FIXME: gross, don't know if this is correct way to do this
     if (
@@ -58,18 +70,20 @@ export default class Recording extends Component<Props, State> {
     )
       return;
 
-    if (!this.checkboxRef) return;
     const { state } = this.checkboxRef;
     if (!state) return;
+
     const { checked } = state;
 
     // we get this value before it's set, so the test is backwards
     if (!checked) {
-      addItem(airing);
+      // await this.setState({ checked: CHECKBOX_ON });
+      addAiring(airing);
     } else {
-      delItem(airing);
+      // await this.setState({ checked: CHECKBOX_OFF });
+      remAiring(airing);
     }
-  }
+  };
 
   toggleRecOverview() {
     const { recOverviewOpen } = this.state;
@@ -84,9 +98,9 @@ export default class Recording extends Component<Props, State> {
   }
 
   async deleteAiring() {
-    const { airing, doDelete } = this.props;
+    const { airing } = this.props;
     await airing.delete();
-    doDelete();
+    PubSub.publish('DB_CHANGE');
   }
 
   render() {
@@ -182,6 +196,22 @@ export default class Recording extends Component<Props, State> {
     );
   }
 }
-Recording.defaultProps = {
-  checked: CHECKBOX_OFF
+
+const mapStateToProps = (state, ownProps) => {
+  const { actionList } = state;
+  const { airing } = ownProps;
+  return {
+    checked: actionList.find(item => item.object_id === airing.object_id)
+      ? CHECKBOX_ON
+      : CHECKBOX_OFF
+  };
 };
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Recording);

@@ -10,6 +10,10 @@
 @import 'spinner.css';
 @import '~video-react/dist/video-react.css';
 
+.smallerish {
+  font-size: 13px;
+}
+
 /** flex layout **/
 div.top-bar {
   position: absolute;
@@ -150,6 +154,8 @@ button:focus {
   max-height: 200px;
   min-height: 200px;
   display: inline-block;
+  position: relative;
+  overflow: hidden;
 }
 
 .search-image {
@@ -260,6 +266,7 @@ body,
   position: relative;
   width: 100%;
   overflow: hidden;
+  z-index: 2;
 }
 
 /* Original image */
@@ -267,6 +274,7 @@ body,
   display: block;
   width: 100%;
   height: auto;
+  z-index: 3;
 }
 
 /* Original text overlay */
@@ -281,6 +289,7 @@ body,
   left: 50%;
   transform: translate(-50%, -50%);
   width: 101%;
+  z-index: 2;
 }
 
 /* banner in top right corner */
@@ -289,14 +298,57 @@ body,
   top: 0;
   right: 0;
   transform: rotate(45deg);
+  z-index: 3;
+}
+
+/** nav bar Image / sel box **/
+.top-bar {
+  height: 50px;
+}
+
+.selected-basket {
+  min-width: 125px;
+  width: 125px;
+  min-height: 50px;
+  height: 50px;
+  margin: 0 10px 0 0;
+  padding: 5px;
+  display: inline-block;
+}
+
+.menu-icon {
+  width: 24px;
+}
+
+.cover {
+  z-index: -1;
+}
+.cover-checkbox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  z-index: 5;
+}
+
+.menu-buttons {
+  display: inline-block;
+  min-height: 50px;
+  height: 50px;
+  margin: 0;
+  padding: 5px 0;
+  vertical-align: bottom;
 }
 
 /* Program block */
 .program-cover {
-  width: 147px;
+  width: 150px;
   height: 200px;
   border: #dfd7ca solid 1px;
+  position: relative;
+  overflow: hidden;
 }
+
 .program-title {
   border-bottom: darkgray solid 1px;
   margin-left: -10px;

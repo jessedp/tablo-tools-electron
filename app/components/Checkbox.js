@@ -21,6 +21,13 @@ export default class Checkbox extends Component<Props, State> {
     this.state = { checked: checked === CHECKBOX_ON };
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { checked } = this.props;
+    if (prevProps.checked !== checked) {
+      this.toggle(checked);
+    }
+  }
+
   toggle(force: number = CHECKBOX_NATURAL) {
     const { checked } = this.state;
     if (force === CHECKBOX_OFF) {

@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
-import { Alert } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
@@ -42,13 +42,13 @@ export default class Events extends Component<Props, State> {
     if (recs.length === 0) {
       this.setState({
         alertType: 'warning',
-        alertTxt: 'No movies found',
+        alertTxt: 'No sports found',
         airings: []
       });
     } else {
       this.setState({
         alertType: 'info',
-        alertTxt: `${recs.length} events found`,
+        alertTxt: `${recs.length} sports found`,
         airings: recs
       });
     }
@@ -58,18 +58,33 @@ export default class Events extends Component<Props, State> {
     const { airings, alertTxt, alertType } = this.state;
 
     return (
-      <>
-        {alertTxt ? (
-          <Alert className="fade m-2" variant={alertType}>
-            {alertTxt}
-          </Alert>
-        ) : (
-          ''
-        )}
-        {airings.map(rec => {
-          return <ShowCover show={rec.show} key={`event-${rec.object_id}`} />;
-        })}
-      </>
+      <div className="section">
+        <div>
+          {alertTxt ? (
+            <Alert className="fade m-2" variant={alertType}>
+              {alertTxt}
+            </Alert>
+          ) : (
+            ''
+          )}
+        </div>
+        <div className="scrollable-area">
+          {airings.map(rec => {
+            console.log(rec.show);
+            return (
+              <Button
+                onClick={() => {}}
+                onKeyDown={() => {}}
+                variant="light"
+                className="align-content-center"
+                key={rec.object_id}
+              >
+                <ShowCover show={rec.show} key={`sport-${rec.object_id}`} />;
+              </Button>
+            );
+          })}
+        </div>
+      </div>
     );
   }
 }

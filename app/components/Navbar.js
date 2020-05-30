@@ -1,12 +1,10 @@
 // @flow
-/** This is poorly named - the SideBar is actually the TopBar * */
 import { ipcRenderer, shell } from 'electron';
 import React, { Component, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
-import Image from 'react-bootstrap/Image';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -14,13 +12,15 @@ import Modal from 'react-bootstrap/Modal';
 import { format } from 'date-fns';
 import axios from 'axios';
 
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 import routes from '../constants/routes.json';
-import tabloLogo from '../../resources/tablo_tools_logo.png';
+
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
+import SelectedBox from './SelectedBox';
+import LogoBox from './Logo';
 
 const { app } = require('electron').remote;
 
@@ -109,109 +109,128 @@ class Navbar extends Component<Props, State> {
 
   render() {
     const { updateAvailable } = this.state;
+
     let { updateData } = this.state;
 
     if (updateData) updateData = updateData.info;
 
     // dropdown state
     let ddText = 'Browse Recordings';
-    let ddClass = '';
-    let toggleClass = 'outline-primary';
+    let ddClass = 'outline-primary';
+    // let toggleClass = 'outline-primary';
     const { location } = this.props;
     if (location.pathname === routes.SHOWS) {
       ddText = 'Shows & Series';
-      ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.MOVIES) {
       ddText = 'Movies';
-      ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.SPORTS) {
       ddText = 'Sports & Events';
-      ddClass = 'active';
+      ddClass = 'primary';
     }
 
     if (location.pathname === routes.PROGRAMS) {
       ddText = 'Manual';
-      ddClass = 'active';
+      ddClass = 'primary';
     }
-    if (ddClass) toggleClass = `${toggleClass} active`;
-
+    // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
-      <Row className="mb-2">
+      <Row className="mb-2 top-bar">
         <Col md="7">
-          <Image src={tabloLogo} style={{ width: '125px', padding: '5px' }} />
-          <ButtonGroup className="ml-2">
-            <LinkContainer activeClassName="active" to={routes.HOME}>
-              <Button size="sm" variant="outline-primary">
-                <span className="fa fa-home" />
-              </Button>
-            </LinkContainer>
-
-            <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
-              <Button size="sm" variant="outline-primary">
-                Overview
-              </Button>
-            </LinkContainer>
-
-            <Dropdown as={ButtonGroup} drop="down" style={{ width: '160px' }}>
-              <Button size="sm" variant="outline-primary" className={ddClass}>
-                {ddText}
-              </Button>
-
-              <Dropdown.Toggle size="sm" split variant={toggleClass} />
-
-              <Dropdown.Menu variant="outline-secondary">
-                <LinkContainer activeClassName="active" to={routes.SHOWS}>
-                  <Dropdown.Item>Shows & Series</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.MOVIES}>
-                  <Dropdown.Item>Movies</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.SPORTS}>
-                  <Dropdown.Item>Sports & Events</Dropdown.Item>
-                </LinkContainer>
-
-                <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
-                  <Dropdown.Item>Manual</Dropdown.Item>
-                </LinkContainer>
-              </Dropdown.Menu>
-            </Dropdown>
-
-            <LinkContainer activeClassName="active" to={routes.SEARCH}>
-              <Button size="sm" variant="outline-primary">
-                Search
-              </Button>
-            </LinkContainer>
-          </ButtonGroup>
-        </Col>
-
-        <Col md="4" className="offset-md-1 smaller pt-1  align-items">
-          <div className="d-flex flex-row-reverse">
-            <div>
-              <VersionStatus
-                updateData={updateData}
-                available={updateAvailable}
-              />
-            </div>
-            <div className="pr-2">
-              <LinkContainer activeClassName="active" to={routes.SETTINGS}>
-                <Button size="sm" variant="outline-dark" title="Settings">
-                  <i className="fa fa-cogs" />
+          <LogoBox />
+          <div className="menu-buttons">
+            <ButtonGroup className="ml-2 pt-1">
+              <LinkContainer activeClassName="active" to={routes.HOME}>
+                <Button size="sm" variant="outline-primary" as="button">
+                  <span className="fa fa-home" />
                 </Button>
               </LinkContainer>
-            </div>
-            <div className="pr-4 pt-2">
-              <PingStatus />
-            </div>
-            <div className="pr-3 pt-2">
-              <DbStatus />
-            </div>
+
+              <LinkContainer activeClassName="active" to={routes.OVERVIEW}>
+                <Button
+                  as="button"
+                  size="sm"
+                  variant="outline-primary"
+                  className="align-middle"
+                >
+                  <span>Overview</span>
+                </Button>
+              </LinkContainer>
+
+              <DropdownButton
+                as={ButtonGroup}
+                style={{ width: '160px' }}
+                title={ddText}
+                variant={ddClass}
+              >
+                <LinkContainer activeClassName="active" to={routes.SHOWS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-tv pr-2 menu-icon" />
+                    Shows & Series
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.MOVIES}>
+                  <Dropdown.Item>
+                    <span className="fa fa-film pr-2 menu-icon" />
+                    Movies
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.SPORTS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-quidditch pr-2 menu-icon" />
+                    Sports & Events
+                  </Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer activeClassName="active" to={routes.PROGRAMS}>
+                  <Dropdown.Item>
+                    <span className="fa fa-keyboard pr-2 menu-icon" />
+                    Manual
+                  </Dropdown.Item>
+                </LinkContainer>
+              </DropdownButton>
+
+              <LinkContainer activeClassName="active" to={routes.SEARCH}>
+                <Button size="sm" variant="outline-primary" as="button">
+                  Search
+                </Button>
+              </LinkContainer>
+            </ButtonGroup>
           </div>
+        </Col>
+        <Col md="5">
+          <Row>
+            <Col md="2">
+              <SelectedBox />
+            </Col>
+            <Col md="10" className="smaller pt-1  align-items menu-buttons">
+              <div className="d-flex flex-row-reverse">
+                <div>
+                  <VersionStatus
+                    updateData={updateData}
+                    available={updateAvailable}
+                  />
+                </div>
+                <div>
+                  <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+                    <Button size="sm" variant="outline-dark" title="Settings">
+                      <i className="fa fa-cogs" />
+                    </Button>
+                  </LinkContainer>
+                </div>
+                <div className="pt-2 p-0 pr-0">
+                  <DbStatus />
+                </div>
+                <div className="pt-2 pr-0 mr-4">
+                  <PingStatus />
+                </div>
+              </div>
+            </Col>
+          </Row>
         </Col>
       </Row>
     );

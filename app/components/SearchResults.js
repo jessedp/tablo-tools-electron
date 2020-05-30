@@ -1,32 +1,29 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
-import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
 
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
-import { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import type { SearchAlert } from './Search';
-import MatchesToBadges from './SearchFilterMatches';
+
+import type { SearchAlert } from '../utils/types';
+import SearchResultAlerts from './SearchResultAlerts';
+import RecordingSlim from './RecordingSlim';
 
 type Props = {
-  addItem: (airing: Airing) => void,
-  delItem: (airing: Airing) => void,
-  refresh: () => void
+  results: Object
 };
 
 type State = {
   searchAlert: SearchAlert,
   airingList: Array<Airing>,
-  airingRefs: Object,
-  actionList: Array<Airing>,
+  view: string,
   loading: boolean
 };
 
-export default class SearchResults extends Component<Props, State> {
+class SearchResults extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -35,10 +32,9 @@ export default class SearchResults extends Component<Props, State> {
     super();
 
     this.initialState = {
-      airingRefs: {},
-      actionList: [],
       loading: false,
       airingList: [],
+      view: '',
       searchAlert: {
         type: '',
         text: '',
@@ -47,106 +43,56 @@ export default class SearchResults extends Component<Props, State> {
     };
 
     this.state = this.initialState;
-
-    this.addItem = this.addItem.bind(this);
-    this.delItem = this.delItem.bind(this);
-    // this.search = this.search.bind(this);
-    this.delete = this.delete.bind(this);
+    // this.delete = this.delete.bind(this);
   }
 
-  receiveResults = (records: Object) => {
-    const refs = {};
-    if (records.airingList) {
-      records.airingList.forEach(item => {
-        refs[item.object_id] = React.createRef();
-      });
+  componentDidUpdate(prevProps: Props) {
+    const { results } = this.props;
+    if (prevProps.results !== results) {
+      this.refresh();
     }
+  }
 
+  refresh = () => {
+    const { results } = this.props;
     this.setState({
-      searchAlert: records.searchAlert,
-      loading: records.loading,
-      actionList: records.actionList,
-      airingList: records.airingList,
-      airingRefs: refs
+      searchAlert: results.searchAlert,
+      loading: results.loading,
+      airingList: results.airingList,
+      view: results.view
     });
-  };
-
-  addItem = (item: Airing) => {
-    const { addItem } = this.props;
-    addItem(item);
-  };
-
-  delItem = (item: Airing) => {
-    const { delItem } = this.props;
-    delItem(item);
-  };
-
-  toggle = (item: Airing, type: number) => {
-    const { airingRefs } = this.state;
-    if (airingRefs[item.object_id])
-      airingRefs[item.object_id].current.checkboxRef.toggle(type);
-  };
-
-  selectAll = () => {
-    const { airingRefs } = this.state;
-    Object.keys(airingRefs).forEach(id => {
-      if (airingRefs[id])
-        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
-          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_ON);
-    });
-  };
-
-  unselectAll = () => {
-    const { airingRefs } = this.state;
-    Object.keys(airingRefs).forEach(id => {
-      if (airingRefs[id])
-        if (typeof airingRefs[id].current.checkboxRef.toggle === 'function')
-          // typeof check is because there are no checkboxes on episodes being recorded
-          airingRefs[id].current.checkboxRef.toggle(CHECKBOX_OFF);
-    });
-  };
-
-  delete = async () => {
-    const { refresh } = this.props;
-    // TODO: make this work if need be
-    await refresh();
   };
 
   render() {
-    const { refresh } = this.props;
-    const { searchAlert, actionList, loading, airingRefs } = this.state;
+    const { searchAlert, loading, view } = this.state;
     let { airingList } = this.state;
 
     airingList = ensureAiringArray(airingList);
 
-    const rows = [];
+    let rows = [];
     if (!loading) {
-      rows.push(
-        airingList.map(airing => {
-          let checked = CHECKBOX_OFF;
-          if (actionList.find(item => item.object_id === airing.object_id)) {
-            checked = CHECKBOX_ON;
-          }
-
+      rows = airingList.map(airing => {
+        if (view === 'slim') {
           return (
-            <Recording
+            <RecordingSlim
               key={`recording-${airing.object_id}`}
-              ref={airingRefs[airing.object_id]}
-              search={refresh}
-              doDelete={this.delete}
               airing={airing}
-              addItem={this.addItem}
-              delItem={this.delItem}
-              checked={checked}
             />
           );
-        })
-      );
+        }
+        return (
+          <Recording key={`recording-${airing.object_id}`} airing={airing} />
+        );
+      });
     }
     return (
       <div className="scrollable-area">
         <Loading loading={loading} />
-        <ShowAlerts alert={searchAlert} loading={loading} />
+        <SearchResultAlerts
+          alert={searchAlert}
+          loading={loading}
+          airingList={airingList}
+        />
         <Row className="m-1 mb-4">{rows}</Row>
       </div>
     );
@@ -167,30 +113,10 @@ function Loading(prop) {
   );
 }
 
-function ShowAlerts(prop) {
-  const { alert, loading } = prop;
+const mapStateToProps = (state: any) => {
+  return {
+    results: state.results
+  };
+};
 
-  if (loading || !alert || !alert.matches) return '';
-
-  return (
-    <Row>
-      <Col>
-        <Alert variant={alert.type}>
-          <span className="pr-2">{alert.text}</span>
-          <MatchesToBadges
-            matches={alert.matches}
-            prefix="result_matches"
-            className=""
-          />
-          <div className="d-inline-block float-right">
-            <MatchesToBadges
-              matches={alert.stats}
-              prefix="result_stats"
-              className="bg-secondary"
-            />
-          </div>
-        </Alert>
-      </Col>
-    </Row>
-  );
-}
+export default connect<*, *, *, *, *, *>(mapStateToProps)(SearchResults);
