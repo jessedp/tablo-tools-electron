@@ -29,16 +29,8 @@ type Props = {
 };
 
 type State = {
-  sortFilter: number,
   searchAlert: SearchAlert
 };
-
-// const SORT_REC_ASC = 1;
-// const SORT_REC_DSC = 2;
-// const SORT_SIZE_ASC = 3;
-// const SORT_SIZE_DSC = 4;
-// const SORT_DURATION_ASC = 5;
-// const SORT_DURATION_DSC = 6;
 
 class SearchForm extends Component<Props, State> {
   props: Props;
@@ -46,7 +38,7 @@ class SearchForm extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { sortFilter: 0, searchAlert: EMPTY_SEARCHALERT };
+    this.state = { searchAlert: EMPTY_SEARCHALERT };
 
     // (this: any).sortChange = this.sortChange.bind(this);
     // (this: any).handlePageClick = this.handlePageClick.bind(this);
@@ -169,7 +161,6 @@ class SearchForm extends Component<Props, State> {
 
   render() {
     const { history, actionList } = this.props;
-    const { sortFilter } = this.state;
 
     return (
       <>
@@ -178,11 +169,11 @@ class SearchForm extends Component<Props, State> {
             <Button
               variant="outline-secondary"
               size="xs"
-              onClick={() => history.push(routes.SEARCH)}
+              onClick={() => history.goBack()}
               title="Back"
               className="mt-2"
             >
-              <span className="fa fa-arrow-left" /> Back{sortFilter}
+              <span className="fa fa-arrow-left" /> Back
             </Button>
           </Col>
           <Col md="2" className="pt-1">
