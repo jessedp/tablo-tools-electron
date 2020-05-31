@@ -3,6 +3,9 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+
 import createRootReducer from '../reducers';
 import type { actionListType } from '../reducers/types';
 
@@ -12,7 +15,20 @@ const router = routerMiddleware(history);
 const enhancer = applyMiddleware(thunk, router);
 
 function configureStore(initialState?: actionListType) {
-  return createStore<*, actionListType, *>(rootReducer, initialState, enhancer);
+  // Middleware: Redux Persist Config
+  const persistConfig = {
+    // Root
+    key: 'root',
+    storage,
+    // Whitelist (Save Specific Reducers)
+    whitelist: ['manageActionList', 'changeView'],
+    // Blacklist (Don't Save Specific Reducers)
+    blacklist: ['sendResults']
+  };
+  // Middleware: Redux Persist Persisted Reducer
+  const persistedReducer = persistReducer(persistConfig, rootReducer);
+  return createStore(persistedReducer, initialState, enhancer);
+  // return createStore<*, actionListType, *>(rootReducer, initialState, enhancer);
 }
 
 export default { configureStore, history };

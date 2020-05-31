@@ -4,7 +4,8 @@ import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'connected-react-router';
 import { createLogger } from 'redux-logger';
 import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+// import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import createElectronStorage from 'redux-persist-electron-storage';
 
 import createRootReducer from '../reducers';
 import * as actionListActions from '../actions/actionList';
@@ -20,7 +21,7 @@ const configureStore = (initialState?: actionListType) => {
   const persistConfig = {
     // Root
     key: 'root',
-    storage,
+    storage: createElectronStorage(),
     // Whitelist (Save Specific Reducers)
     whitelist: ['manageActionList', 'changeView'],
     // Blacklist (Don't Save Specific Reducers)
