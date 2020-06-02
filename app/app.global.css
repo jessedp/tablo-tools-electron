@@ -14,6 +14,10 @@
   font-size: 13px;
 }
 
+.text-success {
+  color: #28a745 !important;
+}
+
 /** flex layout **/
 div.top-bar {
   position: absolute;
