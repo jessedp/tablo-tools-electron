@@ -32,7 +32,7 @@ type State = {
   searchAlert: SearchAlert
 };
 
-class SearchForm extends Component<Props, State> {
+class ActionList extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -53,6 +53,19 @@ class SearchForm extends Component<Props, State> {
     // this.savedSearchList = await global.SearchDb.asyncFind({});
 
     this.refresh();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { actionList } = this.props;
+    console.log(
+      'prevProps.actionList.length',
+      prevProps.actionList.length,
+      'actionList.length',
+      actionList.length
+    );
+    if (prevProps.actionList !== actionList) {
+      this.refresh();
+    }
   }
 
   // componentDidUpdate(prevProps: Props) {
@@ -94,6 +107,7 @@ class SearchForm extends Component<Props, State> {
     let { searchAlert } = this.state;
 
     const len = actionList.length;
+    console.log('AL al len: ', actionList.length);
     if (len === 0) return;
 
     await sendResults({
@@ -161,7 +175,7 @@ class SearchForm extends Component<Props, State> {
 
   render() {
     const { history, actionList } = this.props;
-
+    console.log('action list render');
     return (
       <>
         <Row>
@@ -177,11 +191,7 @@ class SearchForm extends Component<Props, State> {
             </Button>
           </Col>
           <Col md="2" className="pt-1">
-            <ConfirmDelete
-              airingList={actionList}
-              onDelete={this.deleteAll}
-              label="delete selected"
-            />
+            <ConfirmDelete onDelete={this.deleteAll} label="delete selected" />
           </Col>
           <Col className="pt-1">
             <VideoExport airingList={actionList} label="export selected" />
@@ -206,4 +216,4 @@ const mapStateToProps = (state: any) => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(SearchForm));
+)(withRouter(ActionList));
