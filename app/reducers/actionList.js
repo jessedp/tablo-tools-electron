@@ -50,7 +50,7 @@ export default function manageActionList(
     case BULK_REM_AIRINGS: {
       if (!airings) return [];
       return ([...actionList].filter(
-        rec => !airings.find(item => item.object_id === rec.object_id)
+        rec => !airings.find(item => rec.object_id === item.object_id)
       ): ActionListStateType);
     }
     /** addShow w/ callback action jazz */
