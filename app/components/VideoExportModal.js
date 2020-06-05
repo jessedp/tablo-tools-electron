@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
-import os from 'os';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -8,43 +9,53 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-import { Badge } from 'react-bootstrap';
-import Airing, { ensureAiringArray } from '../utils/Airing';
+
+import ExportRecordType from '../reducers/types';
+import * as ExportListActions from '../actions/exportList';
+import {
+  EXP_WAITING,
+  EXP_WORKING,
+  EXP_DONE,
+  EXP_CANCEL,
+  EXP_FAIL
+} from '../constants/app';
+
 import RecordingExport from './RecordingExport';
-import { asyncForEach, throttleActions } from '../utils/utils';
+import {
+  throttleActions,
+  timeStrToSeconds,
+  readableDuration
+} from '../utils/utils';
+import Airing from '../utils/Airing';
+import { ExportRecord } from '../utils/factories';
 
 type Props = {
   airingList: Array<Airing>,
-  label?: string
+  exportList: Array<ExportRecordType>,
+  label?: string,
+
+  addExportRecord: (record: ExportRecordType) => void,
+  updateExportRecord: (record: ExportRecordType) => void,
+  bulkRemExportRecord: (Array<ExportRecordType>) => void
 };
+
 type State = { opened: boolean, exportState: number, atOnce: number };
 
-const EXP_WAITING = 1;
-const EXP_WORKING = 2;
-const EXP_DONE = 3;
-const EXP_CANCEL = 4;
-
-export default class VideoExportModal extends Component<Props, State> {
+class VideoExportModal extends Component<Props, State> {
   props: Props;
 
   static defaultProps: {};
 
   shouldCancel: boolean;
 
-  // TODO: ref type again
-  airingRefs: {};
+  timings: Object;
 
-  constructor(props: Props) {
+  constructor() {
     super();
     this.state = { opened: false, exportState: EXP_WAITING, atOnce: 1 };
 
-    this.airingRefs = {};
     this.shouldCancel = false;
-    const { airingList } = props;
-
-    airingList.forEach(item => {
-      this.airingRefs[item.object_id] = React.createRef();
-    });
+    this.timings = {};
 
     (this: any).toggle = this.toggle.bind(this);
     (this: any).show = this.show.bind(this);
@@ -62,7 +73,7 @@ export default class VideoExportModal extends Component<Props, State> {
   };
 
   processVideo = async () => {
-    const { airingList } = this.props;
+    const { exportList } = this.props;
     const { exportState, atOnce } = this.state;
 
     if (exportState === EXP_DONE) return;
@@ -70,42 +81,109 @@ export default class VideoExportModal extends Component<Props, State> {
 
     const actions = [];
 
-    await asyncForEach(airingList, rec => {
-      const ref = this.airingRefs[rec.object_id];
+    exportList.forEach(rec => {
       actions.push(() => {
-        if (ref.current && this.shouldCancel === false)
-          return ref.current.processVideo();
+        if (this.shouldCancel === false)
+          return rec.airing.processVideo(this.updateProgress);
       });
     });
 
     await throttleActions(actions, atOnce).then(results => {
-      // console.log(results);
       return results;
     });
 
-    this.setState({ exportState: EXP_DONE });
+    if (this.shouldCancel) {
+      this.setState({ exportState: EXP_CANCEL });
+    } else {
+      this.setState({ exportState: EXP_DONE });
+    }
+  };
+
+  updateProgress = (airingId: number, progress: Object) => {
+    const { exportList, updateExportRecord } = this.props;
+    const record: ExportRecordType = exportList.find(
+      rec => rec.airing.object_id === airingId
+    );
+    if (!record || record.state === EXP_DONE) return;
+
+    const { airing } = record;
+
+    if (!this.timings[airing.id]) {
+      this.timings[airing.id] = { start: Date.now(), duration: 0 };
+    }
+    const timing = this.timings[airing.id];
+
+    if (progress.finished) {
+      record.state = EXP_DONE;
+      record.progress = {
+        exportInc: 1000,
+        exportLabel: 'Complete',
+        log: progress.log
+      };
+    } else if (progress.cancelled) {
+      record.state = EXP_CANCEL;
+      record.progress = {
+        exportInc: 0,
+        exportLabel: 'Cancelled'
+      };
+    } else if (progress.failed) {
+      record.state = EXP_FAIL;
+      record.progress = {
+        exportInc: 0,
+        exportLabel: 'Failed'
+      };
+    } else {
+      // const pct = progress.percent  doesn't always work, so..
+      const pct = Math.round(
+        (timeStrToSeconds(progress.timemark) /
+          parseInt(airing.videoDetails.duration, 10)) *
+          100
+      );
+
+      const label = `${progress.timemark} / ${readableDuration(
+        airing.videoDetails.duration
+      )}`;
+
+      record.state = EXP_WORKING;
+      record.progress = {
+        exportInc: pct,
+        exportLabel: label
+      };
+    }
+
+    timing.duration = Date.now() - timing.start;
+    record.progress = { ...record.progress, ...timing };
+    this.timings[airing.id] = timing;
+
+    updateExportRecord(record);
   };
 
   cancelProcess = async (updateState: boolean = true) => {
-    const { airingList } = this.props;
+    const { exportList } = this.props;
 
     this.shouldCancel = true;
 
-    await asyncForEach(airingList, async rec => {
-      const ref = this.airingRefs[rec.object_id];
-      if (ref && ref.current) await ref.current.cancelProcess();
-      return new Promise(() => {});
+    exportList.forEach(rec => {
+      if (rec.state === EXP_WORKING) {
+        rec.airing.cancelVideoProcess();
+      }
     });
 
     if (updateState) this.setState({ exportState: EXP_CANCEL });
   };
 
   close = async () => {
+    const { bulkRemExportRecord } = this.props;
     this.shouldCancel = false;
+    bulkRemExportRecord([]);
     this.setState({ opened: false, exportState: EXP_WAITING });
   };
 
   show() {
+    const { airingList, addExportRecord } = this.props;
+    airingList.forEach(rec => {
+      addExportRecord(ExportRecord(rec));
+    });
     this.setState({ opened: true });
   }
 
@@ -115,7 +193,8 @@ export default class VideoExportModal extends Component<Props, State> {
   }
 
   render() {
-    let { airingList, label } = this.props;
+    const { exportList } = this.props;
+    let { label } = this.props;
 
     const { opened, exportState, atOnce } = this.state;
 
@@ -124,8 +203,12 @@ export default class VideoExportModal extends Component<Props, State> {
       label = <span className="pl-1">{label}</span>;
       size = 'sm';
     }
+    if (!exportList) {
+      console.log('missing exportList!');
+      return <></>; //
+    }
+    const airingList = exportList.map(rec => rec.airing);
 
-    airingList = ensureAiringArray(airingList);
     const timeSort = (a, b) => {
       if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
       return -1;
@@ -153,25 +236,12 @@ export default class VideoExportModal extends Component<Props, State> {
           scrollable
         >
           <Modal.Header closeButton>
-            <Modal.Title>
-              Export
-              {os.platform() === 'darwin' ? (
-                <Badge variant="warning" className="ml-4">
-                  <span className="fab fa-apple  pr-1" />
-                  Uh-oh! Exporting on Macs currently (probably) doesn&apos;t
-                  work
-                </Badge>
-              ) : (
-                ''
-              )}
-            </Modal.Title>
+            <Modal.Title>Export</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {airingList.map(airing => {
-              const ref = this.airingRefs[airing.object_id];
               return (
                 <RecordingExport
-                  ref={ref}
                   airing={airing}
                   key={`RecordingExport-${airing.object_id}`}
                 />
@@ -189,7 +259,7 @@ export default class VideoExportModal extends Component<Props, State> {
             />
           </Modal.Footer>
         </Modal>
-      </>
+      </> //
     );
   }
 }
@@ -255,23 +325,18 @@ function ExportButton(prop) {
   );
 }
 
-/**
- <Col md="auto">
- <InputGroup size="sm">
- <InputGroup.Prepend>
- <InputGroup.Text>Max:</InputGroup.Text>
- </InputGroup.Prepend>
- <Form.Control
- as="select"
- value={atOnce}
- aria-describedby="btnState"
- onChange={atOnceChange}
- >
- <option>1</option>
- <option>2</option>
- <option>3</option>
- <option>4</option>
- </Form.Control>
- </InputGroup>
- </Col>
-* */
+const mapStateToProps = state => {
+  const { exportList } = state;
+  return {
+    exportList: exportList.exportList
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ExportListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(VideoExportModal);
