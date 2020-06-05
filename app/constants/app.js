@@ -16,6 +16,9 @@ export const EXP_WORKING = 2;
 export const EXP_DONE = 3;
 export const EXP_CANCEL = 4;
 export const EXP_FAIL = 5;
+export const EXP_DELETE = 6;
+
+export const beginTimemark = '00:00 / 00:00';
 
 export const EMPTY_SEARCHALERT: SearchAlert = {
   type: '',
