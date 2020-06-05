@@ -12,17 +12,19 @@ import { Alert } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import { asyncForEach, throttleActions } from '../utils/utils';
+import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import {
   EXP_WAITING,
   EXP_WORKING,
   EXP_DONE,
-  EXP_CANCEL
+  EXP_CANCEL,
+  EXP_DELETE
 } from '../constants/app';
 
 type Props = {
   actionList: Array<Airing>
 };
-type State = { exportState: number, atOnce: number };
+type State = { exportState: number, atOnce: number, deleteOnFinish: number };
 
 class VideoExport extends Component<Props, State> {
   props: Props;
@@ -36,7 +38,11 @@ class VideoExport extends Component<Props, State> {
 
   constructor(props: Props) {
     super();
-    this.state = { exportState: EXP_WAITING, atOnce: 1 };
+    this.state = {
+      exportState: EXP_WAITING,
+      atOnce: 1,
+      deleteOnFinish: CHECKBOX_OFF
+    };
 
     this.airingRefs = {};
     this.shouldCancel = false;
@@ -48,6 +54,7 @@ class VideoExport extends Component<Props, State> {
 
     (this: any).processVideo = this.processVideo.bind(this);
     (this: any).cancelProcess = this.cancelProcess.bind(this);
+    (this: any).toggle = this.toggle.bind(this);
   }
 
   componentWillUnmount() {
@@ -60,7 +67,7 @@ class VideoExport extends Component<Props, State> {
 
   processVideo = async () => {
     const { actionList } = this.props;
-    const { exportState, atOnce } = this.state;
+    const { exportState, atOnce, deleteOnFinish } = this.state;
     this.shouldCancel = false;
 
     if (exportState === EXP_WORKING) return;
@@ -73,7 +80,7 @@ class VideoExport extends Component<Props, State> {
       const ref = this.airingRefs[rec.object_id];
       actions.push(() => {
         if (ref.current && this.shouldCancel === false)
-          return ref.current.processVideo();
+          return ref.current.processVideo(deleteOnFinish === CHECKBOX_ON);
       });
     });
 
@@ -81,8 +88,11 @@ class VideoExport extends Component<Props, State> {
       // console.log(results);
       return results;
     });
-
-    this.setState({ exportState: EXP_DONE });
+    if (deleteOnFinish === CHECKBOX_ON && this.shouldCancel === false) {
+      await this.setState({ exportState: EXP_DELETE });
+    } else {
+      this.setState({ exportState: EXP_DONE });
+    }
   };
 
   cancelProcess = async (updateState: boolean = true) => {
@@ -99,10 +109,18 @@ class VideoExport extends Component<Props, State> {
     if (updateState) this.setState({ exportState: EXP_CANCEL });
   };
 
+  toggle = () => {
+    const { deleteOnFinish } = this.state;
+    this.setState({
+      deleteOnFinish:
+        deleteOnFinish === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF
+    });
+  };
+
   render() {
     const { actionList } = this.props;
 
-    const { exportState, atOnce } = this.state;
+    const { exportState, atOnce, deleteOnFinish } = this.state;
 
     // / airingList = ensureAiringArray(airingList);
     const timeSort = (a, b) => {
@@ -124,6 +142,8 @@ class VideoExport extends Component<Props, State> {
           atOnceChange={this.atOnceChange}
           cancel={this.cancelProcess}
           process={this.processVideo}
+          toggle={this.toggle}
+          deleteOnFinish={deleteOnFinish}
         />
         {actionList.map(airing => {
           const ref = this.airingRefs[airing.object_id];
@@ -135,7 +155,7 @@ class VideoExport extends Component<Props, State> {
             />
           );
         })}
-      </>
+      </> //
     );
   }
 }
@@ -144,16 +164,28 @@ class VideoExport extends Component<Props, State> {
  * @return {string}
  */
 function ExportActions(prop) {
-  const { state, cancel, process, atOnce, atOnceChange } = prop;
-  // , atOnce, atOnceChange
+  const {
+    state,
+    cancel,
+    process,
+    atOnce,
+    atOnceChange,
+    deleteOnFinish,
+    toggle
+  } = prop;
 
   if (state === EXP_WORKING) {
     return (
-      <Col>
-        <Button variant="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </Col>
+      <Alert variant="primary" className="p-2 m-2">
+        <Row>
+          <Col md="5" />
+          <Col md="2">
+            <Button variant="warning" onClick={cancel}>
+              Cancel
+            </Button>
+          </Col>
+        </Row>
+      </Alert>
     );
   }
 
@@ -190,6 +222,13 @@ function ExportActions(prop) {
           <Button variant="light" onClick={process} className="mr-2">
             Export
           </Button>
+        </Col>
+        <Col md="auto" className="pt-2">
+          <Checkbox
+            checked={deleteOnFinish}
+            handleChange={toggle}
+            label="Delete when finished?"
+          />
         </Col>
       </Row>
     </Alert>
