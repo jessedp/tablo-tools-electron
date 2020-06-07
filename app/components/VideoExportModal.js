@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
-import os from 'os';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -8,124 +9,89 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-import { Badge } from 'react-bootstrap';
-import Airing, { ensureAiringArray } from '../utils/Airing';
+
+import VideoExport from './VideoExport';
+
+import ExportRecordType from '../reducers/types';
+import * as ExportListActions from '../actions/exportList';
+import { EXP_WORKING, EXP_DONE } from '../constants/app';
+
 import RecordingExport from './RecordingExport';
-import { asyncForEach, throttleActions } from '../utils/utils';
+import Airing from '../utils/Airing';
+import { ExportRecord } from '../utils/factories';
 
 type Props = {
   airingList: Array<Airing>,
-  label?: string
+  exportList: Array<ExportRecordType>,
+  label?: string,
+
+  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
+  exportState: number,
+  atOnce: number,
+  deleteOnFinished: number,
+  toggleDOF: () => void,
+  cancelProcess: () => void,
+  processVideo: () => void,
+
+  addExportRecord: (record: ExportRecordType) => void,
+  bulkRemExportRecord: (Array<ExportRecordType>) => void
 };
-type State = { opened: boolean, exportState: number, atOnce: number };
 
-const EXP_WAITING = 1;
-const EXP_WORKING = 2;
-const EXP_DONE = 3;
-const EXP_CANCEL = 4;
+type State = { opened: boolean };
 
-export default class VideoExportModal extends Component<Props, State> {
+class VideoExportModal extends Component<Props, State> {
   props: Props;
 
-  static defaultProps: {};
+  static defaultProps: Object;
 
-  shouldCancel: boolean;
-
-  // TODO: ref type again
-  airingRefs: {};
-
-  constructor(props: Props) {
+  constructor() {
     super();
-    this.state = { opened: false, exportState: EXP_WAITING, atOnce: 1 };
+    this.state = { opened: false };
 
-    this.airingRefs = {};
-    this.shouldCancel = false;
-    const { airingList } = props;
-
-    airingList.forEach(item => {
-      this.airingRefs[item.object_id] = React.createRef();
-    });
-
-    (this: any).toggle = this.toggle.bind(this);
     (this: any).show = this.show.bind(this);
-    (this: any).processVideo = this.processVideo.bind(this);
-    (this: any).cancelProcess = this.cancelProcess.bind(this);
     (this: any).close = this.close.bind(this);
   }
 
-  componentWillUnmount() {
-    this.cancelProcess(false);
-  }
-
-  atOnceChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ atOnce: parseInt(event.currentTarget.value, 10) });
-  };
-
-  processVideo = async () => {
-    const { airingList } = this.props;
-    const { exportState, atOnce } = this.state;
-
-    if (exportState === EXP_DONE) return;
-    await this.setState({ exportState: EXP_WORKING });
-
-    const actions = [];
-
-    await asyncForEach(airingList, rec => {
-      const ref = this.airingRefs[rec.object_id];
-      actions.push(() => {
-        if (ref.current && this.shouldCancel === false)
-          return ref.current.processVideo();
-      });
-    });
-
-    await throttleActions(actions, atOnce).then(results => {
-      // console.log(results);
-      return results;
-    });
-
-    this.setState({ exportState: EXP_DONE });
-  };
-
-  cancelProcess = async (updateState: boolean = true) => {
-    const { airingList } = this.props;
-
-    this.shouldCancel = true;
-
-    await asyncForEach(airingList, async rec => {
-      const ref = this.airingRefs[rec.object_id];
-      if (ref && ref.current) await ref.current.cancelProcess();
-      return new Promise(() => {});
-    });
-
-    if (updateState) this.setState({ exportState: EXP_CANCEL });
-  };
-
   close = async () => {
-    this.shouldCancel = false;
-    this.setState({ opened: false, exportState: EXP_WAITING });
+    const { bulkRemExportRecord } = this.props;
+    bulkRemExportRecord([]);
+    this.setState({ opened: false });
   };
 
   show() {
+    const { airingList, addExportRecord } = this.props;
+    airingList.forEach(rec => {
+      addExportRecord(ExportRecord(rec));
+    });
     this.setState({ opened: true });
   }
 
-  toggle() {
-    const { opened } = this.state;
-    this.setState({ opened: !opened });
-  }
-
   render() {
-    let { airingList, label } = this.props;
+    const {
+      exportList,
+      exportState,
+      atOnce,
+      deleteOnFinished,
+      atOnceChange,
+      cancelProcess,
+      processVideo,
+      toggleDOF
+    } = this.props;
+    let { label } = this.props;
 
-    const { opened, exportState, atOnce } = this.state;
+    const { opened } = this.state;
 
     let size = 'xs';
     if (label) {
       label = <span className="pl-1">{label}</span>;
       size = 'sm';
     }
+    if (!exportList) {
+      console.log('missing exportList!');
+      return <></>; //
+    }
+    const airingList = exportList.map(rec => rec.airing);
 
-    airingList = ensureAiringArray(airingList);
     const timeSort = (a, b) => {
       if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
       return -1;
@@ -153,25 +119,12 @@ export default class VideoExportModal extends Component<Props, State> {
           scrollable
         >
           <Modal.Header closeButton>
-            <Modal.Title>
-              Export
-              {os.platform() === 'darwin' ? (
-                <Badge variant="warning" className="ml-4">
-                  <span className="fab fa-apple  pr-1" />
-                  Uh-oh! Exporting on Macs currently (probably) doesn&apos;t
-                  work
-                </Badge>
-              ) : (
-                ''
-              )}
-            </Modal.Title>
+            <Modal.Title>Export</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {airingList.map(airing => {
-              const ref = this.airingRefs[airing.object_id];
               return (
                 <RecordingExport
-                  ref={ref}
                   airing={airing}
                   key={`RecordingExport-${airing.object_id}`}
                 />
@@ -182,14 +135,16 @@ export default class VideoExportModal extends Component<Props, State> {
             <ExportButton
               state={exportState}
               atOnce={atOnce}
-              atOnceChange={this.atOnceChange}
-              cancel={this.cancelProcess}
-              process={this.processVideo}
+              deleteOnFinished={deleteOnFinished}
+              toggleDOF={toggleDOF}
+              atOnceChange={atOnceChange}
+              cancel={cancelProcess}
+              process={processVideo}
               close={this.close}
             />
           </Modal.Footer>
         </Modal>
-      </>
+      </> //
     );
   }
 }
@@ -255,23 +210,18 @@ function ExportButton(prop) {
   );
 }
 
-/**
- <Col md="auto">
- <InputGroup size="sm">
- <InputGroup.Prepend>
- <InputGroup.Text>Max:</InputGroup.Text>
- </InputGroup.Prepend>
- <Form.Control
- as="select"
- value={atOnce}
- aria-describedby="btnState"
- onChange={atOnceChange}
- >
- <option>1</option>
- <option>2</option>
- <option>3</option>
- <option>4</option>
- </Form.Control>
- </InputGroup>
- </Col>
-* */
+const mapStateToProps = state => {
+  const { exportList } = state;
+  return {
+    exportList: exportList.exportList
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(ExportListActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(VideoExport(VideoExportModal));

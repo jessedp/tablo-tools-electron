@@ -1,6 +1,9 @@
 // @flow
 import React, { Component, useState } from 'react';
 import { shell } from 'electron';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import fs from 'fs';
 
 import Row from 'react-bootstrap/Row';
@@ -13,6 +16,8 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 
+import * as ActionListActions from '../actions/actionList';
+
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
@@ -22,188 +27,38 @@ import {
   EXP_WORKING,
   EXP_DONE,
   EXP_CANCEL,
-  EXP_FAIL
+  EXP_FAIL,
+  EXP_DELETE
 } from '../constants/app';
 
-import {
-  readableBytes,
-  readableDuration,
-  secondsToTimeStr,
-  timeStrToSeconds
-} from '../utils/utils';
+import ExportRecordType from '../reducers/types';
+
+import { readableBytes, secondsToTimeStr } from '../utils/utils';
 import RelativeDate from './RelativeDate';
 
 type Props = {
+  record: ExportRecordType,
   airing: Airing
 };
 
-type State = {
-  exportInc: number,
-  exportState: number,
-  exportLabel: string,
-  ffmpegLog: [],
-  startTime: number,
-  curTime: number
-};
+type State = {};
 
-const beginTime = '00:00 / 00:00';
-
-export default class RecordingExport extends Component<Props, State> {
+class RecordingExport extends Component<Props, State> {
   props: Props;
 
-  timer: IntervalID;
-
-  shouldCancel: boolean;
-
-  constructor() {
-    super();
-    this.state = {
-      exportInc: 0,
-      exportState: EXP_WAITING,
-      exportLabel: beginTime,
-      ffmpegLog: [],
-      startTime: 0,
-      curTime: 0
-    };
-    this.shouldCancel = false;
-
-    (this: any).updateProgress = this.updateProgress.bind(this);
-  }
-
-  componentWillUnmount() {
-    const { exportState } = this.state;
-    const { airing } = this.props;
-    if (exportState === EXP_WORKING) airing.cancelVideoProcess();
-  }
-
-  startTimer() {
-    this.setState({
-      startTime: Date.now(),
-      curTime: Date.now()
-    });
-    this.timer = setInterval(() => {
-      const { startTime } = this.state;
-      this.setState({
-        curTime: Date.now() - startTime
-      });
-    }, 1);
-  }
-
-  stopTimer() {
-    clearInterval(this.timer);
-  }
-
-  async processVideo() {
-    const { exportState } = this.state;
-    if (exportState === EXP_WORKING) return;
-    const { airing } = this.props;
-
-    this.setState({
-      exportState: EXP_WORKING,
-      exportInc: 0,
-      exportLabel: beginTime
-    });
-
-    this.startTimer();
-    let ffmpegLog = [];
-    try {
-      ffmpegLog = await airing.processVideo(this.updateProgress);
-    } catch (e) {
-      this.stopTimer();
-      await this.setState({
-        exportState: EXP_FAIL,
-        exportInc: 0,
-        exportLabel: beginTime,
-        ffmpegLog
-      });
-      console.log(`Failed exporting ${airing.object_id} - ${e}`);
-      return;
-    }
-
-    this.stopTimer();
-
-    if (this.shouldCancel === true) {
-      await this.setState({
-        exportState: EXP_CANCEL,
-        ffmpegLog
-      });
-    } else {
-      await this.setState({
-        exportState: EXP_DONE,
-        exportInc: 0,
-        exportLabel: beginTime,
-        ffmpegLog
-      });
+  componentDidUpdate(prevProps: Props) {
+    const { record } = this.props;
+    if (prevProps.record !== record) {
+      this.render();
     }
   }
-
-  async cancelProcess() {
-    const { exportState } = this.state;
-
-    if (exportState !== EXP_WORKING) return;
-
-    this.shouldCancel = true;
-
-    const { airing } = this.props;
-
-    await airing.cancelVideoProcess();
-    this.setState({
-      exportInc: 0,
-      exportState: EXP_CANCEL,
-      exportLabel: beginTime
-    });
-  }
-
-  updateProgress = (progress: Object) => {
-    const { exportState } = this.state;
-    if (exportState === EXP_DONE) return;
-
-    const { airing } = this.props;
-
-    // console.log(progress);
-    if (progress.finished) {
-      this.setState({
-        exportInc: 1000,
-        exportState: EXP_DONE,
-        exportLabel: 'Complete'
-      });
-    } else {
-      // const pct = progress.percent  doesn't always work, so..
-      const pct = Math.round(
-        (timeStrToSeconds(progress.timemark) /
-          parseInt(airing.videoDetails.duration, 10)) *
-          100
-      );
-
-      const label = `${progress.timemark} / ${readableDuration(
-        airing.videoDetails.duration
-      )}`;
-
-      // console.log(airing.object_id, 'pct', pct);
-      // console.log(airing.object_id, 'timemark', progress.timemark);
-      // console.log(airing.object_id, 'label', label);
-
-      this.setState({
-        exportInc: pct,
-        exportState: EXP_WORKING,
-        exportLabel: label
-      });
-    }
-  };
 
   render() {
-    const { airing } = this.props;
-    const {
-      exportInc,
-      exportLabel,
-      exportState,
-      curTime,
-      ffmpegLog
-    } = this.state;
+    const { record } = this.props;
+    const { exportInc, exportLabel, duration, log } = record.progress;
+    const { airing, state: exportState } = record;
 
     const classes = `border pb-1 mb-2 pt-1`;
-
-    // console.log('render', airing.object_id, ffmpegLog);
 
     return (
       <Container className={classes}>
@@ -211,7 +66,7 @@ export default class RecordingExport extends Component<Props, State> {
           <Col md="1">
             <TabloImage
               imageId={airing.show.thumbnail}
-              className="menu-image-md"
+              className="menu-image-lg"
             />
           </Col>
           <Col md="11">
@@ -219,20 +74,19 @@ export default class RecordingExport extends Component<Props, State> {
               <Col md="6">
                 <TitleSlim airing={airing} withShow={1} />
               </Col>
-              <Col md="5">
+              <Col md="6">
                 <ExportProgress
                   label={exportLabel}
                   state={exportState}
                   inc={exportInc}
-                  ffmpegLog={ffmpegLog}
-                  time={curTime}
+                  ffmpegLog={log}
+                  time={duration}
                 />
               </Col>
             </Row>
             <Row>
-              <Col>
-                {' '}
-                <FileInfo airing={airing} state={exportState} />{' '}
+              <Col md="auto">
+                <FileInfo airing={airing} state={exportState} />
               </Col>
             </Row>
           </Col>
@@ -257,15 +111,17 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_WAITING) {
     return (
-      <Alert variant="light" className="m-0 smallerish">
-        <span className="fa fa-pause-circle" /> waiting...
+      <Alert variant="light" className="m-0 pt-3 smallerish export-alert">
+        <span className="">
+          <span className="fa fa-pause-circle" /> waiting...
+        </span>
       </Alert>
     );
   }
 
   if (state === EXP_DONE) {
     return (
-      <Alert variant="success" className="m-0 smallerish">
+      <Alert variant="success" className="m-0 smallerish export-alert">
         <Row>
           <Col md="8">
             <span className="fa fa-check-circle pr-2" />
@@ -279,9 +135,27 @@ function ExportProgress(prop: EPProp) {
     );
   }
 
+  if (state === EXP_DELETE) {
+    return (
+      <Alert variant="secondary" className="m-0 smallerish export-alert">
+        <Row>
+          <Col md="8">
+            <span className="fa fa-check-circle pr-2" />
+            <span className="pr-5">
+              Finished in {timeStr}. DELETED from Tablo.
+            </span>
+          </Col>
+          <Col md="4" className="text-right">
+            <FfmpegLog log={ffmpegLog} />
+          </Col>
+        </Row>
+      </Alert>
+    );
+  }
+
   if (state === EXP_CANCEL) {
     return (
-      <Alert variant="warning" className="m-0 smallerish">
+      <Alert variant="warning" className="m-0 smallerish export-alert">
         <Row>
           <Col md="9">
             <span className="fa fa-check-circle pr-2" />
@@ -297,7 +171,7 @@ function ExportProgress(prop: EPProp) {
 
   if (state === EXP_FAIL) {
     return (
-      <Alert variant="danger " className="m-0 smallerish">
+      <Alert variant="danger " className="m-0 smallerish export-alert">
         <Row>
           <Col md="9">
             <span className="fa fa-check-circle pr-2" />
@@ -315,14 +189,14 @@ function ExportProgress(prop: EPProp) {
     return (
       <Alert
         variant="light"
-        className="m-0 smallerish p-1 pl-3"
-        size="sm"
+        className="m-0 smallerish export-alert"
         style={{ maxHeight: '30px' }}
       >
         <Spinner
+          size="sm"
           animation="border"
           variant="warning"
-          style={{ margin: 0, padding: 0 }}
+          className="mt-1"
         />
       </Alert>
     );
@@ -331,7 +205,7 @@ function ExportProgress(prop: EPProp) {
   // if (exportState === EXP_WORKING)
   const pctLbl = `${Math.round(inc)} %`;
   return (
-    <Alert variant="light " className="m-0 smallerish p-1">
+    <Alert variant="light " className="smallerish m-0 export-alert">
       <div className="d-flex flex-row pt-1">
         <div style={{ width: '100%' }}>
           <ProgressBar
@@ -380,7 +254,7 @@ function FfmpegLog(prop) {
   // const log = [];
   // for (let i = 0; i < 100; i += 1) log.push('xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx ');
 
-  if (log.length === 0) return <i>No log</i>;
+  if (!log || log.length === 0) return <i>No log</i>;
 
   let i = 0;
   return (
@@ -393,10 +267,14 @@ function FfmpegLog(prop) {
         <Modal.Header closeButton>
           <Modal.Title>Export Log</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="text-monospace smaller">
           {log.map(row => {
             i += 1;
-            return <div key={`logrow-${i}`}>{row}</div>;
+            return (
+              <div className="border-bottom" key={`logrow-${i}`}>
+                {row}
+              </div>
+            );
           })}
         </Modal.Body>
         <Modal.Footer>
@@ -405,7 +283,7 @@ function FfmpegLog(prop) {
           </Button>
         </Modal.Footer>
       </Modal>
-    </>
+    </> //
   );
 }
 
@@ -455,7 +333,7 @@ const FileInfo = prop => {
     showSize = false;
     baseClass = `${baseClass} text-warning`;
     icon = `${icon} fa-exclamation`;
-  } else if (state === EXP_DONE) {
+  } else if (state === EXP_DONE || state === EXP_DELETE) {
     showSize = true;
     baseClass = `${baseClass} text-success`;
     icon = `${icon} fa-check-circle`;
@@ -490,3 +368,24 @@ const FileInfo = prop => {
     </div>
   );
 };
+
+const mapStateToProps = (state, ownProps) => {
+  const { exportList } = state;
+  const { airing } = ownProps;
+  const record = exportList.exportList.find(
+    rec => rec.airing.object_id === airing.object_id
+  );
+
+  return {
+    record
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({ ...ActionListActions }, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  mapStateToProps,
+  mapDispatchToProps
+)(RecordingExport);
