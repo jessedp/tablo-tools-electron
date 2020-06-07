@@ -156,11 +156,13 @@ const VideoExport = (WrappedComponent: any) => {
 
       this.shouldCancel = true;
 
-      exportList.forEach(rec => {
-        if (rec.state === EXP_WORKING) {
-          rec.airing.cancelVideoProcess();
-        }
-      });
+      if (exportList) {
+        exportList.forEach(rec => {
+          if (rec.state === EXP_WORKING) {
+            rec.airing.cancelVideoProcess();
+          }
+        });
+      }
 
       if (updateState) this.setState({ exportState: EXP_CANCEL });
     };
