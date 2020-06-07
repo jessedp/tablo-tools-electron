@@ -42,11 +42,7 @@ type State = { opened: boolean };
 class VideoExportModal extends Component<Props, State> {
   props: Props;
 
-  static defaultProps: {};
-
-  shouldCancel: boolean;
-
-  timings: Object;
+  static defaultProps: Object;
 
   constructor() {
     super();
@@ -58,7 +54,6 @@ class VideoExportModal extends Component<Props, State> {
 
   close = async () => {
     const { bulkRemExportRecord } = this.props;
-    this.shouldCancel = false;
     bulkRemExportRecord([]);
     this.setState({ opened: false });
   };
