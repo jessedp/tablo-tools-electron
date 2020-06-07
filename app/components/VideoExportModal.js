@@ -10,22 +10,13 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 
+import VideoExport from './VideoExport';
+
 import ExportRecordType from '../reducers/types';
 import * as ExportListActions from '../actions/exportList';
-import {
-  EXP_WAITING,
-  EXP_WORKING,
-  EXP_DONE,
-  EXP_CANCEL,
-  EXP_FAIL
-} from '../constants/app';
+import { EXP_WORKING, EXP_DONE } from '../constants/app';
 
 import RecordingExport from './RecordingExport';
-import {
-  throttleActions,
-  timeStrToSeconds,
-  readableDuration
-} from '../utils/utils';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
 
@@ -34,12 +25,19 @@ type Props = {
   exportList: Array<ExportRecordType>,
   label?: string,
 
+  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
+  exportState: number,
+  atOnce: number,
+  deleteOnFinished: number,
+  toggleDOF: () => void,
+  cancelProcess: () => void,
+  processVideo: () => void,
+
   addExportRecord: (record: ExportRecordType) => void,
-  updateExportRecord: (record: ExportRecordType) => void,
   bulkRemExportRecord: (Array<ExportRecordType>) => void
 };
 
-type State = { opened: boolean, exportState: number, atOnce: number };
+type State = { opened: boolean };
 
 class VideoExportModal extends Component<Props, State> {
   props: Props;
@@ -52,131 +50,17 @@ class VideoExportModal extends Component<Props, State> {
 
   constructor() {
     super();
-    this.state = { opened: false, exportState: EXP_WAITING, atOnce: 1 };
+    this.state = { opened: false };
 
-    this.shouldCancel = false;
-    this.timings = {};
-
-    (this: any).toggle = this.toggle.bind(this);
     (this: any).show = this.show.bind(this);
-    (this: any).processVideo = this.processVideo.bind(this);
-    (this: any).cancelProcess = this.cancelProcess.bind(this);
     (this: any).close = this.close.bind(this);
   }
-
-  componentWillUnmount() {
-    this.cancelProcess(false);
-  }
-
-  atOnceChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ atOnce: parseInt(event.currentTarget.value, 10) });
-  };
-
-  processVideo = async () => {
-    const { exportList } = this.props;
-    const { exportState, atOnce } = this.state;
-
-    if (exportState === EXP_DONE) return;
-    await this.setState({ exportState: EXP_WORKING });
-
-    const actions = [];
-
-    exportList.forEach(rec => {
-      actions.push(() => {
-        if (this.shouldCancel === false)
-          return rec.airing.processVideo(this.updateProgress);
-      });
-    });
-
-    await throttleActions(actions, atOnce).then(results => {
-      return results;
-    });
-
-    if (this.shouldCancel) {
-      this.setState({ exportState: EXP_CANCEL });
-    } else {
-      this.setState({ exportState: EXP_DONE });
-    }
-  };
-
-  updateProgress = (airingId: number, progress: Object) => {
-    const { exportList, updateExportRecord } = this.props;
-    const record: ExportRecordType = exportList.find(
-      rec => rec.airing.object_id === airingId
-    );
-    if (!record || record.state === EXP_DONE) return;
-
-    const { airing } = record;
-
-    if (!this.timings[airing.id]) {
-      this.timings[airing.id] = { start: Date.now(), duration: 0 };
-    }
-    const timing = this.timings[airing.id];
-
-    if (progress.finished) {
-      record.state = EXP_DONE;
-      record.progress = {
-        exportInc: 1000,
-        exportLabel: 'Complete',
-        log: progress.log
-      };
-    } else if (progress.cancelled) {
-      record.state = EXP_CANCEL;
-      record.progress = {
-        exportInc: 0,
-        exportLabel: 'Cancelled'
-      };
-    } else if (progress.failed) {
-      record.state = EXP_FAIL;
-      record.progress = {
-        exportInc: 0,
-        exportLabel: 'Failed'
-      };
-    } else {
-      // const pct = progress.percent  doesn't always work, so..
-      const pct = Math.round(
-        (timeStrToSeconds(progress.timemark) /
-          parseInt(airing.videoDetails.duration, 10)) *
-          100
-      );
-
-      const label = `${progress.timemark} / ${readableDuration(
-        airing.videoDetails.duration
-      )}`;
-
-      record.state = EXP_WORKING;
-      record.progress = {
-        exportInc: pct,
-        exportLabel: label
-      };
-    }
-
-    timing.duration = Date.now() - timing.start;
-    record.progress = { ...record.progress, ...timing };
-    this.timings[airing.id] = timing;
-
-    updateExportRecord(record);
-  };
-
-  cancelProcess = async (updateState: boolean = true) => {
-    const { exportList } = this.props;
-
-    this.shouldCancel = true;
-
-    exportList.forEach(rec => {
-      if (rec.state === EXP_WORKING) {
-        rec.airing.cancelVideoProcess();
-      }
-    });
-
-    if (updateState) this.setState({ exportState: EXP_CANCEL });
-  };
 
   close = async () => {
     const { bulkRemExportRecord } = this.props;
     this.shouldCancel = false;
     bulkRemExportRecord([]);
-    this.setState({ opened: false, exportState: EXP_WAITING });
+    this.setState({ opened: false });
   };
 
   show() {
@@ -187,16 +71,20 @@ class VideoExportModal extends Component<Props, State> {
     this.setState({ opened: true });
   }
 
-  toggle() {
-    const { opened } = this.state;
-    this.setState({ opened: !opened });
-  }
-
   render() {
-    const { exportList } = this.props;
+    const {
+      exportList,
+      exportState,
+      atOnce,
+      deleteOnFinished,
+      atOnceChange,
+      cancelProcess,
+      processVideo,
+      toggleDOF
+    } = this.props;
     let { label } = this.props;
 
-    const { opened, exportState, atOnce } = this.state;
+    const { opened } = this.state;
 
     let size = 'xs';
     if (label) {
@@ -252,9 +140,11 @@ class VideoExportModal extends Component<Props, State> {
             <ExportButton
               state={exportState}
               atOnce={atOnce}
-              atOnceChange={this.atOnceChange}
-              cancel={this.cancelProcess}
-              process={this.processVideo}
+              deleteOnFinished={deleteOnFinished}
+              toggleDOF={toggleDOF}
+              atOnceChange={atOnceChange}
+              cancel={cancelProcess}
+              process={processVideo}
               close={this.close}
             />
           </Modal.Footer>
@@ -339,4 +229,4 @@ const mapDispatchToProps = dispatch => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(VideoExportModal);
+)(VideoExport(VideoExportModal));

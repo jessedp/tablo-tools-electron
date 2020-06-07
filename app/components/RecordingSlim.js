@@ -14,7 +14,7 @@ import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import { ON, OFF } from '../constants/app';
-import VideoExport from './VideoExportModal';
+import VideoExportModal from './VideoExportModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 
 type Props = {
@@ -104,7 +104,7 @@ class RecordingSlim extends Component<Props> {
             </div>
 
             <div className="d-flex flex-row-reverse">
-              <VideoExport airingList={[airing]} />
+              <VideoExportModal airingList={[airing]} />
               &nbsp;
               <TabloVideoPlayer airing={airing} />
             </div>

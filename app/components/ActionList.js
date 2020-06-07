@@ -20,7 +20,7 @@ import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
-import VideoExport from './VideoExportModal';
+import VideoExportModal from './VideoExportModal';
 
 type Props = {
   sendResults: Object => void,
@@ -194,7 +194,7 @@ class ActionList extends Component<Props, State> {
             <ConfirmDelete onDelete={this.deleteAll} label="delete selected" />
           </Col>
           <Col className="pt-1">
-            <VideoExport airingList={actionList} label="export selected" />
+            <VideoExportModal airingList={actionList} label="export selected" />
           </Col>
         </Row>
         <SearchResults />

@@ -18,9 +18,7 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
-// import { addAiring, remAiring } from '../actions/actionList';
-
-import VideoExport from './VideoExportModal';
+import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
 
 type Props = {
@@ -162,7 +160,7 @@ class Recording extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
-                <VideoExport airingList={[airing]} />
+                <VideoExportModal airingList={[airing]} />
                 &nbsp;
                 <ConfirmDelete airing={airing} />
               </Col>
