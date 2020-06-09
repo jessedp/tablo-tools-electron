@@ -14,6 +14,24 @@
   font-size: 13px;
 }
 
+
+.fullscreen-control {
+  position: absolute;
+  text-align: center;
+  left: 50%;
+  margin-left: -100px;
+  width: 200px;
+  border: #b6c5d5 1px solid;
+  border-top: none;
+  font-size: 1.2rem;
+  z-index: 100;
+}
+
+.fullscreen-control:hover {
+  background-color: dimgray;
+  cursor: pointer;
+}
+
 .text-success {
   color: #28a745 !important;
 }
