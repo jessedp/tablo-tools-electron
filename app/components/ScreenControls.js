@@ -9,7 +9,7 @@ type Props = {
 };
 type State = { isFullscreen: boolean };
 
-export default class FullscreenToggle extends Component<Props, State> {
+export default class ScreenControls extends Component<Props, State> {
   props: Props;
 
   constructor() {
@@ -92,10 +92,10 @@ export default class FullscreenToggle extends Component<Props, State> {
               </div>
             </div>
           </div>
-        </> //
+        </>
       );
     }
 
-    return <></>; //
+    return <></>;
   }
 }

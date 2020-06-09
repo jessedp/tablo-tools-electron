@@ -21,7 +21,7 @@ import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 import SelectedBox from './SelectedBox';
 import LogoBox from './Logo';
-import FullscreenToggle from './FullscreenToggle';
+import ScreenControls from './ScreenControls';
 
 const { remote } = require('electron');
 
@@ -187,7 +187,7 @@ class Navbar extends Component<Props, State> {
         onBlur={this.mouseOutOfRange}
         onMouseMove={this.mouseMove}
       >
-        <FullscreenToggle mouseInRange={showToggle} />
+        <ScreenControls mouseInRange={showToggle} />
         <Col md="7">
           <LogoBox />
           <div className="menu-buttons">
