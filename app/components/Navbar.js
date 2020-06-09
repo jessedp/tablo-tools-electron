@@ -106,12 +106,18 @@ class Navbar extends Component<Props, State> {
 
   mouseMove = (e: any) => {
     this.lastMousePos = { x: e.screenX, y: e.screenY };
-    // console.log('|||', parseInt(e.screenY, 10));
-    if (parseInt(e.screenY, 10) < 50) {
+
+    if (this.checkYInbounds()) {
       this.setState({ showToggle: true });
     } else {
       this.setState({ showToggle: false });
     }
+  };
+
+  checkYInbounds = (limit = 50) => {
+    const win = remote.getCurrentWindow();
+    const bounds = win.getContentBounds();
+    return this.lastMousePos.y - bounds.y + 5 < limit;
   };
 
   mouseInRange = () => {
@@ -121,7 +127,7 @@ class Navbar extends Component<Props, State> {
 
   mouseOutOfRange = () => {
     // console.log('mouseOutOfRange', this.lastMousePos);
-    if (this.lastMousePos.y > 40) {
+    if (!this.checkYInbounds()) {
       this.setState({ showToggle: false });
     }
   };

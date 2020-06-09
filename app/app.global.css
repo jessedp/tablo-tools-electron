@@ -14,21 +14,33 @@
   font-size: 13px;
 }
 
-
-.fullscreen-control {
+.screen-control {
   position: absolute;
   text-align: center;
-  left: 50%;
-  margin-left: -100px;
-  width: 200px;
+  left: 25%;
+  margin-left: 12.5%;
+  width: 25%;
   border: #b6c5d5 1px solid;
   border-top: none;
-  font-size: 1.2rem;
   z-index: 100;
 }
 
+.fullscreen-control {
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
 .fullscreen-control:hover {
-  background-color: dimgray;
+  cursor: pointer;
+}
+
+.zoom-control {
+  display: inline-block;
+}
+.zoom-btn {
+  display: inline-block;
+}
+.zoom-btn:hover {
   cursor: pointer;
 }
 
