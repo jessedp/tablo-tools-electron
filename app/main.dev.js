@@ -136,6 +136,16 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  mainWindow.on('enter-full-screen', () => {
+    if (!mainWindow) return;
+    mainWindow.send('enter-full-screen', 'opened');
+  });
+
+  mainWindow.on('leave-full-screen', () => {
+    if (!mainWindow) return;
+    mainWindow.send('leave-full-screen', 'closed');
+  });
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 

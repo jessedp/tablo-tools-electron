@@ -21,8 +21,11 @@ import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 import SelectedBox from './SelectedBox';
 import LogoBox from './Logo';
+import FullscreenToggle from './FullscreenToggle';
 
-const { app } = require('electron').remote;
+const { remote } = require('electron');
+
+const { app } = remote;
 
 type File = {
   url: string,
@@ -47,17 +50,25 @@ type UpdateMessage = {
 type Props = { location: Object };
 type State = {
   updateAvailable: boolean,
-  updateData?: UpdateMessage
+  updateData?: UpdateMessage,
+  showToggle: boolean
 };
 
 class Navbar extends Component<Props, State> {
   props: Props;
 
+  lastMousePos: { x: number, y: number };
+
   constructor() {
     super();
     this.state = {
-      updateAvailable: false
+      updateAvailable: false,
+      showToggle: false
     };
+
+    (this: any).mouseMove = this.mouseMove.bind(this);
+    (this: any).mouseInRange = this.mouseInRange.bind(this);
+    (this: any).mouseOutOfRange = this.mouseOutOfRange.bind(this);
   }
 
   async componentDidMount(): * {
@@ -93,6 +104,28 @@ class Navbar extends Component<Props, State> {
     });
   }
 
+  mouseMove = (e: any) => {
+    this.lastMousePos = { x: e.screenX, y: e.screenY };
+    // console.log('|||', parseInt(e.screenY, 10));
+    if (parseInt(e.screenY, 10) < 50) {
+      this.setState({ showToggle: true });
+    } else {
+      this.setState({ showToggle: false });
+    }
+  };
+
+  mouseInRange = () => {
+    // console.log('mouseInRange', this.lastMousePos);
+    this.setState({ showToggle: true });
+  };
+
+  mouseOutOfRange = () => {
+    // console.log('mouseOutOfRange', this.lastMousePos);
+    if (this.lastMousePos.y > 40) {
+      this.setState({ showToggle: false });
+    }
+  };
+
   async processUpdate(msg: Object) {
     console.log('updateMsg:', msg);
     if (msg.error) {
@@ -108,7 +141,7 @@ class Navbar extends Component<Props, State> {
   }
 
   render() {
-    const { updateAvailable } = this.state;
+    const { updateAvailable, showToggle } = this.state;
 
     let { updateData } = this.state;
 
@@ -140,7 +173,15 @@ class Navbar extends Component<Props, State> {
     }
     // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
-      <Row className="mb-2 top-bar">
+      <Row
+        className="mb-2 top-bar"
+        onMouseOver={this.mouseInRange}
+        onMouseOut={this.mouseOutOfRange}
+        onFocus={this.mouseInRange}
+        onBlur={this.mouseOutOfRange}
+        onMouseMove={this.mouseMove}
+      >
+        <FullscreenToggle mouseInRange={showToggle} />
         <Col md="7">
           <LogoBox />
           <div className="menu-buttons">
@@ -327,7 +368,7 @@ function VersionStatus(prop) {
           </Button>
         </Modal.Footer>
       </Modal>
-    </>
+    </> //
   );
 }
 
@@ -345,6 +386,7 @@ function releaseToUpdateMsg(data): UpdateMessage {
     }
   };
 }
+
 /**
  updateData = {
     available: true,
