@@ -2,7 +2,7 @@
   "name": "tablo-tools",
   "productName": "tablo-tools",
   "version": "0.2.0-beta.3",
-  "description": "Tools for messing with your Tablo DVR",
+  "description": "Tools to Bulk Delete and Export from your Tablo DVR",
   "main": "./main.prod.js",
   "author": {
     "name": "jessedp",

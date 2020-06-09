@@ -2,7 +2,7 @@
   "name": "tablo-tools",
   "version": "0.2.0-beta.3",
   "productName": "tablo-tools",
-  "description": "Tools for messing with your Tablo DVR",
+  "description": "see app/",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
@@ -105,10 +105,12 @@
         "rpm",
         "AppImage"
       ],
-      "category": "Development"
+      "synopsis": "The control over your Tablo you needed",
+      "icon": "resources/",
+      "category": "AudioVideo;Video;"
     },
     "directories": {
-      "buildResources": "resources",
+      "buildResources": "resources/icon.png",
       "output": "release"
     },
     "publish": {
