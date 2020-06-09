@@ -11,7 +11,7 @@ import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
-import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
+import { EVENT, MOVIE, PROGRAM, SERIES, beginTimemark } from '../constants/app';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -105,6 +105,10 @@ export default class Airing {
 
     console.warn('Airing.create: no data');
     return new Airing({});
+  }
+
+  get id() {
+    return this.object_id;
   }
 
   get description() {
@@ -506,8 +510,18 @@ export default class Airing {
 
     FfmpegCommand.setFfmpegPath(ffmpegPathReal);
 
-    const watchPath = await this.watch();
-    const input = watchPath.playlist_url;
+    let watchPath;
+    let input;
+    try {
+      watchPath = await this.watch();
+      input = watchPath.playlist_url;
+    } catch (err) {
+      log.warn(`An error occurred: ${err}`);
+      if (typeof callback === 'function') {
+        callback(this.object_id, { failed: true, failedMsg: err });
+      }
+      return;
+    }
 
     // const input = '/tmp/test_ys_p1.mp4';
     // outFile = '/tmp/test.mp4';
@@ -531,7 +545,7 @@ export default class Airing {
         .on('end', () => {
           // log.info('Finished processing');
           if (typeof callback === 'function') {
-            callback({ finished: true });
+            callback(this.object_id, { finished: true, log: ffmpegLog });
           }
           if (debug) log.info('result', ffmpegLog);
           if (debug) log.info('end processVideo', new Date());
@@ -540,6 +554,13 @@ export default class Airing {
         })
         .on('error', err => {
           log.info(`An error occurred: ${err}`);
+          if (typeof callback === 'function') {
+            if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
+              callback(this.object_id, { cancelled: true, finished: false });
+            } else {
+              callback(this.object_id, { failed: true, failedMsg: err });
+            }
+          }
           // reject(err);
           resolve(ffmpegLog);
         })
@@ -569,12 +590,13 @@ export default class Airing {
         })
         .on('progress', progress => {
           if (typeof callback === 'function') {
-            callback(progress);
+            callback(this.object_id, progress);
           }
         });
 
-      // setTimeout(this.cancelVideoProcess, 10000);
-
+      if (typeof callback === 'function') {
+        callback(this.object_id, { timemark: beginTimemark });
+      }
       this.cmd.run();
     });
   }

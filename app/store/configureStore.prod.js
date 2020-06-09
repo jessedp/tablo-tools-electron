@@ -21,14 +21,13 @@ function configureStore(initialState?: actionListType) {
     key: 'root',
     storage,
     // Whitelist (Save Specific Reducers)
-    whitelist: ['manageActionList', 'changeView'],
+    whitelist: ['manageActionList', 'changeView', 'exportList'],
     // Blacklist (Don't Save Specific Reducers)
-    blacklist: ['sendResults']
+    blacklist: []
   };
   // Middleware: Redux Persist Persisted Reducer
   const persistedReducer = persistReducer(persistConfig, rootReducer);
   return createStore(persistedReducer, initialState, enhancer);
-  // return createStore<*, actionListType, *>(rootReducer, initialState, enhancer);
 }
 
 export default { configureStore, history };

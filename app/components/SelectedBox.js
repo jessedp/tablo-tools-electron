@@ -8,13 +8,13 @@ import { bindActionCreators } from 'redux';
 import { DropdownButton, ButtonGroup } from 'react-bootstrap';
 
 import DropdownItem from 'react-bootstrap/DropdownItem';
-import { LinkContainer } from 'react-router-bootstrap';
 import routes from '../constants/routes.json';
 import * as ActionListActions from '../actions/actionList';
 import * as SearchActions from '../actions/search';
 
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
+import ConfirmDelete from './ConfirmDelete';
 
 type State = {};
 type Props = {
@@ -62,6 +62,14 @@ class SelectedBox extends Component<Props, State> {
       </> //
     );
     const { history } = this.props;
+
+    const delInner = (
+      <>
+        <span className="fa fa-trash-alt pr-2" />
+        Delete
+      </>
+    ); //
+
     return (
       <div className="selected-basket smaller text-primary pt-2">
         <DropdownButton
@@ -77,19 +85,14 @@ class SelectedBox extends Component<Props, State> {
                   View
                 </span>
               </DropdownItem>
-              <DropdownItem>
-                <LinkContainer activeClassName="active" to={routes.EXPORT}>
-                  <span>
-                    <span className="fa fa-download pr-2" />
-                    Export
-                  </span>
-                </LinkContainer>
+              <DropdownItem onClick={() => history.push(routes.EXPORT)}>
+                <span>
+                  <span className="fa fa-download pr-2" />
+                  Export
+                </span>
               </DropdownItem>
               <DropdownItem onClick={() => {}}>
-                <span>
-                  <span className="fa fa-trash pr-2" />
-                  Delete
-                </span>
+                <ConfirmDelete label="Delete" button={delInner} />
               </DropdownItem>
               <hr className="m-1 p-0" />
               <DropdownItem onClick={() => bulkRemAirings()}>

@@ -23,9 +23,9 @@ const configureStore = (initialState?: actionListType) => {
     key: 'root',
     storage: createElectronStorage(),
     // Whitelist (Save Specific Reducers)
-    whitelist: ['manageActionList', 'changeView'],
+    whitelist: ['manageActionList', 'changeView', 'exportList'],
     // Blacklist (Don't Save Specific Reducers)
-    blacklist: ['sendResults']
+    blacklist: []
   };
   // Middleware: Redux Persist Persisted Reducer
   const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -10,10 +10,24 @@ export type actionListType = {
   +airings: Array<Airing>
 };
 
+export type ExportRecordType = {
+  airing: Airing,
+  state: number,
+  progress: Object
+};
+
+export type ExportListStateType = {
+  exportList: Array<ExportRecordType>,
+  airing: Airing,
+  airings: Array<Airing>,
+  updateAiring: Airing
+};
+
 export type Action = {
   +type: string
 };
 
+export type GetExportList = () => exportListType;
 export type GetActionList = () => actionListType;
 
 export type GetState = () => counterStateType;

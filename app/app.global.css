@@ -14,6 +14,7 @@
   font-size: 13px;
 }
 
+
 .fullscreen-control {
   position: absolute;
   text-align: center;
@@ -31,13 +32,19 @@
   cursor: pointer;
 }
 
+.text-success {
+  color: #28a745 !important;
+}
+
+.export-alert {
+  min-height: 62px;
+}
+
 /** flex layout **/
 div.top-bar {
   position: absolute;
-  top: 0;
-  bottom: 60px;
-  left: 0;
   width: 100%;
+  vertical-align: middle;
 }
 
 div.page-container {
@@ -199,6 +206,15 @@ button:focus {
   max-height: 50px;
   width: 38px;
   max-width: 38px;
+  display: inline-block;
+}
+
+.menu-image-lg {
+  height: 75px;
+  max-height: 75px;
+
+  /* width: 38px;
+  max-width: 38px; */
   display: inline-block;
 }
 

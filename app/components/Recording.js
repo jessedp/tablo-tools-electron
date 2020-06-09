@@ -3,8 +3,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import PubSub from 'pubsub-js';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -20,9 +18,7 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
-// import { addAiring, remAiring } from '../actions/actionList';
-
-import VideoExport from './VideoExportModal';
+import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
 
 type Props = {
@@ -49,7 +45,6 @@ class Recording extends Component<Props, State> {
 
     (this: any).toggleSelection = this.toggleSelection.bind(this);
     (this: any).toggleRecOverview = this.toggleRecOverview.bind(this);
-    (this: any).deleteAiring = this.deleteAiring.bind(this);
     (this: any).processVideo = this.processVideo.bind(this);
   }
 
@@ -95,12 +90,6 @@ class Recording extends Component<Props, State> {
   async processVideo() {
     const { airing } = this.props;
     await airing.processVideo();
-  }
-
-  async deleteAiring() {
-    const { airing } = this.props;
-    await airing.delete();
-    PubSub.publish('DB_CHANGE');
   }
 
   render() {
@@ -171,12 +160,9 @@ class Recording extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
-                <VideoExport airingList={[airing]} />
+                <VideoExportModal airingList={[airing]} />
                 &nbsp;
-                <ConfirmDelete
-                  airingList={[airing]}
-                  onDelete={this.deleteAiring}
-                />
+                <ConfirmDelete airing={airing} />
               </Col>
               <Col md="5" className="ml-0 pl-0 mr-0 pr-0">
                 <div className="float-right">

@@ -2,16 +2,18 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Store from 'electron-store';
+import { withRouter } from 'react-router-dom';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import { checkConnection, setCurrentDevice } from '../utils/Tablo';
+import routes from '../constants/routes.json';
 
 const store = new Store();
 
-type PingProps = {};
+type PingProps = { history: any };
 type PingState = { pingInd: boolean };
 
-export default class PingStatus extends Component<PingProps, PingState> {
+class PingStatus extends Component<PingProps, PingState> {
   timer: IntervalID;
 
   devListToken: null;
@@ -49,17 +51,19 @@ export default class PingStatus extends Component<PingProps, PingState> {
   };
 
   changeDevice = (serverId: {}) => {
+    const { history } = this.props;
     const device = global.discoveredDevices.filter(
       item => item.serverid === serverId
     );
     setCurrentDevice(device[0]);
+    history.push(routes.HOME);
   };
 
   render() {
     const { pingInd } = this.state;
     const { device } = global.Api;
 
-    if (!device) return <></>;
+    if (!device) return <></>; //
     const currentDevice = store.get('CurrentDevice');
 
     let pingStatus = 'text-danger';
@@ -99,7 +103,8 @@ export default class PingStatus extends Component<PingProps, PingState> {
             })}
           </Dropdown.Menu>
         </Dropdown>
-      </>
+      </> //
     );
   }
 }
+export default withRouter(PingStatus);
