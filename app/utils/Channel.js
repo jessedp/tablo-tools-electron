@@ -6,33 +6,35 @@ export default class Channel {
 
   path: string;
 
-  callSign: string;
+  channel: {
+    callSign: string,
 
-  // eslint-disable-next-line camelcase
-  call_sign: any;
+    // eslint-disable-next-line camelcase
+    call_sign: any,
 
-  // eslint-disable-next-line camelcase
-  callSignSrc: string;
+    // eslint-disable-next-line camelcase
+    callSignSrc: string,
 
-  // eslint-disable-next-line camelcase
-  call_sign_src: any;
+    // eslint-disable-next-line camelcase
+    call_sign_src: any,
 
-  major: number;
+    major: number,
 
-  minor: number;
+    minor: number,
 
-  network: string;
+    network: string,
 
-  resolution: string;
+    resolution: string
+  };
 
   constructor(data: Object) {
     Object.assign(this, data);
 
-    this.callSign = this.call_sign;
-    delete this.call_sign;
+    this.channel.callSign = this.channel.call_sign;
+    delete this.channel.call_sign;
 
-    this.callSignSrc = this.call_sign_src;
-    delete this.call_sign_src;
+    this.channel.callSignSrc = this.channel.call_sign_src;
+    delete this.channel.call_sign_src;
   }
 
   get id() {
