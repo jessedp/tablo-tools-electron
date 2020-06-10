@@ -193,8 +193,23 @@ class Navbar extends Component<Props, State> {
           <div className="menu-buttons">
             <ButtonGroup className="ml-2 pt-1">
               <LinkContainer activeClassName="active" to={routes.HOME}>
-                <Button size="sm" variant="outline-primary" as="button">
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  as="button"
+                  title="Home"
+                >
                   <span className="fa fa-home" />
+                </Button>
+              </LinkContainer>
+              <LinkContainer activeClassName="active" to={routes.LIVETV}>
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  as="button"
+                  title="Watch Live"
+                >
+                  <span className="fa fa-tv" />
                 </Button>
               </LinkContainer>
 
@@ -262,7 +277,7 @@ class Navbar extends Component<Props, State> {
                     available={updateAvailable}
                   />
                 </div>
-                <div>
+                <div className="pr-1">
                   <LinkContainer activeClassName="active" to={routes.SETTINGS}>
                     <Button size="sm" variant="outline-dark" title="Settings">
                       <i className="fa fa-cogs" />
