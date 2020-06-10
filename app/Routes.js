@@ -15,6 +15,7 @@ import SearchForm from './components/SearchForm';
 import Settings from './components/Settings';
 import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
+import LiveTvPage from './components/LiveTvPage';
 
 export default () => {
   const history = useHistory();
@@ -44,6 +45,7 @@ export default () => {
         <Route path={routes.SELECTED} component={ActionList} />
         <Route path={routes.SETTINGS} component={Settings} />
         <Route path={routes.EXPORT} component={VideoExportPage} />
+        <Route path={routes.LIVETV} component={LiveTvPage} />
 
         {/* Put anything not HOME above this!! */}
         <Route path={routes.HOME} component={HomePage} />

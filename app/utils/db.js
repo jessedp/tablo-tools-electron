@@ -76,9 +76,23 @@ export const makeSearchDb = () => {
   });
 };
 
+export const makeChannelDb = () => {
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const channelDbName = `${device.serverid}-channel.db`;
+  const channelFile = path.join(dataDir, channelDbName);
+
+  return new AsyncNedb({
+    filename: channelFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
 export const setupDb = async () => {
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
   global.SearchDb = makeSearchDb();
+  global.ChannelDb = makeChannelDb();
   PubSub.publish('DB_CHANGE', true);
 };

@@ -11,5 +11,6 @@
   "SETTINGS": "/settings",
   "EXPORT": "/export",
   "DELETE": "/delete",
-  "SELECTED": "/selected"
+  "SELECTED": "/selected",
+  "LIVETV": "/livetv"
 }
