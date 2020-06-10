@@ -18,6 +18,7 @@ import RelativeDate from './RelativeDate';
 import { writeToFile } from '../utils/utils';
 import getConfig from '../utils/config';
 import Show from '../utils/Show';
+import Channel from '../utils/Channel';
 
 type Props = { showDbTable: (show: boolean) => void, view?: string };
 type State = {
@@ -149,6 +150,7 @@ export default class Build extends Component<Props, State> {
         }
       });
 
+      /** init shows from recordings for now to "seed" the db */
       const shows = await Api.batch([...new Set(showPaths)]);
       if (getConfig().enableExportData) {
         shows.forEach(rec => {
@@ -159,6 +161,22 @@ export default class Build extends Component<Props, State> {
 
       cnt = await global.ShowDb.asyncInsert(shows);
       console.log(`${cnt.length} SHOW records added`);
+
+      /** Init all the channels b/c we have no choice. This also isn't much */
+      const channelPaths = await Api.get('/guide/channels');
+      console.log(channelPaths);
+      const channels = await Api.batch([...new Set(channelPaths)]);
+      if (getConfig().enableExportData) {
+        channels.forEach(rec => {
+          const channel = new Channel(rec);
+          writeToFile(`channel-${channel.object_id}.json`, rec);
+        });
+      }
+      console.log(channels);
+      cnt = await global.ChannelDb.asyncInsert(channels);
+      console.log(`${cnt.length} CHANNEL records added`);
+
+      /** Finish up... */
       this.building = false;
       await this.setState({
         loading: STATE_FINISH,
