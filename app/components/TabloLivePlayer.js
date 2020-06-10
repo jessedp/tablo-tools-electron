@@ -4,8 +4,9 @@ import Button from 'react-bootstrap/Button';
 
 import Modal from 'react-bootstrap/Modal';
 import MyPlayerLive from './MyPlayerLive';
+import Channel from '../utils/Channel';
 
-type Props = { channel: string };
+type Props = { channel: Channel };
 type State = { opened: boolean };
 
 export default class TabloLivePlayer extends Component<Props, State> {
@@ -46,7 +47,7 @@ export default class TabloLivePlayer extends Component<Props, State> {
             <MyPlayerLive channel={channel} />
           </Modal.Body>
         </Modal>
-      </>
+      </> //
     );
   }
 }

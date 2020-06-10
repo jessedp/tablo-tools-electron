@@ -13,7 +13,7 @@ import TabloLivePlayer from './TabloLivePlayer';
 
 type Props = {};
 type State = {
-  channelList: Array<{ channel: Channel, episodes: Array<any> }>
+  channelList: Array<Channel>
 };
 
 class LiveTvPage extends Component<Props, State> {
