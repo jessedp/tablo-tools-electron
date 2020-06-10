@@ -98,7 +98,7 @@
         "nsis",
         "msi"
       ],
-      "icon": "resources/"
+      "icon": "resources/icon.png"
     },
     "linux": {
       "target": [
