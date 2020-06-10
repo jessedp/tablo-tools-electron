@@ -131,6 +131,7 @@ export default class Build extends Component<Props, State> {
       let cnt = 0;
       cnt = await RecDb.asyncRemove({}, { multi: true });
       await global.ShowDb.asyncRemove({}, { multi: true });
+      await global.ChannelDb.asyncRemove({}, { multi: true });
 
       console.log(`${cnt} old records removed`);
       cnt = await RecDb.asyncInsert(recs);
