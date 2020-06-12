@@ -1,17 +1,9 @@
-<a href="https://travis-ci.com/github/jessedp/tablo-tools-electron" title="Travis - Linux, Mac">
-<img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />
-</a>
-
-<a href="https://ci.appveyor.com/project/jessedp/tablo-tools-electron" title="Appveyor (Win)">
-<img src="https://ci.appveyor.com/api/projects/status/github/jessedp/tablo-tools-electron">
-</a>
+[<img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />](https://travis-ci.com/github/jessedp/tablo-tools-electron)
+[<img src="https://ci.appveyor.com/api/projects/status/github/jessedp/tablo-tools-electron">](https://ci.appveyor.com/project/jessedp/tablo-tools-electron)
 
 <br/>
-<br/>
 
-<a href="https://jessedp.github.io/tablo-tools-electron/">
-<img src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_title_350_trans.png"/>
-</a>
+[<img src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_title_350_trans.png"/>](https://jessedp.github.io/tablo-tools-electron/)
 
 <br/>
 
@@ -20,11 +12,13 @@ Tablo Tools allows you to Bulk Export and Delete recordings from your Tablo as w
 
 ### Hi!
 
-### You likely want to <a href="https://jessedp.github.io/tablo-tools-electron/">head on over to the main site</a> for install instructions, documentation and videos to get started wrangling your Tablo.
+### You likely want to [head on over to the main site](https://jessedp.github.io/tablo-tools-electron/) for install instructions, documentation and videos to get started wrangling your Tablo.
 
-<br/><br/><br/><br/>
+<br/>
 
 ### _If you're interested in the code and/or contributing, Welcome and I hope this helps..._
+
+<br/>
 
 # Development
 
