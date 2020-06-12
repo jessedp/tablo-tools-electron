@@ -12,21 +12,42 @@
 <a href="https://jessedp.github.io/tablo-tools-electron/">
 <img src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_title_350_trans.png"/>
 </a>
+
 <br/>
 
-Tablo Tools allows you to Bulk Export and Delete recordings from your Tablo.
+Tablo Tools allows you to Bulk Export and Delete recordings from your Tablo as well as minimally (sans guide) watch Live TV.
 <br/>
 
-#### If you're interested in using it, <a href="https://jessedp.github.io/tablo-tools-electron/">head on over to the main site</a> for install instucations, documentation and videos.
+### Hi!
 
-#### _If you're interested in the code and/or or contributing, keep reading..._
+### You likely want to <a href="https://jessedp.github.io/tablo-tools-electron/">head on over to the main site</a> for install instructions, documentation and videos to get started wrangling your Tablo.
 
-## Development
+<br/><br/><br/><br/>
 
-This was built using <a href="https://github.com/electron-react-boilerplate/electron-react-boilerplate">Electon React Boilerplate</a> as a base and as such is a Node+React app. Aside from that, the two main cogs are
-<a href="https://github.com/louischatriot/nedb">nedb</a>/<a href="https://github.com/Akumzy/nedb-async">nedb-async</a> (document database) and <a href="https://github.com/jessedp/tablo-api-js">tablo-api-js</a>.
+### _If you're interested in the code and/or contributing, Welcome and I hope this helps..._
 
-#### Setup
+# Development
+
+## What This Is
+
+The obvious:
+
+- **Cross-platform GUI** Win/Mac/Linux
+- **Export** easily put all of my recordings elsewhere
+- **Delete** please go away _quickly_
+
+And then doing other fun, weird, and/or hopefully useful things with/for/to a Tablo.
+
+## Parts and Pieces
+
+At its simplest, this is a web app being distributed with a modified browser. If you're familiar with React/Vue/etc, this is mostly nothing new.
+
+[Electon React Boilerplate](https://github.com/electron-react-boilerplate/electron-react-boilerplate) (< v1, flow, not typescript) was the base, thus this is a [React](https://reactjs.org/)+[Redux](https://redux.js.org/)+[Node](https://nodejs.org/en/) app.
+
+Aside from that, the two main cogs are [ffmpeg](https://ffmpeg.org/)
+[nedb](https://github.com/louischatriot/nedb)/[nedb-async](https://github.com/Akumzy/nedb-async) (document database) and [tablo-api-js](https://github.com/jessedp/tablo-api-js).
+
+## Setup
 
 Something like this should work...
 
@@ -37,12 +58,16 @@ $ yarn install
 $ yarn dev
 ```
 
-#### Packaging
+## Packaging
+
+If you get this far, we've probably already talked - but this isn't going to work out of the box because of the [Sentry.io](Sentry.io) integrations.
 
 To package apps for the local platform:
 
 ```bash
-$ yarn package
+$ yarn package-linux
+$ yarn package-win
+$ yarn package-mac
 ```
 
 To package apps for all platforms:
