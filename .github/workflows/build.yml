@@ -20,6 +20,7 @@ jobs:
           node-version: 12
 
       - name: Try to force the yarn install
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |
           while ! yarn install; do echo --- ; done
 
