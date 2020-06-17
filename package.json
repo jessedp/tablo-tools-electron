@@ -4,7 +4,7 @@
   "productName": "tablo-tools",
   "description": "see app/",
   "scripts": {
-    "build": "yarn postinstall && yarn build",
+    "build": "yarn postinstall && yarn build-base",
     "build-base": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
     "build-e2e": "cross-env E2E_BUILD=true yarn build-base",
