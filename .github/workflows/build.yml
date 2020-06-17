@@ -23,7 +23,8 @@ jobs:
         uses: samuelmeuli/action-electron-builder@v1
         with:
           max_attempts: 5
-
+          build_script_name: 'package-ci'
+          #  && electron-builder --publish always
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.GH_TOKEN }}
