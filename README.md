@@ -1,5 +1,4 @@
-[<img src="https://travis-ci.com/jessedp/tablo-tools-electron.svg?branch=master" />](https://travis-ci.com/github/jessedp/tablo-tools-electron)
-[<img src="https://ci.appveyor.com/api/projects/status/github/jessedp/tablo-tools-electron">](https://ci.appveyor.com/project/jessedp/tablo-tools-electron)
+![Build/release](https://github.com/jessedp/tablo-tools-electron/workflows/Build/release/badge.svg)
 
 <br/>
 
