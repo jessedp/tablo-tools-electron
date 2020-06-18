@@ -21,12 +21,8 @@ jobs:
       - name: Set SHOULD_RUN flag
         run: echo ::set-env name=SHOULD_RUN::${{ steps.skip.outputs.shouldRun }}
 
-      - name: Set up Node
-        if: env.SHOULD_RUN == 'true'
-        uses: actions/setup-node@v1
-
       - name: Install Node.js, NPM and Yarn
-        if: success()
+        if: env.SHOULD_RUN == 'true'
         uses: actions/setup-node@v1
         with:
           node-version: 12
