@@ -11,20 +11,36 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Check last commit message
+        id: skip
+        uses: atlwendy/retrieve-commit-messages-from-pr@v2
+
+      - name: Set SHOULD_RUN flag
+        run: echo ::set-env name=SHOULD_RUN::${{ steps.skip.outputs.shouldRun }}
+
+      - name: Set up Node
+        if: env.SHOULD_RUN == 'true'
+        uses: actions/setup-node@v1
 
       - name: Install Node.js, NPM and Yarn
+        if: success()
         uses: actions/setup-node@v1
         with:
           node-version: 12
 
-      - name: Try to force the yarn install
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
-        run: |
-          while ! yarn install; do echo --- ; done
+      - name: Force the yarn install
+        if: success()
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 10
+          max_attempts: 20
+          command: yarn install
 
       - name: Build/release Electron app
+        if: success()
         uses: samuelmeuli/action-electron-builder@v1
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
