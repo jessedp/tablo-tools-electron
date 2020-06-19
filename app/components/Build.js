@@ -165,7 +165,7 @@ export default class Build extends Component<Props, State> {
 
       /** Init all the channels b/c we have no choice. This also isn't much */
       const channelPaths = await Api.get('/guide/channels');
-      console.log(channelPaths);
+
       const channels = await Api.batch([...new Set(channelPaths)]);
       if (getConfig().enableExportData) {
         channels.forEach(rec => {
