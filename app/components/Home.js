@@ -10,6 +10,7 @@ import ServerInfoTable from './ServerInfoTable';
 import DbStats from './DbStats';
 import Build from './Build';
 import Discovery from './Discovery';
+import { hasDevice } from '../utils/Tablo';
 
 const { app } = require('electron').remote;
 
@@ -50,6 +51,22 @@ export default class Home extends Component<Props, State> {
     const { showServerInfo, showDbTable } = this.state;
 
     const appVersion = app.getVersion();
+
+    if (!hasDevice()) {
+      return (
+        <Container>
+          <Alert variant="primary">
+            <h4 className="mb-2 pt-1">Welcome to Tablo Tools v{appVersion}</h4>
+          </Alert>
+          <Row>
+            <Alert variant="danger">
+              Uh-oh! It does not look like you have a network connection. Please
+              check that and re-open this application.
+            </Alert>
+          </Row>
+        </Container>
+      );
+    }
 
     return (
       <Container>

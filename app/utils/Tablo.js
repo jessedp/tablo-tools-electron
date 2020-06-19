@@ -7,7 +7,6 @@ import Store from 'electron-store';
 import Tablo from 'tablo-api';
 import compareVersions from 'compare-versions';
 import getConfig from './config';
-import { dbCreatedKey } from './db';
 
 const store = new Store();
 
@@ -24,10 +23,7 @@ export async function setupApi() {
     setCurrentDevice(currentDevice, false);
     store.delete('LastDevice');
     store.delete('last_device');
-    const lastBuild = localStorage.getItem('LastDbBuild');
-    if (lastBuild) {
-      localStorage.setItem(dbCreatedKey(), lastBuild);
-    }
+
     localStorage.removeItem('LastDbBuild');
   } else {
     global.Api.device = store.get('CurrentDevice');
@@ -47,7 +43,10 @@ export function setCurrentDevice(device, publish = true) {
     store.set('CurrentDevice', device);
     if (publish) PubSub.publish('DEVICE_CHANGE', true);
   } else {
-    console.error('setCurrentDevice called without device!', device);
+    console.warn(
+      'sentry config - setCurrentDevice called without device!',
+      device
+    );
     store.delete('CurrentDevice');
   }
 }
@@ -114,8 +113,20 @@ export async function checkConnection() {
   });
 }
 
+export const hasDevice = () => {
+  const device = store.get('CurrentDevice');
+  if (!device || !device.serverid) {
+    console.warn("setupDb() - No device found, can't init db");
+    return false;
+  }
+  return true;
+};
+
 export const comskipAvailable = () => {
   const currentDevice = store.get('CurrentDevice');
+
+  if (!global.CONNECTED) return false;
+
   if (currentDevice.server_version) {
     const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
     return compareVersions(testVersion, '2.2.26') >= 0;

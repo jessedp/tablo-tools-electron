@@ -1,6 +1,7 @@
 import Store from 'electron-store';
 import PubSub from 'pubsub-js';
 import { formatDistanceToNow } from 'date-fns';
+import { hasDevice } from './Tablo';
 
 const path = require('path');
 
@@ -90,6 +91,8 @@ export const makeChannelDb = () => {
 };
 
 export const setupDb = async () => {
+  if (!hasDevice()) return;
+
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
   global.SearchDb = makeSearchDb();
