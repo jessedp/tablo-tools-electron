@@ -67,8 +67,6 @@ class Navbar extends Component<Props, State> {
     };
 
     (this: any).mouseMove = this.mouseMove.bind(this);
-    (this: any).mouseInRange = this.mouseInRange.bind(this);
-    (this: any).mouseOutOfRange = this.mouseOutOfRange.bind(this);
   }
 
   async componentDidMount(): * {
@@ -106,9 +104,9 @@ class Navbar extends Component<Props, State> {
 
   mouseMove = (e: any) => {
     this.lastMousePos = { x: e.screenX, y: e.screenY };
-    if (this.checkYInbounds(30)) {
+    if (this.checkYInbounds(5)) {
       this.setState({ showToggle: true });
-    } else {
+    } else if (!this.checkYInbounds(40)) {
       this.setState({ showToggle: false });
     }
   };
@@ -116,20 +114,7 @@ class Navbar extends Component<Props, State> {
   checkYInbounds = (limit = 10) => {
     const win = remote.getCurrentWindow();
     const bounds = win.getContentBounds();
-    return this.lastMousePos.y - bounds.y + 5 < limit;
-  };
-
-  mouseInRange = () => {
-    // console.log('mouseInRange', this.lastMousePos);
-    this.setState({ showToggle: true });
-  };
-
-  mouseOutOfRange = () => {
-    // console.log('mouseOutOfRange', this.lastMousePos);
-
-    if (!this.checkYInbounds(30)) {
-      this.setState({ showToggle: false });
-    }
+    return this.lastMousePos.y - bounds.y < limit;
   };
 
   async processUpdate(msg: Object) {
@@ -179,14 +164,7 @@ class Navbar extends Component<Props, State> {
     }
     // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
-      <Row
-        className="mb-2 top-bar"
-        onMouseOver={this.mouseInRange}
-        onMouseOut={this.mouseOutOfRange}
-        onFocus={this.mouseInRange}
-        onBlur={this.mouseOutOfRange}
-        onMouseMove={this.mouseMove}
-      >
+      <Row className="mb-2 top-bar" onMouseMove={this.mouseMove}>
         <ScreenControls mouseInRange={showToggle} />
         <Col md="7">
           <LogoBox />
