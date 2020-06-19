@@ -65,6 +65,7 @@ class Navbar extends Component<Props, State> {
       updateAvailable: false,
       showToggle: false
     };
+    this.lastMousePos = { x: 0, y: 0 };
 
     (this: any).mouseMove = this.mouseMove.bind(this);
   }

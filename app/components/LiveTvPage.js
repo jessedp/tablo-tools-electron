@@ -78,34 +78,36 @@ class LiveTvPage extends Component<Props, State> {
         <span className="smallerish muted">
           <i>Note:</i> It&apos;s highly unlikley this will be built out further.
         </span>
-        <Row>
-          <Col md="6">
-            <Table striped>
-              <tbody>
-                {channelList.map(rec => {
-                  return (
-                    <tr key={`${rec.channel.major}-${rec.channel.minor}`}>
-                      <td>
-                        {rec.channel.major} -{rec.channel.minor}
-                        <span className="smaller pl-2">
-                          ({rec.channel.callSign})
-                        </span>
-                      </td>
-                      <td>
-                        {rec.channel.network
-                          ? rec.channel.network
-                          : rec.channel.callSign}
-                      </td>
-                      <td>
-                        <TabloLivePlayer channel={rec} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
+        <div className="scrollable-area">
+          <Row>
+            <Col md="6">
+              <Table striped>
+                <tbody>
+                  {channelList.map(rec => {
+                    return (
+                      <tr key={`${rec.channel.major}-${rec.channel.minor}`}>
+                        <td>
+                          {rec.channel.major} -{rec.channel.minor}
+                          <span className="smaller pl-2">
+                            ({rec.channel.callSign})
+                          </span>
+                        </td>
+                        <td>
+                          {rec.channel.network
+                            ? rec.channel.network
+                            : rec.channel.callSign}
+                        </td>
+                        <td>
+                          <TabloLivePlayer channel={rec} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
+        </div>
       </> //
     );
   }
