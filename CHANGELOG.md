@@ -1,441 +1,203 @@
-# 0.17.1 (2018.11.20)
+# Changelog
 
-- Fix `yarn test-e2e` and testcafe for single package.json structure
-- Fixes incorrect path in `yarn start` script
-- Bumped deps
-- Bump g++ in travis
-- Change clone arguments to clone only master
-- Change babel config to target current electron version
+## [Unreleased](https://github.com/jessedp/tablo-tools-electron/tree/HEAD)
 
-For full change list, see https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/2021
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.1...HEAD)
 
-# 0.17.0 (2018.10.30)
+**Closed issues:**
 
-- upgraded to `babel@7` (thanks to @vikr01 🎉🎉🎉)
-- migrated from [two `package.json` structure](https://www.electron.build/tutorials/two-package-structure) (thanks to @HyperSprite!)
-- initial auto update support (experimental)
-- migrate from greenkeeper to [renovate](https://renovatebot.com)
-- added issue template
-- use `babel-preset-env` to target current electron version
-- add [opencollective](https://opencollective.com/electron-react-boilerplate-594) banner message display in postinstall script (help support ERB 🙏)
-- fix failing ci issues
+- "Reset" in Search doesn't work [\#34](https://github.com/jessedp/tablo-tools-electron/issues/34)
+- BUG: LiveTV - Proper display when no Channels db loaded, Pubsub sub/refresh on DB_UPDATE [\#33](https://github.com/jessedp/tablo-tools-electron/issues/33)
+- revisit \(full\) screen control drop-in [\#32](https://github.com/jessedp/tablo-tools-electron/issues/32)
+- Show something useful when not connected to the internet [\#28](https://github.com/jessedp/tablo-tools-electron/issues/28)
 
-# 0.16.0 (2018.10.3)
+## [v0.2.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.1) (2020-06-19)
 
-- removed unused dependencies
-- migrate from `react-redux-router` to `connect-react-router`
-- move webpack configs to `./webpack` dir
-- use `g++` on travis when testing linux
-- migrate from `spectron` to `testcafe` for e2e tests
-- add linting support for config styles
-- changed stylelint config
-- temporarily disabled flow in appveyor to make ci pass
-- added necessary infra to publish releases from ci
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.0...v0.2.1)
 
-# 0.15.0 (2018.8.25)
+**Closed issues:**
 
-- Performance: cache webpack uglify results
-- Feature: add start minimized feature
-- Feature: lint and fix styles with prettier and stylelint
-- Feature: add greenkeeper support
+- BUG: LiveTV - fix "2-1 \(???\) | Network" display [\#30](https://github.com/jessedp/tablo-tools-electron/issues/30)
+- Device State/backup restore [\#25](https://github.com/jessedp/tablo-tools-electron/issues/25)
+- .deb minor annoyances [\#18](https://github.com/jessedp/tablo-tools-electron/issues/18)
 
-# 0.14.0 (2018.5.24)
+**Merged pull requests:**
 
-- Improved CI timings
-- Migrated README commands to yarn from npm
-- Improved vscode config
-- Updated all dependencies to latest semver
-- Fix `electron-rebuild` script bug
-- Migrated to `mini-css-extract-plugin` from `extract-text-plugin`
-- Added `optimize-css-assets-webpack-plugin`
-- Run `prettier` on json, css, scss, and more filetypes
+- misc-bug-fixes [\#39](https://github.com/jessedp/tablo-tools-electron/pull/39) ([jessedp](https://github.com/jessedp))
+- add hasDevice and use it for initial startup \#28 [\#38](https://github.com/jessedp/tablo-tools-electron/pull/38) ([jessedp](https://github.com/jessedp))
+- fix-screen-control-activation [\#37](https://github.com/jessedp/tablo-tools-electron/pull/37) ([jessedp](https://github.com/jessedp))
+- hookup db pubsub, display tweaks \#33 [\#36](https://github.com/jessedp/tablo-tools-electron/pull/36) ([jessedp](https://github.com/jessedp))
+- fix-search-reset [\#35](https://github.com/jessedp/tablo-tools-electron/pull/35) ([jessedp](https://github.com/jessedp))
+- fix call sign display \#30 [\#31](https://github.com/jessedp/tablo-tools-electron/pull/31) ([jessedp](https://github.com/jessedp))
+- Swap out travis for GH actions [\#29](https://github.com/jessedp/tablo-tools-electron/pull/29) ([jessedp](https://github.com/jessedp))
 
-# 0.13.3 (2018.5.24)
+## [v0.2.0](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.0) (2020-06-10)
 
-- Add git precommit hook, when git commit will use `prettier` to format git add code
-- Add format code function in `lint-fix` npm script which can use `prettier` to format project js code
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.0-beta.4...v0.2.0)
 
-# 0.13.2 (2018.1.31)
+**Closed issues:**
 
-- Hot Module Reload (HMR) fixes
-- Bumped all dependencies to latest semver
-- Prevent error propagation of `CheckNativeDeps` script
+- Add zoom controls [\#21](https://github.com/jessedp/tablo-tools-electron/issues/21)
+- Add Exit Fullscreen button [\#19](https://github.com/jessedp/tablo-tools-electron/issues/19)
 
-# 0.13.1 (2018.1.13)
+**Merged pull requests:**
 
-- Hot Module Reload (HMR) fixes
-- Bumped all dependencies to latest semver
-- Fixed electron-rebuild script
-- Fixed tests scripts to run on all platforms
-- Skip redux logs in console in test ENV
+- Add live tv wihout guide [\#23](https://github.com/jessedp/tablo-tools-electron/pull/23) ([jessedp](https://github.com/jessedp))
 
-# 0.13.0 (2018.1.6)
+## [v0.2.0-beta.4](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.0-beta.4) (2020-06-09)
 
-#### Additions
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.0-beta.2...v0.2.0-beta.4)
 
-- Add native dependencies check on postinstall
-- Updated all dependencies to latest semver
+**Merged pull requests:**
 
-# 0.12.0 (2017.7.8)
+- Add zoom controls [\#22](https://github.com/jessedp/tablo-tools-electron/pull/22) ([jessedp](https://github.com/jessedp))
+- Fullscreen controls [\#20](https://github.com/jessedp/tablo-tools-electron/pull/20) ([jessedp](https://github.com/jessedp))
+- Finishing up 0.2.0 [\#17](https://github.com/jessedp/tablo-tools-electron/pull/17) ([jessedp](https://github.com/jessedp))
 
-#### Misc
+## [v0.2.0-beta.2](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.0-beta.2) (2020-05-31)
 
-- Removed `babel-polyfill`
-- Renamed and alphabetized npm scripts
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.0-beta.3...v0.2.0-beta.2)
 
-#### Breaking
+## [v0.2.0-beta.3](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.0-beta.3) (2020-05-31)
 
-- Changed node dev `__dirname` and `__filename` to node built in fn's (https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/1035)
-- Renamed `app/bundle.js` to `app/renderer.prod.js` for consistency
-- Renamed `dll/vendor.js` to `dll/renderer.dev.dll.js` for consistency
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.2.0-beta.1...v0.2.0-beta.3)
 
-#### Additions
+**Merged pull requests:**
 
-- Enable node_modules cache on CI
+- Global select [\#16](https://github.com/jessedp/tablo-tools-electron/pull/16) ([jessedp](https://github.com/jessedp))
 
-# 0.11.2 (2017.5.1)
+## [v0.2.0-beta.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.2.0-beta.1) (2020-05-26)
 
-Yay! Another patch release. This release mostly includes refactorings and router bug fixes. Huge thanks to @anthonyraymond!
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.14...v0.2.0-beta.1)
 
-⚠️ Windows electron builds are failing because of [this issue](https://github.com/electron/electron/issues/9321). This is not an issue with the boilerplate ⚠️
+**Merged pull requests:**
 
-#### Breaking
+- Fix mac exports [\#15](https://github.com/jessedp/tablo-tools-electron/pull/15) ([jessedp](https://github.com/jessedp))
 
-- **Renamed `./app/main.development.js` => `./app/main.{dev,prod}.js`:** [#963](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/963)
+## [v0.1.14](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.14) (2020-05-13)
 
-#### Fixes
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.14-beta.3...v0.1.14)
 
-- **Fixed reloading when not on `/` path:** [#958](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/958) [#949](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/949)
+## [v0.1.14-beta.3](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.14-beta.3) (2020-05-10)
 
-#### Additions
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.14-beta.2...v0.1.14-beta.3)
 
-- **Added support for stylefmt:** [#960](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/960)
+## [v0.1.14-beta.2](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.14-beta.2) (2020-05-09)
 
-# 0.11.1 (2017.4.23)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.14-beta.1...v0.1.14-beta.2)
 
-You can now debug the production build with devtools like so:
+## [v0.1.14-beta.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.14-beta.1) (2020-05-08)
 
-```
-DEBUG_PROD=true npm run package
-```
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.13...v0.1.14-beta.1)
 
-🎉🎉🎉
+## [v0.1.13](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.13) (2020-05-07)
 
-#### Additions
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.13-beta.2...v0.1.13)
 
-- **Added support for debugging production build:** [#fab245a](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/941/commits/fab245a077d02a09630f74270806c0c534a4ff95)
+## [v0.1.13-beta.2](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.13-beta.2) (2020-05-07)
 
-#### Bug Fixes
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.13-beta.1...v0.1.13-beta.2)
 
-- **Fixed bug related to importing native dependencies:** [#933](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/933)
+## [v0.1.13-beta.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.13-beta.1) (2020-05-05)
 
-#### Improvements
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.12...v0.1.13-beta.1)
 
-- **Updated all deps to latest semver**
+## [v0.1.12](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.12) (2020-05-04)
 
-# 0.11.0 (2017.4.19)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.12-beta.1...v0.1.12)
 
-Here's the most notable changes since `v0.10.0`. Its been about a year since a release has been pushed. Expect a new release to be published every 3-4 weeks.
+## [v0.1.12-beta.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.12-beta.1) (2020-04-30)
 
-#### Breaking Changes
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.11...v0.1.12-beta.1)
 
-- **Dropped support for node < 6**
-- **Refactored webpack config files**
-- **Migrate to two-package.json project structure**
-- **Updated all devDeps to latest semver**
-- **Migrated to Jest:** [#768](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/768)
-- **Migrated to `react-router@4`**
-- **Migrated to `electron-builder@4`**
-- **Migrated to `webpack@2`**
-- **Migrated to `react-hot-loader@3`**
-- **Changed default live reload server PORT to `1212` from `3000`**
+## [v0.1.11](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.11) (2020-04-28)
 
-#### Additions
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.10...v0.1.11)
 
-- **Added support for Yarn:** [#451](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/451)
-- **Added support for Flow:** [#425](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/425)
-- **Added support for stylelint:** [#911](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/911)
-- **Added support for electron-builder:** [#876](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/876)
-- **Added optional support for SASS:** [#880](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/880)
-- **Added support for eslint-plugin-flowtype:** [#911](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/911)
-- **Added support for appveyor:** [#280](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/280)
-- **Added support for webpack dlls:** [#860](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/860)
-- **Route based code splitting:** [#884](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/884)
-- **Added support for Webpack Bundle Analyzer:** [#922](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/922)
+## [v0.1.10](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.10) (2020-04-27)
 
-#### Improvements
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.9...v0.1.10)
 
-- **Parallelize renderer and main build processes when running `npm run build`**
-- **Dynamically generate electron app menu**
-- **Improved vscode integration:** [#856](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/856)
+**Closed issues:**
 
-#### Bug Fixes
+- 0.1.10-beta.2 = white screen [\#13](https://github.com/jessedp/tablo-tools-electron/issues/13)
 
-- **Fixed hot module replacement race condition bug:** [#917](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/917) [#920](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/920)
+## [v0.1.9](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.9) (2020-04-23)
 
-# 0.10.0 (2016.4.18)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.6...v0.1.9)
 
-#### Improvements
+**Closed issues:**
 
-- **Use Babel in main process with Webpack build:** [#201](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/201)
-- **Change targets to built-in support by webpack:** [#197](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/197)
-- **use es2015 syntax for webpack configs:** [#195](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/195)
-- **Open application when webcontent is loaded:** [#192](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/192)
-- **Upgraded dependencies**
+- Multiple tablo devices causes confusion [\#12](https://github.com/jessedp/tablo-tools-electron/issues/12)
 
-#### Bug fixed
+## [v0.1.6](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.6) (2020-04-18)
 
-- **Fix `npm list electron-prebuilt` in package.js:** [#188](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/188)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.5...v0.1.6)
 
-# 0.9.0 (2016.3.23)
+## [v0.1.5](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.5) (2020-04-14)
 
-#### Improvements
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.4...v0.1.5)
 
-- **Added [redux-logger](https://github.com/fcomb/redux-logger)**
-- **Upgraded [react-router-redux](https://github.com/reactjs/react-router-redux) to v4**
-- **Upgraded dependencies**
-- **Added `npm run dev` command:** [#162](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/162)
-- **electron to v0.37.2**
+## [v0.1.4](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.4) (2020-04-13)
 
-#### Breaking Changes
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.3...v0.1.4)
 
-- **css module as default:** [#154](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/154).
-- **set default NODE_ENV to production:** [#140](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/140)
+## [v0.1.3](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.3) (2020-04-12)
 
-# 0.8.0 (2016.2.17)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.2...v0.1.3)
 
-#### Bug fixed
+## [v0.1.2](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.2) (2020-04-10)
 
-- **Fix lint errors**
-- **Fix Webpack publicPath for production builds**: [#119](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/119).
-- **package script now chooses correct OS icon extension**
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.1...v0.1.2)
 
-#### Improvements
+## [v0.1.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.1) (2020-04-09)
 
-- **babel 6**
-- **Upgrade Dependencies**
-- **Enable CSS source maps**
-- **Add json-loader**: [#128](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/128).
-- **react-router 2.0 and react-router-redux 3.0**
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.1.0...v0.1.1)
 
-# 0.7.1 (2015.12.27)
+## [v0.1.0](https://github.com/jessedp/tablo-tools-electron/tree/v0.1.0) (2020-04-05)
 
-#### Bug fixed
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.0.7...v0.1.0)
 
-- **Fixed npm script on windows 10:** [#103](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/103).
-- **history and react-router version bump**: [#109](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/109), [#110](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/110).
+**Merged pull requests:**
 
-#### Improvements
+- Move incomplete [\#11](https://github.com/jessedp/tablo-tools-electron/pull/11) ([jessedp](https://github.com/jessedp))
+- Actual actions [\#10](https://github.com/jessedp/tablo-tools-electron/pull/10) ([jessedp](https://github.com/jessedp))
+- Db date [\#9](https://github.com/jessedp/tablo-tools-electron/pull/9) ([jessedp](https://github.com/jessedp))
+- add comskip filter, match description [\#8](https://github.com/jessedp/tablo-tools-electron/pull/8) ([jessedp](https://github.com/jessedp))
+- cleanup code, no-op when comskip is ready [\#6](https://github.com/jessedp/tablo-tools-electron/pull/6) ([jessedp](https://github.com/jessedp))
+- Audit fix [\#5](https://github.com/jessedp/tablo-tools-electron/pull/5) ([jessedp](https://github.com/jessedp))
+- Settings fix plus [\#4](https://github.com/jessedp/tablo-tools-electron/pull/4) ([jessedp](https://github.com/jessedp))
 
-- **electron 0.36**
+## [v0.0.7](https://github.com/jessedp/tablo-tools-electron/tree/v0.0.7) (2020-02-19)
 
-# 0.7.0 (2015.12.16)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.0.6...v0.0.7)
 
-#### Bug fixed
+**Closed issues:**
 
-- **Fixed process.env.NODE_ENV variable in webpack:** [#74](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/74).
-- **add missing object-assign**: [#76](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/76).
-- **packaging in npm@3:** [#77](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/77).
-- **compatibility in windows:** [#100](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/100).
-- **disable chrome debugger in production env:** [#102](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/102).
+- incomplete blanks window [\#2](https://github.com/jessedp/tablo-tools-electron/issues/2)
 
-#### Improvements
+**Merged pull requests:**
 
-- **redux**
-- **css-modules**
-- **upgrade to react-router 1.x**
-- **unit tests**
-- **e2e tests**
-- **travis-ci**
-- **upgrade to electron 0.35.x**
-- **use es2015**
-- **check dev engine for node and npm**
+- Fix export [\#3](https://github.com/jessedp/tablo-tools-electron/pull/3) ([jessedp](https://github.com/jessedp))
 
-# 0.6.5 (2015.11.7)
+## [v0.0.6](https://github.com/jessedp/tablo-tools-electron/tree/v0.0.6) (2020-02-04)
 
-#### Improvements
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.0.5...v0.0.6)
 
-- **Bump style-loader to 0.13**
-- **Bump css-loader to 0.22**
+## [v0.0.5](https://github.com/jessedp/tablo-tools-electron/tree/v0.0.5) (2020-01-02)
 
-# 0.6.4 (2015.10.27)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.0.4...v0.0.5)
 
-#### Improvements
+## [v0.0.4](https://github.com/jessedp/tablo-tools-electron/tree/v0.0.4) (2019-12-30)
 
-- **Bump electron-debug to 0.3**
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/v0.0.1...v0.0.4)
 
-# 0.6.3 (2015.10.26)
+**Merged pull requests:**
 
-#### Improvements
+- Upgrade electron [\#1](https://github.com/jessedp/tablo-tools-electron/pull/1) ([jessedp](https://github.com/jessedp))
 
-- **Initialize ExtractTextPlugin once:** [#64](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/64).
+## [v0.0.1](https://github.com/jessedp/tablo-tools-electron/tree/v0.0.1) (2019-12-16)
 
-# 0.6.2 (2015.10.18)
+[Full Changelog](https://github.com/jessedp/tablo-tools-electron/compare/42673bddeb537a41f5c5fcbd4d17b453f32dbcb3...v0.0.1)
 
-#### Bug fixed
-
-- **Babel plugins production env not be set properly:** [#57](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/57).
-
-# 0.6.1 (2015.10.17)
-
-#### Improvements
-
-- **Bump electron to v0.34.0**
-
-# 0.6.0 (2015.10.16)
-
-#### Breaking Changes
-
-- **From react-hot-loader to react-transform**
-
-# 0.5.2 (2015.10.15)
-
-#### Improvements
-
-- **Run tests with babel-register:** [#29](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/29).
-
-# 0.5.1 (2015.10.12)
-
-#### Bug fixed
-
-- **Fix #51:** use `path.join(__dirname` instead of `./`.
-
-# 0.5.0 (2015.10.11)
-
-#### Improvements
-
-- **Simplify webpack config** see [#50](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/50).
-
-#### Breaking Changes
-
-- **webpack configs**
-- **port changed:** changed default port from 2992 to 3000.
-- **npm scripts:** remove `start-dev` and `dev-server`. rename `hot-dev-server` to `hot-server`.
-
-# 0.4.3 (2015.9.22)
-
-#### Bug fixed
-
-- **Fix #45 zeromq crash:** bump version of `electron-prebuilt`.
-
-# 0.4.2 (2015.9.15)
-
-#### Bug fixed
-
-- **run start-hot breaks chrome refresh(CTRL+R) (#42)**: bump `electron-debug` to `0.2.1`
-
-# 0.4.1 (2015.9.11)
-
-#### Improvements
-
-- **use electron-prebuilt version for packaging (#33)**
-
-# 0.4.0 (2015.9.5)
-
-#### Improvements
-
-- **update dependencies**
-
-# 0.3.0 (2015.8.31)
-
-#### Improvements
-
-- **eslint-config-airbnb**
-
-# 0.2.10 (2015.8.27)
-
-#### Features
-
-- **custom placeholder icon**
-
-#### Improvements
-
-- **electron-renderer as target:** via [webpack-target-electron-renderer](https://github.com/chentsulin/webpack-target-electron-renderer)
-
-# 0.2.9 (2015.8.18)
-
-#### Bug fixed
-
-- **Fix hot-reload**
-
-# 0.2.8 (2015.8.13)
-
-#### Improvements
-
-- **bump electron-debug**
-- **babelrc**
-- **organize webpack scripts**
-
-# 0.2.7 (2015.7.9)
-
-#### Bug fixed
-
-- **defaultProps:** fix typos.
-
-# 0.2.6 (2015.7.3)
-
-#### Features
-
-- **menu**
-
-#### Bug fixed
-
-- **package.js:** include webpack build.
-
-# 0.2.5 (2015.7.1)
-
-#### Features
-
-- **NPM Script:** support multi-platform
-- **package:** `--all` option
-
-# 0.2.4 (2015.6.9)
-
-#### Bug fixed
-
-- **Eslint:** typo, [#17](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/17) and improve `.eslintrc`
-
-# 0.2.3 (2015.6.3)
-
-#### Features
-
-- **Package Version:** use latest release electron version as default
-- **Ignore Large peerDependencies**
-
-#### Bug fixed
-
-- **Npm Script:** typo, [#6](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/6)
-- **Missing css:** [#7](https://github.com/electron-react-boilerplate/electron-react-boilerplate/pull/7)
-
-# 0.2.2 (2015.6.2)
-
-#### Features
-
-- **electron-debug**
-
-#### Bug fixed
-
-- **Webpack:** add `.json` and `.node` to extensions for imitating node require.
-- **Webpack:** set `node_modules` to externals for native module support.
-
-# 0.2.1 (2015.5.30)
-
-#### Bug fixed
-
-- **Webpack:** #1, change build target to `atom`.
-
-# 0.2.0 (2015.5.30)
-
-#### Features
-
-- **Ignore:** `test`, `tools`, `release` folder and devDependencies in `package.json`.
-- **Support asar**
-- **Support icon**
-
-# 0.1.0 (2015.5.27)
-
-#### Features
-
-- **Webpack:** babel, react-hot, ...
-- **Flux:** actions, api, components, containers, stores..
-- **Package:** darwin (osx), linux and win32 (windows) platform.
+\* _This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)_
