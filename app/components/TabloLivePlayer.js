@@ -43,6 +43,9 @@ export default class TabloLivePlayer extends Component<Props, State> {
         </Button>
 
         <Modal size="lg" show={opened} onHide={this.toggle} centered>
+          <Modal.Header>
+            <h5>{channel.channel.network}</h5>
+          </Modal.Header>
           <Modal.Body>
             <MyPlayerLive channel={channel} />
           </Modal.Body>
