@@ -47,19 +47,21 @@ export default class ComskipDetails extends Component<Props, State> {
     const shows = {};
     recs.forEach(rec => {
       const cs = rec.video_details.comskip;
-      const title = rec.airing_details.show_title;
-      let { state } = cs;
-      if (!state) state = 'unk';
-      skipStats[state] = skipStats[state] ? skipStats[state] + 1 : 1;
-      if (cs.state === 'ready')
-        shows[title] = shows[title] ? shows[title] + 1 : 1;
+      // fixes Sentry-2Y, hopefully exposes real problem.
+      if (cs) {
+        const title = rec.airing_details.show_title;
+        let { state } = cs;
+        if (!state) state = 'unk';
+        skipStats[state] = skipStats[state] ? skipStats[state] + 1 : 1;
+        if (cs.state === 'ready')
+          shows[title] = shows[title] ? shows[title] + 1 : 1;
 
-      // TODO: missing comskip?
-      if (cs && cs.error) {
-        if (cs.error in skipErrors) {
-          skipErrors[cs.error] += 1;
-        } else {
-          skipErrors[cs.error] = 0;
+        if (cs.error) {
+          if (cs.error in skipErrors) {
+            skipErrors[cs.error] += 1;
+          } else {
+            skipErrors[cs.error] = 0;
+          }
         }
       }
     });
