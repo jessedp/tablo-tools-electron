@@ -31,10 +31,10 @@ export default class Channel {
     Object.assign(this, data);
 
     this.channel.callSign = this.channel.call_sign;
-    delete this.channel.call_sign;
+    // delete this.channel.call_sign;
 
     this.channel.callSignSrc = this.channel.call_sign_src;
-    delete this.channel.call_sign_src;
+    // delete this.channel.call_sign_src;
   }
 
   get id() {

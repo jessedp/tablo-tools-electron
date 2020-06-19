@@ -33,13 +33,11 @@ import SavedSearch from './SavedSearch';
 import SelectStyles from './SelectStyles';
 import SavedSearchEdit from './SavedSearchEdit';
 import * as SearchActions from '../actions/search';
-import routes from '../constants/routes.json';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 
 type Props = {
-  sendResults: Object => void,
-  history: any
+  sendResults: Object => void
 };
 
 type Season = {
@@ -287,14 +285,13 @@ class SearchForm extends Component<Props, SearchState> {
   };
 
   resetSearch = async () => {
-    const { history } = this.props;
     const { actionList, sortFilter, limit } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
     newState.sortFilter = sortFilter;
     newState.limit = limit;
     await this.setStateStore(newState);
-    history.push(routes.ALL);
+    this.refresh();
   };
 
   stateChange = async (event: Option) => {
@@ -1333,12 +1330,6 @@ function FilterSelect(props: fullFilterProps) {
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(SearchActions, dispatch);
 };
-
-// const mapStateToProps = (state: any) => {
-//   return {
-//     // view: state.view
-//   };
-// };
 
 export default connect<*, *, *, *, *, *>(
   null,
