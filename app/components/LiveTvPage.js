@@ -41,20 +41,12 @@ class LiveTvPage extends Component<Props, State> {
     // TODO: use Channel objects (redux)
     const channelList = recs.map(rec => new Channel(rec));
 
-    // await asyncForEach(recs, async channel => {
-    //   const episodes = await Api.get(
-    //     `/views/livetv/channels/${channel.object_id}?start=${start}&duration=21600`
-    //   );
-    //   channelList.push({ channel, episodes });
-    // });
-    const channelSort = (a, b) => {
-      if (parseInt(a.channel.major, 10) > parseInt(b.channel.major, 10)) {
-        return 1;
-      }
-      return -1;
-    };
-
-    channelList.sort((a, b) => channelSort(a, b));
+    // channelList.sort((a, b) => channelSort(a, b));
+    channelList.sort((a, b) => {
+      return (
+        a.channel.major - b.channel.major || a.channel.minor - b.channel.minor
+      );
+    });
 
     this.setState({ channelList });
   };
@@ -76,7 +68,7 @@ class LiveTvPage extends Component<Props, State> {
         </Alert>
         <span className="smallerish muted">
           <i>Note:</i> It&apos;s highly unlikley this will be built out further.
-          Even the sort order or layout.
+          Even the layout.
         </span>
         <Row>
           <Col md="6">
