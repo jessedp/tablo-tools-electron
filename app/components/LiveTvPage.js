@@ -1,6 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 
+import PubSub from 'pubsub-js';
+
 // import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
 // import { withRouter } from 'react-router-dom';
@@ -19,6 +21,8 @@ type State = {
 class LiveTvPage extends Component<Props, State> {
   props: Props;
 
+  psToken: null;
+
   constructor() {
     super();
 
@@ -30,6 +34,11 @@ class LiveTvPage extends Component<Props, State> {
 
   async componentDidMount() {
     this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
+  }
+
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.psToken);
   }
 
   refresh = async () => {
@@ -68,7 +77,6 @@ class LiveTvPage extends Component<Props, State> {
         </Alert>
         <span className="smallerish muted">
           <i>Note:</i> It&apos;s highly unlikley this will be built out further.
-          Even the layout.
         </span>
         <Row>
           <Col md="6">
@@ -109,7 +117,15 @@ function Loading() {
       className="d-flex justify-content-center"
       style={{ maxWidth: '400px', marginTop: '75px' }}
     >
-      <Spinner animation="border" size="xl" variant="primary" />
+      <Spinner
+        animation="border"
+        size="md"
+        variant="primary"
+        className="mr-2"
+      />
+      <span className="pt-2">
+        Channels will show up once the db finshes reloading...
+      </span>
     </div>
   );
 }
