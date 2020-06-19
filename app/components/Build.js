@@ -173,7 +173,7 @@ export default class Build extends Component<Props, State> {
           writeToFile(`channel-${channel.object_id}.json`, rec);
         });
       }
-      console.log(channels);
+
       cnt = await global.ChannelDb.asyncInsert(channels);
       console.log(`${cnt.length} CHANNEL records added`);
 
