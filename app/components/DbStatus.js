@@ -8,6 +8,7 @@ import { recDbCreated } from '../utils/db';
 import Build from './Build';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
+import { hasDevice } from '../utils/Tablo';
 
 type DbProps = {};
 type DbState = { dbAge: number };
@@ -95,6 +96,8 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
   render() {
     const { dbAge } = this.state;
+
+    if (!hasDevice()) return '';
 
     const created = recDbCreated();
     let color = '';

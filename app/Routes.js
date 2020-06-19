@@ -16,6 +16,7 @@ import Settings from './components/Settings';
 import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
 import LiveTvPage from './components/LiveTvPage';
+import { hasDevice } from './utils/Tablo';
 
 export default () => {
   const history = useHistory();
@@ -27,14 +28,14 @@ export default () => {
   }, [history]);
 
   let lastPath = localStorage.getItem('lastPath');
-  if (!lastPath) {
+  if (!lastPath || !hasDevice()) {
     lastPath = routes.HOME;
   }
 
   return (
     <App>
       <Switch>
-        <Redirect exact from="/" to={routes.SEARCH} />
+        <Redirect exact from="/" to={lastPath} />
         <Route path={routes.OVERVIEW} component={OverviewPage} />
         <Route path={routes.BUILD} component={Build} />
         <Route path={routes.SHOWS} component={Shows} />
