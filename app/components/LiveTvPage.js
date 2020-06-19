@@ -88,7 +88,7 @@ class LiveTvPage extends Component<Props, State> {
                       <td>
                         {rec.channel.major} -{rec.channel.minor}
                         <span className="smaller pl-2">
-                          ({rec.channel.call_sign})
+                          ({rec.channel.callSign})
                         </span>
                       </td>
                       <td>{rec.channel.network}</td>
