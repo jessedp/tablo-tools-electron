@@ -19,8 +19,6 @@ class SettingsPage extends Component<Props> {
   props: Props;
 
   render() {
-    console.log('props', this.props);
-
     const { saveFunc, location } = this.props;
 
     let content = <Settings />;
