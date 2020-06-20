@@ -13,13 +13,13 @@ import routes from '../constants/routes.json';
 
 import Settings from '../components/Settings';
 
-type Props = { saveFunc: () => void, location: any };
+type Props = { location: any };
 
 class SettingsPage extends Component<Props> {
   props: Props;
 
   render() {
-    const { saveFunc, location } = this.props;
+    const { location } = this.props;
 
     let content = <Settings />;
     switch (location.pathname) {
@@ -62,16 +62,6 @@ class SettingsPage extends Component<Props> {
                     </Button>
                   </LinkContainer>
                 </ButtonGroup>
-
-                <Button
-                  size="sm"
-                  className="mt-1 ml-5"
-                  variant="outline-light"
-                  type="button"
-                  onClick={saveFunc}
-                >
-                  Save
-                </Button>
               </Col>
             </Row>
           </Alert>
