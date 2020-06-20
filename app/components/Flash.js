@@ -1,57 +1,62 @@
 import React, { Component } from 'react';
-import PubSub from 'pubsub-js';
+import { connect } from 'react-redux';
+
 import { Alert } from 'react-bootstrap';
+import { FlashRecordType } from '../reducers/types';
 
-type Props = {};
+type Props = { message: FlashRecordType };
 
-type State = {
-  open: boolean,
-  type: string,
-  message: string
-};
+type State = { open: boolean };
 
-export default class Flash extends Component<Props, State> {
-  psToken: null;
+class Flash extends Component<Props, State> {
+  timerId: any;
 
   constructor() {
     super();
-    this.state = { open: false, message: '', type: 'success' };
+    this.state = { open: false };
   }
 
-  componentDidMount() {
-    this.psToken = PubSub.subscribe('FLASH', this.receive);
+  componentDidUpdate(prevProps: Props) {
+    const { message } = this.props;
+    console.log('recv', message);
+    if (prevProps.message !== message) {
+      this.receive();
+    }
   }
 
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.psToken);
-    clearTimeout(this.timer);
-  }
+  receive = () => {
+    if (this.timerId) clearTimeout(this.timerId);
 
-  receive = (action: string, data: any) => {
-    // console.log('DATA: ', data, '|', data);
+    this.setState({ open: true });
 
-    this.setState({
-      message: data.msg,
-      type: data.type || 'success',
-      open: true
-    });
-    // this.setState({ open: false });
-    setTimeout(() => this.setState({ open: false }), 750);
+    this.timerId = setTimeout(() => this.setState({ open: false }), 750);
   };
 
   render() {
-    const { open, type, message } = this.state;
+    const { message } = this.props;
+    const { open } = this.state;
 
-    // console.log(open, type, message);
+    console.log(message);
+    if (!message) return <></>; //
+
+    const type = message.type || 'success';
 
     const effect = open ? 'visible' : 'hidden';
 
     return (
       <div className={`flash ${effect}`}>
         <Alert variant={type}>
-          <span className="flash-message">{message}</span>
+          <span className="flash-message">{message.message}</span>
         </Alert>
       </div>
     );
   }
 }
+
+const mapStateToProps = (state: any) => {
+  return {
+    message: state.flash
+  };
+};
+
+export default connect(mapStateToProps)(Flash);
