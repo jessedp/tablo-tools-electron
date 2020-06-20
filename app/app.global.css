@@ -49,8 +49,8 @@
   position: absolute;
   text-align: center;
   top: 5px;
-  left: 30%;
-  width: 40%;
+  left: 25%;
+  width: 50%;
 
   /* border: #b6c5d5 1px solid; */
 
@@ -60,7 +60,7 @@
 }
 
 .flash-message {
-  font-size: 1.6em;
+  font-size: 1.4em;
 }
 
 /* Fade-In Effect */

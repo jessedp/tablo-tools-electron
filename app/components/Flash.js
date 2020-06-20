@@ -18,7 +18,6 @@ class Flash extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const { message } = this.props;
-    console.log('recv', message);
     if (prevProps.message !== message) {
       this.receive();
     }
@@ -29,14 +28,13 @@ class Flash extends Component<Props, State> {
 
     this.setState({ open: true });
 
-    this.timerId = setTimeout(() => this.setState({ open: false }), 750);
+    this.timerId = setTimeout(() => this.setState({ open: false }), 1000);
   };
 
   render() {
     const { message } = this.props;
     const { open } = this.state;
 
-    console.log(message);
     if (!message) return <></>; //
 
     const type = message.type || 'success';
