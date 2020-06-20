@@ -64,8 +64,16 @@ export const defaultConfig: ConfigType = {
   saveData: []
 };
 
-export function setConfigItem(key: string, val: string) {
-  cachedConfig[key] = val;
+export function setConfigItem(
+  key: string | { key: string, val: string },
+  val: string
+) {
+  if (typeof key === 'object') {
+    cachedConfig = { ...cachedConfig, ...key };
+  } else {
+    cachedConfig[key] = val;
+  }
+
   fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
 }
 
@@ -116,5 +124,6 @@ export default function getConfig(): ConfigType {
       }
     }
   }
+  console.log(Object.assign(defaultConfig, cachedConfig));
   return Object.assign(defaultConfig, cachedConfig);
 }
