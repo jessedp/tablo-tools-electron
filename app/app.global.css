@@ -44,6 +44,39 @@
   cursor: pointer;
 }
 
+.flash {
+  visibility: hidden;
+  position: absolute;
+  text-align: center;
+  top: 5px;
+  left: 30%;
+  width: 40%;
+
+  /* border: #b6c5d5 1px solid; */
+
+  /* background-color: tomato; */
+  border-top: none;
+  z-index: 10001;
+}
+
+.flash-message {
+  font-size: 1.6em;
+}
+
+/* Fade-In Effect */
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.2s linear;
+}
+
+/* Fade-Out Effect */
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1.5s, opacity 1.5s linear;
+}
+
 .text-success {
   color: #28a745 !important;
 }

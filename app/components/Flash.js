@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
+import { Alert } from 'react-bootstrap';
 
 type Props = {};
 
@@ -26,30 +27,31 @@ export default class Flash extends Component<Props, State> {
     clearTimeout(this.timer);
   }
 
-  receive = (data: Object) => {
-    console.log(data);
-    this.setState({ message: 'Test', open: true });
+  receive = (action: string, data: any) => {
+    // console.log('DATA: ', data, '|', data);
 
-    setTimeout(this.setState({ open: true }), 2000);
-  };
-
-  alertClass = () => {
-    const { type } = this.state;
-    const classes = {
-      error: 'alert-danger',
-      alert: 'alert-warning',
-      notice: 'alert-info',
-      success: 'alert-success'
-    };
-    return classes[type] || classes.success;
+    this.setState({
+      message: data.msg,
+      type: data.type || 'success',
+      open: true
+    });
+    // this.setState({ open: false });
+    setTimeout(() => this.setState({ open: false }), 750);
   };
 
   render() {
-    const { open, message } = this.state;
-    const alertClassName = `alert ${this.alertClass()} fade in`;
+    const { open, type, message } = this.state;
 
-    if (!open) return <></>; //
+    // console.log(open, type, message);
 
-    return <div className={alertClassName}>{message}</div>;
+    const effect = open ? 'visible' : 'hidden';
+
+    return (
+      <div className={`flash ${effect}`}>
+        <Alert variant={type}>
+          <span className="flash-message">{message}</span>
+        </Alert>
+      </div>
+    );
   }
 }
