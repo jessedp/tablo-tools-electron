@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import PubSub from 'pubsub-js';
 import path from 'path';
 import * as Sentry from '@sentry/electron';
 
@@ -17,6 +18,7 @@ import getConfig, {
   ConfigType,
   defaultConfig,
   setConfig,
+  //  setConfigItem,
   CONFIG_FILE_NAME
 } from '../utils/config';
 import ExportData from './ExportData';
@@ -125,6 +127,8 @@ export default class Settings extends Component<Props, ConfigType> {
   toggleAutoRebuild = () => {
     const { autoRebuild } = this.state;
     this.setState({ autoRebuild: !autoRebuild });
+    const what = !autoRebuild ? 'on' : 'off';
+    PubSub.publish('FLASH', { msg: `Auto-rebuild turned ${what}` });
   };
 
   toggleAutoUpdate = () => {
