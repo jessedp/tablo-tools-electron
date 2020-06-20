@@ -124,6 +124,6 @@ export default function getConfig(): ConfigType {
       }
     }
   }
-  console.log(Object.assign(defaultConfig, cachedConfig));
+
   return Object.assign(defaultConfig, cachedConfig);
 }
