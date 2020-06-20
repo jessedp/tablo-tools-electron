@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
-import PubSub from 'pubsub-js';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import path from 'path';
 import * as Sentry from '@sentry/electron';
 
@@ -11,37 +12,31 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import * as FlashActions from '../actions/flash';
+import type { FlashRecordType } from '../reducers/types';
 
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
 import getConfig, {
   ConfigType,
-  defaultConfig,
-  setConfig,
-  //  setConfigItem,
+  setConfigItem,
   CONFIG_FILE_NAME
 } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
 
-const SAVE_NONE = 0;
-const SAVE_FAIL = 1;
-const SAVE_SUCCESS = 2;
-
-type Props = {};
+type Props = { sendFlash: (message: FlashRecordType) => void };
 
 const { app, shell, dialog } = require('electron').remote;
 
-export default class Settings extends Component<Props, ConfigType> {
+class Settings extends Component<Props, ConfigType> {
   props: Props;
 
   constructor() {
     super();
 
     const storedState = getConfig();
-
-    storedState.saveState = SAVE_NONE;
 
     this.state = storedState;
 
@@ -58,112 +53,111 @@ export default class Settings extends Component<Props, ConfigType> {
     this.toggleNotifyBeta = this.toggleNotifyBeta.bind(this);
     this.toggleErrorReport = this.toggleErrorReport.bind(this);
     this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
+    this.saveTestDeviceIp = this.saveTestDeviceIp.bind(this);
 
     this.toggleEnableDebug = this.toggleEnableDebug.bind(this);
     this.toggleDataExport = this.toggleDataExport.bind(this);
     this.setExportDataPath = this.setExportDataPath.bind(this);
-
-    this.saveConfig = this.saveConfig.bind(this);
   }
 
   setPathDialog = (field: string) => {
     const file = dialog.showOpenDialogSync({
+      defaultPath: field,
       properties: ['openDirectory']
     });
     if (file) {
       const fields = {};
       // eslint-disable-next-line prefer-destructuring
       fields[field] = file[0];
-      this.setState(fields);
+
+      let type = '';
+      switch (field) {
+        case 'exportDataPath':
+          type = 'Export Data';
+          break;
+        case 'episodePath':
+          type = 'Episodes';
+          break;
+        case 'moviePath':
+          type = 'Movies';
+          break;
+        case 'eventPath':
+          type = 'Sports';
+          break;
+        case 'programPath':
+        default:
+          type = 'Sports';
+      }
+      const message = `${type} exports will appear in ${file[0]}`;
+      const item = {};
+      // eslint-disable-next-line prefer-destructuring
+      item[field] = file[0];
+      this.saveConfigItem(item, { message });
     }
   };
 
-  saveConfig = () => {
-    const cleanState = { ...this.state };
-    cleanState.saveData = [];
-    const invalid = [];
-    let result = SAVE_FAIL;
-    if (cleanState.enableTestDevice) {
-      if (!isValidIp(cleanState.testDeviceIp)) {
-        invalid.push(`Invalid IP Address: ${cleanState.testDeviceIp}`);
-      }
-      if (!cleanState.autoRebuildMinutes) {
-        cleanState.autoRebuildMinutes = defaultConfig.autoRebuildMinutes;
-      }
-    }
+  /** This does the real work... */
+  saveConfigItem = (item: Object, message: FlashRecordType) => {
+    const { sendFlash } = this.props;
 
-    // TODO:  try to validate Export paths?
-    if (invalid.length === 0) {
-      if (Sentry.getCurrentHub().getClient()) {
-        Sentry.getCurrentHub()
-          .getClient()
-          .getOptions().enabled = cleanState.allowErrorReport;
-      } else {
-        console.error('Unable to set Sentry reporting value');
-      }
-
-      setConfig(cleanState);
-
-      // in case they changed the test device.
-      discover();
-      result = SAVE_SUCCESS;
-      setTimeout(() => {
-        this.setState({ saveState: SAVE_NONE });
-      }, 3000);
-    }
-
-    this.setState({ saveState: result, saveData: [] });
-  };
-
-  toggleIpOverride = () => {
-    const { enableTestDevice } = this.state;
-    this.setState({ enableTestDevice: !enableTestDevice });
-  };
-
-  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ testDeviceIp: event.currentTarget.value });
+    this.setState(item);
+    setConfigItem(item);
+    sendFlash(message);
   };
 
   toggleAutoRebuild = () => {
     const { autoRebuild } = this.state;
-    this.setState({ autoRebuild: !autoRebuild });
-    const what = !autoRebuild ? 'on' : 'off';
-    PubSub.publish('FLASH', { msg: `Auto-rebuild turned ${what}` });
+    const message = `Auto-rebuild ${!autoRebuild ? 'enabled' : 'disabled'}`;
+    const type = !autoRebuild ? 'success' : 'warning';
+    this.saveConfigItem({ autoRebuild: !autoRebuild }, { message, type });
+  };
+
+  setAutoRebuildMinutes = (minutes: number | null) => {
+    if (!minutes) return;
+    const message = `DB Rebuild will happen every ${minutes} minutes`;
+    this.saveConfigItem({ autoRebuildMinutes: minutes }, { message });
   };
 
   toggleAutoUpdate = () => {
     const { autoUpdate } = this.state;
-    this.setState({ autoUpdate: !autoUpdate });
-  };
+    const message = `Automatic Updates are now ${
+      !autoUpdate ? 'enabled' : 'disabled'
+    }`;
+    const type = !autoUpdate ? 'success' : 'warning';
 
-  setAutoRebuildMinutes = (minutes: number | null) => {
-    console.log('setAutoRebuildMinutes', minutes);
-    // this.setState({ autoRebuildMinutes: event.currentTarget.value });
-    this.setState({ autoRebuildMinutes: minutes });
+    this.saveConfigItem({ autoUpdate: !autoUpdate }, { message, type });
   };
 
   toggleNotifyBeta = () => {
     const { notifyBeta } = this.state;
-    this.setState({ notifyBeta: !notifyBeta });
+    const message = `Pre-release Notifications will  ${
+      !notifyBeta ? '' : 'no longer'
+    } be shown`;
+    const type = !notifyBeta ? 'success' : 'warning';
+    this.saveConfigItem({ notifyBeta: !notifyBeta }, { message, type });
   };
 
   toggleErrorReport = () => {
     const { allowErrorReport } = this.state;
-    this.setState({ allowErrorReport: !allowErrorReport });
-  };
+    this.setState();
 
-  toggleDataExport = () => {
-    const { enableExportData } = this.state;
-    this.setState({ enableExportData: !enableExportData });
-  };
+    const message = `Error Reporting is now ${
+      !allowErrorReport ? 'enabled' : 'disabled'
+    }`;
+    const type = !allowErrorReport ? 'success' : 'warning';
 
-  toggleEnableDebug = () => {
-    const { enableDebug } = this.state;
-    this.setState({ enableDebug: !enableDebug });
-  };
+    if (Sentry.getCurrentHub().getClient()) {
+      Sentry.getCurrentHub()
+        .getClient()
+        .getOptions().enabled = !allowErrorReport;
+    } else {
+      console.error('Unable to set Sentry reporting value');
+    }
 
-  setExportDataPath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ exportDataPath: event.currentTarget.value });
+    this.saveConfigItem(
+      { allowErrorReport: !allowErrorReport },
+      { message, type }
+    );
   };
 
   setEpisodePath = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -180,6 +174,58 @@ export default class Settings extends Component<Props, ConfigType> {
 
   setProgramPath = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ programPath: event.currentTarget.value });
+  };
+
+  toggleIpOverride = () => {
+    const { enableTestDevice } = this.state;
+
+    const message = `Test Device ${!enableTestDevice ? 'enabled' : 'disabled'}`;
+    const type = !enableTestDevice ? 'success' : 'warning';
+    this.saveConfigItem(
+      { enableTestDevice: !enableTestDevice },
+      { message, type }
+    );
+  };
+
+  saveTestDeviceIp = () => {
+    const { sendFlash } = this.props;
+    const { testDeviceIp } = this.state;
+    if (!isValidIp(testDeviceIp)) {
+      sendFlash({
+        type: 'danger',
+        message: `Invalid IP Address: ${testDeviceIp}`
+      });
+      return;
+    }
+
+    const message = `${testDeviceIp} set as Test Device!`;
+    this.saveConfigItem({ testDeviceIp }, { message });
+    discover();
+  };
+
+  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ testDeviceIp: event.currentTarget.value });
+  };
+
+  toggleDataExport = () => {
+    const { enableExportData } = this.state;
+    const message = `Data Export ${!enableExportData ? 'enabled' : 'disabled'}`;
+    const type = !enableExportData ? 'success' : 'warning';
+    this.saveConfigItem(
+      { enableExportData: !enableExportData },
+      { message, type }
+    );
+  };
+
+  toggleEnableDebug = () => {
+    const { enableDebug } = this.state;
+    const message = `Debug logging ${!enableDebug ? 'enabled' : 'disabled'}`;
+    const type = !enableDebug ? 'success' : 'warning';
+    this.saveConfigItem({ enableDebug: !enableDebug }, { message, type });
+  };
+
+  setExportDataPath = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ exportDataPath: event.currentTarget.value });
   };
 
   render() {
@@ -213,8 +259,10 @@ export default class Settings extends Component<Props, ConfigType> {
         logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
     }
 
-    const openLogs = () =>
+    const openLogs = () => {
+      console.log(path.normalize(`${logsPath}/main.log`));
       shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
+    };
 
     return (
       <div className="scrollable-area">
@@ -345,6 +393,7 @@ export default class Settings extends Component<Props, ConfigType> {
                     type="text"
                     placeholder="Enter IP"
                     onChange={this.setTestDeviceIp}
+                    onBlur={this.saveTestDeviceIp}
                     disabled={!enableTestDevice}
                   />
                 </InputGroup>
@@ -415,7 +464,7 @@ export default class Settings extends Component<Props, ConfigType> {
                 <Button
                   className="p-0 pl-1"
                   variant="link"
-                  onClick={openLogs}
+                  onClick={() => openLogs()}
                   title="Open logs directory"
                 >
                   <span className="pl-2 font-weight-bolder fa fa-external-link-alt text-primary" />
@@ -496,3 +545,9 @@ function Directory(prop) {
     </div>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(FlashActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(null, mapDispatchToProps)(Settings);
