@@ -57,12 +57,16 @@ export default class DurationPicker extends Component<Props, State> {
   };
 
   setHours = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ hours: parseInt(event.currentTarget.value, 10) });
+    const hours = parseInt(event.currentTarget.value, 10);
+    if (hours < 0) return;
+    await this.setState({ hours });
     this.setValue();
   };
 
   setMinutes = async (event: SyntheticEvent<HTMLInputElement>) => {
-    await this.setState({ minutes: parseInt(event.currentTarget.value, 10) });
+    const minutes = parseInt(event.currentTarget.value, 10);
+    if (minutes < 0) return;
+    await this.setState({ minutes });
     this.setValue();
   };
 
