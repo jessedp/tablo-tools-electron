@@ -12,10 +12,10 @@ import Movies from './components/Movies';
 import Programs from './components/Programs';
 import Events from './components/Events';
 import SearchForm from './components/SearchForm';
-import Settings from './components/Settings';
 import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
 import LiveTvPage from './components/LiveTvPage';
+import SettingsPage from './containers/SettingsPage';
 import { hasDevice } from './utils/Tablo';
 
 export default () => {
@@ -44,7 +44,10 @@ export default () => {
         <Route path={routes.PROGRAMS} component={Programs} />
         <Route path={routes.SEARCH} component={SearchForm} />
         <Route path={routes.SELECTED} component={ActionList} />
-        <Route path={routes.SETTINGS} component={Settings} />
+        <Route
+          path={[routes.SETTINGS, routes.FILENAMETPLs]}
+          component={SettingsPage}
+        />
         <Route path={routes.EXPORT} component={VideoExportPage} />
         <Route path={routes.LIVETV} component={LiveTvPage} />
 

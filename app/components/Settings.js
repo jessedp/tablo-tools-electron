@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import path from 'path';
 import * as Sentry from '@sentry/electron';
 
-import Alert from 'react-bootstrap/Alert';
+// import Alert from 'react-bootstrap/Alert';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -180,8 +180,8 @@ export default class Settings extends Component<Props, ConfigType> {
 
   render() {
     const {
-      saveData,
-      saveState,
+      // saveData,
+      // saveState,
       autoRebuild,
       autoRebuildMinutes,
       autoUpdate,
@@ -213,249 +213,222 @@ export default class Settings extends Component<Props, ConfigType> {
       shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
 
     return (
-      <div className="section">
+      <div className="scrollable-area">
         <div>
-          <Alert variant="primary" className="p-2 m-2">
-            <Row>
-              <Col md="2" className="pt-2">
-                <h4 className="pl-2">Settings</h4>
-              </Col>
-              <Col>
-                <Button
-                  size="sm"
-                  className="mt-1 ml-5"
-                  variant="outline-light"
-                  type="button"
-                  onClick={this.saveConfig}
-                >
-                  Save
-                </Button>
-              </Col>
-            </Row>
-          </Alert>
-          <Row>
-            <Col>
-              <SaveStatus invalid={saveData} state={saveState} />
+          <div className="mt-3">
+            <div>
+              <Checkbox
+                handleChange={this.toggleAutoRebuild}
+                checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Enable automatically rebuilding local database?"
+              />
+              <DurationPicker
+                value={autoRebuildMinutes}
+                updateValue={this.setAutoRebuildMinutes}
+                disabled={!autoRebuild}
+              />
+            </div>
+          </div>
+
+          <Row className="mt-3">
+            <Col md="8">
+              <Checkbox
+                handleChange={this.toggleAutoUpdate}
+                checked={autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Enable automatic updates?"
+              />
+              <div className="pl-4 smaller">
+                On Linux and Windows, try to automatically download and install{' '}
+                <b>new releases</b>. Regardless of this setting, a notification
+                will appear when a new release is available (or based on your
+                choice below).
+              </div>
             </Col>
           </Row>
-        </div>
-        <div className="scrollable-area">
-          <div>
-            <div className="mt-3">
-              <div>
-                <Checkbox
-                  handleChange={this.toggleAutoRebuild}
-                  checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
-                  label="Enable automatically rebuilding local database?"
-                />
-                <DurationPicker
-                  value={autoRebuildMinutes}
-                  updateValue={this.setAutoRebuildMinutes}
-                  disabled={!autoRebuild}
-                />
+
+          <Row className="mt-3">
+            <Col>
+              <Checkbox
+                handleChange={this.toggleNotifyBeta}
+                checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
+                label="Show notification of pre-releases (beta, alpha, etc)?"
+              />
+              <div className="pl-4 smaller">
+                Notifications will always be shown for full/normal releases that
+                everyone will want. Windows and Linux will auto-update...
               </div>
-            </div>
+            </Col>
+          </Row>
 
-            <Row className="mt-3">
-              <Col md="8">
-                <Checkbox
-                  handleChange={this.toggleAutoUpdate}
-                  checked={autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
-                  label="Enable automatic updates?"
-                />
-                <div className="pl-4 smaller">
-                  On Linux and Windows, try to automatically download and
-                  install <b>new releases</b>. Regardless of this setting, a
-                  notification will appear when a new release is available (or
-                  based on your choice below).
-                </div>
-              </Col>
-            </Row>
-
-            <Row className="mt-3">
-              <Col>
-                <Checkbox
-                  handleChange={this.toggleNotifyBeta}
-                  checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
-                  label="Show notification of pre-releases (beta, alpha, etc)?"
-                />
-                <div className="pl-4 smaller">
-                  Notifications will always be shown for full/normal releases
-                  that everyone will want. Windows and Linux will auto-update...
-                </div>
-              </Col>
-            </Row>
-
-            <Row className="mt-3">
-              <Col md="8">
-                <Checkbox
-                  handleChange={this.toggleErrorReport}
-                  label="Allow sending Error Reports?"
-                  checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
-                />
-                <div className="pl-4 smaller">
-                  No personal data is collected - this simply notifies of us
-                  errors before you may post about it or even notice a problem.
-                  It does the <i>white screen of death</i> information gathering
-                  for you (and more).
-                </div>
-              </Col>
-            </Row>
-
-            <Row className="p-1 mt-3 mb-2">
-              <Col md="7" className="pt-1 border bg-light">
-                <h6 className="pt-1">Export Paths:</h6>
-              </Col>
-            </Row>
-
-            <Directory
-              label="Series/Episode"
-              onClick={() => this.setPathDialog('episodePath')}
-              onChange={this.setEpisodePath}
-              value={episodePath}
-              disabled={false}
-            />
-            <Directory
-              label="Movie"
-              onClick={() => this.setPathDialog('moviePath')}
-              onChange={this.setMoviePath}
-              value={moviePath}
-              disabled={false}
-            />
-            <Directory
-              label="Sport/Event"
-              onClick={() => this.setPathDialog('eventPath')}
-              onChange={this.setEventPath}
-              value={eventPath}
-              disabled={false}
-            />
-            <Directory
-              label="Manual Recording"
-              onClick={() => this.setPathDialog('programPath')}
-              onChange={this.setProgramPath}
-              value={programPath}
-              disabled={false}
-            />
-            <br />
-
-            <Row className="p-1 mb-2">
-              <Col md="7" className="pt-1 border bg-light">
-                <h6 className="pt-1">Advanced:</h6>
-              </Col>
-            </Row>
-
-            <div style={{ width: '375px' }}>
-              <Row>
-                <Col>
-                  <Checkbox
-                    handleChange={this.toggleIpOverride}
-                    checked={enableTestDevice ? CHECKBOX_ON : CHECKBOX_OFF}
-                    label="Enable Test Device?"
-                  />
-                </Col>
-              </Row>
-              <Row className="m-0 p-0">
-                <Col>
-                  <InputGroup size="sm">
-                    <InputGroup.Prepend>
-                      <InputGroup.Text title="Test Device IP address">
-                        <span className="fa fa-network-wired pr-2" />
-                      </InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <Form.Control
-                      value={testDeviceIp}
-                      type="text"
-                      placeholder="Enter IP"
-                      onChange={this.setTestDeviceIp}
-                      disabled={!enableTestDevice}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
-              <Row className="mt-4">
-                <Col>
-                  <Checkbox
-                    handleChange={this.toggleDataExport}
-                    checked={enableExportData ? CHECKBOX_ON : CHECKBOX_OFF}
-                    label="Export Tablo Data?"
-                  />
-                  <div className="smaller">
-                    Writes out (some of) the raw JSON received from the Tablo to
-                    files.
-                  </div>
-                </Col>
-              </Row>
-            </div>
-            <div>
-              <Row>
-                <Col>
-                  <Directory
-                    label="Export Path"
-                    onClick={() => this.setPathDialog('exportDataPath')}
-                    onChange={this.setExportDataPath}
-                    value={exportDataPath}
-                    disabled={!enableExportData}
-                  />
-                </Col>
-              </Row>
-            </div>
-
-            <Row className="p-1 mb-2 mt-4">
-              <Col md="8" className="pt-1 border bg-warning">
-                <h6 className="pt-1 text-white">DEBUG:</h6>
-              </Col>
-            </Row>
-            <Row className="mt-3">
-              <div className="p-2 pl-4 bg-light border col-md-6">
-                Your settings <span className="smaller">(all of this)</span> are
-                in: <br />
-                <span className="ml-1 text-danger">{CONFIG_FILE_NAME}</span>
-                <br />
-                <i className="smaller">
-                  You can back that up if you want to nuke the app directory but
-                  retain settings. <br />
-                  You probably should not edit it.
-                </i>
+          <Row className="mt-3">
+            <Col md="8">
+              <Checkbox
+                handleChange={this.toggleErrorReport}
+                label="Allow sending Error Reports?"
+                checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
+              />
+              <div className="pl-4 smaller">
+                No personal data is collected - this simply notifies of us
+                errors before you may post about it or even notice a problem. It
+                does the <i>white screen of death</i> information gathering for
+                you (and more).
               </div>
-            </Row>
+            </Col>
+          </Row>
 
-            <Row className="mt-3">
-              <Col>
-                <Checkbox
-                  handleChange={this.toggleEnableDebug}
-                  label="Enable Debug logging"
-                  checked={enableDebug ? CHECKBOX_ON : CHECKBOX_OFF}
-                />
-                <div className="pl-4 smaller">
-                  This doesn&apos;t clean itself up, so turn it off when you
-                  don&apos;t need it and delete the logs files if you want.
-                  <br />
-                </div>
-                <div className="p-2 pl-4 bg-light border col-md-6">
-                  All Logs are in: <br />
-                  <span className="ml-1 text-danger">{logsPath}</span>
-                  <Button
-                    className="p-0 pl-1"
-                    variant="link"
-                    onClick={openLogs}
-                    title="Open logs directory"
-                  >
-                    <span className="pl-2 font-weight-bolder fa fa-external-link-alt text-primary" />
-                  </Button>
-                  <br />
-                  <i className="smaller">
-                    main.log and renderer.log are general internal logs
-                  </i>
-                </div>
-              </Col>
-            </Row>
+          <Row className="p-1 mt-3 mb-2">
+            <Col md="7" className="pt-1 border bg-light">
+              <h6 className="pt-1">Export Paths:</h6>
+            </Col>
+          </Row>
 
+          <Directory
+            label="Series/Episode"
+            onClick={() => this.setPathDialog('episodePath')}
+            onChange={this.setEpisodePath}
+            value={episodePath}
+            disabled={false}
+          />
+          <Directory
+            label="Movie"
+            onClick={() => this.setPathDialog('moviePath')}
+            onChange={this.setMoviePath}
+            value={moviePath}
+            disabled={false}
+          />
+          <Directory
+            label="Sport/Event"
+            onClick={() => this.setPathDialog('eventPath')}
+            onChange={this.setEventPath}
+            value={eventPath}
+            disabled={false}
+          />
+          <Directory
+            label="Manual Recording"
+            onClick={() => this.setPathDialog('programPath')}
+            onChange={this.setProgramPath}
+            value={programPath}
+            disabled={false}
+          />
+          <br />
+
+          <Row className="p-1 mb-2">
+            <Col md="7" className="pt-1 border bg-light">
+              <h6 className="pt-1">Advanced:</h6>
+            </Col>
+          </Row>
+
+          <div style={{ width: '375px' }}>
             <Row>
               <Col>
-                <ExportData />
+                <Checkbox
+                  handleChange={this.toggleIpOverride}
+                  checked={enableTestDevice ? CHECKBOX_ON : CHECKBOX_OFF}
+                  label="Enable Test Device?"
+                />
+              </Col>
+            </Row>
+            <Row className="m-0 p-0">
+              <Col>
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text title="Test Device IP address">
+                      <span className="fa fa-network-wired pr-2" />
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <Form.Control
+                    value={testDeviceIp}
+                    type="text"
+                    placeholder="Enter IP"
+                    onChange={this.setTestDeviceIp}
+                    disabled={!enableTestDevice}
+                  />
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row className="mt-4">
+              <Col>
+                <Checkbox
+                  handleChange={this.toggleDataExport}
+                  checked={enableExportData ? CHECKBOX_ON : CHECKBOX_OFF}
+                  label="Export Tablo Data?"
+                />
+                <div className="smaller">
+                  Writes out (some of) the raw JSON received from the Tablo to
+                  files.
+                </div>
               </Col>
             </Row>
           </div>
+          <div>
+            <Row>
+              <Col>
+                <Directory
+                  label="Export Path"
+                  onClick={() => this.setPathDialog('exportDataPath')}
+                  onChange={this.setExportDataPath}
+                  value={exportDataPath}
+                  disabled={!enableExportData}
+                />
+              </Col>
+            </Row>
+          </div>
+
+          <Row className="p-1 mb-2 mt-4">
+            <Col md="8" className="pt-1 border bg-warning">
+              <h6 className="pt-1 text-white">DEBUG:</h6>
+            </Col>
+          </Row>
+          <Row className="mt-3">
+            <div className="p-2 pl-4 bg-light border col-md-6">
+              Your settings <span className="smaller">(all of this)</span> are
+              in: <br />
+              <span className="ml-1 text-danger">{CONFIG_FILE_NAME}</span>
+              <br />
+              <i className="smaller">
+                You can back that up if you want to nuke the app directory but
+                retain settings. <br />
+                You probably should not edit it.
+              </i>
+            </div>
+          </Row>
+
+          <Row className="mt-3">
+            <Col>
+              <Checkbox
+                handleChange={this.toggleEnableDebug}
+                label="Enable Debug logging"
+                checked={enableDebug ? CHECKBOX_ON : CHECKBOX_OFF}
+              />
+              <div className="pl-4 smaller">
+                This doesn&apos;t clean itself up, so turn it off when you
+                don&apos;t need it and delete the logs files if you want.
+                <br />
+              </div>
+              <div className="p-2 pl-4 bg-light border col-md-6">
+                All Logs are in: <br />
+                <span className="ml-1 text-danger">{logsPath}</span>
+                <Button
+                  className="p-0 pl-1"
+                  variant="link"
+                  onClick={openLogs}
+                  title="Open logs directory"
+                >
+                  <span className="pl-2 font-weight-bolder fa fa-external-link-alt text-primary" />
+                </Button>
+                <br />
+                <i className="smaller">
+                  main.log and renderer.log are general internal logs
+                </i>
+              </div>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <ExportData />
+            </Col>
+          </Row>
         </div>
       </div>
     );
@@ -465,24 +438,24 @@ export default class Settings extends Component<Props, ConfigType> {
 /**
  * @return {string}
  */
-function SaveStatus(prop) {
-  const { state, invalid } = prop;
+// function SaveStatus(prop) {
+//   const { state, invalid } = prop;
 
-  if (state === SAVE_NONE) return '';
+//   if (state === SAVE_NONE) return '';
 
-  if (state === SAVE_SUCCESS) {
-    return <Alert variant="success">Settings Saved!</Alert>;
-  }
+//   if (state === SAVE_SUCCESS) {
+//     return <Alert variant="success">Settings Saved!</Alert>;
+//   }
 
-  return (
-    <Alert variant="danger">
-      Errors occurred saving Settings!
-      {invalid.map(item => (
-        <li>{item}</li>
-      ))}
-    </Alert>
-  );
-}
+//   return (
+//     <Alert variant="danger">
+//       Errors occurred saving Settings!
+//       {invalid.map(item => (
+//         <li>{item}</li>
+//       ))}
+//     </Alert>
+//   );
+// }
 
 function Directory(prop) {
   const { label, value, onClick, onChange, disabled } = prop;

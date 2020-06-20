@@ -9,6 +9,7 @@
   "PROGRAMS": "/programs",
   "SEARCH": "/search",
   "SETTINGS": "/settings",
+  "FILENAMETPLs": "/settings/filename-templates",
   "EXPORT": "/export",
   "DELETE": "/delete",
   "SELECTED": "/selected",
