@@ -5,10 +5,6 @@ import { bindActionCreators } from 'redux';
 import path from 'path';
 import * as Sentry from '@sentry/electron';
 
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import * as FlashActions from '../actions/flash';
@@ -19,6 +15,7 @@ import { discover } from '../utils/Tablo';
 import getConfig, { ConfigType, setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
+import Directory from '../Directory';
 
 type Props = { sendFlash: (message: FlashRecordType) => void };
 
@@ -338,42 +335,6 @@ class SettingsGeneral extends Component<Props, ConfigType> {
       </div>
     );
   }
-}
-
-function Directory(prop) {
-  const { label, value, onClick, onChange, disabled } = prop;
-
-  return (
-    <div className="d-flex flex-row">
-      <div>
-        <InputGroup size="sm">
-          <InputGroup.Prepend>
-            <InputGroup.Text title={label} style={{ width: '110px' }}>
-              {label}
-            </InputGroup.Text>
-          </InputGroup.Prepend>
-          <Form.Control
-            type="text"
-            value={value}
-            placeholder={`Enter ${label}`}
-            style={{ width: '350px' }}
-            onChange={onChange}
-            disabled={disabled}
-          />
-          <InputGroup.Append>
-            <Button
-              size="xs"
-              variant="outline-secondary"
-              onClick={onClick}
-              disabled={disabled}
-            >
-              <span className="fa fa-folder-open" />
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
-      </div>
-    </div>
-  );
 }
 
 const mapDispatchToProps = dispatch => {
