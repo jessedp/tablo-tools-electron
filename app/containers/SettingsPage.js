@@ -11,7 +11,8 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import routes from '../constants/routes.json';
 
-import Settings from '../components/Settings';
+import SettingsGeneral from '../components/SettingsGeneral';
+import SettingsAdvanced from '../components/SettingsAdvanced';
 
 type Props = { location: any };
 
@@ -21,8 +22,11 @@ class SettingsPage extends Component<Props> {
   render() {
     const { location } = this.props;
 
-    let content = <Settings />;
+    let content = <SettingsGeneral />;
     switch (location.pathname) {
+      case routes.ADVSETTINGS:
+        content = <SettingsAdvanced />;
+        break;
       case routes.FILENAMETPLs:
         content = 'test!';
         break;
@@ -43,7 +47,10 @@ class SettingsPage extends Component<Props> {
               </Col>
               <Col>
                 <ButtonGroup className="pt-1">
-                  <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+                  <LinkContainer
+                    activeClassName="active"
+                    to={routes.GENSETTINGS}
+                  >
                     <Button size="sm" variant="light" as="button" title="Home">
                       General
                     </Button>
@@ -61,6 +68,14 @@ class SettingsPage extends Component<Props> {
                       Naming
                     </Button>
                   </LinkContainer>
+                  <LinkContainer
+                    activeClassName="active"
+                    to={routes.ADVSETTINGS}
+                  >
+                    <Button size="sm" variant="light" as="button" title="Home">
+                      Advaned
+                    </Button>
+                  </LinkContainer>
                 </ButtonGroup>
               </Col>
             </Row>
@@ -70,7 +85,7 @@ class SettingsPage extends Component<Props> {
           </Row>
         </div>
 
-        {content}
+        <div className="scrollable-area">{content}</div>
       </div>
     );
   }

@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import path from 'path';
 import * as Sentry from '@sentry/electron';
 
-// import Alert from 'react-bootstrap/Alert';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -24,13 +23,12 @@ import getConfig, {
 } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
-import DurationPicker from './DurationPicker';
 
 type Props = { sendFlash: (message: FlashRecordType) => void };
 
 const { app, shell, dialog } = require('electron').remote;
 
-class Settings extends Component<Props, ConfigType> {
+class SettingsAdvanced extends Component<Props, ConfigType> {
   props: Props;
 
   constructor() {
@@ -40,10 +38,6 @@ class Settings extends Component<Props, ConfigType> {
 
     this.state = storedState;
 
-    this.setEpisodePath = this.setEpisodePath.bind(this);
-    this.setMoviePath = this.setMoviePath.bind(this);
-    this.setEventPath = this.setEventPath.bind(this);
-    this.setProgramPath = this.setProgramPath.bind(this);
     this.setPathDialog = this.setPathDialog.bind(this);
 
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
@@ -67,6 +61,7 @@ class Settings extends Component<Props, ConfigType> {
     });
     if (file) {
       const fields = {};
+
       // eslint-disable-next-line prefer-destructuring
       fields[field] = file[0];
 
@@ -90,14 +85,17 @@ class Settings extends Component<Props, ConfigType> {
       }
       const message = `${type} exports will appear in ${file[0]}`;
       const item = {};
+
       // eslint-disable-next-line prefer-destructuring
       item[field] = file[0];
       this.saveConfigItem(item, { message });
     }
   };
 
-  /** This does the real work... */
-  saveConfigItem = (item: Object, message: FlashRecordType) => {
+  /** This does the real work... */ saveConfigItem = (
+    item: Object,
+    message: FlashRecordType
+  ) => {
     const { sendFlash } = this.props;
 
     this.setState(item);
@@ -160,22 +158,6 @@ class Settings extends Component<Props, ConfigType> {
     );
   };
 
-  setEpisodePath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ episodePath: event.currentTarget.value });
-  };
-
-  setMoviePath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ moviePath: event.currentTarget.value });
-  };
-
-  setEventPath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ eventPath: event.currentTarget.value });
-  };
-
-  setProgramPath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ programPath: event.currentTarget.value });
-  };
-
   toggleIpOverride = () => {
     const { enableTestDevice } = this.state;
 
@@ -230,28 +212,15 @@ class Settings extends Component<Props, ConfigType> {
 
   render() {
     const {
-      // saveData,
-      // saveState,
-      autoRebuild,
-      autoRebuildMinutes,
-      autoUpdate,
-      notifyBeta,
-      allowErrorReport,
       enableTestDevice,
       testDeviceIp,
       enableExportData,
       exportDataPath,
-      enableDebug,
-      episodePath,
-      moviePath,
-      eventPath,
-      programPath
+      enableDebug
     } = this.state;
 
     let logsPath = app.getPath('logs');
 
-    // TODO: This has to be an Electron (8) bug
-    //  Name (might) double up, so replace it
     const test = new RegExp(`${app.name}`, 'g');
     const mat = logsPath.match(test);
     if (mat && mat.length > 1) {
@@ -265,111 +234,8 @@ class Settings extends Component<Props, ConfigType> {
     };
 
     return (
-      <div className="scrollable-area">
-        <div>
-          <div className="mt-3">
-            <div>
-              <Checkbox
-                handleChange={this.toggleAutoRebuild}
-                checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Enable automatically rebuilding local database?"
-              />
-              <DurationPicker
-                value={autoRebuildMinutes}
-                updateValue={this.setAutoRebuildMinutes}
-                disabled={!autoRebuild}
-              />
-            </div>
-          </div>
-
-          <Row className="mt-3">
-            <Col md="8">
-              <Checkbox
-                handleChange={this.toggleAutoUpdate}
-                checked={autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Enable automatic updates?"
-              />
-              <div className="pl-4 smaller">
-                On Linux and Windows, try to automatically download and install{' '}
-                <b>new releases</b>. Regardless of this setting, a notification
-                will appear when a new release is available (or based on your
-                choice below).
-              </div>
-            </Col>
-          </Row>
-
-          <Row className="mt-3">
-            <Col>
-              <Checkbox
-                handleChange={this.toggleNotifyBeta}
-                checked={notifyBeta ? CHECKBOX_ON : CHECKBOX_OFF}
-                label="Show notification of pre-releases (beta, alpha, etc)?"
-              />
-              <div className="pl-4 smaller">
-                Notifications will always be shown for full/normal releases that
-                everyone will want. Windows and Linux will auto-update...
-              </div>
-            </Col>
-          </Row>
-
-          <Row className="mt-3">
-            <Col md="8">
-              <Checkbox
-                handleChange={this.toggleErrorReport}
-                label="Allow sending Error Reports?"
-                checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
-              />
-              <div className="pl-4 smaller">
-                No personal data is collected - this simply notifies of us
-                errors before you may post about it or even notice a problem. It
-                does the <i>white screen of death</i> information gathering for
-                you (and more).
-              </div>
-            </Col>
-          </Row>
-
-          <Row className="p-1 mt-3 mb-2">
-            <Col md="7" className="pt-1 border bg-light">
-              <h6 className="pt-1">Export Paths:</h6>
-            </Col>
-          </Row>
-
-          <Directory
-            label="Series/Episode"
-            onClick={() => this.setPathDialog('episodePath')}
-            onChange={this.setEpisodePath}
-            value={episodePath}
-            disabled={false}
-          />
-          <Directory
-            label="Movie"
-            onClick={() => this.setPathDialog('moviePath')}
-            onChange={this.setMoviePath}
-            value={moviePath}
-            disabled={false}
-          />
-          <Directory
-            label="Sport/Event"
-            onClick={() => this.setPathDialog('eventPath')}
-            onChange={this.setEventPath}
-            value={eventPath}
-            disabled={false}
-          />
-          <Directory
-            label="Manual Recording"
-            onClick={() => this.setPathDialog('programPath')}
-            onChange={this.setProgramPath}
-            value={programPath}
-            disabled={false}
-          />
-          <br />
-
-          <Row className="p-1 mb-2">
-            <Col md="7" className="pt-1 border bg-light">
-              <h6 className="pt-1">Advanced:</h6>
-            </Col>
-          </Row>
-
+      <div className="d-flex flex-row">
+        <div className="mt-3">
           <div style={{ width: '375px' }}>
             <Row>
               <Col>
@@ -426,7 +292,6 @@ class Settings extends Component<Props, ConfigType> {
               </Col>
             </Row>
           </div>
-
           <Row className="p-1 mb-2 mt-4">
             <Col md="8" className="pt-1 border bg-warning">
               <h6 className="pt-1 text-white">DEBUG:</h6>
@@ -445,7 +310,6 @@ class Settings extends Component<Props, ConfigType> {
               </i>
             </div>
           </Row>
-
           <Row className="mt-3">
             <Col>
               <Checkbox
@@ -476,7 +340,6 @@ class Settings extends Component<Props, ConfigType> {
               </div>
             </Col>
           </Row>
-
           <Row>
             <Col>
               <ExportData />
@@ -550,4 +413,7 @@ const mapDispatchToProps = dispatch => {
   return bindActionCreators(FlashActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(null, mapDispatchToProps)(Settings);
+export default connect<*, *, *, *, *, *>(
+  null,
+  mapDispatchToProps
+)(SettingsAdvanced);
