@@ -13,6 +13,7 @@ import routes from '../constants/routes.json';
 
 import SettingsGeneral from '../components/SettingsGeneral';
 import SettingsAdvanced from '../components/SettingsAdvanced';
+import SettingsNaming from '../components/SettingsNaming';
 
 type Props = { location: any };
 
@@ -28,14 +29,10 @@ class SettingsPage extends Component<Props> {
         content = <SettingsAdvanced />;
         break;
       case routes.FILENAMETPLs:
-        content = 'test!';
+        content = <SettingsNaming />;
         break;
       default:
     }
-
-    // if (location.pathname === routes.SHOWS) {
-    //   ddClass = 'primary';
-    // }
 
     return (
       <div className="section">
