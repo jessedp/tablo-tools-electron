@@ -33,8 +33,14 @@ class SettingsNaming extends Component<Props, State> {
 
   builtIns: {};
 
+  patternRefs: {};
+
+  lastKey: string;
+
   constructor() {
     super();
+    this.lastKey = '';
+    this.patternRefs = {};
 
     this.state = {
       examples: {},
@@ -44,7 +50,6 @@ class SettingsNaming extends Component<Props, State> {
 
     this.setValue = this.setValue.bind(this);
     this.selectJson = this.selectJson.bind(this);
-    // this.setExportDataPath = this.setExportDataPath.bind(this);
   }
 
   componentDidMount = async () => {
@@ -124,20 +129,63 @@ class SettingsNaming extends Component<Props, State> {
     this.setState({ pattern });
   };
 
-  setValue = (event: SyntheticEvent<HTMLInputElement>, idx: number) => {
-    console.log(event);
-    const { pattern } = this.state;
-    pattern[idx] = event.currentTarget.value;
-    // save the cursor location so we can insert there later
-    const location = { idx, position: event.currentTarget.selectionStart };
-    console.log('location', location);
-    this.setState({ location, pattern });
+  setValue = (event: SyntheticKeyboardEvent<HTMLInputElement>, idx: number) => {
+    let { location } = this.state;
+    let { pattern } = this.state;
+    pattern = [...pattern];
+    const prev = idx - 1;
+    const next = idx + 1;
+
+    let { value } = event.currentTarget;
+    value = value.replace(fsPath.sep, '');
+
+    const selStart = event.currentTarget.selectionStart;
+    let resetLastKey = false;
+    if (typeof event.key !== 'undefined') {
+      if (event.key === fsPath.sep) {
+        const p1 = value
+          .slice(0, location.position - 1)
+          .replace(fsPath.sep, '')
+          .trim();
+        const p2 = value
+          .slice(location.position - 1)
+          .replace(fsPath.sep, '')
+          .trim();
+
+        pattern[idx] = p1;
+        pattern.splice(next, 0, p2);
+        this.setState({ pattern });
+        setTimeout(() => this.patternRefs[next].current.focus(), 100);
+      } else if (event.key === 'Backspace' && idx !== 1) {
+        // delete key, empty input
+        if (value.trim() === '' || this.lastKey === 'Backspace') {
+          pattern[prev] = `${pattern[prev].trim()} ${pattern[idx].trim()}`;
+          pattern.splice(idx, 1);
+          this.patternRefs[prev].current.focus();
+          this.setState({ pattern });
+          resetLastKey = true;
+        } else {
+          resetLastKey = false;
+        }
+      } else {
+        pattern[idx] = value;
+        this.setState({ pattern });
+      }
+
+      this.lastKey = event.key;
+      if (resetLastKey) this.lastKey = 'RESET';
+    } else {
+      pattern[idx] = value;
+      // save the cursor location so we can insert there later
+      location = { idx, position: selStart };
+      this.setState({ location, pattern });
+    }
   };
 
   render() {
     const { examples, pattern } = this.state;
 
-    // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
+    // {{episodePath}}/{{showTitle}}/Season {{seasonNum}]/{{showTitle}} - {{this.episodeNum}}.{{EXT}}
 
     // episodePattern.forEach(item => console.log(typeof item));
 
@@ -152,9 +200,17 @@ class SettingsNaming extends Component<Props, State> {
     let ext = pattern[pattern.length - 1];
     const sanitizedParts = pattern.map((value, idx) => {
       // Handlebars.helpers = helpers;
+      let part = value;
       const template = Handlebars.compile(value);
-      console.log('helpers', template.knownHelpers);
-      const part = template(dataObj);
+      // console.log('helpers', template.knownHelpers);
+      // console.log(idx, 'val', value);
+
+      try {
+        part = template(dataObj);
+      } catch (e) {
+        // set part = value (above)
+        console.warn('Handlebars unable to parse', e);
+      }
 
       if (idx === 0) return part;
       if (idx === pattern.length - 1) {
@@ -189,6 +245,7 @@ class SettingsNaming extends Component<Props, State> {
         </Row>
         <div className="d-flex flex-row">
           {pattern.map((val, idx, arr) => {
+            this.patternRefs[idx] = React.createRef();
             const key = `name-segment-${idx}`;
             return (
               <>
@@ -198,6 +255,7 @@ class SettingsNaming extends Component<Props, State> {
                   setValue={this.setValue}
                   key={key}
                   arr={arr}
+                  localRef={this.patternRefs[idx]}
                 />
               </> //
             );
@@ -215,11 +273,12 @@ type SegmentPropType = {
   idx: number,
   value: string,
   arr: Array<any>,
-  setValue: (evt: any, idx: number) => void
+  setValue: (evt: any, idx: number) => void,
+  localRef: any
 };
 
 const NameSegment = (prop: SegmentPropType) => {
-  const { idx, value, arr, setValue } = prop;
+  const { idx, value, arr, setValue, localRef } = prop;
   let disabled = false;
 
   const isNextToLast = arr.length === idx + 2;
@@ -229,16 +288,18 @@ const NameSegment = (prop: SegmentPropType) => {
   const content = (
     <>
       <input
+        key={`name-input-${idx}`}
         value={value}
         type="text"
+        onKeyUp={evt => setValue(evt, idx)}
         onFocus={evt => setValue(evt, idx)}
         onBlur={evt => setValue(evt, idx)}
         onChange={evt => setValue(evt, idx)}
         onMouseDown={evt => setValue(evt, idx)}
-        onKeyPress={evt => setValue(evt, idx)}
         disabled={disabled}
         className="segment-input"
-        size={value.length - 4}
+        size={value.length}
+        ref={localRef}
       />
 
       {isNextToLast ? <span className="segment-delim">.</span> : ''}
