@@ -9,7 +9,6 @@ import ReactJson from 'react-json-view';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-// import * as helpers from 'handlebars-helpers';
 
 import * as FlashActions from '../actions/flash';
 // import type { FlashRecordType } from '../reducers/types';
@@ -18,6 +17,8 @@ import deepFilter from '../utils/deepFilter';
 import getConfig from '../utils/config';
 import Airing from '../utils/Airing';
 
+// const helpers = require('handlebars-helpers');
+const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
 
 type Props = {};
@@ -126,7 +127,9 @@ class SettingsNaming extends Component<Props, State> {
     const p1 = pattern[location.idx].slice(0, location.position);
     const p3 = pattern[location.idx].slice(location.position);
     pattern[location.idx] = `${p1}${tag}${p3}`;
+
     this.setState({ pattern });
+    setTimeout(() => this.patternRefs[location.idx].current.focus(), 100);
   };
 
   setValue = (event: SyntheticKeyboardEvent<HTMLInputElement>, idx: number) => {
@@ -137,28 +140,23 @@ class SettingsNaming extends Component<Props, State> {
     const next = idx + 1;
 
     let { value } = event.currentTarget;
-    value = value.replace(fsPath.sep, '');
+    value = value.replace(fsPath.sep, '').trim();
 
     const selStart = event.currentTarget.selectionStart;
     let resetLastKey = false;
 
     if (typeof event.key !== 'undefined') {
       if (event.key === fsPath.sep) {
-        const p1 = value
-          .slice(0, location.position - 1)
-          .replace(fsPath.sep, '')
-          .trim();
-        const p2 = value
-          .slice(location.position - 1)
-          .replace(fsPath.sep, '')
-          .trim();
+        // forward/backslash splits segments
+        const p1 = value.slice(0, location.position - 1).trim();
+        const p2 = value.slice(location.position - 1).trim();
 
         pattern[idx] = p1;
         pattern.splice(next, 0, p2);
         this.setState({ pattern });
         setTimeout(() => this.patternRefs[next].current.focus(), 100);
       } else if (event.key === 'Backspace' && idx !== 1) {
-        // delete key, empty input
+        // backspace to recombines segments
         if (
           value.trim() === '' ||
           (this.lastKey === 'Backspace' && selStart === 0)
@@ -191,22 +189,16 @@ class SettingsNaming extends Component<Props, State> {
 
     // {{episodePath}}/{{showTitle}}/Season {{seasonNum}]/{{showTitle}} - {{this.episodeNum}}.{{EXT}}
 
-    // episodePattern.forEach(item => console.log(typeof item));
-
-    // console.log('episodePattern', episodePattern);
-    // console.log('episodePattern', episodePattern.join('/'));
-
-    // execute the compiled template and print the output to the console
     if (!pattern) return <></>; //
 
     const dataObj = { ...this.builtIns, ...examples[SERIES] };
 
     let ext = pattern[pattern.length - 1];
     const sanitizedParts = pattern.map((value, idx) => {
-      // Handlebars.helpers = helpers;
+      Handlebars.registerHelper(helpers);
       let part = value;
       const template = Handlebars.compile(value);
-      // console.log('helpers', template.knownHelpers);
+      console.log('helpers', template.knownHelpers);
       // console.log(idx, 'val', value);
 
       try {
@@ -302,7 +294,7 @@ const NameSegment = (prop: SegmentPropType) => {
         onMouseDown={evt => setValue(evt, idx)}
         disabled={disabled}
         className="segment-input"
-        size={value.length}
+        size={value.length - 2}
         ref={localRef}
       />
 

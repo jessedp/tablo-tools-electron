@@ -284,7 +284,6 @@
     "ffmpeg-static-electron-jdp": "^2.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "handlebars": "^4.7.6",
-    "handlebars-helpers": "^0.10.0",
     "history": "^4.10.1",
     "hls.js": "^0.12.4",
     "jquery": "^3.4.1",
@@ -316,6 +315,7 @@
     "source-map-support": "^0.5.16",
     "styled-components": "^5.1.0",
     "tablo-api": "^0.4.3",
+    "template-helpers": "^1.0.1",
     "video-react": "^0.14.1"
   },
   "resolutions": {
