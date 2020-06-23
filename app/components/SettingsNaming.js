@@ -141,6 +141,7 @@ class SettingsNaming extends Component<Props, State> {
 
     const selStart = event.currentTarget.selectionStart;
     let resetLastKey = false;
+
     if (typeof event.key !== 'undefined') {
       if (event.key === fsPath.sep) {
         const p1 = value
@@ -158,7 +159,10 @@ class SettingsNaming extends Component<Props, State> {
         setTimeout(() => this.patternRefs[next].current.focus(), 100);
       } else if (event.key === 'Backspace' && idx !== 1) {
         // delete key, empty input
-        if (value.trim() === '' || this.lastKey === 'Backspace') {
+        if (
+          value.trim() === '' ||
+          (this.lastKey === 'Backspace' && selStart === 0)
+        ) {
           pattern[prev] = `${pattern[prev].trim()} ${pattern[idx].trim()}`;
           pattern.splice(idx, 1);
           this.patternRefs[prev].current.focus();
