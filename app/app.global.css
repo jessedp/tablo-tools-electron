@@ -77,6 +77,13 @@
   transition: visibility 0s 1.5s, opacity 1.5s linear;
 }
 
+.template-input {
+  font-size: 14px;
+  padding: 0 5px 0 5px;
+  border: 0;
+  border-bottom: #777 dashed 1px;
+}
+
 .segment-input {
   font-size: 14px;
   padding: 0 5px 0 5px;
