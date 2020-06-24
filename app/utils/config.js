@@ -29,18 +29,28 @@ export const CONFIG_FILE_NAME = path.normalize(
 export type ConfigType = {
   autoRebuild: boolean,
   autoRebuildMinutes: number,
+
   autoUpdate: boolean,
   notifyBeta: boolean,
+
   episodePath: string,
   moviePath: string,
   eventPath: string,
   programPath: string,
+
   enableTestDevice: boolean,
   testDeviceIp: string,
+
   enableExportData: boolean,
   exportDataPath: string,
   allowErrorReport: boolean,
   enableDebug: boolean,
+
+  episodeTemplte: string,
+  movieTemplate: string,
+  eventTemplate: string,
+  programTemplate: string,
+
   // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number,
   saveData: Array<string>
@@ -49,18 +59,31 @@ export type ConfigType = {
 export const defaultConfig: ConfigType = {
   autoRebuild: true,
   autoRebuildMinutes: 30,
+
   autoUpdate: true,
   notifyBeta: false,
+
   episodePath: path.normalize(`${os.homedir()}/TabloRecordings/TV`),
   moviePath: path.normalize(`${os.homedir()}/TabloRecordings/Movies`),
   eventPath: path.normalize(`${os.homedir()}/TabloRecordings/Events`),
   programPath: path.normalize(`${os.homedir()}/TabloRecordings/`),
+
   enableTestDevice: false,
   testDeviceIp: '',
+
   enableExportData: false,
   exportDataPath: path.normalize(`${os.tmpdir()}/tablo-data/`),
   allowErrorReport: true,
   enableDebug: false,
+
+  episodeTemplate:
+    '{{episodePath}}/{{showTitle}}/Season {{seasonNum}]/{{showTitle}} - {{this.episodeNum}}.{{EXT}}',
+  movieTemplate:
+    '{{moviePath}}/{{title}} - {{movie_airing.release_year}}.{{EXT}}',
+  eventTemplate: '{{eventPath}}/{{season}} - {{title}}.{{EXT}}',
+  programTemplate:
+    '{{programPath}}/{{title}}-{{airing_details.datetime}}.{{EXT}}',
+
   saveData: []
 };
 
