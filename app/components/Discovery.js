@@ -165,9 +165,7 @@ function DiscoveryTitle(prop) {
     checked = new Date(device.inserted);
     return (
       <>
-        <span>
-          Since: <RelativeDate date={checked} />
-        </span>
+        <span>Since: {checked ? <RelativeDate date={checked} /> : ''}</span>
         <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
           Rediscover
         </Button>
