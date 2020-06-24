@@ -23,7 +23,7 @@ import getConfig, {
 } from '../utils/config';
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
-import Directory from '../Directory';
+import Directory from './Directory';
 
 type Props = { sendFlash: (message: FlashRecordType) => void };
 

@@ -15,7 +15,7 @@ import { discover } from '../utils/Tablo';
 import getConfig, { ConfigType, setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
-import Directory from '../Directory';
+import Directory from './Directory';
 
 type Props = { sendFlash: (message: FlashRecordType) => void };
 
