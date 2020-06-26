@@ -77,6 +77,11 @@
   transition: visibility 0s 1.5s, opacity 1.5s linear;
 }
 
+.naming-tpl-header {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 .template-input {
   font-size: 14px;
   padding: 0 5px 0 5px;
@@ -100,10 +105,21 @@
   font-family: monospace;
   font-size: 12px;
   font-weight: bold;
+  width: 95%;
+  display: inline-block;
+  background-color: #e0ecff;
 }
 
 .text-success {
   color: #28a745 !important;
+}
+
+.btn-outline-success {
+  color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+.btn-success {
+  background-color: #28a745 !important;
 }
 
 .export-alert {

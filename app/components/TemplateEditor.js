@@ -3,97 +3,136 @@
 import React, { Component } from 'react';
 
 import AceEditor from 'react-ace';
+import ReactJson from 'react-json-view';
 
 // import 'ace-builds/webpack-resolver';
 
 import 'ace-builds/src-noconflict/mode-handlebars';
 import 'ace-builds/src-noconflict/theme-kuroir';
+import 'ace-builds/src-noconflict/theme-textmate';
 import 'ace-builds/src-noconflict/ext-language_tools';
-// import ace from 'ace-builds/src-noconflict/ace';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
-// ace.config.set('basePath', '');
-
-// const defaultValue = `{{episodePath}}/{{showTitle}}/Season {{seasonNum}]/{{showTitle}} - {{this.episodeNum}}.{{EXT}}`;
-
-// require(`ace-builds/src-noconflict/mode-handlebars`);
-// require(`ace-builds/src-noconflict/theme-github`);
-
-type Props = { value: string, updateValue: (value: string) => void };
-type State = { workingValue: string };
+type Props = {
+  value: string,
+  data: Object,
+  updateValue: (value: string) => void
+};
+type State = {
+  workingValue: string,
+  position: { column: number, row: number }
+};
 
 class TemplateEditor extends Component<Props, State> {
-  constructor(props) {
+  editorRef: any;
+
+  constructor(props: Props) {
     super(props);
-    this.state = { workingValue: props.value };
-
-    this.onChange = this.onChange.bind(this);
+    this.editorRef = React.createRef();
+    this.state = { workingValue: props.value, position: { column: 0, row: 0 } };
+    (this: any).onCursorChange = this.onCursorChange.bind(this);
+    (this: any).onChange = this.onChange.bind(this);
+    (this: any).selectJson = this.selectJson.bind(this);
   }
 
-  onLoad() {
-    console.log("i've loaded");
-    this.noop();
+  selectJson(node: Object) {
+    const { updateValue } = this.props;
+    const { position } = this.state;
+    let { workingValue } = this.state;
+    // if (location.idx < 0) return;
+    console.log('LEN', node.namespace.length);
+    console.log('NAME', node.name);
+    console.log('NS', node.namespace);
+    let path = node.name; // ;
+    if (node.namespace.length) {
+      const start = node.namespace.join('.');
+      path = `${start}.${path}`;
+    }
+
+    const tag = `{{${path}}}`;
+
+    const p1 = workingValue.slice(0, position.column);
+    const p3 = workingValue.slice(position.column);
+    workingValue = `${p1}${tag}${p3}`;
+    this.setState({ workingValue });
+    updateValue(workingValue);
   }
 
-  onChange = (value: string) => {
+  onChange(value: string) {
     const { updateValue } = this.props;
 
     const workingValue = value.trim();
-    console.log('change', workingValue);
+    // console.log('change', value, workingValue);
     this.setState({ workingValue });
     updateValue(workingValue);
-  };
-
-  onSelectionChange(newValue, event) {
-    console.log('select-change', newValue);
-    console.log('select-change-event', event);
-    this.noop();
   }
 
-  onCursorChange(newValue, event) {
-    console.log('cursor-change', newValue);
-    console.log('cursor-change-event', event);
-    this.noop();
-  }
+  // onSelectionChange(newValue, event) {
+  //   this.session = newValue;
+  //   console.log('select-change', newValue);
+  //   console.log('select-change-event', event);
+  // }
+  // // newValue|select.cursor.column
 
-  onValidate(annotations) {
-    console.log('onValidate', annotations);
-    this.noop();
-  }
+  onCursorChange(newValue: any) {
+    // console.log('cursor-change', newValue);
+    // console.log('cursor-change-event', event);
 
-  noop = () => {};
+    const position = {
+      column: newValue.cursor.column,
+      row: newValue.cursor.row
+    };
+    this.setState({ position });
+  }
 
   render() {
+    const { data } = this.props;
     const { workingValue } = this.state;
     return (
-      <div className="columns">
-        <div className="examples column border m-2">
-          <AceEditor
-            placeholder="Start entering a template..."
-            width="900px"
-            lineHeight="30px"
-            minLines={2}
-            maxLines={2}
-            mode="handlebars"
-            theme="kuroir"
-            name="blah2"
-            onLoad={this.onLoad}
-            onChange={this.onChange}
-            onSelectionChange={this.onSelectionChange}
-            onCursorChange={this.onCursorChange}
-            onValidate={this.onValidate}
-            value={workingValue}
-            fontSize="16px"
-            showPrintMargin={false}
-            showGutter={false}
-            highlightActiveLine={false}
-            setOptions={{
-              useWorker: false,
-              showLineNumbers: false,
-              tabSize: 2
-            }}
-          />
-        </div>
-      </div>
+      <>
+        <Row>
+          <Col>
+            <ReactJson
+              src={data}
+              onSelect={this.selectJson}
+              enableClipboard={false}
+              collapsed={1}
+              displayDataTypes={false}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <div className="examples column border m-2">
+              <AceEditor
+                ref={this.editorRef}
+                placeholder="Start entering a template..."
+                width="100%"
+                lineHeight="30px"
+                minLines={2}
+                maxLines={2}
+                wrapEnabled
+                mode="handlebars"
+                theme="textmate"
+                name="template-editor"
+                onChange={this.onChange}
+                onCursorChange={this.onCursorChange}
+                value={workingValue}
+                fontSize="16px"
+                showPrintMargin={false}
+                showGutter
+                highlightActiveLine={false}
+                setOptions={{
+                  useWorker: false,
+                  showLineNumbers: false,
+                  tabSize: 2
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
+      </> //
     );
   }
 }
