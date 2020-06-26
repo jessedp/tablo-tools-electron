@@ -77,7 +77,7 @@ export const defaultConfig: ConfigType = {
   enableDebug: false,
 
   episodeTemplate:
-    '{{episodePath}}/{{showTitle}}/Season {{seasonNum}]/{{showTitle}} - {{this.episodeNum}}.{{EXT}}',
+    '{{episodePath}}/{{showTitle}}/Season {{lPad episode.season_number 2}}/{{showTitle}} - s{{lPad episode.season_number 2}}e{{lPad episode.number 2}}.{{EXT}}',
   movieTemplate:
     '{{moviePath}}/{{title}} - {{movie_airing.release_year}}.{{EXT}}',
   eventTemplate: '{{eventPath}}/{{season}} - {{title}}.{{EXT}}',
