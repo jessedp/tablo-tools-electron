@@ -1,5 +1,4 @@
 // @flow
-
 import React, { Component } from 'react';
 
 import AceEditor from 'react-ace';
@@ -13,9 +12,10 @@ import 'ace-builds/src-noconflict/theme-textmate';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import type NamingTemplateType from '../constants/app';
 
 type Props = {
-  value: string,
+  template: NamingTemplateType,
   data: Object,
   updateValue: (value: string) => void
 };
@@ -30,7 +30,10 @@ class TemplateEditor extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.editorRef = React.createRef();
-    this.state = { workingValue: props.value, position: { column: 0, row: 0 } };
+    this.state = {
+      workingValue: props.template.template,
+      position: { column: 0, row: 0 }
+    };
     (this: any).onCursorChange = this.onCursorChange.bind(this);
     (this: any).onChange = this.onChange.bind(this);
     (this: any).selectJson = this.selectJson.bind(this);

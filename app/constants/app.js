@@ -32,3 +32,10 @@ export type ProgramData = {
   count: number,
   unwatched: number
 };
+
+export type NamingTemplateType = {
+  type: string,
+  slug: string,
+  label: string,
+  template: string
+};

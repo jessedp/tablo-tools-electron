@@ -76,13 +76,10 @@ export const defaultConfig: ConfigType = {
   allowErrorReport: true,
   enableDebug: false,
 
-  episodeTemplate:
-    '{{episodePath}}/{{showTitle}}/Season {{lPad episode.season_number 2}}/{{showTitle}} - s{{lPad episode.season_number 2}}e{{lPad episode.number 2}}.{{EXT}}',
-  movieTemplate:
-    '{{moviePath}}/{{title}} - {{movie_airing.release_year}}.{{EXT}}',
-  eventTemplate: '{{eventPath}}/{{season}} - {{title}}.{{EXT}}',
-  programTemplate:
-    '{{programPath}}/{{title}}-{{airing_details.datetime}}.{{EXT}}',
+  episodeTemplate: 'tablo-tools',
+  movieTemplate: 'tablo-tools',
+  eventTemplate: 'tablo-tools',
+  programTemplate: 'tablo-tools',
 
   saveData: []
 };
