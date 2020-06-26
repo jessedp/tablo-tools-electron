@@ -5,6 +5,8 @@ import Store from 'electron-store';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import ReactMarkdown from 'react-markdown';
+
 import compareVersions from 'compare-versions';
 import { version } from '../../package.json';
 import RelativeDate from './RelativeDate';
@@ -133,7 +135,7 @@ function Release(prop) {
         </span>
       </Card.Header>
       <Card.Body className="pt-2 pb-1">
-        <pre>{data.body}</pre>
+        <ReactMarkdown source={data.body} />
       </Card.Body>
     </Card>
   );
