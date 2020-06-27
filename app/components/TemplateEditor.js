@@ -12,6 +12,7 @@ import 'ace-builds/src-noconflict/theme-textmate';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+
 import type NamingTemplateType from '../constants/app';
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
   updateValue: (value: string) => void
 };
 type State = {
-  workingValue: string,
+  workingValue: NamingTemplateType,
   position: { column: number, row: number }
 };
 
@@ -31,7 +32,7 @@ class TemplateEditor extends Component<Props, State> {
     super(props);
     this.editorRef = React.createRef();
     this.state = {
-      workingValue: props.template.template,
+      workingValue: props.template,
       position: { column: 0, row: 0 }
     };
     (this: any).onCursorChange = this.onCursorChange.bind(this);
@@ -42,12 +43,12 @@ class TemplateEditor extends Component<Props, State> {
   selectJson(node: Object) {
     const { updateValue } = this.props;
     const { position } = this.state;
-    let { workingValue } = this.state;
+    const { workingValue } = this.state;
     // if (location.idx < 0) return;
     console.log('LEN', node.namespace.length);
     console.log('NAME', node.name);
     console.log('NS', node.namespace);
-    let path = node.name; // ;
+    let path = node.name;
     if (node.namespace.length) {
       const start = node.namespace.join('.');
       path = `${start}.${path}`;
@@ -55,20 +56,24 @@ class TemplateEditor extends Component<Props, State> {
 
     const tag = `{{${path}}}`;
 
-    const p1 = workingValue.slice(0, position.column);
-    const p3 = workingValue.slice(position.column);
-    workingValue = `${p1}${tag}${p3}`;
+    const p1 = workingValue.template.slice(0, position.column);
+    const p3 = workingValue.template.slice(position.column);
+    workingValue.template = `${p1}${tag}${p3}`;
     this.setState({ workingValue });
-    updateValue(workingValue);
+    updateValue(workingValue.template);
   }
 
   onChange(value: string) {
     const { updateValue } = this.props;
 
-    const workingValue = value.trim();
-    // console.log('change', value, workingValue);
+    const { workingValue } = this.state;
+
+    workingValue.template = value.trim();
+
+    console.log('onChange', value, workingValue);
+
     this.setState({ workingValue });
-    updateValue(workingValue);
+    updateValue(workingValue.template);
   }
 
   // onSelectionChange(newValue, event) {
@@ -96,17 +101,6 @@ class TemplateEditor extends Component<Props, State> {
       <>
         <Row>
           <Col>
-            <ReactJson
-              src={data}
-              onSelect={this.selectJson}
-              enableClipboard={false}
-              collapsed={1}
-              displayDataTypes={false}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
             <div className="examples column border m-2">
               <AceEditor
                 ref={this.editorRef}
@@ -121,7 +115,7 @@ class TemplateEditor extends Component<Props, State> {
                 name="template-editor"
                 onChange={this.onChange}
                 onCursorChange={this.onCursorChange}
-                value={workingValue}
+                value={workingValue.template}
                 fontSize="16px"
                 showPrintMargin={false}
                 showGutter
@@ -133,6 +127,17 @@ class TemplateEditor extends Component<Props, State> {
                 }}
               />
             </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <ReactJson
+              src={data}
+              onSelect={this.selectJson}
+              enableClipboard={false}
+              collapsed={1}
+              displayDataTypes={false}
+            />
           </Col>
         </Row>
       </> //
