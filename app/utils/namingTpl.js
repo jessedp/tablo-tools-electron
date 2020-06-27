@@ -1,5 +1,7 @@
 // @flow
+import { format, parseISO } from 'date-fns';
 import Airing from './Airing';
+
 import getConfig from './config';
 import deepFilter from './deepFilter';
 import NamingTemplateType, {
@@ -34,7 +36,8 @@ export const defaultTemplates: Array<NamingTemplateType> = [
     type: PROGRAM,
     label: 'Tablo Tools',
     slug: 'tablo-tools',
-    template: '{{programPath}}/{{title}}-{{airing_details.datetime}}.{{EXT}}'
+    template:
+      '{{programPath}}/{{title}}-{{strip "-" dateSort}}_{{strip "-" time24}}.{{EXT}}'
   }
 ];
 
@@ -100,8 +103,20 @@ export async function buildTemplateVars(type: string) {
   const showRec = await global.ShowDb.asyncFindOne({ path });
   if (showRec) recData.show = showRec;
 
+  const date = parseISO(recData.airing_details.datetime);
+
+  const dateSort = format(date, 'yyyy-MM-dd');
+  const dateNat = format(date, 'MM-dd-yyyy');
+
+  const time12 = format(date, 'hh-mm-a');
+  const time24 = format(date, 'HH-mm');
+
   const globalVars = {
     EXT: 'mp4',
+    dateSort,
+    dateNat,
+    time12,
+    time24,
     title: airing.title
   };
 
