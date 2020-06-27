@@ -59,7 +59,7 @@ type State = {
   view: string,
   error: string,
   template: NamingTemplateType,
-  templateVars: Array<Object>
+  templateVars: Object
 };
 
 class SettingsNaming extends Component<Props, State> {
@@ -161,8 +161,10 @@ class SettingsNaming extends Component<Props, State> {
     let filledPath = template.template;
 
     const parts = template.template.split(fsPath.sep).map((part, idx) => {
-      // console.log(part);
-      const hbTemplate = Handlebars.compile(part);
+      const hbTemplate = Handlebars.compile(part, {
+        noEscape: true,
+        preventIndent: true
+      });
       try {
         const tpl = hbTemplate(templateVars);
         if (idx === 0) return tpl;
@@ -174,6 +176,10 @@ class SettingsNaming extends Component<Props, State> {
     });
 
     filledPath = fsPath.normalize(parts.join(fsPath.sep));
+    const sanitizeParts = filledPath
+      .split(fsPath.sep)
+      .map(part => sanitize(part));
+    filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
 
     return (
       <div className="mr-3 pb-4">

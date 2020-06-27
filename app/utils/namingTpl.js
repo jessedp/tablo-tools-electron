@@ -1,9 +1,11 @@
 // @flow
 import { format, parseISO } from 'date-fns';
+
 import Airing from './Airing';
 
 import getConfig from './config';
 import deepFilter from './deepFilter';
+
 import NamingTemplateType, {
   SERIES,
   PROGRAM,
@@ -108,7 +110,7 @@ export async function getTemplates(type: string = '') {
   if (type === '') {
     recs = await global.NamingDb.asyncFind({});
   } else {
-    const typeRe = new RegExp(`${type}`);
+    const typeRe = new RegExp(type);
     recs = await global.NamingDb.asyncFind({ path: { $regex: typeRe } });
   }
 
@@ -121,6 +123,8 @@ export async function buildTemplateVars(type: string) {
 
   const typeRe = new RegExp(type);
   const recData = await global.RecDb.asyncFindOne({ path: { $regex: typeRe } });
+  // const recData = await global.RecDb.asyncFindOne({ object_id: 839697 });
+
   const airing = await Airing.create(recData);
 
   const path = airing.typePath;
@@ -176,19 +180,28 @@ export async function buildTemplateVars(type: string) {
     // prop is an array index or an object key
     // subject is either an array or an object
     // console.log(value, prop, subject);
-    if (prop && prop.toString().includes('path')) return false;
+
     if (prop && prop.toString().includes('error')) return false;
     if (prop && prop.toString().includes('warnings')) return false;
-    if (prop && prop.toString().includes('_id')) return false;
+    if (prop && prop.toString() === '_id') return false;
     if (prop && prop.toString().includes('image')) return false;
     if (prop && prop.toString().includes('Image')) return false;
-    if (prop && prop.toString().includes('user_info')) return false;
-    if (prop && prop.toString().includes('qualifiers')) return false;
+    if (prop && prop.toString() === 'user_info') return false;
+    if (prop && prop.toString() === 'qualifiers') return false;
+    if (prop && prop.toString().includes('_offsets')) return false;
+    if (prop && prop.toString().includes('seek')) return false;
 
     return true;
   });
-
-  return { ...globalVars, ...typeVars, ...result };
+  const vars = { ...globalVars, ...typeVars, ...result };
+  // const sanitizedVars = deepUpdate(vars, (key, val) => {
+  //   if (typeof val === 'string') {
+  //     console.log('sanitize?', key, val, sanitize(val));
+  //     return sanitize(val);
+  //   }
+  //   console.log('not sanitized', key, val);
+  //   return val;
+  // });
+  // console.log('DONE!');
+  return vars;
 }
-
-export function nope() {}
