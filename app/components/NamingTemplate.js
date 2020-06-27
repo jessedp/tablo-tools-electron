@@ -1,29 +1,32 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import * as fsPath from 'path';
+
+import * as slugify from 'slugify';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import { InputGroup, Form } from 'react-bootstrap';
 
 import Handlebars from 'handlebars';
 
-// import SyntaxHighlighter from 'react-syntax-highlighter';
-// import {
-//   atomOneLight,
-//   arduinoLight,
-//   atelierLakesideLight,
-//   atelierSulphurpoolLight,
-//   docco,
-//   foundation,
-//   solarizedLight,
-//   vs
-// } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import * as FlashActions from '../actions/flash';
+import type { FlashRecordType } from '../reducers/types';
 
 import TemplateEditor from './TemplateEditor';
 import NamingTemplateOptions from './NamingTemplateOptions';
 
-import { buildTemplateVars, getTemplate } from '../utils/namingTpl';
+import {
+  buildTemplateVars,
+  getTemplate,
+  getTemplateSlug,
+  getDefaultTemplateSlug,
+  newTemplate
+} from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
 
@@ -47,34 +50,103 @@ helpers.lPad = (str: string, len: string | number, char: string | number) => {
 
 Handlebars.registerHelper(helpers);
 
-type Props = { label: string, type: string };
+type Props = {
+  label: string,
+  type: string,
+  sendFlash: (message: FlashRecordType) => void
+};
 type State = {
   view: string,
+  error: string,
   template: NamingTemplateType,
   templateVars: Array<Object>
 };
 
-export default class SettingsNaming extends Component<Props, State> {
+class SettingsNaming extends Component<Props, State> {
+  originalTemplate: NamingTemplateType;
+
   constructor() {
     super();
-    this.state = { view: 'view', templateVars: [], template: {} };
+    this.state = { view: 'view', templateVars: [], template: {}, error: '' };
 
     this.setView = this.setView.bind(this);
+    this.cancel = this.cancel.bind(this);
+    this.new = this.new.bind(this);
     this.updatePath = this.updatePath.bind(this);
+    this.updateSlug = this.updateSlug.bind(this);
+    this.updateLabel = this.updateLabel.bind(this);
+    this.checkErrors = this.checkErrors.bind(this);
   }
 
   async componentDidMount() {
     const { type } = this.props;
     const template = await getTemplate(type);
+    this.originalTemplate = { ...template };
     const templateVars = await buildTemplateVars(type);
-    // console.log(type, template);
+
     this.setState({ template, templateVars });
+    this.checkErrors();
   }
+
+  checkErrors = () => {
+    const { template } = this.state;
+    const { slug } = template;
+
+    let error = '';
+    if (slug === getDefaultTemplateSlug()) {
+      error = 'slug in use!';
+    }
+    if (error) this.setState({ error });
+  };
 
   updatePath = (path: string) => {
     const { template } = this.state;
+    console.log('updatePath', path, template);
+
     template.template = path;
     this.setState({ template });
+  };
+
+  updateSlug = (event: SyntheticEvent<HTMLInputElement>) => {
+    const { template } = this.state;
+
+    template.slug = sanitize(
+      slugify(event.currentTarget.value.trim(), {
+        lower: true,
+        strict: true
+      })
+    );
+    this.setState({ template, error: '' });
+    this.checkErrors();
+  };
+
+  updateLabel = (event: SyntheticEvent<HTMLInputElement>) => {
+    const { sendFlash } = this.props;
+    const { template } = this.state;
+    const val = event.currentTarget.value;
+    if (val.length <= 100) {
+      template.label = event.currentTarget.value;
+      this.setState({ template });
+    } else {
+      sendFlash({
+        message: 'Label must be <= 100 characters',
+        type: 'warning'
+      });
+    }
+  };
+
+  cancel = () => {
+    this.setState({ template: this.originalTemplate, view: 'view' });
+  };
+
+  new = () => {
+    const { type } = this.props;
+    const template = newTemplate(type);
+    this.setState({ template, view: 'edit' });
+  };
+
+  save = () => {
+    this.setState({ template: this.originalTemplate, view: 'view' });
   };
 
   setView = (view: string) => {
@@ -83,10 +155,9 @@ export default class SettingsNaming extends Component<Props, State> {
 
   render() {
     const { label, type } = this.props;
-    const { view, template, templateVars } = this.state;
+    const { view, template, templateVars, error } = this.state;
 
     if (!template || !template.template) return <></>; //
-
     let filledPath = template.template;
 
     const parts = template.template.split(fsPath.sep).map((part, idx) => {
@@ -107,7 +178,7 @@ export default class SettingsNaming extends Component<Props, State> {
     return (
       <div className="mr-3 pb-4">
         <Row className="border-bottom bg-light p-1">
-          <Col md="2" className="pt-1">
+          <Col md="3" className="pt-1">
             <span className="pl-2 naming-tpl-header">{label}</span>
           </Col>
           <Col md="3" className="pt-1">
@@ -122,14 +193,17 @@ export default class SettingsNaming extends Component<Props, State> {
                 </Button>
               </> //
             ) : (
-              <div className="d-flex flex-row">
-                <Button
-                  size="xs"
-                  variant="secondary"
-                  onClick={() => this.setView('view')}
-                >
+              ''
+            )}
+            <div className="d-flex flex-row">
+              {view !== 'view' ? (
+                <Button size="xs" variant="secondary" onClick={this.cancel}>
                   cancel
                 </Button>
+              ) : (
+                ''
+              )}
+              {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
                 <Button
                   size="xs"
                   variant="success"
@@ -138,9 +212,16 @@ export default class SettingsNaming extends Component<Props, State> {
                 >
                   save
                 </Button>
-                Name:
-              </div> //
-            )}
+              ) : (
+                ''
+              )}
+
+              {view !== 'view' && error ? (
+                <i className="smaller muted ml-2 text-danger">{error}</i>
+              ) : (
+                ''
+              )}
+            </div>
           </Col>
           <Col>
             {view === 'view' ? (
@@ -148,7 +229,7 @@ export default class SettingsNaming extends Component<Props, State> {
                 <Button
                   size="xs"
                   variant="info"
-                  onClick={() => this.setView('new')}
+                  onClick={this.new}
                   className="ml-2 float-right mt-1"
                 >
                   new
@@ -161,6 +242,67 @@ export default class SettingsNaming extends Component<Props, State> {
           </Col>
         </Row>
 
+        {view !== 'view' ? (
+          <>
+            <Row>
+              <Col md="7">
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text title="Label">
+                      <span className="fa fa-sign" />
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+
+                  <Form.Control
+                    value={template.label}
+                    type="text"
+                    placeholder="the name you'll see in the app"
+                    onChange={this.updateLabel}
+                    width={30}
+                    size={30}
+                  />
+                  <InputGroup.Append>
+                    <InputGroup.Text>
+                      What you&apos;ll select in the app
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md="7">
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text title="Slug">
+                      <span className="fa fa-tag" />
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+
+                  <Form.Control
+                    value={template.slug}
+                    type="text"
+                    placeholder="slug (eg. My Name -> my-name)"
+                    onChange={this.updateSlug}
+                    width={30}
+                    size={30}
+                    className="field-error"
+                  />
+                  <InputGroup.Append>
+                    <InputGroup.Text>
+                      Slug to be used for the command line. Must be unique. Only
+                      <code className="pl-2 slug-allowed-chars">
+                        a-z 0-9 -{' '}
+                      </code>
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                </InputGroup>
+              </Col>
+            </Row>
+          </> //
+        ) : (
+          ''
+        )}
+
         <Row className="mt-2">
           <Col>
             <span className="ml-2 mr-2 fa fa-file" />
@@ -168,27 +310,22 @@ export default class SettingsNaming extends Component<Props, State> {
             <div className="name-preview border p-1">{filledPath}</div>
           </Col>
         </Row>
-        {view === 'edit' ? (
-          <Row className="mt-2">
-            <Col className="">
-              <div
-                style={{ width: '30px', paddingLeft: '5px' }}
-                className="d-inline-block border"
-              >
-                <span className=" fas fa-code" />
-              </div>
-              <div
-                className="d-inline-block overflow-auto ml-1 pb-0 mb-0"
-                style={{ width: '95%' }}
-              >
-                <TemplateEditor
-                  template={template}
-                  data={templateVars}
-                  updateValue={this.updatePath}
-                />
-              </div>
-            </Col>
-          </Row>
+
+        {view !== 'view' ? (
+          <>
+            <Row className="mt-2">
+              <Col>
+                <span className="pl-2 mr-2 fas fa-code" /> Use the variables
+                below to build your template name. Read about helpers to modify
+                the variable further. A preview is above...
+              </Col>
+            </Row>
+            <TemplateEditor
+              template={template}
+              data={templateVars}
+              updateValue={this.updatePath}
+            />
+          </> //
         ) : (
           ''
         )}
@@ -197,33 +334,11 @@ export default class SettingsNaming extends Component<Props, State> {
   }
 }
 
-// <Row className="mt-2">
-// <Col className="">
-//   <div
-//     style={{ width: '30px', paddingLeft: '5px' }}
-//     className="d-inline-block border"
-//   >
-//     <span className=" fas fa-code" />
-//   </div>
-//   <div
-//     className="d-inline-block overflow-auto ml-1 pb-0 mb-0"
-//     style={{ width: '95%' }}
-//   >
-//     {view === 'view' ? (
-//       <SyntaxHighlighter
-//         language="handlebars"
-//         style={atelierSulphurpoolLight}
-//         className="mb-0 pb-0 d-inline-block"
-//       >
-//         {value}
-//       </SyntaxHighlighter>
-//     ) : (
-//       <TemplateEditor
-//         value={value}
-//         data={templateVars}
-//         updateValue={setPath}
-//       />
-//     )}
-//   </div>
-// </Col>
-// </Row>
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(FlashActions, dispatch);
+};
+
+export default connect<*, *, *, *, *, *>(
+  null,
+  mapDispatchToProps
+)(SettingsNaming);

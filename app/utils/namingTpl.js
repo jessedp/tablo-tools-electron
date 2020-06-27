@@ -44,6 +44,9 @@ export const defaultTemplates: Array<NamingTemplateType> = [
 export function defaultTemplate(type: string): NamingTemplateType {
   return defaultTemplates.filter(rec => rec.type === type);
 }
+export function getDefaultTemplateSlug() {
+  return 'tablo-tools';
+}
 
 export function getTemplateSlug(type: string) {
   const {
@@ -63,6 +66,27 @@ export function getTemplateSlug(type: string) {
     default:
       return programTemplate;
   }
+}
+
+export function newTemplate(type: string): NamingTemplateType {
+  const template = { label: '', slug: '', template: '' };
+
+  switch (type) {
+    case SERIES:
+      template.template = '{{episodePath}}';
+      break;
+    case MOVIE:
+      template.template = '{{moviePath}}';
+      break;
+    case EVENT:
+      template.template = '{{eventPath}}';
+      break;
+    case PROGRAM:
+    default:
+      template.template = '{{programPath}}';
+  }
+
+  return template;
 }
 
 /** USER RELATED       */

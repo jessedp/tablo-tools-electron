@@ -110,6 +110,12 @@
   background-color: #e0ecff;
 }
 
+code.slug-allowed-chars {
+  font-size: 12px;
+  color: crimson;
+  background-color: floralwhite;
+}
+
 .text-success {
   color: #28a745 !important;
 }
