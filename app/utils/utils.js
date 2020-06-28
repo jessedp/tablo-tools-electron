@@ -43,6 +43,14 @@ export function ellipse(str: string, length: number, ellipsis: string = '...') {
   return str;
 }
 
+export function titleCase(string) {
+  const sentence = string.toLowerCase().split(' ');
+  for (let i = 0; i < sentence.length; i += 1) {
+    sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
+  }
+  return sentence;
+}
+
 export function sortObject(obj) {
   const ordered = {};
   Object.keys(obj)
