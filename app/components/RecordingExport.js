@@ -289,11 +289,10 @@ function FfmpegLog(prop) {
 
 const FileInfo = prop => {
   const { airing, state } = prop;
-  const { exportFile } = airing;
-  const exists = fs.existsSync(exportFile);
+  const exists = fs.existsSync(airing.exportFile());
 
   const openDir = () => {
-    shell.showItemInFolder(airing.exportFile);
+    shell.showItemInFolder(airing.exportFile());
   };
 
   if (!exists) {
@@ -304,7 +303,7 @@ const FileInfo = prop => {
           <span className="fa fa-exclamation pr-1" />
           <span className="pr-2">File does not exist after export.</span>
           <span>
-            {airing.exportFile}
+            {airing.exportFile()}
             <Button
               variant="link"
               className="p-0 pl-1"
@@ -320,11 +319,11 @@ const FileInfo = prop => {
     return (
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
-        {airing.exportFile}
+        {airing.exportFile()}
       </div>
     );
   }
-  const stats = fs.statSync(exportFile);
+  const stats = fs.statSync(airing.exportFile());
 
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';
@@ -346,7 +345,7 @@ const FileInfo = prop => {
   return (
     <div className={baseClass}>
       <span className={icon} />
-      <span className="pr-3">{airing.exportFile}</span>
+      <span className="pr-3">{airing.exportFile()}</span>
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>

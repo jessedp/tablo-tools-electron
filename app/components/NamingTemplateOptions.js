@@ -78,8 +78,6 @@ export default function NamingTemplateOptions(props: PropType) {
           </InputGroup.Prepend>
           <Select
             options={prettyOpts}
-            placeholder=""
-            name={`${type}-namingFilter`}
             onChange={select}
             styles={SelectStyles('30px', 200)}
             value={options.filter(option => option.slug === selected.slug)}

@@ -1,7 +1,7 @@
 // @flow
+import * as fsPath from 'path';
 import { format, parseISO } from 'date-fns';
-
-import Airing from './Airing';
+import Handlebars from 'handlebars';
 
 import getConfig from './config';
 import deepFilter from './deepFilter';
@@ -12,6 +12,9 @@ import NamingTemplateType, {
   MOVIE,
   EVENT
 } from '../constants/app';
+// import Airing from './Airing';
+
+const sanitize = require('sanitize-filename');
 
 /** BUILT-INS       */
 export const defaultTemplates: Array<NamingTemplateType> = [
@@ -75,7 +78,7 @@ export function getTemplateSlug(type: string) {
 }
 
 export function newTemplate(type: string): NamingTemplateType {
-  const template = { label: '', slug: '', template: '' };
+  const template = { type, label: '', slug: '', template: '' };
 
   switch (type) {
     case SERIES:
@@ -95,19 +98,20 @@ export function newTemplate(type: string): NamingTemplateType {
   return template;
 }
 
-export async function upsertTemplate(template: NamingTemplateType) {
+export async function upsertTemplate(modTemplate: NamingTemplateType) {
+  const template = modTemplate;
+  console.log(template);
   if (!template.type.trim()) return 'Cannot save without type!';
   if (!template.slug.trim()) return 'Cannot save empty slug!';
   if (template.slug === getDefaultTemplateSlug())
     return 'Cannot save default slug!';
+  // eslint-disable-next-line no-underscore-dangle
+  // delete template._id;
 
-  await global.NamingDb.asyncUpdate(
-    { $and: [{ slug: template.slug }, { type: template.type }] },
-    template,
-    {
-      upsert: true
-    }
-  );
+  // eslint-disable-next-line no-underscore-dangle
+  await global.NamingDb.asyncUpdate({ _id: template._id }, template, {
+    upsert: true
+  });
   return '';
 }
 
@@ -121,6 +125,10 @@ export async function getTemplate(
   const templates = await getTemplates(type);
 
   const template = templates.filter(rec => rec.slug === actualSlug)[0];
+  if (!template) {
+    console.warn(`missing slug ${actualSlug}`);
+    return getTemplate(type, getDefaultTemplateSlug());
+  }
   return template;
 }
 
@@ -137,19 +145,28 @@ export async function getTemplates(type: string = '') {
   return [...defaults, ...recs];
 }
 
-export async function buildTemplateVars(type: string) {
+/** Build & fill */
+export async function buildTemplateVars(airing: Object) {
   const config = getConfig();
   const { episodePath, moviePath, eventPath, programPath } = config;
 
-  const typeRe = new RegExp(type);
-  const recData = await global.RecDb.asyncFindOne({ path: { $regex: typeRe } });
-  // const recData = await global.RecDb.asyncFindOne({ object_id: 839697 });
+  // let recData;
+  // let type;
+  // if (typeof data === 'string') {
+  //   type = data;
+  //   const typeRe = new RegExp(type);
+  //   recData = await global.RecDb.asyncFindOne({ path: { $regex: typeRe } });
+  // } else {
+  //   recData = await global.RecDb.asyncFindOne({ object_id: data.id });
+  //   type = data.type;
+  // }
+  // // const recData = await global.RecDb.asyncFindOne({ object_id: 839697 });
 
-  const airing = await Airing.create(recData);
-
-  const path = airing.typePath;
-  const showRec = await global.ShowDb.asyncFindOne({ path });
-  if (showRec) recData.show = showRec;
+  // const airing = await Airing.create(recData);
+  const recData = airing.data;
+  // const path = airing.typePath;
+  // const showRec = await global.ShowDb.asyncFindOne({ path });
+  // if (showRec) recData.show = showRec;
 
   const date = parseISO(recData.airing_details.datetime);
 
@@ -169,7 +186,7 @@ export async function buildTemplateVars(type: string) {
   };
 
   let typeVars = {};
-  switch (type) {
+  switch (airing.type) {
     case SERIES:
       typeVars = {
         episodePath,
@@ -226,4 +243,31 @@ export async function buildTemplateVars(type: string) {
   // });
   // console.log('DONE!');
   return [result, shortcuts];
+}
+
+export function fillTemplate(
+  template: NamingTemplateType,
+  templateVars: Object
+) {
+  const parts = template.template.split(fsPath.sep).map(part => {
+    const hbTemplate = Handlebars.compile(part, {
+      noEscape: true,
+      preventIndent: true
+    });
+    try {
+      const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
+      return tpl;
+    } catch (e) {
+      console.warn('Handlebars unable to parse', e);
+    }
+    return part;
+  });
+
+  let filledPath = fsPath.normalize(parts.join(fsPath.sep));
+  const sanitizeParts = filledPath
+    .split(fsPath.sep)
+    .map(part => sanitize(part));
+  filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
+
+  return filledPath;
 }

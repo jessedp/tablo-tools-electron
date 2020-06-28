@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as fsPath from 'path';
+// import * as fsPath from 'path';
 
 import * as slugify from 'slugify';
 
@@ -29,12 +29,14 @@ import {
   getDefaultTemplateSlug,
   newTemplate,
   upsertTemplate,
-  isCurrentTemplate
+  isCurrentTemplate,
+  fillTemplate
 } from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
 import { setConfigItem } from '../utils/config';
 import { titleCase } from '../utils/utils';
+import Airing from '../utils/Airing';
 
 const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
@@ -85,13 +87,22 @@ class SettingsNaming extends Component<Props, State> {
     this.updateSlug = this.updateSlug.bind(this);
     this.updateLabel = this.updateLabel.bind(this);
     this.checkErrors = this.checkErrors.bind(this);
+    this.setDefaultSlug = this.setDefaultSlug.bind(this);
   }
 
   async componentDidMount() {
     const { type } = this.props;
     const template = await getTemplate(type);
     this.originalTemplate = { ...template };
-    const templateVars = await buildTemplateVars(type);
+
+    const typeRe = new RegExp(type);
+    const recData = await global.RecDb.asyncFindOne({
+      path: { $regex: typeRe }
+    });
+
+    const airing = await Airing.create(recData, true);
+
+    const templateVars = await buildTemplateVars(airing);
 
     this.setState({ template, templateVars });
     this.checkErrors();
@@ -100,6 +111,7 @@ class SettingsNaming extends Component<Props, State> {
   checkErrors = async () => {
     const { type } = this.props;
     const { template } = this.state;
+    if (!template) return;
     const { slug } = template;
 
     let error = '';
@@ -128,7 +140,6 @@ class SettingsNaming extends Component<Props, State> {
     let nextTemplate = template;
     if (isCurrentTemplate(template)) {
       nextTemplate = getDefaultTemplate(template.type);
-      console.log(nextTemplate);
     }
     switch (type) {
       case SERIES:
@@ -164,18 +175,29 @@ class SettingsNaming extends Component<Props, State> {
     this.setState({ template });
   };
 
+  setDefaultSlug = () => {
+    const { template } = this.state;
+    if (!template.slug.trim()) {
+      this.realUpdateSlug(template.label);
+    }
+  };
+
   updateSlug = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.realUpdateSlug(event.currentTarget.value);
+  };
+
+  realUpdateSlug(slug: string) {
     const { template } = this.state;
 
     template.slug = sanitize(
-      slugify(event.currentTarget.value.trim(), {
+      slugify(slug, {
         lower: true,
         strict: true
       })
     );
     this.setState({ template, error: '' });
     this.checkErrors();
-  };
+  }
 
   updateLabel = (event: SyntheticEvent<HTMLInputElement>) => {
     const { sendFlash } = this.props;
@@ -230,27 +252,29 @@ class SettingsNaming extends Component<Props, State> {
     const { view, template, templateVars, error } = this.state;
 
     if (!template || !template.template) return <></>; //
-    let filledPath = template.template;
+    // let filledPath = template.template;
 
-    const parts = template.template.split(fsPath.sep).map(part => {
-      const hbTemplate = Handlebars.compile(part, {
-        noEscape: true,
-        preventIndent: true
-      });
-      try {
-        const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
-        return tpl;
-      } catch (e) {
-        console.warn('Handlebars unable to parse', e);
-      }
-      return part;
-    });
+    // const parts = template.template.split(fsPath.sep).map(part => {
+    //   const hbTemplate = Handlebars.compile(part, {
+    //     noEscape: true,
+    //     preventIndent: true
+    //   });
+    //   try {
+    //     const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
+    //     return tpl;
+    //   } catch (e) {
+    //     console.warn('Handlebars unable to parse', e);
+    //   }
+    //   return part;
+    // });
 
-    filledPath = fsPath.normalize(parts.join(fsPath.sep));
-    const sanitizeParts = filledPath
-      .split(fsPath.sep)
-      .map(part => sanitize(part));
-    filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
+    // filledPath = fsPath.normalize(parts.join(fsPath.sep));
+    // const sanitizeParts = filledPath
+    //   .split(fsPath.sep)
+    //   .map(part => sanitize(part));
+    // filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
+
+    const filledPath = fillTemplate(template, templateVars);
 
     return (
       <div className="mb-3">
@@ -368,6 +392,7 @@ class SettingsNaming extends Component<Props, State> {
                     type="text"
                     placeholder="slug (eg. My Name -> my-name)"
                     onChange={this.updateSlug}
+                    onFocus={this.setDefaultSlug}
                     width={30}
                     size={30}
                     className="field-error"

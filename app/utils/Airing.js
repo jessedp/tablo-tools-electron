@@ -12,6 +12,11 @@ import { asyncForEach, readableDuration } from './utils';
 import Show from './Show';
 import getConfig from './config';
 import { EVENT, MOVIE, PROGRAM, SERIES, beginTimemark } from '../constants/app';
+import {
+  buildTemplateVars,
+  getDefaultTemplate,
+  fillTemplate
+} from './namingTpl';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -76,7 +81,9 @@ export default class Airing {
 
   cmd: any;
 
-  constructor(data: Object) {
+  data: Object;
+
+  constructor(data: Object, retainData: boolean = false) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
     delete this.airing_details;
@@ -87,19 +94,25 @@ export default class Airing {
     this.userInfo = this.user_info;
     delete this.user_info;
 
-    // this.show = null;
     this.cachedWatch = null;
+
+    if (retainData) this.data = data;
   }
 
   static async find(id: number): Promise<Airing> {
     return Airing.create(await global.RecDb.asyncFindOne({ object_id: id }));
   }
 
-  static async create(data: Object): Promise<Airing> {
+  static async create(
+    data: Object,
+    retainData: boolean = false
+  ): Promise<Airing> {
     if (data) {
-      const airing = new Airing(data);
+      const airing = new Airing(data, retainData);
       const path = airing.typePath;
-      airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
+      const showData = await global.ShowDb.asyncFindOne({ path });
+      airing.show = new Show(showData);
+      if (retainData) airing.data.show = showData;
       return airing;
     }
 
@@ -281,7 +294,14 @@ export default class Airing {
     return 0;
   }
 
-  get exportFile() {
+  exportFile = async () => {
+    const vars = await buildTemplateVars(this);
+    console.log(fillTemplate(getDefaultTemplate(this.type), vars));
+    return 'file placeholder';
+    // return fillTemplate(getDefaultTemplate(this.type), vars);
+  };
+
+  get exportFileOrig() {
     const { showTitle, airingDetails } = this;
 
     const EXT = 'mp4';
@@ -526,8 +546,8 @@ export default class Airing {
     // const input = '/tmp/test_ys_p1.mp4';
     // outFile = '/tmp/test.mp4';
 
-    outFile = this.exportFile;
-    const outPath = this.exportPath;
+    outFile = await this.exportFile();
+    const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);
     if (debug) log.info('exporting to file:', outFile);
