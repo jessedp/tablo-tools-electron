@@ -43,11 +43,15 @@ export const defaultTemplates: Array<NamingTemplateType> = [
   }
 ];
 
-export function defaultTemplate(type: string): NamingTemplateType {
-  return defaultTemplates.filter(rec => rec.type === type);
+export function getDefaultTemplate(type: string): NamingTemplateType {
+  return defaultTemplates.filter(rec => rec.type === type)[0];
 }
 export function getDefaultTemplateSlug() {
   return 'tablo-tools';
+}
+
+export function isCurrentTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getTemplateSlug(template.type);
 }
 
 export function getTemplateSlug(type: string) {
@@ -92,6 +96,7 @@ export function newTemplate(type: string): NamingTemplateType {
 }
 
 export async function upsertTemplate(template: NamingTemplateType) {
+  if (!template.type.trim()) return 'Cannot save without type!';
   if (!template.slug.trim()) return 'Cannot save empty slug!';
   if (template.slug === getDefaultTemplateSlug())
     return 'Cannot save default slug!';
@@ -120,7 +125,7 @@ export async function getTemplate(
 }
 
 export async function getTemplates(type: string = '') {
-  const defaults = defaultTemplate(type);
+  const defaults = [getDefaultTemplate(type)];
   let recs;
   if (type === '') {
     recs = await global.NamingDb.asyncFind({});

@@ -19,13 +19,11 @@ class SettingsNaming extends Component<Props, State> {
 
   render() {
     return (
-      <div className="pl-1">
-        <h4>Export Naming Templates</h4>
-
+      <div>
         <NamingTemplate label="Series/Episodes" type={SERIES} />
         <NamingTemplate label="Movies" type={MOVIE} />
         <NamingTemplate label="Sports/Events" type={EVENT} />
-        <NamingTemplate label="Manual Recordings" type={PROGRAM} />
+        <NamingTemplate label="Manual" type={PROGRAM} />
       </div>
     );
   }

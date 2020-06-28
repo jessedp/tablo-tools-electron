@@ -10,6 +10,11 @@
 @import 'spinner.css';
 @import '~video-react/dist/video-react.css';
 
+/* reset sandstone */
+label {
+  margin-bottom: 0;
+}
+
 .smallerish {
   font-size: 13px;
 }
@@ -99,6 +104,10 @@
 .segment-delim {
   font-size: 24px;
   font-weight: bold;
+}
+
+.default-naming-ind {
+  border-bottom: ridge royalblue;
 }
 
 .name-preview {

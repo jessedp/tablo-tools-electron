@@ -19,17 +19,22 @@ import type { FlashRecordType } from '../reducers/types';
 
 import TemplateEditor from './TemplateEditor';
 import NamingTemplateOptions from './NamingTemplateOptions';
+import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 
 import {
   buildTemplateVars,
   getTemplate,
   getTemplateSlug,
+  getDefaultTemplate,
   getDefaultTemplateSlug,
   newTemplate,
-  upsertTemplate
+  upsertTemplate,
+  isCurrentTemplate
 } from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
+import { setConfigItem } from '../utils/config';
+import { titleCase } from '../utils/utils';
 
 const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
@@ -73,6 +78,9 @@ class SettingsNaming extends Component<Props, State> {
     this.setView = this.setView.bind(this);
     this.cancel = this.cancel.bind(this);
     this.new = this.new.bind(this);
+    this.save = this.save.bind(this);
+    this.setTemplate = this.setTemplate.bind(this);
+    this.updateTemplate = this.updateTemplate.bind(this);
     this.updatePath = this.updatePath.bind(this);
     this.updateSlug = this.updateSlug.bind(this);
     this.updateLabel = this.updateLabel.bind(this);
@@ -102,10 +110,48 @@ class SettingsNaming extends Component<Props, State> {
     }
     if (await global.NamingDb.asyncFindOne({ type, slug: template.slug })) {
       error = 'editing existing';
-      this.setState({ error });
+      // this.setState({ error });
     }
 
+    this.setState({ error });
+
     return false;
+  };
+
+  updateTemplate = (template: NamingTemplateType) => {
+    this.setState({ template });
+  };
+
+  setTemplate = (template: NamingTemplateType) => {
+    const { type, sendFlash } = this.props;
+
+    let nextTemplate = template;
+    if (isCurrentTemplate(template)) {
+      nextTemplate = getDefaultTemplate(template.type);
+      console.log(nextTemplate);
+    }
+    switch (type) {
+      case SERIES:
+        setConfigItem({ episodeTemplate: nextTemplate.slug });
+        break;
+      case MOVIE:
+        setConfigItem({ movieTemplate: nextTemplate.slug });
+        break;
+      case EVENT:
+        setConfigItem({ eventTemplate: nextTemplate.slug });
+        break;
+      case PROGRAM:
+      default:
+        setConfigItem({ programTemplate: nextTemplate.slug });
+    }
+
+    sendFlash({
+      message: `${titleCase(nextTemplate.type)} default set to ${
+        nextTemplate.label
+      }`
+    });
+    this.originalTemplate = nextTemplate;
+    this.setState({ template: nextTemplate });
   };
 
   updatePath = (path: string) => {
@@ -160,12 +206,10 @@ class SettingsNaming extends Component<Props, State> {
     const { sendFlash } = this.props;
     const { template } = this.state;
     let errors = await this.checkErrors();
-    console.log('1', errors);
 
     if (!errors) {
       errors = await upsertTemplate(template);
       if (errors) {
-        console.log('2', errors);
         sendFlash({ type: 'danger', message: errors.toString() });
       } else {
         sendFlash({ type: 'success', message: `saved "${template.label}"` });
@@ -194,12 +238,7 @@ class SettingsNaming extends Component<Props, State> {
         preventIndent: true
       });
       try {
-        // console.log('hbTemplate VARS:', {
-        //   ...templateVars[0],
-        //   ...templateVars[1]
-        // });
         const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
-        // if (idx === 0) return tpl;
         return tpl;
       } catch (e) {
         console.warn('Handlebars unable to parse', e);
@@ -214,80 +253,84 @@ class SettingsNaming extends Component<Props, State> {
     filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
 
     return (
-      <div className="mr-3 pb-4">
-        <Alert variant="secondary" className="p-2 pl-3">
-          <Row className="">
-            <Col md="3" className="pt-1">
+      <div className="mb-3">
+        <Row>
+          <Col md="3">
+            <Alert variant="dark" className="p-2 pl-3">
               <span className="pl-2 naming-tpl-header">{label}</span>
-            </Col>
-            <Col md="3" className="pt-1">
-              {view === 'view' ? (
-                <>
-                  <Button
-                    size="xs"
-                    variant="primary"
-                    onClick={() => this.setView('edit')}
-                  >
-                    edit
-                  </Button>
-                </> //
+            </Alert>
+          </Col>
+          <Col md="5" className="mt-2">
+            {view === 'view' ? (
+              <>
+                <Button
+                  size="xs"
+                  variant="primary"
+                  onClick={() => this.setView('edit')}
+                >
+                  edit
+                </Button>
+              </> //
+            ) : (
+              ''
+            )}
+            <div className="d-flex flex-row">
+              {view !== 'view' ? (
+                <Button size="xs" variant="light" onClick={this.cancel}>
+                  cancel
+                </Button>
               ) : (
                 ''
               )}
-              <div className="d-flex flex-row">
-                {view !== 'view' ? (
-                  <Button size="xs" variant="dark" onClick={this.cancel}>
-                    cancel
-                  </Button>
-                ) : (
-                  ''
-                )}
-                {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
-                  <Button
-                    size="xs"
-                    variant="success"
-                    onClick={this.save}
-                    className="ml-2"
-                  >
-                    save
-                  </Button>
-                ) : (
-                  ''
-                )}
+              {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
+                <Button
+                  size="xs"
+                  variant="success"
+                  onClick={this.save}
+                  className="ml-2"
+                >
+                  save
+                </Button>
+              ) : (
+                ''
+              )}
 
-                {view !== 'view' && error ? (
-                  <span className="smaller muted ml-2 text-white bg-warning p-1 pr-2 bolder">
-                    {error}
-                  </span>
-                ) : (
-                  ''
-                )}
-              </div>
-            </Col>
-            <Col>
-              {view === 'view' ? (
-                <div className="d-flex flex-row-reverse">
-                  <Button
-                    size="xs"
-                    variant="info"
-                    onClick={this.new}
-                    className="ml-2 float-right mt-1"
-                  >
-                    new
-                  </Button>
-                  <NamingTemplateOptions type={type} />{' '}
-                </div>
+              {view !== 'view' && error ? (
+                <span className="smaller muted ml-2 text-white bg-warning p-1 pr-2 bolder">
+                  {error}
+                </span>
               ) : (
                 ''
               )}
-            </Col>
-          </Row>
-        </Alert>
+            </div>
+          </Col>
+          <Col className="mt-2">
+            {view === 'view' ? (
+              <div className="d-flex flex-row-reverse">
+                <Button
+                  size="xs"
+                  variant="success"
+                  onClick={this.new}
+                  className="ml-2 float-right "
+                >
+                  new
+                </Button>
+                <NamingTemplateOptions
+                  type={type}
+                  updateTemplate={this.updateTemplate}
+                  setTemplate={this.setTemplate}
+                />{' '}
+              </div>
+            ) : (
+              ''
+            )}
+          </Col>
+        </Row>
 
         {view !== 'view' ? (
           <>
             <Row>
-              <Col md="7">
+              <Col md="8">
                 <InputGroup size="sm">
                   <InputGroup.Prepend>
                     <InputGroup.Text title="Label">
@@ -312,7 +355,7 @@ class SettingsNaming extends Component<Props, State> {
               </Col>
             </Row>
             <Row>
-              <Col md="7">
+              <Col md="8">
                 <InputGroup size="sm">
                   <InputGroup.Prepend>
                     <InputGroup.Text title="Slug">
@@ -345,11 +388,11 @@ class SettingsNaming extends Component<Props, State> {
           ''
         )}
 
-        <Row className="mt-2">
+        <Row className="">
           <Col>
             <span className="ml-2 mr-2 fa fa-file" />
 
-            <div className="name-preview border p-3">{filledPath}</div>
+            <div className="name-preview border p-2">{filledPath}</div>
           </Col>
         </Row>
 
