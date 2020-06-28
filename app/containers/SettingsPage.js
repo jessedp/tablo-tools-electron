@@ -9,6 +9,7 @@ import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import { Container } from 'react-bootstrap';
 import routes from '../constants/routes.json';
 
 import SettingsGeneral from '../components/SettingsGeneral';
@@ -35,9 +36,9 @@ class SettingsPage extends Component<Props> {
     }
 
     return (
-      <div className="section">
+      <Container className="section">
         <div>
-          <Alert variant="primary" className="p-2 m-2">
+          <Alert variant="primary" className="p-2">
             <Row>
               <Col md="2" className="pt-2">
                 <h4 className="pl-2">Settings</h4>
@@ -83,7 +84,7 @@ class SettingsPage extends Component<Props> {
         </div>
 
         <div className="scrollable-area">{content}</div>
-      </div>
+      </Container>
     );
   }
 }
