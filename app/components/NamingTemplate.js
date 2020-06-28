@@ -10,7 +10,7 @@ import * as slugify from 'slugify';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import { InputGroup, Form } from 'react-bootstrap';
+import { InputGroup, Form, Alert } from 'react-bootstrap';
 
 import Handlebars from 'handlebars';
 
@@ -25,7 +25,8 @@ import {
   getTemplate,
   getTemplateSlug,
   getDefaultTemplateSlug,
-  newTemplate
+  newTemplate,
+  upsertTemplate
 } from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
@@ -88,22 +89,32 @@ class SettingsNaming extends Component<Props, State> {
     this.checkErrors();
   }
 
-  checkErrors = () => {
+  checkErrors = async () => {
+    const { type } = this.props;
     const { template } = this.state;
     const { slug } = template;
 
     let error = '';
     if (slug === getDefaultTemplateSlug()) {
-      error = 'slug in use!';
+      error = 'cannot use default slug!';
+      this.setState({ error });
+      return true;
     }
-    if (error) this.setState({ error });
+    if (await global.NamingDb.asyncFindOne({ type, slug: template.slug })) {
+      error = 'editing existing';
+      this.setState({ error });
+    }
+
+    return false;
   };
 
   updatePath = (path: string) => {
+    if (!path) return;
     const { template } = this.state;
-    console.log('updatePath', path, template);
 
-    template.template = path;
+    console.log('updatePath', path, 'template', template);
+
+    template.template = path || this.originalTemplate.template;
     this.setState({ template });
   };
 
@@ -145,8 +156,25 @@ class SettingsNaming extends Component<Props, State> {
     this.setState({ template, view: 'edit' });
   };
 
-  save = () => {
-    this.setState({ template: this.originalTemplate, view: 'view' });
+  save = async () => {
+    const { sendFlash } = this.props;
+    const { template } = this.state;
+    let errors = await this.checkErrors();
+    console.log('1', errors);
+
+    if (!errors) {
+      errors = await upsertTemplate(template);
+      if (errors) {
+        console.log('2', errors);
+        sendFlash({ type: 'danger', message: errors.toString() });
+      } else {
+        sendFlash({ type: 'success', message: `saved "${template.label}"` });
+        // change the select box!
+        this.setState({
+          view: 'view'
+        });
+      }
+    }
   };
 
   setView = (view: string) => {
@@ -160,15 +188,19 @@ class SettingsNaming extends Component<Props, State> {
     if (!template || !template.template) return <></>; //
     let filledPath = template.template;
 
-    const parts = template.template.split(fsPath.sep).map((part, idx) => {
+    const parts = template.template.split(fsPath.sep).map(part => {
       const hbTemplate = Handlebars.compile(part, {
         noEscape: true,
         preventIndent: true
       });
       try {
-        const tpl = hbTemplate(templateVars);
-        if (idx === 0) return tpl;
-        return sanitize(tpl);
+        // console.log('hbTemplate VARS:', {
+        //   ...templateVars[0],
+        //   ...templateVars[1]
+        // });
+        const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
+        // if (idx === 0) return tpl;
+        return tpl;
       } catch (e) {
         console.warn('Handlebars unable to parse', e);
       }
@@ -183,70 +215,74 @@ class SettingsNaming extends Component<Props, State> {
 
     return (
       <div className="mr-3 pb-4">
-        <Row className="border-bottom bg-light p-1">
-          <Col md="3" className="pt-1">
-            <span className="pl-2 naming-tpl-header">{label}</span>
-          </Col>
-          <Col md="3" className="pt-1">
-            {view === 'view' ? (
-              <>
-                <Button
-                  size="xs"
-                  variant="primary"
-                  onClick={() => this.setView('edit')}
-                >
-                  edit
-                </Button>
-              </> //
-            ) : (
-              ''
-            )}
-            <div className="d-flex flex-row">
-              {view !== 'view' ? (
-                <Button size="xs" variant="secondary" onClick={this.cancel}>
-                  cancel
-                </Button>
+        <Alert variant="secondary" className="p-2 pl-3">
+          <Row className="">
+            <Col md="3" className="pt-1">
+              <span className="pl-2 naming-tpl-header">{label}</span>
+            </Col>
+            <Col md="3" className="pt-1">
+              {view === 'view' ? (
+                <>
+                  <Button
+                    size="xs"
+                    variant="primary"
+                    onClick={() => this.setView('edit')}
+                  >
+                    edit
+                  </Button>
+                </> //
               ) : (
                 ''
               )}
-              {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
-                <Button
-                  size="xs"
-                  variant="success"
-                  onClick={() => this.setView('view')}
-                  className="ml-2"
-                >
-                  save
-                </Button>
-              ) : (
-                ''
-              )}
+              <div className="d-flex flex-row">
+                {view !== 'view' ? (
+                  <Button size="xs" variant="dark" onClick={this.cancel}>
+                    cancel
+                  </Button>
+                ) : (
+                  ''
+                )}
+                {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
+                  <Button
+                    size="xs"
+                    variant="success"
+                    onClick={this.save}
+                    className="ml-2"
+                  >
+                    save
+                  </Button>
+                ) : (
+                  ''
+                )}
 
-              {view !== 'view' && error ? (
-                <i className="smaller muted ml-2 text-danger">{error}</i>
+                {view !== 'view' && error ? (
+                  <span className="smaller muted ml-2 text-white bg-warning p-1 pr-2 bolder">
+                    {error}
+                  </span>
+                ) : (
+                  ''
+                )}
+              </div>
+            </Col>
+            <Col>
+              {view === 'view' ? (
+                <div className="d-flex flex-row-reverse">
+                  <Button
+                    size="xs"
+                    variant="info"
+                    onClick={this.new}
+                    className="ml-2 float-right mt-1"
+                  >
+                    new
+                  </Button>
+                  <NamingTemplateOptions type={type} />{' '}
+                </div>
               ) : (
                 ''
               )}
-            </div>
-          </Col>
-          <Col>
-            {view === 'view' ? (
-              <div className="d-flex flex-row-reverse">
-                <Button
-                  size="xs"
-                  variant="info"
-                  onClick={this.new}
-                  className="ml-2 float-right mt-1"
-                >
-                  new
-                </Button>
-                <NamingTemplateOptions type={type} />{' '}
-              </div>
-            ) : (
-              ''
-            )}
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </Alert>
 
         {view !== 'view' ? (
           <>
@@ -313,7 +349,7 @@ class SettingsNaming extends Component<Props, State> {
           <Col>
             <span className="ml-2 mr-2 fa fa-file" />
 
-            <div className="name-preview border p-1">{filledPath}</div>
+            <div className="name-preview border p-3">{filledPath}</div>
           </Col>
         </Row>
 
@@ -328,7 +364,8 @@ class SettingsNaming extends Component<Props, State> {
             </Row>
             <TemplateEditor
               template={template}
-              data={templateVars}
+              record={templateVars[0]}
+              shortcuts={templateVars[1]}
               updateValue={this.updatePath}
             />
           </> //

@@ -13,11 +13,13 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+import { Alert } from 'react-bootstrap';
 import type NamingTemplateType from '../constants/app';
 
 type Props = {
   template: NamingTemplateType,
-  data: Object,
+  record: Object,
+  shortcuts: Object,
   updateValue: (value: string) => void
 };
 type State = {
@@ -61,6 +63,7 @@ class TemplateEditor extends Component<Props, State> {
     workingValue.template = `${p1}${tag}${p3}`;
     this.setState({ workingValue });
     updateValue(workingValue.template);
+    this.editorRef.current.editor.focus();
   }
 
   onChange(value: string) {
@@ -70,7 +73,7 @@ class TemplateEditor extends Component<Props, State> {
 
     workingValue.template = value.trim();
 
-    console.log('onChange', value, workingValue);
+    // console.log('onChange', value, workingValue);
 
     this.setState({ workingValue });
     updateValue(workingValue.template);
@@ -95,7 +98,7 @@ class TemplateEditor extends Component<Props, State> {
   }
 
   render() {
-    const { data } = this.props;
+    const { record, shortcuts } = this.props;
     const { workingValue } = this.state;
     return (
       <>
@@ -107,8 +110,8 @@ class TemplateEditor extends Component<Props, State> {
                 placeholder="Start entering a template..."
                 width="100%"
                 lineHeight="30px"
-                minLines={2}
-                maxLines={2}
+                minLines={3}
+                maxLines={3}
                 wrapEnabled
                 mode="handlebars"
                 theme="textmate"
@@ -118,7 +121,7 @@ class TemplateEditor extends Component<Props, State> {
                 value={workingValue.template}
                 fontSize="16px"
                 showPrintMargin={false}
-                showGutter
+                showGutter={false}
                 highlightActiveLine={false}
                 setOptions={{
                   useWorker: false,
@@ -131,8 +134,24 @@ class TemplateEditor extends Component<Props, State> {
         </Row>
         <Row>
           <Col>
+            <Alert size="sm" variant="primary" className="p-0 pl-3 mb-0">
+              shortcuts - common combinations/modications of original values
+            </Alert>
             <ReactJson
-              src={data}
+              src={shortcuts}
+              onSelect={this.selectJson}
+              enableClipboard={false}
+              collapsed={1}
+              displayDataTypes={false}
+            />
+          </Col>
+          <Col>
+            <Alert size="sm" variant="secondary" className="p-0 pl-3 mb-0">
+              &#34;full&#34; record
+            </Alert>
+
+            <ReactJson
+              src={record}
               onSelect={this.selectJson}
               enableClipboard={false}
               collapsed={1}

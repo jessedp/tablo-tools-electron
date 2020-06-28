@@ -116,6 +116,10 @@ code.slug-allowed-chars {
   background-color: floralwhite;
 }
 
+.string-value:hover {
+  cursor: pointer;
+}
+
 .text-success {
   color: #28a745 !important;
 }

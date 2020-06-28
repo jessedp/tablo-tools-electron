@@ -91,6 +91,21 @@ export function newTemplate(type: string): NamingTemplateType {
   return template;
 }
 
+export async function upsertTemplate(template: NamingTemplateType) {
+  if (!template.slug.trim()) return 'Cannot save empty slug!';
+  if (template.slug === getDefaultTemplateSlug())
+    return 'Cannot save default slug!';
+
+  await global.NamingDb.asyncUpdate(
+    { $and: [{ slug: template.slug }, { type: template.type }] },
+    template,
+    {
+      upsert: true
+    }
+  );
+  return '';
+}
+
 /** USER RELATED       */
 
 export async function getTemplate(
@@ -111,7 +126,7 @@ export async function getTemplates(type: string = '') {
     recs = await global.NamingDb.asyncFind({});
   } else {
     const typeRe = new RegExp(type);
-    recs = await global.NamingDb.asyncFind({ path: { $regex: typeRe } });
+    recs = await global.NamingDb.asyncFind({ type: { $regex: typeRe } });
   }
 
   return [...defaults, ...recs];
@@ -188,12 +203,14 @@ export async function buildTemplateVars(type: string) {
     if (prop && prop.toString().includes('Image')) return false;
     if (prop && prop.toString() === 'user_info') return false;
     if (prop && prop.toString() === 'qualifiers') return false;
+    if (prop && prop.toString() === 'snapshot_image') return false;
     if (prop && prop.toString().includes('_offsets')) return false;
     if (prop && prop.toString().includes('seek')) return false;
 
     return true;
   });
-  const vars = { ...globalVars, ...typeVars, ...result };
+  const shortcuts = { ...typeVars, ...globalVars };
+  // const vars = { ...globalVars, ...typeVars, ...result };
   // const sanitizedVars = deepUpdate(vars, (key, val) => {
   //   if (typeof val === 'string') {
   //     console.log('sanitize?', key, val, sanitize(val));
@@ -203,5 +220,5 @@ export async function buildTemplateVars(type: string) {
   //   return val;
   // });
   // console.log('DONE!');
-  return vars;
+  return [result, shortcuts];
 }
