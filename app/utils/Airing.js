@@ -11,12 +11,15 @@ import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
-import { EVENT, MOVIE, PROGRAM, SERIES, beginTimemark } from '../constants/app';
 import {
-  buildTemplateVars,
-  getDefaultTemplate,
-  fillTemplate
-} from './namingTpl';
+  EVENT,
+  MOVIE,
+  PROGRAM,
+  SERIES,
+  beginTimemark,
+  NamingTemplateType
+} from '../constants/app';
+import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -83,6 +86,8 @@ export default class Airing {
 
   data: Object;
 
+  template: NamingTemplateType;
+
   constructor(data: Object, retainData: boolean = true) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
@@ -95,6 +100,7 @@ export default class Airing {
     delete this.user_info;
 
     this.cachedWatch = null;
+    this.template = null;
 
     if (retainData) this.data = data;
   }
@@ -112,7 +118,11 @@ export default class Airing {
       const path = airing.typePath;
       const showData = await global.ShowDb.asyncFindOne({ path });
       airing.show = new Show(showData);
+
       if (retainData) airing.data.show = showData;
+
+      airing.template = await getTemplate(airing.type);
+
       return airing;
     }
 
@@ -294,12 +304,11 @@ export default class Airing {
     return 0;
   }
 
-  exportFile = () => {
+  get exportFile() {
     const vars = buildTemplateVars(this);
-    console.log(fillTemplate(getDefaultTemplate(this.type), vars));
-    // return 'file placeholder';
-    return fillTemplate(getDefaultTemplate(this.type), vars);
-  };
+    console.log(fillTemplate(this.template), vars);
+    return fillTemplate(this.template, vars);
+  }
 
   get exportFileOrig() {
     const { showTitle, airingDetails } = this;
@@ -546,7 +555,7 @@ export default class Airing {
     // const input = '/tmp/test_ys_p1.mp4';
     // outFile = '/tmp/test.mp4';
 
-    outFile = await this.exportFile();
+    outFile = await this.exportFile;
     const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);

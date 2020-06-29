@@ -248,6 +248,8 @@ export function fillTemplate(
   template: NamingTemplateType,
   templateVars: Object
 ) {
+  console.log('fillTemplate', template);
+
   const parts = template.template.split(fsPath.sep).map(part => {
     const hbTemplate = Handlebars.compile(part, {
       noEscape: true,

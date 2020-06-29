@@ -278,13 +278,13 @@ class SettingsNaming extends Component<Props, State> {
 
     return (
       <div className="mb-3">
-        <Row>
+        <Row className="border pb-0 mb-0">
           <Col md="3">
-            <Alert variant="dark" className="p-2 pl-3">
-              <span className="pl-2 naming-tpl-header">{label}</span>
+            <Alert variant="dark" className="p-1 pl-3">
+              <span className="pl-1 naming-tpl-header">{label}</span>
             </Alert>
           </Col>
-          <Col md="5" className="mt-2">
+          <Col md="5" className="mt-1">
             {view === 'view' ? (
               <>
                 <Button
@@ -328,7 +328,7 @@ class SettingsNaming extends Component<Props, State> {
               )}
             </div>
           </Col>
-          <Col className="mt-2">
+          <Col className="mt-1">
             {view === 'view' ? (
               <div className="d-flex flex-row-reverse">
                 <Button
@@ -413,7 +413,7 @@ class SettingsNaming extends Component<Props, State> {
           ''
         )}
 
-        <Row className="">
+        <Row>
           <Col>
             <span className="ml-2 mr-2 fa fa-file" />
 
