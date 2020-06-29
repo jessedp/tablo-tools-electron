@@ -83,7 +83,7 @@ export default class Airing {
 
   data: Object;
 
-  constructor(data: Object, retainData: boolean = false) {
+  constructor(data: Object, retainData: boolean = true) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
     delete this.airing_details;
@@ -105,7 +105,7 @@ export default class Airing {
 
   static async create(
     data: Object,
-    retainData: boolean = false
+    retainData: boolean = true
   ): Promise<Airing> {
     if (data) {
       const airing = new Airing(data, retainData);
@@ -294,11 +294,11 @@ export default class Airing {
     return 0;
   }
 
-  exportFile = async () => {
-    const vars = await buildTemplateVars(this);
+  exportFile = () => {
+    const vars = buildTemplateVars(this);
     console.log(fillTemplate(getDefaultTemplate(this.type), vars));
-    return 'file placeholder';
-    // return fillTemplate(getDefaultTemplate(this.type), vars);
+    // return 'file placeholder';
+    return fillTemplate(getDefaultTemplate(this.type), vars);
   };
 
   get exportFileOrig() {
