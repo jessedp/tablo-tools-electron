@@ -30,13 +30,15 @@ import {
   newTemplate,
   upsertTemplate,
   isCurrentTemplate,
+  isDefaultTemplate,
   fillTemplate
 } from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
 import { setConfigItem } from '../utils/config';
-import { titleCase } from '../utils/utils';
+import { titleCase, asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
+import DuplicateNames from './DuplicateNames';
 
 const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
@@ -65,7 +67,7 @@ type Props = {
 };
 type State = {
   view: string,
-  error: string,
+  error: any,
   template: NamingTemplateType,
   templateVars: Object
 };
@@ -116,13 +118,32 @@ class SettingsNaming extends Component<Props, State> {
 
     let error = '';
     if (slug === getDefaultTemplateSlug()) {
-      error = 'cannot use default slug!';
+      error = 'default slug';
       this.setState({ error });
       return true;
     }
     if (await global.NamingDb.asyncFindOne({ type, slug: template.slug })) {
       error = 'editing existing';
       // this.setState({ error });
+    }
+    const files = {};
+
+    const recType = new RegExp(type);
+    const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+    await asyncForEach(recs, async rec => {
+      const airing = await Airing.create(rec);
+      const vars = await buildTemplateVars(airing);
+      const file = fillTemplate(template, vars);
+
+      if (Array.isArray(files[file])) {
+        files[file].push(airing);
+      } else {
+        files[file] = [airing];
+      }
+    });
+    const uniqueNames = files.length;
+    if (uniqueNames !== recs.length) {
+      error = <DuplicateNames files={files} total={recs.length} />;
     }
 
     this.setState({ error });
@@ -168,8 +189,8 @@ class SettingsNaming extends Component<Props, State> {
   updatePath = (path: string) => {
     if (!path) return;
     const { template } = this.state;
-
-    console.log('updatePath', path, 'template', template);
+    this.checkErrors();
+    // console.log('updatePath', path, 'template', template);
 
     template.template = path || this.originalTemplate.template;
     this.setState({ template });
@@ -252,33 +273,12 @@ class SettingsNaming extends Component<Props, State> {
     const { view, template, templateVars, error } = this.state;
 
     if (!template || !template.template) return <></>; //
-    // let filledPath = template.template;
-
-    // const parts = template.template.split(fsPath.sep).map(part => {
-    //   const hbTemplate = Handlebars.compile(part, {
-    //     noEscape: true,
-    //     preventIndent: true
-    //   });
-    //   try {
-    //     const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
-    //     return tpl;
-    //   } catch (e) {
-    //     console.warn('Handlebars unable to parse', e);
-    //   }
-    //   return part;
-    // });
-
-    // filledPath = fsPath.normalize(parts.join(fsPath.sep));
-    // const sanitizeParts = filledPath
-    //   .split(fsPath.sep)
-    //   .map(part => sanitize(part));
-    // filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
 
     const filledPath = fillTemplate(template, templateVars);
 
     return (
       <div className="mb-3">
-        <Row className="border pb-0 mb-0">
+        <Row className="pb-0 mb-0">
           <Col md="3">
             <Alert variant="dark" className="p-1 pl-3">
               <span className="pl-1 naming-tpl-header">{label}</span>
@@ -369,6 +369,7 @@ class SettingsNaming extends Component<Props, State> {
                     onChange={this.updateLabel}
                     width={30}
                     size={30}
+                    disabled={isDefaultTemplate(template)}
                   />
                   <InputGroup.Append>
                     <InputGroup.Text>
@@ -396,6 +397,7 @@ class SettingsNaming extends Component<Props, State> {
                     width={30}
                     size={30}
                     className="field-error"
+                    disabled={isDefaultTemplate(template)}
                   />
                   <InputGroup.Append>
                     <InputGroup.Text>
