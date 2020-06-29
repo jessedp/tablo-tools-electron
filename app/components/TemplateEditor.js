@@ -46,10 +46,7 @@ class TemplateEditor extends Component<Props, State> {
     const { updateValue } = this.props;
     const { position } = this.state;
     const { workingValue } = this.state;
-    // if (location.idx < 0) return;
-    console.log('LEN', node.namespace.length);
-    console.log('NAME', node.name);
-    console.log('NS', node.namespace);
+
     let path = node.name;
     if (node.namespace.length) {
       const start = node.namespace.join('.');
