@@ -23,7 +23,7 @@ export const defaultTemplates: Array<NamingTemplateType> = [
     label: 'Tablo Tools',
     slug: 'tablo-tools',
     template:
-      '{{episodePath}}/{{showTitle}}/Season {{lPad episode.season_number 2}}/{{showTitle}} - s{{lPad episode.season_number 2}}e{{lPad episode.number 2}}.{{EXT}}'
+      '{{episodePath}}/{{showTitle}}/Season {{seasonNum}}/{{showTitle}} - {{episodeOrDate}}.{{EXT}}'
   },
   {
     type: MOVIE,
@@ -196,8 +196,14 @@ export function buildTemplateVars(airing: Object) {
         episodePath,
         showTitle: airing.showTitle,
         seasonNum: airing.seasonNum,
-        episodeNum: airing.episodeNum
+        episodeNum: airing.episodeNum,
+        episodeOrDate: airing.episodeNum
       };
+
+      if (airing.episode.season_number === 0) {
+        typeVars.episodeOrDate = dateSort;
+      }
+
       break;
 
     case MOVIE:
