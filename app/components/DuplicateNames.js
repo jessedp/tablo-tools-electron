@@ -54,7 +54,9 @@ export default function DuplicateNames(props: Props) {
         </Row>
 
         {dupes.map(rec => {
-          return <Filename file={rec.file} airings={rec.airings} />;
+          return (
+            <Filename file={rec.file} airings={rec.airings} key={rec.file} />
+          );
         })}
       </Modal.Body>
       <Modal.Footer>
