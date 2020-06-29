@@ -146,7 +146,7 @@ export async function getTemplates(type: string = '') {
 }
 
 /** Build & fill */
-export async function buildTemplateVars(airing: Object) {
+export function buildTemplateVars(airing: Object) {
   const config = getConfig();
   const { episodePath, moviePath, eventPath, programPath } = config;
 
@@ -167,7 +167,6 @@ export async function buildTemplateVars(airing: Object) {
   // const path = airing.typePath;
   // const showRec = await global.ShowDb.asyncFindOne({ path });
   // if (showRec) recData.show = showRec;
-
   const date = parseISO(recData.airing_details.datetime);
 
   const dateSort = format(date, 'yyyy-MM-dd');
