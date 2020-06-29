@@ -57,6 +57,10 @@ export function isCurrentTemplate(template: NamingTemplateType): boolean {
   return template.slug === getTemplateSlug(template.type);
 }
 
+export function isDefaultTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getDefaultTemplateSlug();
+}
+
 export function getTemplateSlug(type: string) {
   const {
     episodeTemplate,
@@ -127,6 +131,7 @@ export async function getTemplate(
   const template = templates.filter(rec => rec.slug === actualSlug)[0];
   if (!template) {
     console.warn(`missing slug ${actualSlug}`);
+    console.warn(type, getDefaultTemplateSlug(), templates);
     return getTemplate(type, getDefaultTemplateSlug());
   }
   return template;
@@ -231,26 +236,19 @@ export function buildTemplateVars(airing: Object) {
     return true;
   });
   const shortcuts = { ...typeVars, ...globalVars };
-  // const vars = { ...globalVars, ...typeVars, ...result };
-  // const sanitizedVars = deepUpdate(vars, (key, val) => {
-  //   if (typeof val === 'string') {
-  //     console.log('sanitize?', key, val, sanitize(val));
-  //     return sanitize(val);
-  //   }
-  //   console.log('not sanitized', key, val);
-  //   return val;
-  // });
-  // console.log('DONE!');
+
   return [result, shortcuts];
 }
 
 export function fillTemplate(
-  template: NamingTemplateType,
+  template: NamingTemplateType | string,
   templateVars: Object
 ) {
-  console.log('fillTemplate', template);
-
-  const parts = template.template.split(fsPath.sep).map(part => {
+  let tplStr = template;
+  if (typeof template === 'object') {
+    tplStr = template.template;
+  }
+  const parts = tplStr.split(fsPath.sep).map(part => {
     const hbTemplate = Handlebars.compile(part, {
       noEscape: true,
       preventIndent: true
