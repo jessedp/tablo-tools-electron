@@ -36,9 +36,9 @@ export default function manageExportList(
           ...state,
           ...{ exportList: [...exportList, exportRecord] }
         };
-        console.log(t);
         return t;
       }
+      // TODO: this might should just be return state
       return { ...state, ...{ exportList } };
 
     case REM_EXPORT: {
