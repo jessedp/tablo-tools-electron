@@ -119,6 +119,11 @@ label {
   background-color: #e0ecff;
 }
 
+.preview-toggle {
+  font-size: 18px;
+  color: forestgreen;
+}
+
 code.slug-allowed-chars {
   font-size: 12px;
   color: crimson;
