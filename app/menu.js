@@ -14,6 +14,8 @@ export default class MenuBuilder {
       process.env.DEBUG_PROD === 'true'
     ) {
       this.setupDevelopmentEnvironment();
+    } else {
+      this.addContextMenu();
     }
 
     const template =
@@ -27,12 +29,54 @@ export default class MenuBuilder {
     return menu;
   }
 
+  addContextMenu() {
+    this.mainWindow.webContents.on('context-menu', () => {
+      Menu.buildFromTemplate([
+        {
+          label: 'Cut',
+          role: 'cut',
+          click: () => {
+            console.log('cut');
+          }
+        },
+        {
+          label: 'Copy',
+          role: 'copy',
+          click: () => {
+            console.log('paste');
+          }
+        },
+        {
+          label: 'Paste',
+          role: 'paste',
+          click: () => {
+            console.log('copy');
+          }
+        }
+      ]).popup(this.mainWindow);
+    });
+  }
+
   setupDevelopmentEnvironment() {
     this.mainWindow.openDevTools();
     this.mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 
       Menu.buildFromTemplate([
+        {
+          label: 'Paste',
+          role: 'paste',
+          click: () => {
+            console.log('copy');
+          }
+        },
+        {
+          label: 'Copy',
+          role: 'copy',
+          click: () => {
+            console.log('paste');
+          }
+        },
         {
           label: 'Inspect element',
           click: () => {

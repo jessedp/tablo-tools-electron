@@ -90,12 +90,26 @@ export const makeChannelDb = () => {
   });
 };
 
+export const makeNamingDb = () => {
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const namingDbName = `${device.serverid}-naming.db`;
+  const namingFile = path.join(dataDir, namingDbName);
+
+  return new AsyncNedb({
+    filename: namingFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
 export const setupDb = async () => {
   if (!hasDevice()) return;
 
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
-  global.SearchDb = makeSearchDb();
   global.ChannelDb = makeChannelDb();
+  global.SearchDb = makeSearchDb();
+  global.NamingDb = makeNamingDb();
   PubSub.publish('DB_CHANGE', true);
 };

@@ -289,8 +289,7 @@ function FfmpegLog(prop) {
 
 const FileInfo = prop => {
   const { airing, state } = prop;
-  const { exportFile } = airing;
-  const exists = fs.existsSync(exportFile);
+  const exists = fs.existsSync(airing.exportFile);
 
   const openDir = () => {
     shell.showItemInFolder(airing.exportFile);
@@ -324,7 +323,7 @@ const FileInfo = prop => {
       </div>
     );
   }
-  const stats = fs.statSync(exportFile);
+  const stats = fs.statSync(airing.exportFile);
 
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';

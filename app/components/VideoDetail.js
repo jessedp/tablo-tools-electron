@@ -75,7 +75,7 @@ function CommercialSkip(prop) {
   if (!comskip) return '';
   return (
     <h6>
-      Commerical Skip status: <b>{comskip.state}</b>{' '}
+      Commercial Skip status: <b>{comskip.state}</b>{' '}
       {comskip.error ? `(${comskip.error})` : ''}
     </h6>
   );

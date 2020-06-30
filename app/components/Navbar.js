@@ -257,7 +257,10 @@ class Navbar extends Component<Props, State> {
                   />
                 </div>
                 <div className="pr-1">
-                  <LinkContainer activeClassName="active" to={routes.SETTINGS}>
+                  <LinkContainer
+                    activeClassName="active"
+                    to={routes.GENSETTINGS}
+                  >
                     <Button size="sm" variant="outline-dark" title="Settings">
                       <i className="fa fa-cogs" />
                     </Button>

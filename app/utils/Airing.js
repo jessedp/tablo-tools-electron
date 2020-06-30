@@ -11,7 +11,15 @@ import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
-import { EVENT, MOVIE, PROGRAM, SERIES, beginTimemark } from '../constants/app';
+import {
+  EVENT,
+  MOVIE,
+  PROGRAM,
+  SERIES,
+  beginTimemark,
+  NamingTemplateType
+} from '../constants/app';
+import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -76,7 +84,11 @@ export default class Airing {
 
   cmd: any;
 
-  constructor(data: Object) {
+  data: Object;
+
+  template: NamingTemplateType;
+
+  constructor(data: Object, retainData: boolean = true) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
     delete this.airing_details;
@@ -87,19 +99,30 @@ export default class Airing {
     this.userInfo = this.user_info;
     delete this.user_info;
 
-    // this.show = null;
     this.cachedWatch = null;
+    this.template = null;
+
+    if (retainData) this.data = data;
   }
 
   static async find(id: number): Promise<Airing> {
     return Airing.create(await global.RecDb.asyncFindOne({ object_id: id }));
   }
 
-  static async create(data: Object): Promise<Airing> {
+  static async create(
+    data: Object,
+    retainData: boolean = true
+  ): Promise<Airing> {
     if (data) {
-      const airing = new Airing(data);
+      const airing = new Airing(data, retainData);
       const path = airing.typePath;
-      airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
+      const showData = await global.ShowDb.asyncFindOne({ path });
+      airing.show = new Show(showData);
+
+      if (retainData) airing.data.show = showData;
+
+      airing.template = await getTemplate(airing.type);
+
       return airing;
     }
 
@@ -282,6 +305,12 @@ export default class Airing {
   }
 
   get exportFile() {
+    const vars = buildTemplateVars(this);
+    console.log(fillTemplate(this.template), vars);
+    return fillTemplate(this.template, vars);
+  }
+
+  get exportFileOrig() {
     const { showTitle, airingDetails } = this;
 
     const EXT = 'mp4';
@@ -526,8 +555,8 @@ export default class Airing {
     // const input = '/tmp/test_ys_p1.mp4';
     // outFile = '/tmp/test.mp4';
 
-    outFile = this.exportFile;
-    const outPath = this.exportPath;
+    outFile = await this.exportFile;
+    const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);
     if (debug) log.info('exporting to file:', outFile);
