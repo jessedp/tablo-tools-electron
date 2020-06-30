@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import ExportRecordType from '../reducers/types';
 
 import {
-  OFF,
   EXP_WAITING,
   EXP_WORKING,
   EXP_DONE,
@@ -47,7 +46,7 @@ const VideoExport = (WrappedComponent: any) => {
       this.state = {
         exportState: EXP_WAITING,
         atOnce: 1,
-        deleteOnFinish: OFF
+        deleteOnFinish: CHECKBOX_OFF
       };
 
       this.shouldCancel = false;
@@ -93,6 +92,7 @@ const VideoExport = (WrappedComponent: any) => {
     };
 
     updateProgress = (airingId: number, progress: Object) => {
+      const { deleteOnFinish } = this.state;
       const { exportList, updateExportRecord } = this.props;
       const record: ExportRecordType = exportList.find(
         rec => rec.airing.object_id === airingId
@@ -107,6 +107,9 @@ const VideoExport = (WrappedComponent: any) => {
       const timing = this.timings[airing.id];
 
       if (progress.finished) {
+        if (deleteOnFinish === CHECKBOX_ON) {
+          airing.delete();
+        }
         record.state = EXP_DONE;
         record.progress = {
           exportInc: 1000,
