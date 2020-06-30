@@ -306,7 +306,6 @@ export default class Airing {
 
   get exportFile() {
     const vars = buildTemplateVars(this);
-    console.log(fillTemplate(this.template), vars);
     return fillTemplate(this.template, vars);
   }
 

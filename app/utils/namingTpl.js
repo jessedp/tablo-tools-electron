@@ -261,11 +261,13 @@ export function fillTemplate(
       noEscape: true,
       preventIndent: true
     });
-    try {
-      const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
-      return tpl;
-    } catch (e) {
-      console.warn('Handlebars unable to parse', e);
+    if (templateVars) {
+      try {
+        const tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
+        return tpl;
+      } catch (e) {
+        console.warn('Handlebars unable to parse', e);
+      }
     }
     return part;
   });
