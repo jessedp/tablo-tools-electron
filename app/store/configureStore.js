@@ -10,5 +10,3 @@ const selectedConfigureStore =
 export const { configureStore } = selectedConfigureStore;
 
 export const { history } = selectedConfigureStore;
-
-export const { persistor } = selectedConfigureStore;
