@@ -26,7 +26,6 @@ import {
   getTemplate,
   getTemplateSlug,
   getDefaultTemplate,
-  getDefaultTemplateSlug,
   newTemplate,
   upsertTemplate,
   isCurrentTemplate,
@@ -39,6 +38,7 @@ import { setConfigItem } from '../utils/config';
 import { titleCase, asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
 import DuplicateNames from './DuplicateNames';
+import NamingPreview from './NamingPreview';
 
 const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
@@ -67,7 +67,9 @@ type Props = {
 };
 type State = {
   view: string,
-  error: any,
+  error: string,
+  duplicates: any,
+  previews: any,
   template: NamingTemplateType,
   templateVars: Object
 };
@@ -77,7 +79,14 @@ class SettingsNaming extends Component<Props, State> {
 
   constructor() {
     super();
-    this.state = { view: 'view', templateVars: [], template: {}, error: '' };
+    this.state = {
+      view: 'view',
+      templateVars: [],
+      template: {},
+      error: '',
+      duplicates: null,
+      previews: null
+    };
 
     this.setView = this.setView.bind(this);
     this.cancel = this.cancel.bind(this);
@@ -106,30 +115,27 @@ class SettingsNaming extends Component<Props, State> {
 
     const templateVars = await buildTemplateVars(airing);
 
-    this.setState({ template, templateVars });
-    this.checkErrors();
+    await this.setState({ template, templateVars });
+    await this.checkErrors();
   }
 
   checkErrors = async () => {
     const { type } = this.props;
     const { template } = this.state;
     if (!template) return;
-    const { slug } = template;
+    // const { slug } = template;
 
-    let error = '';
-    if (slug === getDefaultTemplateSlug()) {
-      error = 'default slug';
-      this.setState({ error });
-      return true;
-    }
-    if (await global.NamingDb.asyncFindOne({ type, slug: template.slug })) {
-      error = 'editing existing';
-      // this.setState({ error });
-    }
+    const error = '';
+    // if (slug === getDefaultTemplateSlug()) {
+    //   error = 'default slug';
+    //   this.setState({ error });
+    //   return true;
+    // }
     const files = {};
 
     const recType = new RegExp(type);
     const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+
     await asyncForEach(recs, async rec => {
       const airing = await Airing.create(rec);
       const vars = await buildTemplateVars(airing);
@@ -141,18 +147,21 @@ class SettingsNaming extends Component<Props, State> {
         files[file] = [airing];
       }
     });
+    const previews = <NamingPreview files={files} />;
     const uniqueNames = files.length;
+    let duplicates;
     if (uniqueNames !== recs.length) {
-      error = <DuplicateNames files={files} total={recs.length} />;
+      duplicates = <DuplicateNames files={files} total={recs.length} />;
     }
 
-    this.setState({ error });
+    this.setState({ error, duplicates, previews });
 
     return false;
   };
 
-  updateTemplate = (template: NamingTemplateType) => {
+  updateTemplate = async (template: NamingTemplateType) => {
     this.setState({ template });
+    await this.checkErrors();
   };
 
   setTemplate = (template: NamingTemplateType) => {
@@ -270,7 +279,14 @@ class SettingsNaming extends Component<Props, State> {
 
   render() {
     const { label, type } = this.props;
-    const { view, template, templateVars, error } = this.state;
+    const {
+      view,
+      template,
+      templateVars,
+      error,
+      duplicates,
+      previews
+    } = this.state;
 
     if (!template || !template.template) return <></>; //
 
@@ -285,23 +301,28 @@ class SettingsNaming extends Component<Props, State> {
             </Alert>
           </Col>
           <Col md="5" className="mt-1">
-            {view === 'view' ? (
-              <>
+            <div className="d-flex flex-row">
+              {view === 'view' ? (
                 <Button
                   size="xs"
                   variant="primary"
                   onClick={() => this.setView('edit')}
+                  title="edit"
                 >
-                  edit
+                  <span className="fa fa-edit" />
                 </Button>
-              </> //
-            ) : (
-              ''
-            )}
-            <div className="d-flex flex-row">
+              ) : (
+                ''
+              )}
+
               {view !== 'view' ? (
-                <Button size="xs" variant="light" onClick={this.cancel}>
-                  cancel
+                <Button
+                  size="xs"
+                  variant="secondary"
+                  onClick={this.cancel}
+                  title="cancel"
+                >
+                  <span className="fas fa-window-close naming-icons" />
                 </Button>
               ) : (
                 ''
@@ -313,7 +334,7 @@ class SettingsNaming extends Component<Props, State> {
                   onClick={this.save}
                   className="ml-2"
                 >
-                  save
+                  <span className="fa fa-save naming-icons" />
                 </Button>
               ) : (
                 ''
@@ -326,6 +347,8 @@ class SettingsNaming extends Component<Props, State> {
               ) : (
                 ''
               )}
+              {view !== 'view' && duplicates ? duplicates : ''}
+              {view !== 'view' && previews ? previews : ''}
             </div>
           </Col>
           <Col className="mt-1">
@@ -343,7 +366,7 @@ class SettingsNaming extends Component<Props, State> {
                   type={type}
                   updateTemplate={this.updateTemplate}
                   setTemplate={this.setTemplate}
-                />{' '}
+                />
               </div>
             ) : (
               ''

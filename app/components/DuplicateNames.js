@@ -18,11 +18,12 @@ export default function DuplicateNames(props: Props) {
       Object.keys(files).length} / ${total} are duplicates`;
     return (
       <Button
-        variant="link"
+        variant="warning"
         onClick={() => setShow(true)}
-        className="text-white border-bottom"
         size="xs"
+        className="ml-2"
       >
+        <span className="fas fa-exclamation mr-2 naming-icons" />
         {status}
       </Button>
     );

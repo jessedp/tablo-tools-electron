@@ -197,11 +197,13 @@ export function buildTemplateVars(airing: Object) {
         showTitle: airing.showTitle,
         seasonNum: airing.seasonNum,
         episodeNum: airing.episodeNum,
-        episodeOrDate: airing.episodeNum
+        episodeOrDate: airing.episodeNum,
+        episodeOrTMS: airing.episodeNum
       };
 
       if (airing.episode.season_number === 0) {
         typeVars.episodeOrDate = dateSort;
+        typeVars.episodeOrTMS = airing.episode.tms_id;
       }
 
       break;
