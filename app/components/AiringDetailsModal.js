@@ -33,16 +33,17 @@ export default function AiringDetailsModal(props: Props) {
   }
 
   const selectJson = (node: Object) => {
-    // const { updateValue } = this.props;
-    // const { position } = this.state;
-    // const { workingValue } = this.state;
-
     if (node.name.includes('path')) {
       console.log(node);
       const host = global.Api.device.private_ip;
       const url = `http://${host}:8885/${node.value}`;
       shell.openExternal(url);
     }
+  };
+
+  const directoryUrl = `http://192.168.1.229:18080/pvr/${airing.id}/`;
+  const openDirectory = () => {
+    shell.openExternal(directoryUrl);
   };
 
   // eslint-disable-next-line no-underscore-dangle
@@ -63,6 +64,14 @@ export default function AiringDetailsModal(props: Props) {
           withActions={OFF}
         />
         <RecordingOverview airing={airing} />
+        <Button
+          variant="link"
+          onClick={openDirectory}
+          className="text-lowercase external-directory pt-0"
+        >
+          <span className="fa fa-globe pr-2" />
+          {directoryUrl}
+        </Button>
         <Alert size="sm" variant="dark" className="p-1 pl-2">
           JSON data
           <span className="pl-2 smaller">
