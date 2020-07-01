@@ -16,7 +16,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 
-import * as ActionListActions from '../actions/actionList';
+import * as ExportListActions from '../actions/exportList';
 
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
@@ -28,17 +28,20 @@ import {
   EXP_DONE,
   EXP_CANCEL,
   EXP_FAIL,
-  EXP_DELETE
+  EXP_DELETE,
+  NamingTemplateType
 } from '../constants/app';
 
 import ExportRecordType from '../reducers/types';
 
 import { readableBytes, secondsToTimeStr } from '../utils/utils';
 import RelativeDate from './RelativeDate';
+import FilenameEditor from './FilenameEditor';
 
 type Props = {
   record: ExportRecordType,
-  airing: Airing
+  airing: Airing,
+  updateExportRecord: ExportRecordType => void
 };
 
 type State = {};
@@ -52,6 +55,12 @@ class RecordingExport extends Component<Props, State> {
       this.render();
     }
   }
+
+  updateTemplate = (template: NamingTemplateType) => {
+    const { record, updateExportRecord } = this.props;
+    record.airing.template = template;
+    updateExportRecord(record);
+  };
 
   render() {
     const { record } = this.props;
@@ -86,7 +95,11 @@ class RecordingExport extends Component<Props, State> {
             </Row>
             <Row>
               <Col md="auto">
-                <FileInfo airing={airing} state={exportState} />
+                <FileInfo
+                  airing={airing}
+                  exportState={exportState}
+                  updateTemplate={this.updateTemplate}
+                />
               </Col>
             </Row>
           </Col>
@@ -287,8 +300,14 @@ function FfmpegLog(prop) {
   );
 }
 
-const FileInfo = prop => {
-  const { airing, state } = prop;
+type FileInfoProps = {
+  airing: Airing,
+  exportState: number,
+  updateTemplate: (template: NamingTemplateType) => void
+};
+
+const FileInfo = (props: FileInfoProps) => {
+  const { airing, exportState, updateTemplate } = props;
   const exists = fs.existsSync(airing.exportFile);
 
   const openDir = () => {
@@ -296,7 +315,7 @@ const FileInfo = prop => {
   };
 
   if (!exists) {
-    if (state === EXP_DONE) {
+    if (exportState === EXP_DONE) {
       // uh-oh. probably a mac
       return (
         <div className="p-0 m-0 smaller font-weight-bold text-danger">
@@ -308,7 +327,7 @@ const FileInfo = prop => {
               variant="link"
               className="p-0 pl-1"
               onClick={openDir}
-              title="Open file in directory"
+              title="Edit Filename"
             >
               <span className="fa fa-external-link-alt text-warning" />
             </Button>
@@ -320,6 +339,7 @@ const FileInfo = prop => {
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
         {airing.exportFile}
+        <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
       </div>
     );
   }
@@ -328,11 +348,11 @@ const FileInfo = prop => {
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';
   let icon = 'fa pr-1 ';
-  if (state === EXP_WORKING) {
+  if (exportState === EXP_WORKING) {
     showSize = false;
     baseClass = `${baseClass} text-warning`;
     icon = `${icon} fa-exclamation`;
-  } else if (state === EXP_DONE || state === EXP_DELETE) {
+  } else if (exportState === EXP_DONE || exportState === EXP_DELETE) {
     showSize = true;
     baseClass = `${baseClass} text-success`;
     icon = `${icon} fa-check-circle`;
@@ -345,7 +365,8 @@ const FileInfo = prop => {
   return (
     <div className={baseClass}>
       <span className={icon} />
-      <span className="pr-3">{airing.exportFile}</span>
+      <span className="">{airing.exportFile}</span>
+      <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>
@@ -381,7 +402,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ ...ActionListActions }, dispatch);
+  return bindActionCreators({ ...ExportListActions }, dispatch);
 };
 
 export default connect<*, *, *, *, *, *>(
