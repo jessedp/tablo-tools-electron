@@ -14,7 +14,7 @@ export default class VideoDetail extends Component<Props> {
   render() {
     const { details } = this.props;
     return (
-      <Table size="sm">
+      <Table size="sm" className="pb-0 mb-0">
         <tbody>
           <tr>
             <th>Audio</th>
