@@ -39,3 +39,28 @@ export type NamingTemplateType = {
   label: string,
   template: string
 };
+
+export const versionUpdateTestMessage2 = {
+  available: true,
+  info: {
+    info: {
+      version: '0.1.5-alpha.1',
+      files: [
+        {
+          url: 'TabloTools-0.1.5-alpha.1.AppImage',
+          sha512:
+            'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+          size: 126827108,
+          blockMapSize: 133752
+        }
+      ]
+    },
+    path: 'TabloTools-0.1.5-alpha.1.AppImage',
+    sha512:
+      'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
+    releaseDate: '2020-04-13T14:56:04.632Z',
+    releaseName: '0.1.5-alpha.1',
+    releaseNotes:
+      '<p>Fix one for loading Airings where the data is physically missing.</p>'
+  }
+};

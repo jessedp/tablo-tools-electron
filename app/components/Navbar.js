@@ -7,8 +7,10 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import Modal from 'react-bootstrap/Modal';
+
+import ReactMarkdown from 'react-markdown';
+
 import { format } from 'date-fns';
 import axios from 'axios';
 
@@ -59,6 +61,8 @@ class Navbar extends Component<Props, State> {
 
   lastMousePos: { x: number, y: number };
 
+  autohideTimer: any;
+
   constructor() {
     super();
     this.state = {
@@ -66,6 +70,7 @@ class Navbar extends Component<Props, State> {
       showToggle: false
     };
     this.lastMousePos = { x: 0, y: 0 };
+    this.autohideTimer = null;
 
     (this: any).mouseMove = this.mouseMove.bind(this);
   }
@@ -101,12 +106,18 @@ class Navbar extends Component<Props, State> {
     ipcRenderer.on('update-reply', (event, msg) => {
       this.processUpdate(msg);
     });
+    // this.processUpdate(versionUpdateTestMessage);
   }
 
   mouseMove = (e: any) => {
     this.lastMousePos = { x: e.screenX, y: e.screenY };
-    if (this.checkYInbounds(5)) {
+    if (this.checkYInbounds(2)) {
       this.setState({ showToggle: true });
+      if (this.autohideTimer) clearTimeout(this.autohideTimer);
+      this.autohideTimer = setTimeout(
+        () => this.setState({ showToggle: false }),
+        5000
+      );
     } else if (!this.checkYInbounds(40)) {
       this.setState({ showToggle: false });
     }
@@ -119,7 +130,6 @@ class Navbar extends Component<Props, State> {
   };
 
   async processUpdate(msg: Object) {
-    console.log('updateMsg:', msg);
     if (msg.error) {
       console.error('Problem updating: ', msg.error);
       this.setState({
@@ -288,7 +298,7 @@ function VersionStatus(prop) {
 
   const { updateData, available } = prop;
 
-  if (!updateData || !available) return <></>;
+  if (!updateData || !available) return <></>; //
 
   let color = 'text-warning ';
   let type = 'NEW Release ';
@@ -299,16 +309,16 @@ function VersionStatus(prop) {
     isRelease = false;
   }
 
-  if (!isRelease && !getConfig().notifyBeta) return <></>;
+  if (!isRelease && !getConfig().notifyBeta) return <></>; //
 
   const releaseDate = format(
     Date.parse(updateData.releaseDate),
     'ccc M/d/yy @ h:m:s a'
   );
   const title = `${updateData.version} available as of ${releaseDate}`;
-  let downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/${updateData.version}/${updateData.path}`;
+  let downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/download/v${updateData.version}/${updateData.path}`;
   if (!updateData.path)
-    downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/tag/${updateData.version}/${updateData.path}`;
+    downloadUrl = `https://github.com/jessedp/tablo-tools-electron/releases/tag/v${updateData.version}/${updateData.path}`;
 
   return (
     <>
@@ -348,17 +358,13 @@ function VersionStatus(prop) {
           )}
           <br />
           <h6>Notes:</h6>
-          <code>
-            {/* eslint-disable-next-line react/no-danger */}
-            <div
-              dangerouslySetInnerHTML={{ __html: updateData.releaseNotes }}
-            />
-          </code>
+          <ReactMarkdown source={updateData.releaseNotes} />
           <Button
-            className="pt-2 mt-3"
-            variant="outline-secondary"
+            className="pt-2 ml-2 mt-3 bolder"
+            variant="success"
             onClick={() => shell.openExternal(downloadUrl)}
           >
+            <span className="fa fa-download pr-2" />
             Download {updateData.version} now!
           </Button>
           <div className="pt-2 smaller">
@@ -389,53 +395,5 @@ function releaseToUpdateMsg(data): UpdateMessage {
     }
   };
 }
-
-/**
- updateData = {
-    available: true,
-    info: {
-    info: {
-      version: '0.1.5-alpha.1',
-      files: [
-        {
-          url: 'TabloTools-0.1.5-alpha.1.AppImage',
-          sha512:
-            'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
-          size: 126827108,
-          blockMapSize: 133752
-        }
-      ]
-    },
-    path: 'TabloTools-0.1.5-alpha.1.AppImage',
-    sha512:
-      'UXe1WqXe+xxc+jVc1bWAFvd3w1w8jNej/Dg0PkyhieyRZOcKYne0GmoiKnv2Nio0H0JcHW4bb99RtPzkRh3zZw==',
-    releaseDate: '2020-04-13T14:56:04.632Z',
-    releaseName: '0.1.5-alpha.1',
-    releaseNotes:
-      '<p>Fix one for loading Airings where the data is physically missing.</p>'
-  };
-
-
- const updateData = {
-  available: true,
-  info: {
-    version: '0.1.3',
-    files: [
-      {
-        url: 'TabloTools-0.1.3.AppImage',
-        sha512:
-          '5/oBJQRDvN9oJxILQgzRfWjFmjLl9BycU1paATtqM4wNI3hpam05KJWjjHM5NIx5C1rmICewWNGf9GIz+I+FMg==',
-        size: 129909853,
-        blockMapSize: 136305
-      }
-    ],
-    path: 'TabloTools-0.1.3.AppImage',
-    sha512:
-      '5/oBJQRDvN9oJxILQgzRfWjFmjLl9BycU1paATtqM4wNI3hpam05KJWjjHM5NIx5C1rmICewWNGf9GIz+I+FMg==',
-    releaseDate: '2020-04-13T00:33:22.099Z'
-  },
-  error: null
-};
- */
 
 export default withRouter(Navbar);
