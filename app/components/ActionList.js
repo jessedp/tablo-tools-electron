@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 
 import { Row, Col, Button } from 'react-bootstrap';
 import Airing from '../utils/Airing';
@@ -29,6 +29,7 @@ type Props = {
 };
 
 type State = {
+  loaded: boolean,
   searchAlert: SearchAlert
 };
 
@@ -38,13 +39,14 @@ class ActionList extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { searchAlert: EMPTY_SEARCHALERT };
+    this.state = { loaded: false, searchAlert: EMPTY_SEARCHALERT };
 
     (this: any).deleteAll = this.deleteAll.bind(this);
   }
 
   async componentDidMount() {
     this.refresh();
+    this.setState({ loaded: true });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -55,8 +57,8 @@ class ActionList extends Component<Props, State> {
   }
 
   refresh = async () => {
-    const { sendResults } = this.props;
-    const { actionList } = this.props;
+    const { sendResults, actionList } = this.props;
+
     let { searchAlert } = this.state;
 
     const len = actionList.length;
@@ -126,8 +128,15 @@ class ActionList extends Component<Props, State> {
   };
 
   render() {
+    const { loaded } = this.state;
     const { history, actionList } = this.props;
-    console.log('action list render');
+
+    if (!loaded) return <></>; //
+
+    if (actionList.length === 0) {
+      return <Redirect to={routes.SEARCH} />;
+    }
+
     return (
       <>
         <Row>
