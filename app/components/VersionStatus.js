@@ -67,8 +67,6 @@ class VersionStatus extends Component<Props, State> {
 
     let notify;
     data.forEach(rec => {
-      // console.log(rec);
-      // console.log(appVersion, rec.tag_name);
       if (compareVersions.compare(appVersion, rec.tag_name, '<')) {
         if (rec.prerelease && getConfig().notifyBeta) {
           if (!notify) notify = rec;
@@ -76,7 +74,7 @@ class VersionStatus extends Component<Props, State> {
         if (!rec.prerelease && !notify) notify = rec;
       }
     });
-    console.log('notify', notify);
+
     if (notify) {
       this.setState({ updateAvailable: true, record: notify });
     }
