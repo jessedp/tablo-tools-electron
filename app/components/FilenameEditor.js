@@ -7,6 +7,7 @@ import { NamingTemplateType } from '../constants/app';
 import Airing from '../utils/Airing';
 import TemplateEditor from './TemplateEditor';
 import { buildTemplateVars } from '../utils/namingTpl';
+import NamingTemplateOptions from './NamingTemplateOptions';
 
 type Props = { airing: Airing, updateTemplate: NamingTemplateType => void };
 
@@ -42,6 +43,7 @@ export default function FilenameEditor(props: Props) {
   }
 
   const templateVars = buildTemplateVars(workingAiring);
+  // const updateTemplate = (t)=>{console.log(t)}
 
   return (
     <Modal
@@ -54,6 +56,12 @@ export default function FilenameEditor(props: Props) {
       size="lg"
     >
       <Modal.Body>
+        <NamingTemplateOptions
+          type={airing.type}
+          updateTemplate={setTemplate}
+          setDefaultTemplate={() => {}}
+        />
+
         <div className="name-preview border p-2">
           {workingAiring.exportFile}
         </div>
