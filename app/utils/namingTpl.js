@@ -256,6 +256,7 @@ export function fillTemplate(
   if (typeof template === 'object') {
     tplStr = template.template;
   }
+
   const parts = tplStr.split(fsPath.sep).map(part => {
     const hbTemplate = Handlebars.compile(part, {
       noEscape: true,
@@ -273,9 +274,12 @@ export function fillTemplate(
   });
 
   let filledPath = fsPath.normalize(parts.join(fsPath.sep));
-  const sanitizeParts = filledPath
-    .split(fsPath.sep)
-    .map(part => sanitize(part));
+  let i = 0;
+  const sanitizeParts = filledPath.split(fsPath.sep).map(part => {
+    if (i === 0) return part;
+    i += 1;
+    return sanitize(part);
+  });
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
 
   return filledPath;
