@@ -42,6 +42,18 @@ class TemplateEditor extends Component<Props, State> {
     (this: any).selectJson = this.selectJson.bind(this);
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { template } = this.props;
+
+    if (prevProps.template !== template) {
+      this.refresh(template);
+    }
+  }
+
+  refresh = (template: NamingTemplateType) => {
+    this.setState({ workingValue: template });
+  };
+
   selectJson(node: Object) {
     const { updateValue } = this.props;
     const { position } = this.state;
@@ -70,23 +82,11 @@ class TemplateEditor extends Component<Props, State> {
 
     workingValue.template = value.trim();
 
-    // console.log('onChange', value, workingValue);
-
     this.setState({ workingValue });
     updateValue(workingValue.template);
   }
 
-  // onSelectionChange(newValue, event) {
-  //   this.session = newValue;
-  //   console.log('select-change', newValue);
-  //   console.log('select-change-event', event);
-  // }
-  // // newValue|select.cursor.column
-
   onCursorChange(newValue: any) {
-    // console.log('cursor-change', newValue);
-    // console.log('cursor-change-event', event);
-
     const position = {
       column: newValue.cursor.column,
       row: newValue.cursor.row

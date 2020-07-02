@@ -1,3 +1,4 @@
+// @flow
 import React, { useState, useEffect } from 'react';
 
 import Select from 'react-select';
@@ -15,12 +16,12 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type PropType = {
   type: string,
-  updateTemplate: (template: NamingTemplateType) => {},
-  setTemplate: (template: NamingTemplateType) => {}
+  updateTemplate: (template: NamingTemplateType) => void,
+  setDefaultTemplate: (template: NamingTemplateType) => void
 };
 
 export default function NamingTemplateOptions(props: PropType) {
-  const { type, updateTemplate, setTemplate } = props;
+  const { type, updateTemplate, setDefaultTemplate } = props;
 
   const [options, setOptions] = useState([]);
   const [selected, setSelected] = useState({});
@@ -65,23 +66,26 @@ export default function NamingTemplateOptions(props: PropType) {
     <div>
       <div className="d-inline-block ">
         <InputGroup size="sm">
-          <InputGroup.Prepend>
-            <InputGroup.Text title="issue search">
-              <Checkbox
-                label="default?"
-                checked={
-                  isCurrentTemplate(selected) ? CHECKBOX_ON : CHECKBOX_OFF
-                }
-                handleChange={() => setTemplate(selected)}
-              />
-            </InputGroup.Text>
-          </InputGroup.Prepend>
           <Select
             options={prettyOpts}
             onChange={select}
             styles={SelectStyles('30px', 200)}
             value={options.filter(option => option.slug === selected.slug)}
           />
+          <InputGroup.Append>
+            <InputGroup.Text title="issue search">
+              <Checkbox
+                label="used as default?"
+                checked={
+                  isCurrentTemplate(selected) ? CHECKBOX_ON : CHECKBOX_OFF
+                }
+                handleChange={() => {
+                  setDefaultTemplate(selected);
+                  loadTemplateOptions(type);
+                }}
+              />
+            </InputGroup.Text>
+          </InputGroup.Append>
         </InputGroup>
       </div>
     </div>

@@ -159,9 +159,39 @@ class SettingsNaming extends Component<Props, State> {
     return false;
   };
 
-  updateTemplate = async (template: NamingTemplateType) => {
+  updateTemplate = (template: NamingTemplateType) => {
     this.setState({ template });
-    await this.checkErrors();
+    this.checkErrors();
+  };
+
+  setDefaultTemplate = (template: NamingTemplateType) => {
+    const { type, sendFlash } = this.props;
+
+    let nextTemplate = template;
+    if (isCurrentTemplate(template)) {
+      nextTemplate = getDefaultTemplate(template.type);
+    }
+    switch (type) {
+      case SERIES:
+        setConfigItem({ episodeTemplate: nextTemplate.slug });
+        break;
+      case MOVIE:
+        setConfigItem({ movieTemplate: nextTemplate.slug });
+        break;
+      case EVENT:
+        setConfigItem({ eventTemplate: nextTemplate.slug });
+        break;
+      case PROGRAM:
+      default:
+        setConfigItem({ programTemplate: nextTemplate.slug });
+    }
+
+    sendFlash({
+      message: `${titleCase(nextTemplate.type)} default set to ${
+        nextTemplate.label
+      }`
+    });
+    this.originalTemplate = nextTemplate;
   };
 
   setTemplate = (template: NamingTemplateType) => {
@@ -303,14 +333,25 @@ class SettingsNaming extends Component<Props, State> {
           <Col md="5" className="mt-1">
             <div className="d-flex flex-row">
               {view === 'view' ? (
-                <Button
-                  size="xs"
-                  variant="primary"
-                  onClick={() => this.setView('edit')}
-                  title="edit"
-                >
-                  <span className="fa fa-edit" />
-                </Button>
+                <div className="d-flex">
+                  <Button
+                    size="xs"
+                    variant="success"
+                    onClick={this.new}
+                    className="mr-2 float-right "
+                    title="New Template"
+                  >
+                    <span className="fas fa-plus" />
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="primary"
+                    onClick={() => this.setView('edit')}
+                    title="Edit Template"
+                  >
+                    <span className="fa fa-edit" />
+                  </Button>
+                </div>
               ) : (
                 ''
               )}
@@ -333,6 +374,7 @@ class SettingsNaming extends Component<Props, State> {
                   variant="success"
                   onClick={this.save}
                   className="ml-2"
+                  title="Save Template"
                 >
                   <span className="fa fa-save naming-icons" />
                 </Button>
@@ -354,18 +396,10 @@ class SettingsNaming extends Component<Props, State> {
           <Col className="mt-1">
             {view === 'view' ? (
               <div className="d-flex flex-row-reverse">
-                <Button
-                  size="xs"
-                  variant="success"
-                  onClick={this.new}
-                  className="ml-2 float-right "
-                >
-                  new
-                </Button>
                 <NamingTemplateOptions
                   type={type}
                   updateTemplate={this.updateTemplate}
-                  setTemplate={this.setTemplate}
+                  setDefaultTemplate={this.setDefaultTemplate}
                 />
               </div>
             ) : (
