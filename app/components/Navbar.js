@@ -175,7 +175,7 @@ class Navbar extends Component<Props, State> {
             <Col md="2">
               <SelectedBox />
             </Col>
-            <Col md="10" className="smaller pt-1  align-items menu-buttons">
+            <Col md="10" className="smaller pt-2 align-items menu-buttons">
               <div className="d-flex flex-row-reverse">
                 <div>
                   <VersionStatus />
