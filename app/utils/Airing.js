@@ -467,7 +467,7 @@ export default class Airing {
 
     /** In dev, the prod path gets returned, so "fix" that * */
     if (process.env.NODE_ENV === 'development') {
-      if (os.platform() === 'win') {
+      if (os.platform() === 'win32') {
         if (ffmpegPathReal === ffmpegPath) {
           ffmpegPathReal = ffmpegPath.replace(
             '\\app\\',
@@ -525,11 +525,13 @@ export default class Airing {
         }
       }
     } else {
-      // otherwise we can hit the node_modules dir
-      // ffmpegPathReal = ffmpegPathReal.replace(
-      //  /^\/bin\//,
-      //  './node_modules/ffmpeg-static-electron-jdp/bin/'
-      // );
+      if (os.platform() === 'win32') {
+        // otherwise we can hit the node_modules dir
+        ffmpegPathReal = ffmpegPathReal.replace(
+          /^\/bin\//,
+          './node_modules/ffmpeg-static-electron-jdp/bin/'
+        );
+      }
       // verbosity log level
       ffmpegOpts.push('-v 40');
     }
@@ -581,7 +583,9 @@ export default class Airing {
           resolve(ffmpegLog);
         })
         .on('error', err => {
-          log.info(`An error occurred: ${err}`);
+          const errMsg = `An error occurred: ${err}`;
+          log.info(errMsg);
+          ffmpegLog.push(errMsg);
           if (typeof callback === 'function') {
             if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
               callback(this.object_id, { cancelled: true, finished: false });
