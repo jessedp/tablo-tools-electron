@@ -59,6 +59,7 @@ export default function FilenameEditor(props: Props) {
       <Modal.Body>
         <NamingTemplateOptions
           type={airing.type}
+          slug=""
           updateTemplate={setTemplate}
           setDefaultTemplate={() => {}}
         />

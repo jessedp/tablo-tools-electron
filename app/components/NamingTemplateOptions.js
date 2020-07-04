@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 import Select from 'react-select';
-import { InputGroup } from 'react-bootstrap';
+import { InputGroup, Button } from 'react-bootstrap';
 
 import {
   getTemplate,
@@ -12,27 +12,27 @@ import {
 import { NamingTemplateType } from '../constants/app';
 
 import SelectStyles from './SelectStyles';
-import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type PropType = {
   type: string,
+  slug: string,
   updateTemplate: (template: NamingTemplateType) => void,
   setDefaultTemplate: (template: NamingTemplateType) => void
 };
 
 export default function NamingTemplateOptions(props: PropType) {
-  const { type, updateTemplate, setDefaultTemplate } = props;
+  const { type, slug, updateTemplate, setDefaultTemplate } = props;
 
   const [options, setOptions] = useState([]);
   const [selected, setSelected] = useState({});
 
   useEffect(() => {
     loadTemplateOptions(type);
-    loadTemplate(type);
-  }, []);
+    loadTemplate(type, slug);
+  }, [type, slug]);
 
-  const loadTemplate = async (airingType: string) => {
-    setSelected(await getTemplate(airingType));
+  const loadTemplate = async (airingType: string, tplSlug: string) => {
+    setSelected(await getTemplate(airingType, tplSlug));
   };
 
   const loadTemplateOptions = async (airingType: string) => {
@@ -65,29 +65,32 @@ export default function NamingTemplateOptions(props: PropType) {
   return (
     <div>
       <div className="d-inline-block ">
-        <InputGroup size="sm">
+        <InputGroup size="sm" className="d-inline-block">
           <Select
             options={prettyOpts}
             onChange={select}
             styles={SelectStyles('30px', 200)}
             value={options.filter(option => option.slug === selected.slug)}
           />
-          <InputGroup.Append>
-            <InputGroup.Text title="issue search">
-              <Checkbox
-                label="used as default?"
-                checked={
-                  isCurrentTemplate(selected) ? CHECKBOX_ON : CHECKBOX_OFF
-                }
-                handleChange={() => {
-                  setDefaultTemplate(selected);
-                  loadTemplateOptions(type);
-                }}
-              />
-            </InputGroup.Text>
-          </InputGroup.Append>
         </InputGroup>
       </div>
+      {!isCurrentTemplate(selected) ? (
+        <Button
+          size="xs"
+          variant="outline-success"
+          title="Use by default"
+          onClick={() => {
+            setDefaultTemplate(selected);
+            loadTemplateOptions(type);
+          }}
+          className="ml-2 d-inline-block"
+        >
+          <span className="fa fa-check" />
+        </Button>
+      ) : (
+        ''
+      )}
     </div>
   );
 }
+// NamingTemplateOptions.defaultProps = { slug: '' };

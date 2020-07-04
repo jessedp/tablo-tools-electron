@@ -132,6 +132,12 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   return '';
 }
 
+export async function deleteTemplate(template: NamingTemplateType) {
+  await global.NamingDb.asyncRemove({
+    $and: [{ type: template.type }, { slug: template.slug }]
+  });
+}
+
 /** USER RELATED       */
 
 export async function getTemplate(
@@ -304,10 +310,9 @@ export function fillTemplate(
     i += 1;
     if (i === 1) {
       const test = part + fsPath.sep;
-      console.log(test, fsPath.isAbsolute(test));
       if (fsPath.isAbsolute(test)) return part;
 
-      return `${getDefaultRoot(template.type)}${part}`;
+      return `${getConfig().programPath}${part}`;
     }
 
     const newPart = sanitize(part);
