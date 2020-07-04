@@ -20,12 +20,13 @@ import Show from '../utils/Show';
 import SeasonEpisodeList from './SeasonEpisodeList';
 
 type Props = {
-  show: Show,
   selectedCount: number,
   bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void
+  bulkRemAirings: (Array<Airing>) => void,
+  match: any
 };
 type State = {
+  show?: Show,
   airings: Array<Airing>,
   episodes: Object,
   seasons: Object,
@@ -51,13 +52,20 @@ class EpisodeList extends Component<Props, State> {
 
     this.state = this.initialState;
 
-    (this: any).search = this.search.bind(this);
+    (this: any).refresh = this.refresh.bind(this);
     (this: any).selectSeason = this.selectSeason.bind(this);
     (this: any).setSeasonRefs = this.setSeasonRefs.bind(this);
   }
 
   async componentDidMount() {
-    await this.search();
+    // eslint-disable-next-line
+    const id = parseInt(this.props.match.params.id, 10);
+    const rec = await global.ShowDb.asyncFindOne({
+      object_id: id
+    });
+
+    this.setState({ show: new Show(rec) });
+    await this.refresh();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -85,8 +93,10 @@ class EpisodeList extends Component<Props, State> {
     }
   }
 
-  async search() {
-    const { show } = this.props;
+  async refresh() {
+    const { show } = this.state;
+
+    if (!show) return;
 
     const query = {
       series_path: show.path
@@ -131,9 +141,11 @@ class EpisodeList extends Component<Props, State> {
   }
 
   render() {
-    const { airings, episodes, seasons, seasonRefs } = this.state;
+    const { show, airings, episodes, seasons, seasonRefs } = this.state;
     const { selectedCount } = this.props;
-    const { show, bulkAddAirings, bulkRemAirings } = this.props;
+    const { bulkAddAirings, bulkRemAirings } = this.props;
+
+    if (!show) return <></>; //
 
     return (
       <>
