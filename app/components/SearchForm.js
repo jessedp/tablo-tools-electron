@@ -19,6 +19,7 @@ import Select, { components } from 'react-select';
 
 import {
   asyncForEach,
+  escapeRegExp,
   readableBytes,
   readableDuration,
   throttleActions
@@ -452,9 +453,6 @@ class SearchForm extends Component<Props, SearchState> {
     const steps = [];
 
     if (searchValue.trim()) {
-      const escapeRegExp = (text: string) => {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-      };
       const re = new RegExp(escapeRegExp(searchValue), 'i');
       // query['airing_details.show_title'] =  { $regex: re };
       query.$or = [

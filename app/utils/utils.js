@@ -2,6 +2,10 @@ import getConfig from './config';
 
 const fs = require('fs');
 
+export function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 export async function asyncForEach(array, callback) {
   const promises = array.map(callback);
   const vals = Promise.all(promises);
