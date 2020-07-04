@@ -30,7 +30,8 @@ import {
   upsertTemplate,
   isCurrentTemplate,
   isDefaultTemplate,
-  fillTemplate
+  fillTemplate,
+  deleteTemplate
 } from '../utils/namingTpl';
 
 import type NamingTemplateType from '../constants/app';
@@ -70,11 +71,13 @@ type State = {
   error: string,
   duplicates: any,
   previews: any,
+  defaultTemplate: NamingTemplateType,
   template: NamingTemplateType,
   templateVars: Object
 };
 
 class SettingsNaming extends Component<Props, State> {
+  // to reset when canceling editing
   originalTemplate: NamingTemplateType;
 
   constructor() {
@@ -85,11 +88,13 @@ class SettingsNaming extends Component<Props, State> {
       template: {},
       error: '',
       duplicates: null,
-      previews: null
+      previews: null,
+      defaultTemplate: {}
     };
 
     this.setView = this.setView.bind(this);
     this.cancel = this.cancel.bind(this);
+    this.delete = this.delete.bind(this);
     this.new = this.new.bind(this);
     this.save = this.save.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
@@ -115,7 +120,7 @@ class SettingsNaming extends Component<Props, State> {
 
     const templateVars = await buildTemplateVars(airing);
 
-    await this.setState({ template, templateVars });
+    await this.setState({ defaultTemplate: template, template, templateVars });
     await this.checkErrors();
   }
 
@@ -160,6 +165,7 @@ class SettingsNaming extends Component<Props, State> {
   };
 
   updateTemplate = (template: NamingTemplateType) => {
+    this.originalTemplate = template;
     this.setState({ template });
     this.checkErrors();
   };
@@ -187,11 +193,11 @@ class SettingsNaming extends Component<Props, State> {
     }
 
     sendFlash({
-      message: `${titleCase(nextTemplate.type)} default set to ${
+      message: `${titleCase(nextTemplate.type)} will now use ${
         nextTemplate.label
       }`
     });
-    this.originalTemplate = nextTemplate;
+    this.setState({ defaultTemplate: nextTemplate });
   };
 
   setTemplate = (template: NamingTemplateType) => {
@@ -303,6 +309,19 @@ class SettingsNaming extends Component<Props, State> {
     }
   };
 
+  delete = async () => {
+    const { type, sendFlash } = this.props;
+    const { template } = this.state;
+
+    // eslint-disable-next-line no-alert
+    if (!window.confirm('Are you sure you wish to delete this temaplte?'))
+      return;
+
+    await deleteTemplate(template);
+    this.setState({ template: await getTemplate(type) });
+    sendFlash({ type: 'success', message: `Deleted "${template.label}"` });
+  };
+
   setView = (view: string) => {
     this.setState({ view });
   };
@@ -312,6 +331,7 @@ class SettingsNaming extends Component<Props, State> {
     const {
       view,
       template,
+      defaultTemplate,
       templateVars,
       error,
       duplicates,
@@ -348,9 +368,30 @@ class SettingsNaming extends Component<Props, State> {
                     variant="primary"
                     onClick={() => this.setView('edit')}
                     title="Edit Template"
+                    className="mr-2"
                   >
                     <span className="fa fa-edit" />
                   </Button>
+                  {!isCurrentTemplate(template) ? (
+                    <Button
+                      size="xs"
+                      variant="outline-danger"
+                      onClick={this.delete}
+                      title="Delete Template"
+                      className="mr-2"
+                    >
+                      <span className="fa fa-trash" />
+                    </Button>
+                  ) : (
+                    ''
+                  )}
+
+                  <NamingTemplateOptions
+                    type={type}
+                    slug={template.slug}
+                    updateTemplate={this.updateTemplate}
+                    setDefaultTemplate={this.setDefaultTemplate}
+                  />
                 </div>
               ) : (
                 ''
@@ -396,11 +437,9 @@ class SettingsNaming extends Component<Props, State> {
           <Col className="mt-1">
             {view === 'view' ? (
               <div className="d-flex flex-row-reverse">
-                <NamingTemplateOptions
-                  type={type}
-                  updateTemplate={this.updateTemplate}
-                  setDefaultTemplate={this.setDefaultTemplate}
-                />
+                <Alert variant="light" className="p-1 smallerish">
+                  <i className="mr-2">default:</i> {defaultTemplate.label}
+                </Alert>
               </div>
             ) : (
               ''
