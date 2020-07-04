@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import Image from 'react-bootstrap/Image';
 
 import unknownImg from '../../resources/white-question-mark.png';
+import { getTabloImageUrl } from '../utils/utils';
 
 type Props = {
   imageId: number,
@@ -18,13 +19,12 @@ export default class TabloImage extends Component<Props> {
   render() {
     const { imageId, title, className } = this.props;
 
-    const host = global.Api.device.private_ip;
     const style = {};
     const fullClass = `${className} badge-light pt-5`;
 
     let url = unknownImg;
     if (imageId && parseInt(imageId, 10)) {
-      url = `http://${host}:8885/images/${imageId}`;
+      url = getTabloImageUrl(imageId);
       return (
         <Image
           title={title}
