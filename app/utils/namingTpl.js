@@ -12,6 +12,7 @@ import NamingTemplateType, {
   MOVIE,
   EVENT
 } from '../constants/app';
+
 // import Airing from './Airing';
 
 const sanitize = require('sanitize-filename');
@@ -281,6 +282,7 @@ export function fillTemplate(
     return sanitize(part);
   });
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
+  if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
 
   return filledPath;
 }
