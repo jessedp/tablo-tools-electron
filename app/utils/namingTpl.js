@@ -13,8 +13,6 @@ import NamingTemplateType, {
   EVENT
 } from '../constants/app';
 
-// import Airing from './Airing';
-
 const sanitize = require('sanitize-filename');
 
 /** BUILT-INS       */
@@ -52,6 +50,20 @@ export function getDefaultTemplate(type: string): NamingTemplateType {
 }
 export function getDefaultTemplateSlug() {
   return 'tablo-tools';
+}
+export function getDefaultRoot(type: string): string {
+  const { episodePath, moviePath, eventPath, programPath } = getConfig();
+  switch (type) {
+    case SERIES:
+      return episodePath;
+    case MOVIE:
+      return moviePath;
+    case EVENT:
+      return eventPath;
+    case PROGRAM:
+    default:
+      return programPath;
+  }
 }
 
 export function isCurrentTemplate(template: NamingTemplateType): boolean {
@@ -276,13 +288,35 @@ export function fillTemplate(
 
   let filledPath = fsPath.normalize(parts.join(fsPath.sep));
   let i = 0;
+
+  // const secondaryReplacements = ["'", ',', ':'];
+
+  // const stripSecondary = (piece: string) => {
+  //   console.log('stringSecondary', piece);
+  //   let newPiece = piece;
+  //   secondaryReplacements.forEach(rep => {
+  //     newPiece = newPiece.replace(escapeRegExp(rep), ''); // $& means the whole matched string
+  //   });
+  //   return newPiece;
+  // };
+
   const sanitizeParts = filledPath.split(fsPath.sep).map(part => {
-    if (i === 0) return part;
     i += 1;
-    return sanitize(part);
+    if (i === 1) {
+      const test = part + fsPath.sep;
+      console.log(test, fsPath.isAbsolute(test));
+      if (fsPath.isAbsolute(test)) return part;
+
+      return `${getDefaultRoot(template.type)}${part}`;
+    }
+
+    const newPart = sanitize(part);
+
+    // newPart = stripSecondary(newPart);
+    return newPart;
   });
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
-  if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
 
+  if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
   return filledPath;
 }
