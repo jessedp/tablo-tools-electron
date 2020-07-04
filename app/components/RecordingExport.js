@@ -329,7 +329,7 @@ const FileInfo = (props: FileInfoProps) => {
       size="xs"
       className="p-0 mr-1"
     >
-      <span className="fa fa-external-link-alt text-warning naming-icons" />
+      <span className="fa fa-folder-open text-dark naming-icons" />
     </Button>
   );
 
