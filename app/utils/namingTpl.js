@@ -295,13 +295,13 @@ export function fillTemplate(
   let filledPath = fsPath.normalize(parts.join(fsPath.sep));
   let i = 0;
 
-  // const secondaryReplacements = ["'", ',', ':'];
+  // const secondaryReplacements = [`'`, `’`, ',', ':'];
 
   // const stripSecondary = (piece: string) => {
   //   console.log('stringSecondary', piece);
   //   let newPiece = piece;
   //   secondaryReplacements.forEach(rep => {
-  //     newPiece = newPiece.replace(escapeRegExp(rep), ''); // $& means the whole matched string
+  //     newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
   //   });
   //   return newPiece;
   // };
