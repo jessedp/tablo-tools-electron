@@ -1,10 +1,10 @@
 // @flow
 import React, { Component, useState } from 'react';
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import fs from 'fs';
+import * as fsPath from 'path';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -37,6 +37,8 @@ import ExportRecordType from '../reducers/types';
 import { readableBytes, secondsToTimeStr } from '../utils/utils';
 import RelativeDate from './RelativeDate';
 import FilenameEditor from './FilenameEditor';
+
+const { remote } = require('electron');
 
 type Props = {
   record: ExportRecordType,
@@ -311,26 +313,35 @@ const FileInfo = (props: FileInfoProps) => {
   const exists = fs.existsSync(airing.exportFile);
 
   const openDir = () => {
-    shell.showItemInFolder(airing.exportFile);
+    console.log('openDir', airing.exportFile);
+    console.log('openDir', fsPath.dirname(airing.exportFile));
+    const res = remote.shell.showItemInFolder(
+      fsPath.dirname(airing.exportFile)
+    );
+    console.log('openDir res', res);
   };
+
+  const dirBtn = (
+    <Button
+      variant="link"
+      onClick={openDir}
+      title="Open directory"
+      size="xs"
+      className="p-0 mr-1"
+    >
+      <span className="fa fa-external-link-alt text-warning naming-icons" />
+    </Button>
+  );
 
   if (!exists) {
     if (exportState === EXP_DONE) {
-      // uh-oh. probably a mac
       return (
         <div className="p-0 m-0 smaller font-weight-bold text-danger">
           <span className="fa fa-exclamation pr-1" />
           <span className="pr-2">File does not exist after export.</span>
           <span>
+            {dirBtn}
             {airing.exportFile}
-            <Button
-              variant="link"
-              className="p-0 pl-1"
-              onClick={openDir}
-              title="Edit Filename"
-            >
-              <span className="fa fa-external-link-alt text-warning" />
-            </Button>
           </span>
         </div>
       );
@@ -339,7 +350,14 @@ const FileInfo = (props: FileInfoProps) => {
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
         {airing.exportFile}
-        <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+        {exportState === EXP_WAITING ? (
+          <>
+            <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+            {dirBtn}
+          </> //
+        ) : (
+          ''
+        )}
       </div>
     );
   }
@@ -367,6 +385,7 @@ const FileInfo = (props: FileInfoProps) => {
       <span className={icon} />
       <span className="">{airing.exportFile}</span>
       <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+      {dirBtn}
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>
@@ -375,16 +394,6 @@ const FileInfo = (props: FileInfoProps) => {
       ) : (
         ''
       )}
-      <span>
-        <Button
-          className="p-0 pl-1"
-          variant="link"
-          onClick={openDir}
-          title="Open file in directory"
-        >
-          <span className="fa fa-external-link-alt text-warning" />
-        </Button>
-      </span>
     </div>
   );
 };

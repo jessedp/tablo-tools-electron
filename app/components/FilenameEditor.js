@@ -34,10 +34,11 @@ export default function FilenameEditor(props: Props) {
       <Button
         variant="link"
         onClick={() => setShow(true)}
+        title="Edit filename"
         size="xs"
         className="ml-2"
       >
-        <span className="fas fa-edit mr-2 naming-icons text-black-50" />
+        <span className="fas fa-edit mr-1 naming-icons text-black-50" />
       </Button>
     );
   }
