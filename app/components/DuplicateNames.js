@@ -15,7 +15,7 @@ export default function DuplicateNames(props: Props) {
 
   if (!show) {
     const status = `${total -
-      Object.keys(files).length} / ${total} are duplicates`;
+      Object.keys(files).length} / ${total}* are duplicates`;
     return (
       <Button
         variant="warning"
@@ -44,6 +44,7 @@ export default function DuplicateNames(props: Props) {
       <Modal.Header closeButton>
         <Alert variant="warning" className="mb-0">
           {total - Object.keys(files).length} / {total} are duplicates
+          <span className="smaller pl-2">(max 1000)</span>
         </Alert>
       </Modal.Header>
       <Modal.Body>
