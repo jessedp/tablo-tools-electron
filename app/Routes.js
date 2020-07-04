@@ -16,8 +16,8 @@ import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
 import LiveTvPage from './components/LiveTvPage';
 import SettingsPage from './containers/SettingsPage';
+import ShowDetails from './components/ShowDetails';
 import { hasDevice } from './utils/Tablo';
-import EpisodeList from './components/EpisodeList';
 
 export default () => {
   const history = useHistory();
@@ -39,8 +39,8 @@ export default () => {
         <Redirect exact from="/" to={lastPath} />
         <Route path={routes.OVERVIEW} component={OverviewPage} />
         <Route path={routes.BUILD} component={Build} />
-        <Route path={routes.SHOWS} component={Shows} />
-        <Route path={routes.EPISODES} component={EpisodeList} />
+        <Route exact path={routes.SHOWS} component={Shows} />
+        <Route path={routes.SHOWDETAILS} component={ShowDetails} />
 
         <Route path={routes.MOVIES} component={Movies} />
         <Route path={routes.SPORTS} component={Events} />

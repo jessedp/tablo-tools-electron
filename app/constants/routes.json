@@ -4,7 +4,7 @@
   "OVERVIEW": "/overview",
   "BUILD": "/build",
   "SHOWS": "/shows",
-  "EPISODES": "/epsiodes/:id",
+  "SHOWDETAILS": "/shows/:id",
   "MOVIES": "/movies",
   "SPORTS": "/sports",
   "PROGRAMS": "/programs",

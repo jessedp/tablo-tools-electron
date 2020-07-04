@@ -79,7 +79,7 @@ export default class Shows extends Component<Props, State> {
             if (show.series) {
               return (
                 <LinkContainer
-                  to={routes.EPISODES.replace(':id', show.id)}
+                  to={routes.SHOWDETAILS.replace(':id', show.id)}
                   key={show.id}
                 >
                   <Button
@@ -91,17 +91,7 @@ export default class Shows extends Component<Props, State> {
                 </LinkContainer>
               );
             }
-            return (
-              <Button
-                onClick={() => {}}
-                onKeyDown={() => {}}
-                variant="light"
-                className="align-content-center"
-                key={show.id}
-              >
-                <ShowCover key={show.id} show={show} />
-              </Button>
-            );
+            return <></>; //
           })}
         </div>
       </div>
