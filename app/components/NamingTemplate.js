@@ -139,7 +139,10 @@ class SettingsNaming extends Component<Props, State> {
     const files = {};
 
     const recType = new RegExp(type);
-    const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+    const recs = await global.RecDb.asyncFind(
+      { path: { $regex: recType } },
+      { limit: 1000 }
+    );
 
     await asyncForEach(recs, async rec => {
       const airing = await Airing.create(rec);
