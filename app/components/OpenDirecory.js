@@ -1,8 +1,11 @@
 // @flow
 import React from 'react';
-// import * as fsPath from 'path';
+import fs from 'fs';
+import * as fsPath from 'path';
 
 import { Button } from 'react-bootstrap';
+
+// import { shell } from 'electron';
 
 const { remote } = require('electron');
 
@@ -11,7 +14,11 @@ export default function OpenDirectory(prop: Props) {
   const { path } = prop;
 
   const openDir = () => {
-    remote.shell.showItemInFolder(path);
+    if (fs.existsSync(path)) {
+      remote.shell.showItemInFolder(path);
+    } else {
+      remote.shell.showItemInFolder(fsPath.dirname(path));
+    }
   };
 
   return (
