@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import fs from 'fs';
-import * as fsPath from 'path';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -37,8 +36,7 @@ import ExportRecordType from '../reducers/types';
 import { readableBytes, secondsToTimeStr } from '../utils/utils';
 import RelativeDate from './RelativeDate';
 import FilenameEditor from './FilenameEditor';
-
-const { remote } = require('electron');
+import OpenDirectory from './OpenDirecory';
 
 type Props = {
   record: ExportRecordType,
@@ -312,27 +310,6 @@ const FileInfo = (props: FileInfoProps) => {
   const { airing, exportState, updateTemplate } = props;
   const exists = fs.existsSync(airing.exportFile);
 
-  const openDir = () => {
-    console.log('openDir', airing.exportFile);
-    console.log('openDir', fsPath.dirname(airing.exportFile));
-    const res = remote.shell.showItemInFolder(
-      fsPath.dirname(airing.exportFile)
-    );
-    console.log('openDir res', res);
-  };
-
-  const dirBtn = (
-    <Button
-      variant="link"
-      onClick={openDir}
-      title="Open directory"
-      size="xs"
-      className="p-0 mr-1"
-    >
-      <span className="fa fa-folder-open text-dark naming-icons" />
-    </Button>
-  );
-
   if (!exists) {
     if (exportState === EXP_DONE) {
       return (
@@ -340,7 +317,7 @@ const FileInfo = (props: FileInfoProps) => {
           <span className="fa fa-exclamation pr-1" />
           <span className="pr-2">File does not exist after export.</span>
           <span>
-            {dirBtn}
+            <OpenDirectory path={airing.exportFile} />
             {airing.exportFile}
           </span>
         </div>
@@ -353,7 +330,7 @@ const FileInfo = (props: FileInfoProps) => {
         {exportState === EXP_WAITING ? (
           <>
             <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
-            {dirBtn}
+            <OpenDirectory path={airing.exportFile} />
           </> //
         ) : (
           ''
@@ -385,7 +362,7 @@ const FileInfo = (props: FileInfoProps) => {
       <span className={icon} />
       <span className="">{airing.exportFile}</span>
       <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
-      {dirBtn}
+      <OpenDirectory path={airing.exportFile} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>

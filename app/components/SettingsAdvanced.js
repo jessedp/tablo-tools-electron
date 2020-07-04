@@ -6,7 +6,6 @@ import path from 'path';
 import * as Sentry from '@sentry/electron';
 
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 import Row from 'react-bootstrap/Row';
@@ -24,10 +23,11 @@ import getConfig, {
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import Directory from './Directory';
+import OpenDirectory from './OpenDirecory';
 
 type Props = { sendFlash: (message: FlashRecordType) => void };
 
-const { app, shell, dialog } = require('electron').remote;
+const { app, dialog } = require('electron').remote;
 
 class SettingsAdvanced extends Component<Props, ConfigType> {
   props: Props;
@@ -229,14 +229,14 @@ class SettingsAdvanced extends Component<Props, ConfigType> {
         logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
     }
 
-    const openLogs = () => {
-      console.log(path.normalize(`${logsPath}/main.log`));
-      shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
-    };
+    // const openLogs = () => {
+    //   console.log(path.normalize(`${logsPath}/main.log`));
+    //   shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
+    // };
 
     return (
       <div className="d-flex flex-row">
-        <div className="mt-3">
+        <div>
           <div style={{ width: '375px' }}>
             <Row>
               <Col>
@@ -299,10 +299,11 @@ class SettingsAdvanced extends Component<Props, ConfigType> {
             </Col>
           </Row>
           <Row className="mt-3">
-            <div className="p-2 pl-4 bg-light border col-md-6">
+            <div className="p-2 pl-4 bg-light border col-md-10">
               Your settings <span className="smaller">(all of this)</span> are
               in: <br />
-              <span className="ml-1 text-danger">{CONFIG_FILE_NAME}</span>
+              <span className="ml-1 text-danger mr-2">{CONFIG_FILE_NAME}</span>
+              <OpenDirectory path={CONFIG_FILE_NAME} />
               <br />
               <i className="smaller">
                 You can back that up if you want to nuke the app directory but
@@ -323,17 +324,12 @@ class SettingsAdvanced extends Component<Props, ConfigType> {
                 don&apos;t need it and delete the logs files if you want.
                 <br />
               </div>
-              <div className="p-2 pl-4 bg-light border col-md-6">
+              <div className="p-2 pl-4 bg-light border col-md-10">
                 All Logs are in: <br />
-                <span className="ml-1 text-danger">{logsPath}</span>
-                <Button
-                  className="p-0 pl-1"
-                  variant="link"
-                  onClick={() => openLogs()}
-                  title="Open logs directory"
-                >
-                  <span className="pl-2 font-weight-bolder fa fa-external-link-alt text-primary" />
-                </Button>
+                <span className="ml-1 text-danger mr-2">
+                  {`${logsPath}${path.sep}`}
+                </span>
+                <OpenDirectory path={`${logsPath}${path.sep}`} />
                 <br />
                 <i className="smaller">
                   main.log and renderer.log are general internal logs
