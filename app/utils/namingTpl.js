@@ -205,7 +205,8 @@ export function buildTemplateVars(airing: Object) {
     dateNat,
     time12,
     time24,
-    title: airing.title
+    title: airing.title,
+    stripTitle: stripSecondary(airing.title)
   };
 
   let typeVars = {};
@@ -214,6 +215,7 @@ export function buildTemplateVars(airing: Object) {
       typeVars = {
         episodePath,
         showTitle: airing.showTitle,
+        stripShowTitle: stripSecondary(airing.showTitle),
         seasonNum: airing.seasonNum,
         episodeNum: airing.episodeNum,
         episodeOrDate: airing.episodeNum,
@@ -325,3 +327,13 @@ export function fillTemplate(
   if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
   return filledPath;
 }
+
+const stripSecondary = (piece: string) => {
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
+
+  let newPiece = piece;
+  secondaryReplacements.forEach(rep => {
+    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+  });
+  return newPiece;
+};
