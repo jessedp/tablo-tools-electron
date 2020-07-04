@@ -28,7 +28,7 @@ class Flash extends Component<Props, State> {
 
     this.setState({ open: true });
 
-    this.timerId = setTimeout(() => this.setState({ open: false }), 1000);
+    this.timerId = setTimeout(() => this.setState({ open: false }), 1500);
   };
 
   render() {
