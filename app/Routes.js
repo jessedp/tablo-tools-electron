@@ -10,7 +10,7 @@ import Build from './components/Build';
 import Shows from './components/Shows';
 import Movies from './components/Movies';
 import Programs from './components/Programs';
-import Events from './components/Events';
+import Sports from './components/Sports';
 import SearchForm from './components/SearchForm';
 import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
@@ -18,7 +18,7 @@ import LiveTvPage from './components/LiveTvPage';
 import SettingsPage from './containers/SettingsPage';
 import ShowDetails from './components/ShowDetails';
 import MovieDetails from './components/MovieDetails';
-import EventDetails from './components/EventDetails';
+import SportDetails from './components/SportDetails';
 import { hasDevice } from './utils/Tablo';
 
 export default () => {
@@ -47,8 +47,8 @@ export default () => {
         <Route exact path={routes.MOVIES} component={Movies} />
         <Route path={routes.MOVIEDETAILS} component={MovieDetails} />
 
-        <Route exact path={routes.EVENTS} component={Events} />
-        <Route path={routes.EVENTDETAILS} component={EventDetails} />
+        <Route exact path={routes.SPORTS} component={Sports} />
+        <Route path={routes.EVENTDETAILS} component={SportDetails} />
 
         <Route path={routes.PROGRAMS} component={Programs} />
         <Route path={routes.SEARCH} component={SearchForm} />

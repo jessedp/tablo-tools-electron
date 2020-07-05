@@ -32,7 +32,7 @@ type State = {
   event: Airing | null
 };
 
-class EventDetails extends Component<Props, State> {
+class SportDetails extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -102,7 +102,7 @@ class EventDetails extends Component<Props, State> {
         />
 
         <div>
-          <LinkContainer to={routes.EVENTS} key={show.id}>
+          <LinkContainer to={routes.SPORTS} key={show.id}>
             <Button size="xs" variant="outline-secondary" className="mt-1 mb-1">
               <span className="fa fa-arrow-left pr-2" />
               back
@@ -193,4 +193,4 @@ const mapDispatchToProps = dispatch => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(EventDetails));
+)(withRouter(SportDetails));

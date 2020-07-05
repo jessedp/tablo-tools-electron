@@ -7,7 +7,7 @@
   "SHOWDETAILS": "/shows/:id",
   "MOVIES": "/movies",
   "MOVIEDETAILS": "/movies/:id",
-  "EVENTS": "/events",
+  "SPORTS": "/events",
   "EVENTDETAILS": "/events/:id",
   "PROGRAMS": "/programs",
   "SEARCH": "/search",

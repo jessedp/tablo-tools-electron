@@ -65,7 +65,7 @@ export const defaultConfig: ConfigType = {
 
   episodePath: path.normalize(`${os.homedir()}/TabloRecordings/TV`),
   moviePath: path.normalize(`${os.homedir()}/TabloRecordings/Movies`),
-  eventPath: path.normalize(`${os.homedir()}/TabloRecordings/Events`),
+  eventPath: path.normalize(`${os.homedir()}/TabloRecordings/Sports`),
   programPath: path.normalize(`${os.homedir()}/TabloRecordings/`),
 
   enableTestDevice: false,

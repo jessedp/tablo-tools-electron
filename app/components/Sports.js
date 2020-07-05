@@ -15,7 +15,7 @@ import ShowCover from './ShowCover';
 type Props = {};
 type State = { events: Array<Airing>, alertType: string, alertTxt: string };
 
-export default class Events extends Component<Props, State> {
+export default class Sports extends Component<Props, State> {
   props: Props;
 
   initialState: State;
