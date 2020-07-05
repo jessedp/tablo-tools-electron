@@ -44,6 +44,13 @@ import NamingPreview from './NamingPreview';
 const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
 
+// Setup our example data
+const exampleData = {};
+exampleData[SERIES] = require('../../test/data/episode.json');
+exampleData[MOVIE] = require('../../test/data/movie.json');
+exampleData[EVENT] = require('../../test/data/event.json');
+exampleData[PROGRAM] = require('../../test/data/program.json');
+
 helpers.lPad = (str: string, len: string | number, char: string | number) => {
   if (!str) return '';
 
@@ -112,9 +119,12 @@ class SettingsNaming extends Component<Props, State> {
     this.originalTemplate = { ...template };
 
     const typeRe = new RegExp(type);
-    const recData = await global.RecDb.asyncFindOne({
+    let recData = await global.RecDb.asyncFindOne({
       path: { $regex: typeRe }
     });
+    if (!recData) {
+      recData = exampleData[type];
+    }
 
     const airing = await Airing.create(recData, true);
 
@@ -128,14 +138,9 @@ class SettingsNaming extends Component<Props, State> {
     const { type } = this.props;
     const { template } = this.state;
     if (!template) return;
-    // const { slug } = template;
 
     const error = '';
-    // if (slug === getDefaultTemplateSlug()) {
-    //   error = 'default slug';
-    //   this.setState({ error });
-    //   return true;
-    // }
+
     const files = {};
 
     const recType = new RegExp(type);
