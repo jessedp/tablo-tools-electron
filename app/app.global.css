@@ -147,6 +147,10 @@ code.slug-allowed-chars {
   color: #28a745 !important;
 }
 
+.alert-success {
+  background-color: #28a745 !important;
+}
+
 .btn-outline-success {
   color: #28a745 !important;
   border-color: #28a745 !important;
