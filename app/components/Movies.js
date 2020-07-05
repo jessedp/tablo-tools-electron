@@ -81,9 +81,9 @@ export default class Movies extends Component<Props, State> {
                 <Button
                   variant="light"
                   className="align-content-center"
-                  key={rec.object_id}
+                  key={rec.id}
                 >
-                  <ShowCover show={rec.show} key={`movie-${rec.object_id}`} />;
+                  <ShowCover show={rec.show} key={`movie-${rec.id}`} />;
                 </Button>
               </LinkContainer>
             );
