@@ -141,7 +141,7 @@ export default class Build extends Component<Props, State> {
       const showPaths = [];
       recs.forEach(rec => {
         const airing = new Airing(rec);
-        writeToFile(`airing-${airing.object_id}.json`, rec);
+        writeToFile(`${airing.type}-airing-${airing.id}.json`, rec);
         try {
           if (airing.typePath) showPaths.push(airing.typePath);
         } catch (e) {
