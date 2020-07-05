@@ -117,7 +117,6 @@ export function newTemplate(type: string): NamingTemplateType {
 
 export async function upsertTemplate(modTemplate: NamingTemplateType) {
   const template = modTemplate;
-  console.log(template);
   if (!template.type.trim()) return 'Cannot save without type!';
   if (!template.slug.trim()) return 'Cannot save empty slug!';
   if (template.slug === getDefaultTemplateSlug())
@@ -174,23 +173,13 @@ export function buildTemplateVars(airing: Object) {
   const config = getConfig();
   const { episodePath, moviePath, eventPath, programPath } = config;
 
-  // let recData;
-  // let type;
-  // if (typeof data === 'string') {
-  //   type = data;
-  //   const typeRe = new RegExp(type);
-  //   recData = await global.RecDb.asyncFindOne({ path: { $regex: typeRe } });
-  // } else {
-  //   recData = await global.RecDb.asyncFindOne({ object_id: data.id });
-  //   type = data.type;
-  // }
-  // // const recData = await global.RecDb.asyncFindOne({ object_id: 839697 });
-
-  // const airing = await Airing.create(recData);
   const recData = airing.data;
-  // const path = airing.typePath;
-  // const showRec = await global.ShowDb.asyncFindOne({ path });
-  // if (showRec) recData.show = showRec;
+
+  if (!recData || !recData.airing_details || !recData.airing_details.datetime) {
+    console.warn('buildTemplateVars MISSING airing_details', recData);
+    return {};
+  }
+
   const date = parseISO(recData.airing_details.datetime);
 
   const dateSort = format(date, 'yyyy-MM-dd');
