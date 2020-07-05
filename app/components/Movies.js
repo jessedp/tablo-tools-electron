@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
 import { LinkContainer } from 'react-router-bootstrap';
-import { Alert, Button, Container, Row } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 
 import routes from '../constants/routes.json';
 
@@ -53,11 +53,10 @@ export default class Movies extends Component<Props, State> {
 
     if (movies.length === 0) {
       return (
-        <Container key="spinner">
-          <Row className="pl-lg-5">
-            <Alert variant="warning">No Movies found. Record one?</Alert>
-          </Row>
-        </Container>
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Movies found.
+        </Alert>
       );
     }
 

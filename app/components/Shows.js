@@ -2,9 +2,7 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import { LinkContainer } from 'react-router-bootstrap';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-// import Spinner from 'react-bootstrap/Spinner';
+
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 
@@ -57,15 +55,14 @@ export default class Shows extends Component<Props, State> {
   };
 
   render() {
-    const { alertType, alertTxt, shows } = this.state;
+    const { shows, alertType, alertTxt } = this.state;
 
     if (shows.length === 0) {
       return (
-        <Container key="spinner">
-          <Row className="pl-lg-5">
-            <Alert variant="warning">No Shows found. Record something?</Alert>
-          </Row>
-        </Container>
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Shows found.
+        </Alert>
       );
     }
 

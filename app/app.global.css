@@ -159,6 +159,12 @@ code.slug-allowed-chars {
   background-color: #28a745 !important;
 }
 
+.full-alert {
+  max-width: 75%;
+  font-size: 18px;
+  font-weight: bold;
+}
+
 .export-alert {
   min-height: 62px;
 }
