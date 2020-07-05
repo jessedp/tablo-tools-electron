@@ -81,7 +81,7 @@ class Navbar extends Component<Props, State> {
       ddClass = 'primary';
     }
 
-    if (location.pathname === routes.SPORTS) {
+    if (location.pathname === routes.EVENTS) {
       ddText = 'Sports & Events';
       ddClass = 'primary';
     }
@@ -148,7 +148,7 @@ class Navbar extends Component<Props, State> {
                     Movies
                   </Dropdown.Item>
                 </LinkContainer>
-                <LinkContainer activeClassName="active" to={routes.SPORTS}>
+                <LinkContainer activeClassName="active" to={routes.EVENTS}>
                   <Dropdown.Item>
                     <span className="fa fa-quidditch pr-2 menu-icon" />
                     Sports & Events
