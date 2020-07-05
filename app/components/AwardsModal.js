@@ -4,15 +4,14 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { Row, Col, Alert } from 'react-bootstrap';
-import Show from '../utils/Show';
 
-type Prop = { show: Show };
+type Prop = { awards: Array<Object> };
 
 export default function AwardsModal(prop: Prop) {
   const [display, setDisplay] = useState(false);
 
-  const { show } = prop;
-  const len = show.series.awards.length;
+  const { awards } = prop;
+  const len = awards.length;
   if (len === 0)
     return (
       <>
@@ -46,7 +45,7 @@ export default function AwardsModal(prop: Prop) {
         </Alert>
       </Modal.Header>
       <Modal.Body>
-        {show.series.awards.map(rec => {
+        {awards.map(rec => {
           return (
             <>
               <Row>
