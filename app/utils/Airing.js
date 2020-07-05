@@ -402,7 +402,9 @@ export default class Airing {
     const { _id, path } = this;
     return new Promise((resolve, reject) => {
       try {
-        global.Api.delete(path);
+        if (process.env.NODE_ENV === 'production') {
+          global.Api.delete(path);
+        }
         global.RecDb.asyncRemove({ _id });
         if (this.show && this.show.showCounts) {
           if (this.show.showCounts.airing_count === 1) {
