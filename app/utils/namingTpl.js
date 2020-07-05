@@ -128,6 +128,7 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   await global.NamingDb.asyncUpdate({ _id: template._id }, template, {
     upsert: true
   });
+  await loadTemplates();
   return '';
 }
 
@@ -135,16 +136,14 @@ export async function deleteTemplate(template: NamingTemplateType) {
   await global.NamingDb.asyncRemove({
     $and: [{ type: template.type }, { slug: template.slug }]
   });
+  await loadTemplates();
 }
 
 /** USER RELATED       */
 
-export async function getTemplate(
-  type: string,
-  slug?: string
-): NamingTemplateType {
+export function getTemplate(type: string, slug?: string): NamingTemplateType {
   const actualSlug = slug || getTemplateSlug(type);
-  const templates = await getTemplates(type);
+  const templates = getTemplates(type);
 
   const template = templates.filter(rec => rec.slug === actualSlug)[0];
   if (!template) {
@@ -155,17 +154,19 @@ export async function getTemplate(
   return template;
 }
 
-export async function getTemplates(type: string = '') {
-  const defaults = [getDefaultTemplate(type)];
-  let recs;
+export function getTemplates(type: string = '') {
   if (type === '') {
-    recs = await global.NamingDb.asyncFind({});
-  } else {
-    const typeRe = new RegExp(type);
-    recs = await global.NamingDb.asyncFind({ type: { $regex: typeRe } });
+    return global.Templates;
   }
 
-  return [...defaults, ...recs];
+  return global.Templates.filter(tpl => tpl.type === type);
+}
+
+export async function loadTemplates() {
+  const defaults = defaultTemplates;
+  const recs = await global.NamingDb.asyncFind({});
+  const all = [...defaults, ...recs];
+  global.Templates = all;
 }
 
 /** Build & fill */

@@ -8,6 +8,7 @@ import { configureStore, history } from './store/configureStore';
 import './app.global.css';
 import { setupApi } from './utils/Tablo';
 import { setupDb } from './utils/db';
+import { loadTemplates } from './utils/namingTpl';
 
 require('./sentry');
 
@@ -20,6 +21,7 @@ const run = new Promise((resolve, reject) => {
     .then(() => {
       setupDb(false)
         .then(() => {
+          loadTemplates();
           PubSub.subscribe('DEVICE_CHANGE', setupDb);
           resolve('done');
           return 'why';

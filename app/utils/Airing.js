@@ -86,7 +86,7 @@ export default class Airing {
 
   data: Object;
 
-  template: NamingTemplateType;
+  customTemplate: NamingTemplateType;
 
   constructor(data: Object, retainData: boolean = true) {
     Object.assign(this, data);
@@ -100,7 +100,7 @@ export default class Airing {
     delete this.user_info;
 
     this.cachedWatch = null;
-    this.template = null;
+    this.customTemplate = null;
 
     if (retainData) this.data = data;
   }
@@ -120,8 +120,6 @@ export default class Airing {
       airing.show = new Show(showData);
 
       if (retainData) airing.data.show = showData;
-
-      airing.template = await getTemplate(airing.type);
 
       return airing;
     }
@@ -304,76 +302,17 @@ export default class Airing {
     return 0;
   }
 
+  get template() {
+    return this.customTemplate ? this.customTemplate : getTemplate(this.type);
+  }
+
+  set template(template: NamingTemplateType) {
+    this.customTemplate = template;
+  }
+
   get exportFile() {
     const vars = buildTemplateVars(this);
     return fillTemplate(this.template, vars);
-  }
-
-  get exportFileOrig() {
-    const { showTitle, airingDetails } = this;
-
-    const EXT = 'mp4';
-    let outPath = this.exportPath;
-    let season = '';
-    switch (this.type) {
-      case SERIES:
-        // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
-        outPath = fsPath.join(
-          outPath,
-          `${sanitize(showTitle)} - ${this.episodeNum}.${EXT}`
-        );
-        return outPath;
-      case MOVIE:
-        // `${outPath}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
-        outPath = fsPath.join(
-          outPath,
-          `${this.title} - ${this.movie_airing.release_year}.${EXT}`
-        );
-        return outPath;
-      case EVENT:
-        if (this.event.season) season = `${this.event.season} - `;
-        // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
-        outPath = fsPath.join(outPath, `${season}${this.title}.${EXT}`);
-        return outPath;
-      case PROGRAM:
-        // eslint-disable-next-line no-case-declarations
-        const datetime = airingDetails.datetime
-          .replace(/[-:Z]/g, '')
-          .replace('T', '_');
-        outPath = fsPath.join(outPath, `${this.title}-${datetime}.${EXT}`);
-        return outPath;
-      default:
-        console.error('Unknown type exportFile', this.type, this);
-        throw Error('Unknown type exportFile');
-    }
-  }
-
-  get exportPath() {
-    const { showTitle } = this;
-
-    // TODO: need to init the config on first startup!
-    const config = getConfig();
-    let outPath = '';
-    switch (this.type) {
-      case MOVIE:
-        outPath = fsPath.join(config.moviePath, sanitize(showTitle));
-        return outPath;
-      case EVENT:
-        outPath = fsPath.join(config.eventPath, sanitize(showTitle));
-        return outPath;
-      case SERIES:
-        outPath = fsPath.join(
-          config.episodePath,
-          sanitize(showTitle),
-          `Season ${this.seasonNum}`
-        );
-        return outPath;
-      case PROGRAM:
-        outPath = config.programPath;
-        return outPath;
-      default:
-        throw new Error('unknown airing type!');
-    }
   }
 
   async watch() {
