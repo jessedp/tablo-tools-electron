@@ -31,14 +31,14 @@ import SeasonEpisodeList from './SeasonEpisodeList';
 import AwardsModal from './AwardsModal';
 
 type Props = {
-  //  show: Show,
+  // show: Show,
   selectedCount: number,
   bulkAddAirings: (Array<Airing>) => void,
   bulkRemAirings: (Array<Airing>) => void,
   match: any
 };
 type State = {
-  show?: Show,
+  show: Show | null,
   airings: Array<Airing>,
   episodes: Object,
   seasons: Object,
@@ -59,7 +59,8 @@ class ShowDetails extends Component<Props, State> {
       episodes: {},
       seasons: {},
       selSeason: null,
-      seasonRefs: []
+      seasonRefs: [],
+      show: null
     };
 
     this.state = this.initialState;
@@ -75,9 +76,8 @@ class ShowDetails extends Component<Props, State> {
     const rec = await global.ShowDb.asyncFindOne({
       object_id: id
     });
-
-    this.setState({ show: new Show(rec) });
-    this.refresh();
+    const show = new Show(rec);
+    this.refresh(show);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -105,9 +105,7 @@ class ShowDetails extends Component<Props, State> {
     }
   }
 
-  async refresh() {
-    const { show } = this.state;
-
+  async refresh(show: Show | null = null) {
     if (!show) return;
 
     const query = {
@@ -145,6 +143,7 @@ class ShowDetails extends Component<Props, State> {
     });
 
     await this.setState({
+      show,
       airings,
       episodes,
       seasons,
@@ -162,16 +161,11 @@ class ShowDetails extends Component<Props, State> {
     const airDate = (date: string) => {
       // TODO: this is a wrong but "probably will work" assumption
       let plusTZ = `${date} 12:00 EST`;
-      console.log('1', date);
       plusTZ = new Date(Date.parse(plusTZ)).toLocaleString();
-      console.log('2', plusTZ);
-      // 2009-09-23
+      // Tues Jan 1st, 1999
       return format(Date.parse(plusTZ), 'EE MMM do, yyyy');
     };
 
-    //            style={{
-    //   backgroundImage: `url(${getTabloImageUrl(show.background)})`
-    // }}
     return (
       <div className="section">
         <img
@@ -284,21 +278,24 @@ class ShowDetails extends Component<Props, State> {
             <Col>
               {Object.keys(seasons).map(key => {
                 const refKey = `season-${key}`;
+                const wrapKey = `seasonwrap-${key}`;
                 return (
-                  <SeasonEpisodeList
-                    key={refKey}
-                    show={show}
-                    seasonNumber={key}
-                    airings={episodes[key]}
-                    ref={seasonRefs[key]}
-                    refKey={refKey}
-                  />
+                  <div key={wrapKey}>
+                    <span ref={seasonRefs[refKey]} />
+                    <SeasonEpisodeList
+                      key={refKey}
+                      show={show}
+                      seasonNumber={key}
+                      airings={episodes[key]}
+                      refKey={refKey}
+                    />
+                  </div> //
                 );
               })}
             </Col>
           </Row>
         </div>
-      </div> //
+      </div>
     );
   }
 }
@@ -310,13 +307,9 @@ function SeasonList(prop) {
   const setActive = key => key;
   const { seasons, selectSeason } = prop;
   const output = [];
-  let first = true;
+
   Object.keys(seasons).forEach(key => {
-    let listKey = `season-${key}`;
-    if (first) {
-      listKey = 'top';
-      first = false;
-    }
+    const listKey = `season-${key}`;
 
     const isActive = active === key;
     output.push(
@@ -337,7 +330,10 @@ function SeasonList(prop) {
 
   return (
     <div className="mt-2" style={{ width: '120px', cursor: 'pointer' }}>
-      <Sticky stickyStyle={{ zIndex: '10000' }}>
+      <Sticky
+        stickyStyle={{ zIndex: '10000' }}
+        scrollElement=".scrollable-area"
+      >
         <ListGroup
           as="ul"
           className="bg-white"
@@ -352,9 +348,12 @@ function SeasonList(prop) {
 
 const mapStateToProps = (state, ownProps) => {
   const { actionList } = state;
-  const { show } = ownProps;
+  //  const { show } = ownProps;
+  // eslint-disable-next-line
+  const id = parseInt(ownProps.match.params.id, 10);
+
   const selectedCount = actionList.reduce(
-    (a, b) => a + (b.show.object_id === show.object_id || 0),
+    (a, b) => a + (b.show.object_id === id || 0),
     0
   );
   return {
