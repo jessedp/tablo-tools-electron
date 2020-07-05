@@ -117,7 +117,6 @@ export function newTemplate(type: string): NamingTemplateType {
 
 export async function upsertTemplate(modTemplate: NamingTemplateType) {
   const template = modTemplate;
-  console.log(template);
   if (!template.type.trim()) return 'Cannot save without type!';
   if (!template.slug.trim()) return 'Cannot save empty slug!';
   if (template.slug === getDefaultTemplateSlug())
@@ -174,23 +173,13 @@ export function buildTemplateVars(airing: Object) {
   const config = getConfig();
   const { episodePath, moviePath, eventPath, programPath } = config;
 
-  // let recData;
-  // let type;
-  // if (typeof data === 'string') {
-  //   type = data;
-  //   const typeRe = new RegExp(type);
-  //   recData = await global.RecDb.asyncFindOne({ path: { $regex: typeRe } });
-  // } else {
-  //   recData = await global.RecDb.asyncFindOne({ object_id: data.id });
-  //   type = data.type;
-  // }
-  // // const recData = await global.RecDb.asyncFindOne({ object_id: 839697 });
-
-  // const airing = await Airing.create(recData);
   const recData = airing.data;
-  // const path = airing.typePath;
-  // const showRec = await global.ShowDb.asyncFindOne({ path });
-  // if (showRec) recData.show = showRec;
+
+  if (!recData || !recData.airing_details || !recData.airing_details.datetime) {
+    console.warn('buildTemplateVars MISSING airing_details', recData);
+    return {};
+  }
+
   const date = parseISO(recData.airing_details.datetime);
 
   const dateSort = format(date, 'yyyy-MM-dd');
@@ -205,7 +194,8 @@ export function buildTemplateVars(airing: Object) {
     dateNat,
     time12,
     time24,
-    title: airing.title
+    title: airing.title,
+    stripTitle: stripSecondary(airing.title)
   };
 
   let typeVars = {};
@@ -214,6 +204,7 @@ export function buildTemplateVars(airing: Object) {
       typeVars = {
         episodePath,
         showTitle: airing.showTitle,
+        stripShowTitle: stripSecondary(airing.showTitle),
         seasonNum: airing.seasonNum,
         episodeNum: airing.episodeNum,
         episodeOrDate: airing.episodeNum,
@@ -295,13 +286,13 @@ export function fillTemplate(
   let filledPath = fsPath.normalize(parts.join(fsPath.sep));
   let i = 0;
 
-  // const secondaryReplacements = ["'", ',', ':'];
+  // const secondaryReplacements = [`'`, `’`, ',', ':'];
 
   // const stripSecondary = (piece: string) => {
   //   console.log('stringSecondary', piece);
   //   let newPiece = piece;
   //   secondaryReplacements.forEach(rep => {
-  //     newPiece = newPiece.replace(escapeRegExp(rep), ''); // $& means the whole matched string
+  //     newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
   //   });
   //   return newPiece;
   // };
@@ -325,3 +316,13 @@ export function fillTemplate(
   if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
   return filledPath;
 }
+
+const stripSecondary = (piece: string) => {
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
+
+  let newPiece = piece;
+  secondaryReplacements.forEach(rep => {
+    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+  });
+  return newPiece;
+};

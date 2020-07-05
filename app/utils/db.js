@@ -93,7 +93,7 @@ export const makeChannelDb = () => {
 export const makeNamingDb = () => {
   const device = store.get('CurrentDevice');
   if (!device.serverid) return null;
-  const namingDbName = `${device.serverid}-naming.db`;
+  const namingDbName = `template-naming.db`;
   const namingFile = path.join(dataDir, namingDbName);
 
   return new AsyncNedb({
