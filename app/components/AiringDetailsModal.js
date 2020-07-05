@@ -52,7 +52,11 @@ export default function AiringDetailsModal(props: Props) {
   return (
     <Modal show={show} scrollable onHide={() => setShow(false)} size="lg">
       <Modal.Header closeButton>
-        <Alert variant="info" className="mb-0">
+        <Alert
+          variant="secondary"
+          className="mb-0 md-col-7"
+          style={{ width: '100%', fontSize: '18px' }}
+        >
           {airing.showTitle}
         </Alert>
       </Modal.Header>
