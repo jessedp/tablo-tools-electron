@@ -6,6 +6,7 @@
   "SHOWS": "/shows",
   "SHOWDETAILS": "/shows/:id",
   "MOVIES": "/movies",
+  "MOVIEDETAILS": "/movies/:id",
   "SPORTS": "/sports",
   "PROGRAMS": "/programs",
   "SEARCH": "/search",
