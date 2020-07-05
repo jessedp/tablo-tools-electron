@@ -236,13 +236,13 @@ class ShowDetails extends Component<Props, State> {
                     </span>
                   </Col>
                 </Row>
-                <Row>
+                <Row className="mt-1">
                   <Col>
                     <b>Cast:</b>
                     <span className="ml-1">{show.series.cast.join(', ')}</span>
                   </Col>
                 </Row>
-                <Row>
+                <Row className="mt-1">
                   <Col>
                     <AwardsModal show={show} />
                   </Col>

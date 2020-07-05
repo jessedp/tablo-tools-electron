@@ -1,18 +1,74 @@
 // @flow
-import React from 'react';
+import React, { useState } from 'react';
+
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import { Row, Col, Alert } from 'react-bootstrap';
 import Show from '../utils/Show';
 
 type Prop = { show: Show };
 
 export default function AwardsModal(prop: Prop) {
+  const [display, setDisplay] = useState(false);
+
   const { show } = prop;
   const len = show.series.awards.length;
-  if (len === 0) return <i>No awards</i>;
+  if (len === 0)
+    return (
+      <>
+        <b>Awards:</b>
+        <i className="ml-1">None</i>
+      </>
+    ); //
+
+  if (!display) {
+    return (
+      <>
+        <b>Awards:</b>
+        <Button
+          variant="outline-primary"
+          onClick={() => setDisplay(true)}
+          className="ml-2"
+          size="xs"
+          title="preview"
+        >
+          {len}
+        </Button>
+      </> //
+    );
+  }
 
   return (
-    <>
-      <b>Awards:</b>
-      <span className="ml-1">{show.series.awards.length}</span>
-    </> //
+    <Modal show={display} scrollable onHide={() => setDisplay(false)}>
+      <Modal.Header closeButton>
+        <Alert variant="success" className="mb-0">
+          {len} Awards
+        </Alert>
+      </Modal.Header>
+      <Modal.Body>
+        {show.series.awards.map(rec => {
+          return (
+            <>
+              <Row>
+                <Col>
+                  <b className="mr-2">{rec.year}</b> {rec.name}
+                  <i className="ml-2 font-weight-bold">{rec.nominee}</i>
+                </Col>
+              </Row>
+              <Row className="border-bottom mb-2">
+                <Col>
+                  <i className="ml-2">{rec.category}</i>
+                </Col>
+              </Row>
+            </> //
+          );
+        })}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setDisplay(false)}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
