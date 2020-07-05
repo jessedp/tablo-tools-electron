@@ -156,7 +156,7 @@ class ShowDetails extends Component<Props, State> {
     const { selectedCount } = this.props;
     const { bulkAddAirings, bulkRemAirings } = this.props;
 
-    if (!show) return <></>; //
+    if (!show || !show.id) return <></>; //
 
     const airDate = (date: string) => {
       // TODO: this is a wrong but "probably will work" assumption
@@ -179,11 +179,11 @@ class ShowDetails extends Component<Props, State> {
             height: 'auto',
             opacity: '0.25',
             zIndex: '-1',
-            maxHeight: '90vh'
+            maxHeight: '91vh'
           }}
         />
 
-        <div style={{}}>
+        <div>
           <LinkContainer to={routes.SHOWS} key={show.id}>
             <Button size="xs" variant="outline-secondary" className="mt-1 mb-1">
               <span className="fa fa-arrow-left pr-2" />
@@ -238,7 +238,7 @@ class ShowDetails extends Component<Props, State> {
                 </Row>
                 <Row className="mt-1">
                   <Col>
-                    <AwardsModal show={show} />
+                    <AwardsModal awards={show.series.awards} />
                   </Col>
                 </Row>
               </div>
