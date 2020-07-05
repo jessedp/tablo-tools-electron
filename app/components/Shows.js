@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import { LinkContainer } from 'react-router-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import Spinner from 'react-bootstrap/Spinner';
+// import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 
@@ -63,7 +63,7 @@ export default class Shows extends Component<Props, State> {
       return (
         <Container key="spinner">
           <Row className="pl-lg-5">
-            <Spinner animation="grow" variant="info" />
+            <Alert variant="warning">No Shows found. Record something?</Alert>
           </Row>
         </Container>
       );
