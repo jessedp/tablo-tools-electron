@@ -18,6 +18,7 @@ import LiveTvPage from './components/LiveTvPage';
 import SettingsPage from './containers/SettingsPage';
 import ShowDetails from './components/ShowDetails';
 import MovieDetails from './components/MovieDetails';
+import EventDetails from './components/EventDetails';
 import { hasDevice } from './utils/Tablo';
 
 export default () => {
@@ -45,7 +46,10 @@ export default () => {
 
         <Route exact path={routes.MOVIES} component={Movies} />
         <Route path={routes.MOVIEDETAILS} component={MovieDetails} />
-        <Route path={routes.SPORTS} component={Events} />
+
+        <Route exact path={routes.EVENTS} component={Events} />
+        <Route path={routes.EVENTDETAILS} component={EventDetails} />
+
         <Route path={routes.PROGRAMS} component={Programs} />
         <Route path={routes.SEARCH} component={SearchForm} />
         <Route path={routes.SELECTED} component={ActionList} />

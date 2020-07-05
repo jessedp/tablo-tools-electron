@@ -2,13 +2,18 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
+import { LinkContainer } from 'react-router-bootstrap';
+
 import { Alert, Button } from 'react-bootstrap';
+
+import routes from '../constants/routes.json';
+
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
 
 type Props = {};
-type State = { airings: Array<Airing>, alertType: string, alertTxt: string };
+type State = { events: Array<Airing>, alertType: string, alertTxt: string };
 
 export default class Events extends Component<Props, State> {
   props: Props;
@@ -20,42 +25,41 @@ export default class Events extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { airings: [], alertType: '', alertTxt: '' };
+    this.state = { events: [], alertType: '', alertTxt: '' };
 
-    this.search = this.search.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
   componentDidMount() {
-    this.search();
-    this.psToken = PubSub.subscribe('DB_CHANGE', () => {
-      this.search();
-    });
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount(): * {
     PubSub.unsubscribe(this.psToken);
   }
 
-  search = async () => {
-    const recs = await eventList();
-
-    if (recs.length === 0) {
-      this.setState({
-        alertType: 'warning',
-        alertTxt: 'No sports found',
-        airings: []
-      });
-    } else {
-      this.setState({
-        alertType: 'info',
-        alertTxt: `${recs.length} sports found`,
-        airings: recs
-      });
-    }
+  refresh = async () => {
+    const objRecs = await eventList();
+    const label = objRecs.length === 1 ? 'event' : 'events';
+    this.setState({
+      events: objRecs,
+      alertType: 'info',
+      alertTxt: `${objRecs.length} ${label} found`
+    });
   };
 
   render() {
-    const { airings, alertTxt, alertType } = this.state;
+    const { events, alertTxt, alertType } = this.state;
+
+    if (events.length === 0) {
+      return (
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Sports or Events found.
+        </Alert>
+      );
+    }
 
     return (
       <div className="section">
@@ -69,18 +73,20 @@ export default class Events extends Component<Props, State> {
           )}
         </div>
         <div className="scrollable-area">
-          {airings.map(rec => {
-            console.log(rec.show);
+          {events.map(rec => {
             return (
-              <Button
-                onClick={() => {}}
-                onKeyDown={() => {}}
-                variant="light"
-                className="align-content-center"
-                key={rec.object_id}
+              <LinkContainer
+                to={routes.EVENTDETAILS.replace(':id', rec.id)}
+                key={rec.id}
               >
-                <ShowCover show={rec.show} key={`sport-${rec.object_id}`} />;
-              </Button>
+                <Button
+                  variant="light"
+                  className="align-content-center"
+                  key={rec.id}
+                >
+                  <ShowCover show={rec.show} key={`event-${rec.id}`} />;
+                </Button>
+              </LinkContainer>
             );
           })}
         </div>
