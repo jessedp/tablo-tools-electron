@@ -16,35 +16,27 @@ export default class RecordingOverview extends Component<Props> {
     const { videoDetails } = airing;
 
     return (
-      <Table size="sm">
-        <tbody>
-          <tr>
-            <th>Status</th>
-            <td>{airing.videoDetails.state}</td>
-            {airing.isEpisode ? (
-              <>
-                <th>Season</th>
-                <td>{airing.episodeNum}</td>
-              </>
-            ) : (
-              <></>
-            )}
-            <th>Watched</th>
-            <td>{boolStr(airing.userInfo.watched)}</td>
-          </tr>
-          <tr>
-            <th>Duration</th>
-            <td colSpan="6">
-              {airing.actualDuration} of {airing.duration}
-            </td>
-          </tr>
-          <tr>
-            <td colSpan="6">
-              <VideoDetail details={videoDetails} />
-            </td>
-          </tr>
-        </tbody>
-      </Table>
+      <>
+        <Table size="sm" borderless>
+          <tbody>
+            <tr>
+              <th>Status</th>
+              <td>{airing.videoDetails.state}</td>
+              {airing.isEpisode ? (
+                <>
+                  <th>Season</th>
+                  <td>{airing.episodeNum}</td>
+                </> //
+              ) : (
+                <></> //
+              )}
+              <th>Watched</th>
+              <td>{boolStr(airing.userInfo.watched)}</td>
+            </tr>
+          </tbody>
+        </Table>
+        <VideoDetail details={videoDetails} />
+      </> //
     );
   }
 }

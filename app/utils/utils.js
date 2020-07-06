@@ -2,6 +2,10 @@ import getConfig from './config';
 
 const fs = require('fs');
 
+export function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 export async function asyncForEach(array, callback) {
   const promises = array.map(callback);
   const vals = Promise.all(promises);
@@ -41,6 +45,20 @@ export function sortableTitle(titleToSort) {
 export function ellipse(str: string, length: number, ellipsis: string = '...') {
   if (str.length > length) return `${str.substr(0, length)}${ellipsis}`;
   return str;
+}
+
+export function titleCase(string) {
+  const sentence = string.toLowerCase().split(' ');
+  for (let i = 0; i < sentence.length; i += 1) {
+    sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
+  }
+  return sentence;
+}
+
+export function getTabloImageUrl(imageId: number) {
+  const host = global.Api.device.private_ip;
+  const id = parseInt(imageId, 10);
+  return `http://${host}:8885/images/${id}`;
 }
 
 export function sortObject(obj) {

@@ -8,7 +8,7 @@ type Prop = { description: string };
 
 export default function Description(prop: Prop) {
   const { description } = prop;
-  if (!description) return <></>;
+  if (!description) return <></>; //
 
   const popover = (
     <Popover id="popover-basic">

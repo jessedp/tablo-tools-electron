@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Prompt } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
 import Button from 'react-bootstrap/Button';
@@ -10,6 +10,7 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
+
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../actions/exportList';
@@ -19,6 +20,7 @@ import ExportRecordType from '../reducers/types';
 import { EXP_WORKING } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 import Checkbox from './Checkbox';
+import routes from '../constants/routes.json';
 
 type Props = {
   actionList: Array<Airing>,
@@ -32,19 +34,25 @@ type Props = {
   processVideo: () => void,
 
   addExportRecord: (record: ExportRecordType) => void,
-  bulkRemExportRecord: (Array<ExportRecordType>) => void,
-
-  history: any
+  bulkRemExportRecord: (Array<ExportRecordType>) => void
 };
 
-class VideoExportPage extends Component<Props> {
+type State = { loaded: boolean };
+
+class VideoExportPage extends Component<Props, State> {
   props: Props;
+
+  constructor() {
+    super();
+    this.state = { loaded: false };
+  }
 
   componentDidMount() {
     const { actionList, addExportRecord } = this.props;
     actionList.forEach(rec => {
       addExportRecord(ExportRecord(rec));
     });
+    this.setState({ loaded: true });
   }
 
   componentWillUnmount() {
@@ -53,6 +61,7 @@ class VideoExportPage extends Component<Props> {
   }
 
   render() {
+    const { loaded } = this.state;
     const {
       exportList,
       exportState,
@@ -61,23 +70,13 @@ class VideoExportPage extends Component<Props> {
       atOnceChange,
       cancelProcess,
       processVideo,
-      toggleDOF,
-      history
+      toggleDOF
     } = this.props;
 
+    if (!loaded) return <></>; //
+
     if (exportList.length === 0) {
-      return (
-        <Alert variant="warning">
-          <Button
-            variant="light"
-            onClick={() => history.goBack()}
-            className="mr-2"
-          >
-            Go back
-          </Button>
-          No records selected!
-        </Alert>
-      );
+      return <Redirect to={routes.SEARCH} />;
     }
 
     const timeSort = (a, b) => {

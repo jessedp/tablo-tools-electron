@@ -6,13 +6,11 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
 
 import * as ActionListActions from '../actions/actionList';
 
 import Title from './Title';
 import TabloImage from './TabloImage';
-import RecordingOverview from './RecordingOverview';
 import ConfirmDelete from './ConfirmDelete';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringStatus from './AiringStatus';
@@ -20,6 +18,7 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
+import AiringDetailsModal from './AiringDetailsModal';
 
 type Props = {
   airing: Airing,
@@ -27,7 +26,7 @@ type Props = {
   addAiring: Airing => void,
   remAiring: Airing => void
 };
-type State = { recOverviewOpen: boolean };
+type State = {};
 
 class Recording extends Component<Props, State> {
   props: Props;
@@ -38,13 +37,11 @@ class Recording extends Component<Props, State> {
 
   constructor(props: Props) {
     super();
-    this.state = { recOverviewOpen: false };
     this.props = props;
 
     this.checkboxRef = React.createRef();
 
     (this: any).toggleSelection = this.toggleSelection.bind(this);
-    (this: any).toggleRecOverview = this.toggleRecOverview.bind(this);
     (this: any).processVideo = this.processVideo.bind(this);
   }
 
@@ -80,13 +77,6 @@ class Recording extends Component<Props, State> {
     }
   };
 
-  toggleRecOverview() {
-    const { recOverviewOpen } = this.state;
-    this.setState({
-      recOverviewOpen: !recOverviewOpen
-    });
-  }
-
   async processVideo() {
     const { airing } = this.props;
     await airing.processVideo();
@@ -94,15 +84,7 @@ class Recording extends Component<Props, State> {
 
   render() {
     const { airing, checked } = this.props;
-    const { recOverviewOpen } = this.state;
     const classes = `m-1 pt-1 search-box`;
-
-    let overviewClass = 'pl-2 fa ';
-    if (recOverviewOpen) {
-      overviewClass = `${overviewClass} fa-arrow-up`;
-    } else {
-      overviewClass = `${overviewClass} fa-arrow-down`;
-    }
 
     let checkbox = '';
     if (airing.videoDetails.state !== 'recording') {
@@ -149,14 +131,7 @@ class Recording extends Component<Props, State> {
 
             <Row className="pb-1">
               <Col md="7" className="ml-0 pl-0 mr-0 pr-0">
-                <Button
-                  variant="outline-secondary"
-                  size="xs"
-                  onClick={this.toggleRecOverview}
-                >
-                  details
-                  <span className={overviewClass} />
-                </Button>
+                <AiringDetailsModal airing={airing} />
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
@@ -170,12 +145,6 @@ class Recording extends Component<Props, State> {
                 </div>
               </Col>
             </Row>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            {recOverviewOpen ? <RecordingOverview airing={airing} /> : ''}
           </Col>
         </Row>
       </Container>

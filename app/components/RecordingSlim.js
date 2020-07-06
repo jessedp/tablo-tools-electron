@@ -24,7 +24,8 @@ type Props = {
   addAiring: Airing => void,
   remAiring: Airing => void,
   withShow?: number,
-  withSelect?: number
+  withSelect?: number,
+  withActions?: number
 };
 
 class RecordingSlim extends Component<Props> {
@@ -60,7 +61,7 @@ class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing, checked, withShow, withSelect } = this.props;
+    const { airing, checked, withShow, withSelect, withActions } = this.props;
 
     // const classes = `border pb-1 mb-2 pt-1`;
 
@@ -102,12 +103,15 @@ class RecordingSlim extends Component<Props> {
                 </div>
               </div>
             </div>
-
-            <div className="d-flex flex-row-reverse">
-              <VideoExportModal airingList={[airing]} />
-              &nbsp;
-              <TabloVideoPlayer airing={airing} />
-            </div>
+            {withActions === ON ? (
+              <div className="d-flex flex-row-reverse">
+                <VideoExportModal airingList={[airing]} />
+                &nbsp;
+                <TabloVideoPlayer airing={airing} />
+              </div>
+            ) : (
+              ''
+            )}
           </Col>
         </Row>
       </> //
@@ -116,7 +120,8 @@ class RecordingSlim extends Component<Props> {
 }
 RecordingSlim.defaultProps = {
   withShow: OFF,
-  withSelect: OFF
+  withSelect: OFF,
+  withActions: ON
 };
 
 const mapStateToProps = (state, ownProps) => {

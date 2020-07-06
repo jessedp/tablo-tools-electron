@@ -2,13 +2,22 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
+import { LinkContainer } from 'react-router-bootstrap';
 import { Alert, Button } from 'react-bootstrap';
+
+import routes from '../constants/routes.json';
+
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
 
 type Props = {};
-type State = { airings: Array<Airing>, alertType: string, alertTxt: string };
+type State = {
+  movies: Array<Airing>,
+  alertType: string,
+  alertTxt: string,
+  loaded: boolean
+};
 
 export default class Movies extends Component<Props, State> {
   props: Props;
@@ -20,42 +29,44 @@ export default class Movies extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { airings: [], alertType: '', alertTxt: '' };
+    this.state = { movies: [], alertType: '', alertTxt: '', loaded: false };
 
-    this.search = this.search.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
   componentDidMount() {
-    this.search();
-    this.psToken = PubSub.subscribe('DB_CHANGE', () => {
-      this.search();
-    });
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount(): * {
     PubSub.unsubscribe(this.psToken);
   }
 
-  search = async () => {
-    const recs = await movieList();
-
-    if (recs.length === 0) {
-      this.setState({
-        alertType: 'warning',
-        alertTxt: 'No movies found',
-        airings: []
-      });
-    } else {
-      this.setState({
-        alertType: 'info',
-        alertTxt: `${recs.length} movies found`,
-        airings: recs
-      });
-    }
+  refresh = async () => {
+    const objRecs = await movieList();
+    const label = objRecs.length === 1 ? 'movie' : 'movies';
+    this.setState({
+      movies: objRecs,
+      alertType: 'info',
+      alertTxt: `${objRecs.length} ${label} found`,
+      loaded: true
+    });
   };
 
   render() {
-    const { airings, alertTxt, alertType } = this.state;
+    const { movies, loaded, alertTxt, alertType } = this.state;
+
+    if (!loaded) return <></>; //
+
+    if (movies.length === 0) {
+      return (
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Movies found.
+        </Alert>
+      );
+    }
 
     return (
       <div className="section">
@@ -69,17 +80,20 @@ export default class Movies extends Component<Props, State> {
           )}
         </div>
         <div className="scrollable-area">
-          {airings.map(rec => {
+          {movies.map(rec => {
             return (
-              <Button
-                onClick={() => {}}
-                onKeyDown={() => {}}
-                variant="light"
-                className="align-content-center"
-                key={rec.object_id}
+              <LinkContainer
+                to={routes.MOVIEDETAILS.replace(':id', rec.id)}
+                key={rec.id}
               >
-                <ShowCover show={rec.show} key={`movie-${rec.object_id}`} />;
-              </Button>
+                <Button
+                  variant="light"
+                  className="align-content-center"
+                  key={rec.id}
+                >
+                  <ShowCover show={rec.show} key={`movie-${rec.id}`} />;
+                </Button>
+              </LinkContainer>
             );
           })}
         </div>

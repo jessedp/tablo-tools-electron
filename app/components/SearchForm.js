@@ -19,13 +19,14 @@ import Select, { components } from 'react-select';
 
 import {
   asyncForEach,
+  escapeRegExp,
   readableBytes,
   readableDuration,
   throttleActions
 } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
-import { showList } from './ShowsList';
+import { showList } from './Shows';
 import TabloImage from './TabloImage';
 import type { SearchAlert } from '../utils/types';
 import { comskipAvailable } from '../utils/Tablo';
@@ -452,9 +453,6 @@ class SearchForm extends Component<Props, SearchState> {
     const steps = [];
 
     if (searchValue.trim()) {
-      const escapeRegExp = (text: string) => {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-      };
       const re = new RegExp(escapeRegExp(searchValue), 'i');
       // query['airing_details.show_title'] =  { $regex: re };
       query.$or = [

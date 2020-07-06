@@ -98,7 +98,7 @@ class SelectedBox extends Component<Props, State> {
               <DropdownItem onClick={() => bulkRemAirings()}>
                 <span>
                   <span className="fa fa-minus pr-2" />
-                  Remove All
+                  Clear All
                 </span>
               </DropdownItem>
             </> //

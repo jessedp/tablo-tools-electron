@@ -1,6 +1,5 @@
 // @flow
 import React, { Component, useState } from 'react';
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -16,7 +15,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 
-import * as ActionListActions from '../actions/actionList';
+import * as ExportListActions from '../actions/exportList';
 
 import clockStyles from './Clock.css';
 import TitleSlim from './TitleSlim';
@@ -28,17 +27,21 @@ import {
   EXP_DONE,
   EXP_CANCEL,
   EXP_FAIL,
-  EXP_DELETE
+  EXP_DELETE,
+  NamingTemplateType
 } from '../constants/app';
 
 import ExportRecordType from '../reducers/types';
 
 import { readableBytes, secondsToTimeStr } from '../utils/utils';
 import RelativeDate from './RelativeDate';
+import FilenameEditor from './FilenameEditor';
+import OpenDirectory from './OpenDirecory';
 
 type Props = {
   record: ExportRecordType,
-  airing: Airing
+  airing: Airing,
+  updateExportRecord: ExportRecordType => void
 };
 
 type State = {};
@@ -52,6 +55,12 @@ class RecordingExport extends Component<Props, State> {
       this.render();
     }
   }
+
+  updateTemplate = (template: NamingTemplateType) => {
+    const { record, updateExportRecord } = this.props;
+    record.airing.template = template;
+    updateExportRecord(record);
+  };
 
   render() {
     const { record } = this.props;
@@ -86,7 +95,11 @@ class RecordingExport extends Component<Props, State> {
             </Row>
             <Row>
               <Col md="auto">
-                <FileInfo airing={airing} state={exportState} />
+                <FileInfo
+                  airing={airing}
+                  exportState={exportState}
+                  updateTemplate={this.updateTemplate}
+                />
               </Col>
             </Row>
           </Col>
@@ -287,32 +300,25 @@ function FfmpegLog(prop) {
   );
 }
 
-const FileInfo = prop => {
-  const { airing, state } = prop;
-  const { exportFile } = airing;
-  const exists = fs.existsSync(exportFile);
+type FileInfoProps = {
+  airing: Airing,
+  exportState: number,
+  updateTemplate: (template: NamingTemplateType) => void
+};
 
-  const openDir = () => {
-    shell.showItemInFolder(airing.exportFile);
-  };
+const FileInfo = (props: FileInfoProps) => {
+  const { airing, exportState, updateTemplate } = props;
+  const exists = fs.existsSync(airing.exportFile);
 
   if (!exists) {
-    if (state === EXP_DONE) {
-      // uh-oh. probably a mac
+    if (exportState === EXP_DONE) {
       return (
         <div className="p-0 m-0 smaller font-weight-bold text-danger">
           <span className="fa fa-exclamation pr-1" />
           <span className="pr-2">File does not exist after export.</span>
           <span>
+            <OpenDirectory path={airing.exportFile} />
             {airing.exportFile}
-            <Button
-              variant="link"
-              className="p-0 pl-1"
-              onClick={openDir}
-              title="Open file in directory"
-            >
-              <span className="fa fa-external-link-alt text-warning" />
-            </Button>
           </span>
         </div>
       );
@@ -321,19 +327,27 @@ const FileInfo = prop => {
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
         {airing.exportFile}
+        {exportState === EXP_WAITING ? (
+          <>
+            <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+            <OpenDirectory path={airing.exportFile} />
+          </> //
+        ) : (
+          ''
+        )}
       </div>
     );
   }
-  const stats = fs.statSync(exportFile);
+  const stats = fs.statSync(airing.exportFile);
 
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';
   let icon = 'fa pr-1 ';
-  if (state === EXP_WORKING) {
+  if (exportState === EXP_WORKING) {
     showSize = false;
     baseClass = `${baseClass} text-warning`;
     icon = `${icon} fa-exclamation`;
-  } else if (state === EXP_DONE || state === EXP_DELETE) {
+  } else if (exportState === EXP_DONE || exportState === EXP_DELETE) {
     showSize = true;
     baseClass = `${baseClass} text-success`;
     icon = `${icon} fa-check-circle`;
@@ -346,7 +360,14 @@ const FileInfo = prop => {
   return (
     <div className={baseClass}>
       <span className={icon} />
-      <span className="pr-3">{airing.exportFile}</span>
+      <span className="">{airing.exportFile}</span>
+      {exportState === EXP_WAITING ? (
+        <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+      ) : (
+        <span className="ml-1 mr-1" />
+      )}
+
+      <OpenDirectory path={airing.exportFile} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>
@@ -355,16 +376,6 @@ const FileInfo = prop => {
       ) : (
         ''
       )}
-      <span>
-        <Button
-          className="p-0 pl-1"
-          variant="link"
-          onClick={openDir}
-          title="Open file in directory"
-        >
-          <span className="fa fa-external-link-alt text-warning" />
-        </Button>
-      </span>
     </div>
   );
 };
@@ -382,7 +393,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ ...ActionListActions }, dispatch);
+  return bindActionCreators({ ...ExportListActions }, dispatch);
 };
 
 export default connect<*, *, *, *, *, *>(

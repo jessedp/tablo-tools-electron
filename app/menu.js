@@ -1,6 +1,8 @@
 // @flow
 import { app, Menu, shell, BrowserWindow, ipcMain } from 'electron';
 
+const { version } = require('../package.json');
+
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
 
@@ -14,6 +16,8 @@ export default class MenuBuilder {
       process.env.DEBUG_PROD === 'true'
     ) {
       this.setupDevelopmentEnvironment();
+    } else {
+      this.addContextMenu();
     }
 
     const template =
@@ -27,12 +31,54 @@ export default class MenuBuilder {
     return menu;
   }
 
+  addContextMenu() {
+    this.mainWindow.webContents.on('context-menu', () => {
+      Menu.buildFromTemplate([
+        {
+          label: 'Cut',
+          role: 'cut',
+          click: () => {
+            console.log('cut');
+          }
+        },
+        {
+          label: 'Copy',
+          role: 'copy',
+          click: () => {
+            console.log('paste');
+          }
+        },
+        {
+          label: 'Paste',
+          role: 'paste',
+          click: () => {
+            console.log('copy');
+          }
+        }
+      ]).popup(this.mainWindow);
+    });
+  }
+
   setupDevelopmentEnvironment() {
     this.mainWindow.openDevTools();
     this.mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 
       Menu.buildFromTemplate([
+        {
+          label: 'Paste',
+          role: 'paste',
+          click: () => {
+            console.log('copy');
+          }
+        },
+        {
+          label: 'Copy',
+          role: 'copy',
+          click: () => {
+            console.log('paste');
+          }
+        },
         {
           label: 'Inspect element',
           click: () => {
@@ -153,30 +199,40 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('http://electron.atom.io');
-          }
-        },
-        {
-          label: 'Documentation',
-          click() {
-            shell.openExternal(
-              'https://github.com/atom/electron/tree/master/docs#readme'
-            );
-          }
-        },
-        {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://discuss.atom.io/c/electron');
-          }
-        },
-        {
-          label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/atom/electron/issues');
-          }
+          label: '&Help',
+          submenu: [
+            {
+              label: 'Website',
+              click() {
+                shell.openExternal(
+                  'https://jessedp.github.io/tablo-tools-electron/'
+                );
+              }
+            },
+            {
+              label: 'Community Discussions',
+              click() {
+                shell.openExternal(
+                  'https://community.tablotv.com/t/tablo-tools-bulk-export-delete-on-win-mac-linux/23254'
+                );
+              }
+            },
+            { type: 'separator' },
+            {
+              label: 'Search Issues',
+              click() {
+                ipcMain.emit('search-issues', '');
+              }
+            },
+            {
+              label: 'Release Notes',
+              click() {
+                shell.openExternal(
+                  `https://github.com/jessedp/tablo-tools-electron/releases/tag/v${version}`
+                );
+              }
+            }
+          ]
         }
       ]
     };
@@ -192,10 +248,6 @@ export default class MenuBuilder {
       {
         label: '&File',
         submenu: [
-          {
-            label: '&Open',
-            accelerator: 'Ctrl+O'
-          },
           {
             label: '&Close',
             accelerator: 'Ctrl+W',
@@ -272,14 +324,19 @@ export default class MenuBuilder {
               );
             }
           },
+          { type: 'separator' },
           {
             label: 'Search Issues',
             click() {
               ipcMain.emit('search-issues', '');
-
-              // shell.openExternal(
-              //   'https://github.com/jessedp/tablo-tools-electron/issues'
-              // );
+            }
+          },
+          {
+            label: 'Release Notes',
+            click() {
+              shell.openExternal(
+                `https://github.com/jessedp/tablo-tools-electron/releases/tag/v${version}`
+              );
             }
           }
         ]

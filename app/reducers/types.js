@@ -16,6 +16,11 @@ export type ExportRecordType = {
   progress: Object
 };
 
+export type FlashRecordType = {
+  message: string,
+  type?: string
+};
+
 export type ExportListStateType = {
   exportList: Array<ExportRecordType>,
   airing: Airing,

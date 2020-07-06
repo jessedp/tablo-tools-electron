@@ -11,7 +11,15 @@ import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
-import { EVENT, MOVIE, PROGRAM, SERIES, beginTimemark } from '../constants/app';
+import {
+  EVENT,
+  MOVIE,
+  PROGRAM,
+  SERIES,
+  beginTimemark,
+  NamingTemplateType
+} from '../constants/app';
+import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const sanitize = require('sanitize-filename');
 // const ffmpeg = require('ffmpeg-static');
@@ -76,7 +84,11 @@ export default class Airing {
 
   cmd: any;
 
-  constructor(data: Object) {
+  data: Object;
+
+  customTemplate: NamingTemplateType;
+
+  constructor(data: Object, retainData: boolean = true) {
     Object.assign(this, data);
     this.airingDetails = this.airing_details;
     delete this.airing_details;
@@ -87,19 +99,28 @@ export default class Airing {
     this.userInfo = this.user_info;
     delete this.user_info;
 
-    // this.show = null;
     this.cachedWatch = null;
+    this.customTemplate = null;
+
+    if (retainData) this.data = data;
   }
 
   static async find(id: number): Promise<Airing> {
     return Airing.create(await global.RecDb.asyncFindOne({ object_id: id }));
   }
 
-  static async create(data: Object): Promise<Airing> {
+  static async create(
+    data: Object,
+    retainData: boolean = true
+  ): Promise<Airing> {
     if (data) {
-      const airing = new Airing(data);
+      const airing = new Airing(data, retainData);
       const path = airing.typePath;
-      airing.show = new Show(await global.ShowDb.asyncFindOne({ path }));
+      const showData = await global.ShowDb.asyncFindOne({ path });
+      airing.show = new Show(showData);
+
+      if (retainData) airing.data.show = showData;
+
       return airing;
     }
 
@@ -281,71 +302,17 @@ export default class Airing {
     return 0;
   }
 
-  get exportFile() {
-    const { showTitle, airingDetails } = this;
-
-    const EXT = 'mp4';
-    let outPath = this.exportPath;
-    let season = '';
-    switch (this.type) {
-      case SERIES:
-        // `${outPath}/${showTitle}/Season ${this.seasonNum}/${showTitle} - ${this.episodeNum}.${EXT}`;
-        outPath = fsPath.join(
-          outPath,
-          `${sanitize(showTitle)} - ${this.episodeNum}.${EXT}`
-        );
-        return outPath;
-      case MOVIE:
-        // `${outPath}/${this.title} - ${this.movie_airing.release_year}.${EXT}`;
-        outPath = fsPath.join(
-          outPath,
-          `${this.title} - ${this.movie_airing.release_year}.${EXT}`
-        );
-        return outPath;
-      case EVENT:
-        if (this.event.season) season = `${this.event.season} - `;
-        // `${outPath}/${this.showTitle}/${season}${this.eventTitle}.${EXT}`;
-        outPath = fsPath.join(outPath, `${season}${this.title}.${EXT}`);
-        return outPath;
-      case PROGRAM:
-        // eslint-disable-next-line no-case-declarations
-        const datetime = airingDetails.datetime
-          .replace(/[-:Z]/g, '')
-          .replace('T', '_');
-        outPath = fsPath.join(outPath, `${this.title}-${datetime}.${EXT}`);
-        return outPath;
-      default:
-        console.error('Unknown type exportFile', this.type, this);
-        throw Error('Unknown type exportFile');
-    }
+  get template() {
+    return this.customTemplate ? this.customTemplate : getTemplate(this.type);
   }
 
-  get exportPath() {
-    const { showTitle } = this;
+  set template(template: NamingTemplateType) {
+    this.customTemplate = template;
+  }
 
-    // TODO: need to init the config on first startup!
-    const config = getConfig();
-    let outPath = '';
-    switch (this.type) {
-      case MOVIE:
-        outPath = fsPath.join(config.moviePath, sanitize(showTitle));
-        return outPath;
-      case EVENT:
-        outPath = fsPath.join(config.eventPath, sanitize(showTitle));
-        return outPath;
-      case SERIES:
-        outPath = fsPath.join(
-          config.episodePath,
-          sanitize(showTitle),
-          `Season ${this.seasonNum}`
-        );
-        return outPath;
-      case PROGRAM:
-        outPath = config.programPath;
-        return outPath;
-      default:
-        throw new Error('unknown airing type!');
-    }
+  get exportFile() {
+    const vars = buildTemplateVars(this);
+    return fillTemplate(this.template, vars);
   }
 
   async watch() {
@@ -374,8 +341,25 @@ export default class Airing {
     const { _id, path } = this;
     return new Promise((resolve, reject) => {
       try {
-        global.Api.delete(path);
+        if (process.env.NODE_ENV === 'production') {
+          global.Api.delete(path);
+        }
         global.RecDb.asyncRemove({ _id });
+        if (this.show && this.show.showCounts) {
+          if (this.show.showCounts.airing_count === 1) {
+            global.ShowDb.asyncRemove({ object_id: this.show.id });
+          } else {
+            global.ShowDb.asyncUpdate(
+              { object_id: this.show.id },
+              {
+                $set: {
+                  'show_counts.airing_count':
+                    this.show.showCounts.airing_count - 1
+                }
+              }
+            );
+          }
+        }
         setTimeout(() => resolve(true), 300 + 300 * Math.random());
       } catch (e) {
         console.log('Airing.delete', e);
@@ -439,7 +423,7 @@ export default class Airing {
 
     /** In dev, the prod path gets returned, so "fix" that * */
     if (process.env.NODE_ENV === 'development') {
-      if (os.platform() === 'win') {
+      if (os.platform() === 'win32') {
         if (ffmpegPathReal === ffmpegPath) {
           ffmpegPathReal = ffmpegPath.replace(
             '\\app\\',
@@ -497,11 +481,13 @@ export default class Airing {
         }
       }
     } else {
-      // otherwise we can hit the node_modules dir
-      // ffmpegPathReal = ffmpegPathReal.replace(
-      //  /^\/bin\//,
-      //  './node_modules/ffmpeg-static-electron-jdp/bin/'
-      // );
+      if (os.platform() === 'win32') {
+        // otherwise we can hit the node_modules dir
+        ffmpegPathReal = ffmpegPathReal.replace(
+          /^\/bin\//,
+          './node_modules/ffmpeg-static-electron-jdp/bin/'
+        );
+      }
       // verbosity log level
       ffmpegOpts.push('-v 40');
     }
@@ -526,8 +512,8 @@ export default class Airing {
     // const input = '/tmp/test_ys_p1.mp4';
     // outFile = '/tmp/test.mp4';
 
-    outFile = this.exportFile;
-    const outPath = this.exportPath;
+    outFile = await this.exportFile;
+    const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);
     if (debug) log.info('exporting to file:', outFile);
@@ -553,7 +539,9 @@ export default class Airing {
           resolve(ffmpegLog);
         })
         .on('error', err => {
-          log.info(`An error occurred: ${err}`);
+          const errMsg = `An error occurred: ${err}`;
+          log.info(errMsg);
+          ffmpegLog.push(errMsg);
           if (typeof callback === 'function') {
             if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
               callback(this.object_id, { cancelled: true, finished: false });

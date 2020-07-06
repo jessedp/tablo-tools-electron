@@ -1,21 +1,24 @@
 // @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
+import { LinkContainer } from 'react-router-bootstrap';
 
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 
-import ShowsList from './ShowsList';
-import EpisodeList from './EpisodeList';
+import routes from '../constants/routes.json';
+
 import Show from '../utils/Show';
+import ShowCover from './ShowCover';
+import { asyncForEach } from '../utils/utils';
 
 type Props = {};
 type State = {
-  view: number,
-  show: Show
+  shows: Array<Show>,
+  alertType: string,
+  alertTxt: string,
+  loaded: boolean
 };
-
-const VIEW_SHOWS = 1;
-const VIEW_EPISODES = 2;
 
 export default class Shows extends Component<Props, State> {
   props: Props;
@@ -27,64 +30,98 @@ export default class Shows extends Component<Props, State> {
   constructor() {
     super();
 
-    this.initialState = { view: VIEW_SHOWS, show: new Show() };
+    this.initialState = {
+      shows: [],
+      alertType: '',
+      alertTxt: '',
+      loaded: false
+    };
 
-    const storedState = JSON.parse(localStorage.getItem('ShowsState') || '{}');
-    if (storedState.show) {
-      storedState.show = new Show(storedState.show);
-    }
+    this.state = this.initialState;
 
-    this.state = Object.assign(this.initialState, storedState);
-    this.viewShows = this.viewShows.bind(this);
-    this.viewEpisodes = this.viewEpisodes.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
-  componentDidMount() {
-    this.psToken = PubSub.subscribe('DB_CHANGE', () => {
-      this.viewShows();
-    });
+  async componentDidMount() {
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount() {
     PubSub.unsubscribe(this.psToken);
   }
 
-  async setStateStore(...args: Array<Object>) {
-    const values = args[0];
-    await this.setState(values);
-    const cleanState = this.state;
-    localStorage.setItem('ShowsState', JSON.stringify(cleanState));
-  }
-
-  viewShows = async () => {
-    await this.setStateStore({ view: VIEW_SHOWS, show: null });
-  };
-
-  viewEpisodes = async (show: Show) => {
-    await this.setStateStore({ view: VIEW_EPISODES, show });
+  refresh = async () => {
+    const objRecs = await showList();
+    this.setState({
+      shows: objRecs,
+      alertType: 'info',
+      alertTxt: `${objRecs.length} shows found`,
+      loaded: true
+    });
   };
 
   render() {
-    const { view, show } = this.state;
+    const { shows, loaded, alertType, alertTxt } = this.state;
 
-    if (view === VIEW_EPISODES) {
+    if (!loaded) return <></>; //
+
+    if (shows.length === 0) {
       return (
-        <div className="section">
-          <div>
-            <Button
-              onClick={this.viewShows}
-              variant="outline-dark"
-              className="mb-3"
-            >
-              <i className="fa fa-arrow-left" />
-              <span className="pl-1">Back to Shows</span>
-            </Button>
-          </div>
-          <EpisodeList show={show} />
-        </div>
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Shows found.
+        </Alert>
       );
     }
 
-    return <ShowsList viewEpisodes={this.viewEpisodes} />;
+    return (
+      <div className="section">
+        <div>
+          <Alert variant={alertType}>{alertTxt}</Alert>
+        </div>
+        <div className="scrollable-area">
+          {shows.map(show => {
+            if (show.series) {
+              return (
+                <LinkContainer
+                  to={routes.SHOWDETAILS.replace(':id', show.id)}
+                  key={show.id}
+                >
+                  <Button
+                    variant="light"
+                    className="cover align-content-center d-inline-block"
+                  >
+                    <ShowCover key={show.id} show={show} />
+                  </Button>
+                </LinkContainer>
+              );
+            }
+            return <></>; //
+          })}
+        </div>
+      </div>
+    );
   }
+}
+
+export async function showList() {
+  const recType = new RegExp('series');
+  const recs = await global.ShowDb.asyncFind({ path: { $regex: recType } });
+
+  const objRecs = [];
+
+  await asyncForEach(recs, async rec => {
+    const show = new Show(rec);
+    objRecs.push(show);
+  });
+
+  const titleSort = (a, b) => {
+    if (a.sortableTitle > b.sortableTitle) return 1;
+    return -1;
+  };
+
+  objRecs.sort((a, b) => titleSort(a, b));
+
+  return objRecs;
 }

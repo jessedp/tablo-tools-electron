@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Button } from 'react-bootstrap';
 import * as ActionListActions from '../actions/actionList';
 import { ProgramData, YES } from '../constants/app';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
@@ -60,12 +59,12 @@ class ProgramCover extends Component<Props> {
     if (!airing) return <></>; //
 
     return (
-      <Button onClick={this.search} variant="light" className="mr-3">
-        <div className="program-cover Aligner bg-light">
-          <div className="Aligner-item Aligner-item-top" />
-
-          <div className="Aligner-item p-3">
+      <div className="cover-image bg-light">
+        <div className="show-cover">
+          <div className="mt-3 p-2">
             <div className="program-title mb-1">{airing.showTitle}</div>
+          </div>
+          <div>
             {showCheckbox === YES ? (
               <div className="smaller">{airing.datetime}</div>
             ) : (
@@ -79,12 +78,12 @@ class ProgramCover extends Component<Props> {
             <div className="smaller mt-2">Total: {count}</div>
           </div>
 
-          <div className="Aligner-item Aligner-item-bottom" />
           <div className="badge-cell">
             <div className="badge-cell-bg type-manualProgram" />
 
             <div className="badge-cell-text">{unwatched}</div>
           </div>
+
           {showCheckbox === YES ? (
             <div className="cover-checkbox">
               <Checkbox checked={checked} handleChange={this.toggle} />
@@ -93,7 +92,7 @@ class ProgramCover extends Component<Props> {
             ''
           )}
         </div>
-      </Button>
+      </div>
     );
   }
 }

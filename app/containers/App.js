@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import VersionInfo from '../components/VersionInfo';
 import IssueSearch from '../components/IssueSearch';
 import PermissionRequests from '../components/PermissionRequests';
+import Flash from '../components/Flash';
 
 type Props = {
   children: React.Node
@@ -17,6 +18,7 @@ export default class App extends React.Component<Props> {
     const { children } = this.props;
     return (
       <div>
+        <Flash />
         <PermissionRequests />
         <VersionInfo />
         <IssueSearch />
