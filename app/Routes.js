@@ -10,12 +10,16 @@ import Build from './components/Build';
 import Shows from './components/Shows';
 import Movies from './components/Movies';
 import Programs from './components/Programs';
-import Events from './components/Events';
+import Sports from './components/Sports';
 import SearchForm from './components/SearchForm';
 import ActionList from './components/ActionList';
 import VideoExportPage from './components/VideoExportPage';
 import LiveTvPage from './components/LiveTvPage';
 import SettingsPage from './containers/SettingsPage';
+import ShowDetails from './components/ShowDetails';
+import MovieDetails from './components/MovieDetails';
+import SportDetails from './components/SportDetails';
+import ProgramEpisodeList from './components/ProgramEpisodeList';
 import { hasDevice } from './utils/Tablo';
 
 export default () => {
@@ -38,10 +42,18 @@ export default () => {
         <Redirect exact from="/" to={lastPath} />
         <Route path={routes.OVERVIEW} component={OverviewPage} />
         <Route path={routes.BUILD} component={Build} />
-        <Route path={routes.SHOWS} component={Shows} />
-        <Route path={routes.MOVIES} component={Movies} />
-        <Route path={routes.SPORTS} component={Events} />
-        <Route path={routes.PROGRAMS} component={Programs} />
+        <Route exact path={routes.SHOWS} component={Shows} />
+        <Route path={routes.SHOWDETAILS} component={ShowDetails} />
+
+        <Route exact path={routes.MOVIES} component={Movies} />
+        <Route path={routes.MOVIEDETAILS} component={MovieDetails} />
+
+        <Route exact path={routes.SPORTS} component={Sports} />
+        <Route path={routes.EVENTDETAILS} component={SportDetails} />
+
+        <Route exact path={routes.PROGRAMS} component={Programs} />
+        <Route path={routes.PROGRAMDETAILS} component={ProgramEpisodeList} />
+
         <Route path={routes.SEARCH} component={SearchForm} />
         <Route path={routes.SELECTED} component={ActionList} />
         <Route

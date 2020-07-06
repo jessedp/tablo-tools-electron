@@ -26,7 +26,7 @@ import {
 } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
-import { showList } from './ShowsList';
+import { showList } from './Shows';
 import TabloImage from './TabloImage';
 import type { SearchAlert } from '../utils/types';
 import { comskipAvailable } from '../utils/Tablo';

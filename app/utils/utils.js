@@ -55,6 +55,12 @@ export function titleCase(string) {
   return sentence;
 }
 
+export function getTabloImageUrl(imageId: number) {
+  const host = global.Api.device.private_ip;
+  const id = parseInt(imageId, 10);
+  return `http://${host}:8885/images/${id}`;
+}
+
 export function sortObject(obj) {
   const ordered = {};
   Object.keys(obj)

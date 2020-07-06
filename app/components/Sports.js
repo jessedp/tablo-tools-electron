@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
 import { LinkContainer } from 'react-router-bootstrap';
+
 import { Alert, Button } from 'react-bootstrap';
 
 import routes from '../constants/routes.json';
@@ -13,13 +14,13 @@ import ShowCover from './ShowCover';
 
 type Props = {};
 type State = {
-  movies: Array<Airing>,
+  events: Array<Airing>,
   alertType: string,
   alertTxt: string,
   loaded: boolean
 };
 
-export default class Movies extends Component<Props, State> {
+export default class Sports extends Component<Props, State> {
   props: Props;
 
   initialState: State;
@@ -29,7 +30,7 @@ export default class Movies extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { movies: [], alertType: '', alertTxt: '', loaded: false };
+    this.state = { events: [], alertType: '', alertTxt: '', loaded: false };
 
     this.refresh = this.refresh.bind(this);
   }
@@ -44,10 +45,10 @@ export default class Movies extends Component<Props, State> {
   }
 
   refresh = async () => {
-    const objRecs = await movieList();
-    const label = objRecs.length === 1 ? 'movie' : 'movies';
+    const objRecs = await eventList();
+    const label = objRecs.length === 1 ? 'event' : 'events';
     this.setState({
-      movies: objRecs,
+      events: objRecs,
       alertType: 'info',
       alertTxt: `${objRecs.length} ${label} found`,
       loaded: true
@@ -55,15 +56,15 @@ export default class Movies extends Component<Props, State> {
   };
 
   render() {
-    const { movies, loaded, alertTxt, alertType } = this.state;
+    const { events, loaded, alertTxt, alertType } = this.state;
 
     if (!loaded) return <></>; //
 
-    if (movies.length === 0) {
+    if (events.length === 0) {
       return (
         <Alert variant="danger" className="full-alert p-3 mt-3">
           <span className="fa fa-exclamation mr-2" />
-          No Movies found.
+          No Sports or Events found.
         </Alert>
       );
     }
@@ -80,10 +81,10 @@ export default class Movies extends Component<Props, State> {
           )}
         </div>
         <div className="scrollable-area">
-          {movies.map(rec => {
+          {events.map(rec => {
             return (
               <LinkContainer
-                to={routes.MOVIEDETAILS.replace(':id', rec.id)}
+                to={routes.EVENTDETAILS.replace(':id', rec.id)}
                 key={rec.id}
               >
                 <Button
@@ -91,7 +92,7 @@ export default class Movies extends Component<Props, State> {
                   className="align-content-center"
                   key={rec.id}
                 >
-                  <ShowCover show={rec.show} key={`movie-${rec.id}`} />;
+                  <ShowCover show={rec.show} key={`event-${rec.id}`} />;
                 </Button>
               </LinkContainer>
             );
@@ -102,8 +103,8 @@ export default class Movies extends Component<Props, State> {
   }
 }
 
-export async function movieList() {
-  const recType = new RegExp('movie');
+export async function eventList() {
+  const recType = new RegExp('sports');
   const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
 
   const objRecs = [];
