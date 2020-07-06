@@ -71,7 +71,7 @@ class SettingsPage extends Component<Props> {
                     to={routes.ADVSETTINGS}
                   >
                     <Button size="sm" variant="light" as="button" title="Home">
-                      Advaned
+                      Advanced
                     </Button>
                   </LinkContainer>
                 </ButtonGroup>
