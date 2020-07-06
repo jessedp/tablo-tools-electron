@@ -12,7 +12,12 @@ import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
 
 type Props = {};
-type State = { movies: Array<Airing>, alertType: string, alertTxt: string };
+type State = {
+  movies: Array<Airing>,
+  alertType: string,
+  alertTxt: string,
+  loaded: boolean
+};
 
 export default class Movies extends Component<Props, State> {
   props: Props;
@@ -24,7 +29,7 @@ export default class Movies extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { movies: [], alertType: '', alertTxt: '' };
+    this.state = { movies: [], alertType: '', alertTxt: '', loaded: false };
 
     this.refresh = this.refresh.bind(this);
   }
@@ -44,12 +49,15 @@ export default class Movies extends Component<Props, State> {
     this.setState({
       movies: objRecs,
       alertType: 'info',
-      alertTxt: `${objRecs.length} ${label} found`
+      alertTxt: `${objRecs.length} ${label} found`,
+      loaded: true
     });
   };
 
   render() {
-    const { movies, alertTxt, alertType } = this.state;
+    const { movies, loaded, alertTxt, alertType } = this.state;
+
+    if (!loaded) return <></>; //
 
     if (movies.length === 0) {
       return (

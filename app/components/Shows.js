@@ -16,7 +16,8 @@ type Props = {};
 type State = {
   shows: Array<Show>,
   alertType: string,
-  alertTxt: string
+  alertTxt: string,
+  loaded: boolean
 };
 
 export default class Shows extends Component<Props, State> {
@@ -29,7 +30,12 @@ export default class Shows extends Component<Props, State> {
   constructor() {
     super();
 
-    this.initialState = { shows: [], alertType: '', alertTxt: '' };
+    this.initialState = {
+      shows: [],
+      alertType: '',
+      alertTxt: '',
+      loaded: false
+    };
 
     this.state = this.initialState;
 
@@ -50,12 +56,15 @@ export default class Shows extends Component<Props, State> {
     this.setState({
       shows: objRecs,
       alertType: 'info',
-      alertTxt: `${objRecs.length} shows found`
+      alertTxt: `${objRecs.length} shows found`,
+      loaded: true
     });
   };
 
   render() {
-    const { shows, alertType, alertTxt } = this.state;
+    const { shows, loaded, alertType, alertTxt } = this.state;
+
+    if (!loaded) return <></>; //
 
     if (shows.length === 0) {
       return (

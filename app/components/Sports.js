@@ -13,7 +13,12 @@ import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
 
 type Props = {};
-type State = { events: Array<Airing>, alertType: string, alertTxt: string };
+type State = {
+  events: Array<Airing>,
+  alertType: string,
+  alertTxt: string,
+  loaded: boolean
+};
 
 export default class Sports extends Component<Props, State> {
   props: Props;
@@ -25,7 +30,7 @@ export default class Sports extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { events: [], alertType: '', alertTxt: '' };
+    this.state = { events: [], alertType: '', alertTxt: '', loaded: false };
 
     this.refresh = this.refresh.bind(this);
   }
@@ -45,12 +50,15 @@ export default class Sports extends Component<Props, State> {
     this.setState({
       events: objRecs,
       alertType: 'info',
-      alertTxt: `${objRecs.length} ${label} found`
+      alertTxt: `${objRecs.length} ${label} found`,
+      loaded: true
     });
   };
 
   render() {
-    const { events, alertTxt, alertType } = this.state;
+    const { events, loaded, alertTxt, alertType } = this.state;
+
+    if (!loaded) return <></>; //
 
     if (events.length === 0) {
       return (

@@ -17,7 +17,8 @@ type Props = {};
 type State = {
   airings: Array<any>,
   alertType: string,
-  alertTxt: string
+  alertTxt: string,
+  loaded: boolean
 };
 
 export default class Programs extends Component<Props, State> {
@@ -30,7 +31,7 @@ export default class Programs extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { airings: [], alertType: '', alertTxt: '' };
+    this.state = { airings: [], alertType: '', alertTxt: '', loaded: false };
 
     this.refresh = this.refresh.bind(this);
   }
@@ -49,20 +50,16 @@ export default class Programs extends Component<Props, State> {
     this.setState({
       airings: recs,
       alertType: 'info',
-      alertTxt: `${recs.length} manual recordings found`
+      alertTxt: `${recs.length} manual recordings found`,
+      loaded: true
     });
   };
 
   render() {
-    const { airings, alertTxt, alertType } = this.state;
+    const { airings, loaded, alertTxt, alertType } = this.state;
 
-    // if (programPath) {
-    //   const recs: ProgramData = airings.find(
-    //     rec => rec.airing.program_path === programPath
-    //   );
-    //   console.log(programPath, recs);
-    //   return <ProgramEpisodeList rec={recs} search={this.search} />;
-    // }
+    if (!loaded) return <></>; //
+
     if (airings.length === 0) {
       return (
         <Alert variant="danger" className="full-alert p-3 mt-3">
