@@ -2,19 +2,22 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
-import { Alert, Row } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+import { Button } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
+import routes from '../constants/routes.json';
+
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ProgramCover from './ProgramCover';
 import { ProgramData, YES } from '../constants/app';
-import ProgramEpisodeList from './ProgramEpisodeList';
+// import ProgramEpisodeList from './ProgramEpisodeList';
 
 type Props = {};
 type State = {
   airings: Array<any>,
   alertType: string,
-  alertTxt: string,
-  programPath: string
+  alertTxt: string
 };
 
 export default class Programs extends Component<Props, State> {
@@ -27,87 +30,82 @@ export default class Programs extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { airings: [], alertType: '', alertTxt: '', programPath: '' };
+    this.state = { airings: [], alertType: '', alertTxt: '' };
 
-    this.search = this.search.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
   componentDidMount() {
-    this.search();
-    this.psToken = PubSub.subscribe('DB_CHANGE', () => {
-      this.search();
-    });
+    this.refresh();
+    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
   componentWillUnmount(): * {
     PubSub.unsubscribe(this.psToken);
   }
 
-  search = async (path: string = '') => {
-    let recs = [];
-
-    if (path) {
-      recs = await programList();
-    } else {
-      recs = await programList();
-    }
-
-    if (recs.length === 0) {
-      this.setState({
-        programPath: path,
-        alertType: 'warning',
-        alertTxt: 'No manual recordings found',
-        airings: []
-      });
-    } else {
-      this.setState({
-        programPath: path,
-        alertType: 'info',
-        alertTxt: `${recs.length} manual recordings found`,
-        airings: recs
-      });
-    }
+  refresh = async () => {
+    const recs = await programList();
+    this.setState({
+      airings: recs,
+      alertType: 'info',
+      alertTxt: `${recs.length} manual recordings found`
+    });
   };
 
   render() {
-    const { airings, alertTxt, alertType, programPath } = this.state;
+    const { airings, alertTxt, alertType } = this.state;
 
-    if (programPath) {
-      const recs: ProgramData = airings.find(
-        rec => rec.airing.program_path === programPath
+    // if (programPath) {
+    //   const recs: ProgramData = airings.find(
+    //     rec => rec.airing.program_path === programPath
+    //   );
+    //   console.log(programPath, recs);
+    //   return <ProgramEpisodeList rec={recs} search={this.search} />;
+    // }
+    if (airings.length === 0) {
+      return (
+        <Alert variant="danger" className="full-alert p-3 mt-3">
+          <span className="fa fa-exclamation mr-2" />
+          No Manual Records found.
+        </Alert>
       );
-      console.log(programPath, recs);
-      return <ProgramEpisodeList rec={recs} search={this.search} />;
     }
+
     return (
       <div className="section">
-        {alertTxt ? (
-          <Alert className="fade m-2" variant={alertType}>
-            {alertTxt}
-          </Alert>
-        ) : (
-          ''
-        )}
-        <Row>
+        <div>
+          <Alert variant={alertType}>{alertTxt}</Alert>
+        </div>
+
+        <div className="scrollable-area">
           {airings.map(rec => {
+            const key = `program-${rec.airing.id}`;
             return (
-              <ProgramCover
-                rec={rec}
-                showCheckbox={YES}
-                search={this.search}
-                key={`program-${rec.airing.object_id}`}
-              />
+              <LinkContainer
+                to={routes.PROGRAMDETAILS.replace(':path', rec.path)}
+                key={rec.airing.id}
+              >
+                <Button variant="light" className="mr-3">
+                  <ProgramCover rec={rec} showCheckbox={YES} key={key} />;
+                </Button>
+              </LinkContainer>
             );
           })}
-        </Row>
+        </div>
       </div>
     );
   }
 }
 
-export async function programList() {
-  const recType = new RegExp('program');
-  const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+export async function programList(progPath: string = '') {
+  let recs = [];
+  if (progPath) {
+    recs = await global.RecDb.asyncFind({ program_path: progPath });
+  } else {
+    const recType = new RegExp('program');
+    recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+  }
 
   const objs: any = {};
 
@@ -117,6 +115,10 @@ export async function programList() {
     const airing = await Airing.create(rec);
     newRecs.push(airing);
   });
+
+  newRecs.sort((a, b) =>
+    a.airingDetails.datetime > b.airingDetails.datetime ? 1 : -1
+  );
 
   newRecs.forEach(rec => {
     const path = rec.program_path.trim();
@@ -130,6 +132,7 @@ export async function programList() {
     } else {
       const airings = [rec];
       objs[path] = {
+        path: btoa(path),
         airing: rec,
         airings,
         count: 1,
@@ -145,26 +148,29 @@ export async function programList() {
   };
 
   objRecs.sort((a, b) => titleSort(a, b));
-  console.log(objRecs);
-  return objRecs;
-}
-
-export async function programsByProgramList(path: string) {
-  const recs = await global.RecDb.asyncFind({ program_path: { $eq: path } });
-
-  const objRecs = [];
-
-  await asyncForEach(recs, async rec => {
-    const airing = await Airing.create(rec);
-    objRecs.push(airing);
-  });
-
-  const titleSort = (a, b) => {
-    if (a.datetime > b.datetime) return 1;
-    return -1;
-  };
-
-  objRecs.sort((a, b) => titleSort(a, b));
+  if (progPath) {
+    return objRecs[0];
+  }
 
   return objRecs;
 }
+
+// export async function programsByProgramList(path: string) {
+//   const recs = await global.RecDb.asyncFind({ program_path: { $eq: path } });
+
+//   const objRecs = [];
+
+//   await asyncForEach(recs, async rec => {
+//     const airing = await Airing.create(rec);
+//     objRecs.push(airing);
+//   });
+
+//   const titleSort = (a, b) => {
+//     if (a.datetime > b.datetime) return 1;
+//     return -1;
+//   };
+
+//   objRecs.sort((a, b) => titleSort(a, b));
+
+//   return objRecs;
+// }

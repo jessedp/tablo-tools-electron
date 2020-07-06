@@ -10,6 +10,7 @@
   "SPORTS": "/events",
   "EVENTDETAILS": "/events/:id",
   "PROGRAMS": "/programs",
+  "PROGRAMDETAILS": "/programs/:path",
   "SEARCH": "/search",
   "SETTINGS": "/settings",
   "GENSETTINGS": "/settings/general",

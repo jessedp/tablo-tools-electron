@@ -19,6 +19,7 @@ import SettingsPage from './containers/SettingsPage';
 import ShowDetails from './components/ShowDetails';
 import MovieDetails from './components/MovieDetails';
 import SportDetails from './components/SportDetails';
+import ProgramEpisodeList from './components/ProgramEpisodeList';
 import { hasDevice } from './utils/Tablo';
 
 export default () => {
@@ -50,7 +51,9 @@ export default () => {
         <Route exact path={routes.SPORTS} component={Sports} />
         <Route path={routes.EVENTDETAILS} component={SportDetails} />
 
-        <Route path={routes.PROGRAMS} component={Programs} />
+        <Route exact path={routes.PROGRAMS} component={Programs} />
+        <Route path={routes.PROGRAMDETAILS} component={ProgramEpisodeList} />
+
         <Route path={routes.SEARCH} component={SearchForm} />
         <Route path={routes.SELECTED} component={ActionList} />
         <Route
