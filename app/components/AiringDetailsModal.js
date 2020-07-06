@@ -32,16 +32,15 @@ export default function AiringDetailsModal(props: Props) {
     );
   }
 
+  const host = global.Api.device.private_ip;
   const selectJson = (node: Object) => {
     if (node.name.includes('path')) {
-      console.log(node);
-      const host = global.Api.device.private_ip;
       const url = `http://${host}:8885/${node.value}`;
       shell.openExternal(url);
     }
   };
 
-  const directoryUrl = `http://192.168.1.229:18080/pvr/${airing.id}/`;
+  const directoryUrl = `http://${host}:18080/pvr/${airing.id}/`;
   const openDirectory = () => {
     shell.openExternal(directoryUrl);
   };
