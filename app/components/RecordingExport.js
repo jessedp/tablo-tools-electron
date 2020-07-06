@@ -361,7 +361,12 @@ const FileInfo = (props: FileInfoProps) => {
     <div className={baseClass}>
       <span className={icon} />
       <span className="">{airing.exportFile}</span>
-      <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+      {exportState === EXP_WAITING ? (
+        <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+      ) : (
+        <span className="ml-1 mr-1" />
+      )}
+
       <OpenDirectory path={airing.exportFile} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
