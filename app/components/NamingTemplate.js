@@ -301,19 +301,16 @@ class SettingsNaming extends Component<Props, State> {
   save = async () => {
     const { sendFlash } = this.props;
     const { template } = this.state;
-    let errors = await this.checkErrors();
 
-    if (!errors) {
-      errors = await upsertTemplate(template);
-      if (errors) {
-        sendFlash({ type: 'danger', message: errors.toString() });
-      } else {
-        sendFlash({ type: 'success', message: `saved "${template.label}"` });
-        // change the select box!
-        this.setState({
-          view: 'view'
-        });
-      }
+    const errors = await upsertTemplate(template);
+    if (errors) {
+      sendFlash({ type: 'danger', message: errors.toString() });
+    } else {
+      sendFlash({ type: 'success', message: `saved "${template.label}"` });
+      // change the select box!
+      this.setState({
+        view: 'view'
+      });
     }
   };
 
