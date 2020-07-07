@@ -377,7 +377,7 @@ class SettingsNaming extends Component<Props, State> {
                   >
                     <span className="fa fa-edit" />
                   </Button>
-                  {!isCurrentTemplate(template) ? (
+                  {!isDefaultTemplate(template) ? (
                     <Button
                       size="xs"
                       variant="outline-danger"
