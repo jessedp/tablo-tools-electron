@@ -68,6 +68,8 @@ const VideoExport = (WrappedComponent: any) => {
       const { exportList } = this.props;
       const { exportState, atOnce } = this.state;
 
+      global.EXPORTING = true;
+
       if (exportState === EXP_DONE) return;
       await this.setState({ exportState: EXP_WORKING });
 
@@ -89,6 +91,7 @@ const VideoExport = (WrappedComponent: any) => {
       } else {
         this.setState({ exportState: EXP_DONE });
       }
+      global.EXPORTING = false;
     };
 
     updateProgress = (airingId: number, progress: Object) => {
