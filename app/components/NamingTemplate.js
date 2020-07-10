@@ -24,8 +24,8 @@ import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import {
   buildTemplateVars,
   getTemplate,
-  getTemplateSlug,
   getDefaultTemplate,
+  getDefaultTemplateSlug,
   newTemplate,
   upsertTemplate,
   isCurrentTemplate,
@@ -414,7 +414,7 @@ class SettingsNaming extends Component<Props, State> {
               ) : (
                 ''
               )}
-              {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
+              {view !== 'view' && getDefaultTemplateSlug() !== template.slug ? (
                 <Button
                   size="xs"
                   variant="success"
