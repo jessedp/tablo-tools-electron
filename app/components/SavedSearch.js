@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
@@ -36,9 +35,7 @@ type State = {
   chkOverwrite: number,
   overwriteId: string,
   searchName: string,
-  slug?: string,
-  alertType: string,
-  alertText: string
+  slug?: string
 };
 
 type SavedSearchType = {
@@ -64,9 +61,7 @@ class SavedSearch extends Component<Props, State> {
       searchName: '',
       overwriteId: '',
       chkOverwrite: CHECKBOX_OFF,
-      slug,
-      alertType: 'light',
-      alertText: ''
+      slug
     };
 
     this.chkOverRef = React.createRef();
@@ -89,7 +84,7 @@ class SavedSearch extends Component<Props, State> {
   }
 
   handleClose() {
-    this.setState({ show: false });
+    this.setState({ searchName: '', slug: '', show: false });
   }
 
   handleShow = () => {
@@ -142,7 +137,8 @@ class SavedSearch extends Component<Props, State> {
   };
 
   setNew = () => {
-    this.chkOverRef.toggle(CHECKBOX_OFF);
+    if (typeof this.chkOverRef.toggle === 'function')
+      this.chkOverRef.toggle(CHECKBOX_OFF);
   };
 
   saveSearch = async () => {
@@ -170,13 +166,14 @@ class SavedSearch extends Component<Props, State> {
           version: '1'
         };
 
-        await db.asyncInsert(newRec);
+        const rec = await db.asyncInsert(newRec);
         sendFlash({ message: 'Saved!' });
         this.setState({
           chkOverwrite: CHECKBOX_OFF,
           show: false
         });
-        updateValue(slug);
+        // eslint-disable-next-line no-underscore-dangle
+        updateValue(rec._id);
       } else {
         let message = 'Slug is empty or already exists!';
         if (!searchName) {
@@ -201,15 +198,7 @@ class SavedSearch extends Component<Props, State> {
   };
 
   render() {
-    const {
-      show,
-      slug,
-      searchName,
-      overwriteId,
-      chkOverwrite,
-      alertText,
-      alertType
-    } = this.state;
+    const { show, slug, searchName, overwriteId, chkOverwrite } = this.state;
     const { searchState, recordCount } = this.props;
     const { searches } = this.props;
 
@@ -363,13 +352,6 @@ class SavedSearch extends Component<Props, State> {
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            {alertText ? (
-              <Alert variant={alertType} size="xs p-1">
-                {alertText}
-              </Alert>
-            ) : (
-              ''
-            )}
             <Button variant="primary" onClick={this.saveSearch}>
               Save
             </Button>
