@@ -241,6 +241,7 @@ class SavedSearch extends Component<Props, State> {
           size="xs"
           variant="primary"
           onClick={this.handleShow}
+          title="Save this search"
         >
           <span className="fa fa-save pr-1" /> save
         </Button>
