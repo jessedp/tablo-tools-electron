@@ -47,6 +47,7 @@ type Season = {
 };
 
 export type SearchState = {
+  emptySearch: boolean,
   skip: number,
   limit: number,
   searchValue: string,
@@ -90,6 +91,7 @@ class SearchForm extends Component<Props, SearchState> {
     super();
 
     this.initialState = {
+      emptySearch: true,
       skip: 0,
       limit: 50,
       searchValue: '',
@@ -356,8 +358,6 @@ class SearchForm extends Component<Props, SearchState> {
 
   updateSavedSearch = async (searchId: string) => {
     const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
-    // eslint-disable-next-line no-underscore-dangle
-    delete rec._id;
 
     this.savedSearchList = await global.SearchDb.asyncFind({});
 
@@ -549,9 +549,8 @@ class SearchForm extends Component<Props, SearchState> {
         });
       }
     }
-    // console.log(query);
 
-    // TODO: savedSearchFilter
+    const emptySearch = Object.keys(query).length === 0;
 
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
@@ -667,12 +666,12 @@ class SearchForm extends Component<Props, SearchState> {
       airingList
     });
     updateState.airingList = airingList;
-
-    this.setStateStore(updateState);
+    this.setStateStore({ ...updateState, ...{ emptySearch } });
   };
 
   render() {
     const {
+      emptySearch,
       searchValue,
       stateFilter,
       typeFilter,
@@ -770,13 +769,16 @@ class SearchForm extends Component<Props, SearchState> {
               >
                 <span className="fa fa-recycle pr-1" /> reset
               </Button>
-
-              <SavedSearch
-                updateValue={this.savedSearchUpdate}
-                searchState={this.state}
-                recordCount={recordCount}
-                searches={this.savedSearchList}
-              />
+              {!emptySearch ? (
+                <SavedSearch
+                  updateValue={this.savedSearchUpdate}
+                  searchState={this.state}
+                  recordCount={recordCount}
+                  searches={this.savedSearchList}
+                />
+              ) : (
+                ''
+              )}
             </InputGroup>
           </Col>
           <Col md="4" className="">
@@ -971,7 +973,7 @@ function ShowFilter(props: filterProps) {
               {item.showCounts.airing_count}
             </Badge>
           </>
-        )
+        ) //
       })
     );
   }
@@ -1003,7 +1005,7 @@ function SeasonFilter(props: filterProps) {
               {item.count}
             </Badge>
           </>
-        )
+        ) //
       })
     );
   }
