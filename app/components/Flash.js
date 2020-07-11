@@ -32,7 +32,6 @@ class Flash extends Component<Props, State> {
   };
 
   hide = () => {
-    console.log('hide now');
     this.setState({ view: 'hide-now' });
     clearTimeout(this.timerId);
   };
