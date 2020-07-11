@@ -79,8 +79,11 @@ class SavedSearch extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { slug } = this.props;
-    if (prevProps.slug !== slug) {
+    const { slug, searchState } = this.props;
+    if (
+      prevProps.slug !== slug ||
+      prevProps.searchState.savedSearchFilter !== searchState.savedSearchFilter
+    ) {
       this.render();
     }
   }
@@ -106,7 +109,6 @@ class SavedSearch extends Component<Props, State> {
 
     chkOverwrite = chkOverwrite === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF;
 
-    // this.chkOverRef.toggle();
     await this.setState({ chkOverwrite });
   };
 
@@ -243,7 +245,8 @@ class SavedSearch extends Component<Props, State> {
           onClick={this.handleShow}
           title="Save this search"
         >
-          <span className="fa fa-save pr-1" /> save
+          <span className="fa fa-save pr-1" />
+          {searchState.savedSearchFilter ? 'save as' : 'save'}
         </Button>
         <Modal
           size="md"
