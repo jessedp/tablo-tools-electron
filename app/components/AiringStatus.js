@@ -173,11 +173,14 @@ export default class AiringStatus extends Component<Props> {
   }
 
   good = () => {
+    let msg = 'Recording successful';
+    if (this.isComskipGood()) msg = 'Commercial Skip ready';
+
     return (
       <i
         className="fa fa-check-circle p-1"
         style={{ color: 'forestgreen' }}
-        title="Commercial Skip ready"
+        title={msg}
       />
     );
   };
