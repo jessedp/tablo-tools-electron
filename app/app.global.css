@@ -611,3 +611,7 @@ body,
 .description {
   font-size: 0.75rem;
 }
+
+.ffmpeg-details {
+  font-size: 12px;
+}
