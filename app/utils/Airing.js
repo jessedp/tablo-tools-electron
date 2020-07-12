@@ -1,13 +1,16 @@
 // @flow
-// import ffmpeg from 'ffmpeg-static-electron';
-import ffmpeg from 'ffmpeg-static-electron-jdp';
 
-import os from 'os';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import * as fsPath from 'path';
 import log from 'electron-log';
 
-import { asyncForEach, readableDuration } from './utils';
+import {
+  asyncForEach,
+  readableDuration,
+  findFfmpegPath,
+  timeStrToSeconds
+} from './utils';
 
 import Show from './Show';
 import getConfig from './config';
@@ -385,6 +388,54 @@ export default class Airing {
     }
   }
 
+  getExportDetails(): string {
+    const { exportFile } = this;
+    if (!fs.existsSync(exportFile)) return '';
+
+    // this is janky becuase it should be using ffprobe, but
+    // I don't want to package it, too. So ffmpeg throws an
+    // warning in the logs and the last line output is
+    const lastLine = 'At least one output file must be specified';
+    const firstLine = /^Error: Command failed:(.*)/;
+
+    const ffmpeg = findFfmpegPath();
+
+    let info;
+    try {
+      info = execSync(`${ffmpeg} -i "${exportFile}"`);
+    } catch (e) {
+      console.log(e);
+      info = e.toString();
+    }
+    info = info.toString().trim();
+
+    return info.replace(firstLine, '').replace(lastLine, '');
+  }
+
+  isExportValid(): { valid: boolean, reason?: string } {
+    const { exportFile, videoDetails } = this;
+
+    if (!fs.existsSync(exportFile))
+      return { valid: false, reason: 'No exported file found.' };
+
+    const info = this.getExportDetails();
+    // Duration: 01:01:16.16,
+    const durRe = /Duration: ([0-9:]*)/;
+    const matches = info.match(durRe);
+    if (!matches) return { valid: false, reason: 'No exported file found.' };
+
+    const realSec = timeStrToSeconds(matches[1]);
+    const thisSec = videoDetails.duration;
+    const threshold = 20;
+    if (realSec + threshold < thisSec)
+      return {
+        valid: false,
+        reason: `Exported (${realSec}) duration is less than exected (${this.actualDuration}) by more than ${threshold} seconds`
+      };
+
+    return { valid: true };
+  }
+
   async processVideo(callback: Function = null) {
     const debug = getConfig().enableDebug;
     let date = new Date()
@@ -405,96 +456,7 @@ export default class Airing {
     if (debug) log.info('start processVideo', new Date());
     if (debug) log.info('env', process.env.NODE_ENV);
 
-    const ffmpegPath = ffmpeg.path;
-    if (debug) log.info('ffmpegPath', ffmpegPath);
-
-    // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-    const resourcePath = `${process.resourcesPath}`;
-
-    // TODO - figure out why I did this...
-    const psuedoProdPath = resourcePath.replace(
-      '/electron/dist/resources',
-      '/ffmpeg-static-electron-jdp/bin'
-    );
-    if (debug) log.info('resourcePath', resourcePath);
-    if (debug) log.info('prodPath', psuedoProdPath);
-
-    let ffmpegPathReal = ffmpegPath;
-
-    /** In dev, the prod path gets returned, so "fix" that * */
-    if (process.env.NODE_ENV === 'development') {
-      if (os.platform() === 'win32') {
-        if (ffmpegPathReal === ffmpegPath) {
-          ffmpegPathReal = ffmpegPath.replace(
-            '\\app\\',
-            '\\node_modules\\ffmpeg-static-electron-jdp\\'
-          );
-        }
-      } else {
-        // *nix
-        ffmpegPathReal = ffmpegPath.replace(
-          '/app/',
-          '/node_modules/ffmpeg-static-electron-jdp/'
-        );
-      }
-    }
-
-    if (debug) log.info('after "app" replacements for dev', ffmpegPathReal);
-
-    const ffmpegOpts = [
-      '-c copy',
-      '-y' // overwrite existing files
-    ];
-
-    if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
-    // In true prod (not yarn build/start), ffmpeg is built into resources dir
-    // this will likely fall on it's face with "yarn start"
-    if (process.env.NODE_ENV === 'production') {
-      if (os.platform() === 'darwin') {
-        ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
-      } else {
-        const testStartPath = ffmpegPathReal.replace(
-          /^[/|\\]bin/,
-          psuedoProdPath
-        );
-        if (fs.existsSync(testStartPath)) {
-          if (debug)
-            log.info(
-              'START replacing ffmpegPathReal for prodPath',
-              psuedoProdPath
-            );
-          ffmpegPathReal = testStartPath;
-          if (debug)
-            log.info('START replaced prodPath for prod', ffmpegPathReal);
-        } else {
-          if (debug)
-            log.info(
-              'PROD replacing ffmpegPathReal for prodPath',
-              psuedoProdPath
-            );
-          ffmpegPathReal = psuedoProdPath.replace(
-            /[/|\\]resources/,
-            `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-          );
-          if (debug)
-            log.info('PROD replaced prodPath for prod', ffmpegPathReal);
-        }
-      }
-    } else {
-      if (os.platform() === 'win32') {
-        // otherwise we can hit the node_modules dir
-        ffmpegPathReal = ffmpegPathReal.replace(
-          /^\/bin\//,
-          './node_modules/ffmpeg-static-electron-jdp/bin/'
-        );
-      }
-      // verbosity log level
-      ffmpegOpts.push('-v 40');
-    }
-
-    if (debug) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
-
-    FfmpegCommand.setFfmpegPath(ffmpegPathReal);
+    FfmpegCommand.setFfmpegPath(findFfmpegPath(debug, log));
 
     let watchPath;
     let input;
@@ -520,6 +482,14 @@ export default class Airing {
 
     fs.mkdirSync(outPath, { recursive: true });
 
+    const ffmpegOpts = [
+      '-c copy',
+      '-y' // overwrite existing files
+    ];
+    if (process.env.NODE_ENV !== 'production') {
+      ffmpegOpts.push('-v 40');
+    }
+
     return new Promise(resolve => {
       const ffmpegLog = [];
       let record = true;
@@ -533,7 +503,7 @@ export default class Airing {
           if (typeof callback === 'function') {
             callback(this.object_id, { finished: true, log: ffmpegLog });
           }
-          if (debug) log.info('result', ffmpegLog);
+          if (debug) log.info(ffmpegLog.join('\n'));
           if (debug) log.info('end processVideo', new Date());
 
           resolve(ffmpegLog);
