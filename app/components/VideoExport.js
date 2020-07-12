@@ -111,7 +111,10 @@ const VideoExport = (WrappedComponent: any) => {
 
       if (progress.finished) {
         if (deleteOnFinish === CHECKBOX_ON) {
-          airing.delete();
+          const status = airing.isExportValid();
+          if (status.valid) {
+            airing.delete();
+          }
         }
         record.state = EXP_DONE;
         record.progress = {
