@@ -60,7 +60,7 @@ class SettingsExport extends Component<Props, State> {
     return (
       <div>
         <Alert size="sm" variant="light" className="p-1 pl-3">
-          What should be done if the file already exists?
+          What should be done if a file already exists?
         </Alert>
         <Row className="mt-3">
           <Col md="6">
