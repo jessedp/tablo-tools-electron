@@ -3,9 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-// import * as fsPath from 'path';
-
-import * as slugify from 'slugify';
+import slugify from 'slugify';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
