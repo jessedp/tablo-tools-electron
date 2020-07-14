@@ -24,7 +24,6 @@ export default function AiringDetailsModal(props: Props) {
     const info = airing.getExportDetails();
     setExportDetails(info);
     const url = await airing.watch();
-    console.log(url);
     setWatchUrl(url.playlist_url);
   };
 
