@@ -97,7 +97,7 @@ export const defaultConfig: ConfigType = {
   eventTemplate: 'tablo-tools',
   programTemplate: 'tablo-tools',
 
-  actionOnDuplicate: DUPE_ADDID,
+  actionOnDuplicate: DUPE_INC,
 
   saveData: []
 };
