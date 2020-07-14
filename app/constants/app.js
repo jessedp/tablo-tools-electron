@@ -20,7 +20,7 @@ export const EXP_DELETE = 6;
 
 export const DUPE_OVERWRITE = 'OVERWRITE';
 export const DUPE_SKIP = 'SKIP';
-export const DUPE_INC = 'INC';
+export const DUPE_INC = 'INCREMENT';
 export const DUPE_ADDID = 'ADDID';
 
 export const beginTimemark = '00:00 / 00:00';
