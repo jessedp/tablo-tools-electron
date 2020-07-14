@@ -302,6 +302,11 @@ button:focus {
 .search-box {
   border: #b6c5d5 solid 1px;
   max-width: 460px !important;
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 137px;
+  overflow-y: hidden;
 }
 
 /** TabloImage **/
