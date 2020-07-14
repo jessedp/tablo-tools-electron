@@ -1,5 +1,4 @@
 // @flow
-
 import fs from 'fs';
 import { execSync } from 'child_process';
 import * as fsPath from 'path';
@@ -20,7 +19,11 @@ import {
   PROGRAM,
   SERIES,
   beginTimemark,
-  NamingTemplateType
+  NamingTemplateType,
+  DUPE_ADDID,
+  DUPE_OVERWRITE,
+  DUPE_SKIP,
+  DUPE_INC
 } from '../constants/app';
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
@@ -311,11 +314,49 @@ export default class Airing {
 
   set template(template: NamingTemplateType) {
     this.customTemplate = template;
+    this.cachedExportFile = '';
   }
 
+  cachedExportFile: string;
+
+  // TODO: Cache this somehow?
   get exportFile() {
-    const vars = buildTemplateVars(this);
-    return fillTemplate(this.template, vars);
+    if (!this.cachedExportFile) {
+      const vars = buildTemplateVars(this);
+      this.cachedExportFile = fillTemplate(this.template, vars);
+    }
+    return this.cachedExportFile;
+  }
+
+  cachedDedupedExportFile = '';
+
+  // TODO: Cache this somehow?
+  dedupedExportFile(actionOnDuplicate: string = getConfig().actionOnDuplicate) {
+    const { exportFile } = this;
+    if (
+      !fs.existsSync(exportFile) ||
+      actionOnDuplicate === DUPE_OVERWRITE ||
+      actionOnDuplicate === DUPE_SKIP
+    ) {
+      return exportFile;
+    }
+    const parsed = fsPath.parse(exportFile);
+
+    if (actionOnDuplicate === DUPE_ADDID) {
+      return fsPath.join(parsed.dir, `${parsed.name}-${this.id}${parsed.ext}`);
+    }
+
+    if (actionOnDuplicate === DUPE_INC) {
+      let cnt = 1;
+      let test;
+      do {
+        test = fsPath.join(parsed.dir, `${parsed.name}-${cnt}${parsed.ext}`);
+        cnt += 1;
+      } while (fs.existsSync(test));
+      return test;
+    }
+    console.log('DEFAULT', exportFile);
+    return exportFile;
   }
 
   async watch() {
@@ -436,7 +477,10 @@ export default class Airing {
     return { valid: true };
   }
 
-  async processVideo(callback: Function = null) {
+  async processVideo(
+    actionOnDuplicate: string = getConfig().actionOnDuplicate,
+    progressCallback: Function = null
+  ) {
     const debug = getConfig().enableDebug;
     let date = new Date()
       .toISOString()
@@ -465,16 +509,15 @@ export default class Airing {
       input = watchPath.playlist_url;
     } catch (err) {
       log.warn(`An error occurred: ${err}`);
-      if (typeof callback === 'function') {
-        callback(this.object_id, { failed: true, failedMsg: err });
+      if (typeof progressCallback === 'function') {
+        progressCallback(this.object_id, { failed: true, failedMsg: err });
       }
       return;
     }
 
-    // const input = '/tmp/test_ys_p1.mp4';
-    // outFile = '/tmp/test.mp4';
+    outFile = this.dedupedExportFile();
+    console.log('outFile', outFile);
 
-    outFile = await this.exportFile;
     const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);
@@ -491,6 +534,16 @@ export default class Airing {
     }
 
     return new Promise(resolve => {
+      if (outFile !== this.exportFile) {
+        if (actionOnDuplicate === DUPE_SKIP) {
+          progressCallback(this.object_id, {
+            skipped: true,
+            finished: true
+          });
+          resolve();
+        }
+      }
+
       const ffmpegLog = [];
       let record = true;
       this.cmd = new FfmpegCommand();
@@ -500,8 +553,11 @@ export default class Airing {
         .addOutputOptions(ffmpegOpts)
         .on('end', () => {
           // log.info('Finished processing');
-          if (typeof callback === 'function') {
-            callback(this.object_id, { finished: true, log: ffmpegLog });
+          if (typeof progressCallback === 'function') {
+            progressCallback(this.object_id, {
+              finished: true,
+              log: ffmpegLog
+            });
           }
           if (debug) log.info(ffmpegLog.join('\n'));
           if (debug) log.info('end processVideo', new Date());
@@ -512,11 +568,17 @@ export default class Airing {
           const errMsg = `An error occurred: ${err}`;
           log.info(errMsg);
           ffmpegLog.push(errMsg);
-          if (typeof callback === 'function') {
+          if (typeof progressCallback === 'function') {
             if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
-              callback(this.object_id, { cancelled: true, finished: false });
+              progressCallback(this.object_id, {
+                cancelled: true,
+                finished: false
+              });
             } else {
-              callback(this.object_id, { failed: true, failedMsg: err });
+              progressCallback(this.object_id, {
+                failed: true,
+                failedMsg: err
+              });
             }
           }
           // reject(err);
@@ -547,13 +609,13 @@ export default class Airing {
           }
         })
         .on('progress', progress => {
-          if (typeof callback === 'function') {
-            callback(this.object_id, progress);
+          if (typeof progressCallback === 'function') {
+            progressCallback(this.object_id, progress);
           }
         });
 
-      if (typeof callback === 'function') {
-        callback(this.object_id, { timemark: beginTimemark });
+      if (typeof progressCallback === 'function') {
+        progressCallback(this.object_id, { timemark: beginTimemark });
       }
       this.cmd.run();
     });
