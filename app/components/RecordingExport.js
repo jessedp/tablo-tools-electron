@@ -28,7 +28,9 @@ import {
   EXP_CANCEL,
   EXP_FAIL,
   EXP_DELETE,
-  NamingTemplateType
+  NamingTemplateType,
+  DUPE_OVERWRITE,
+  DUPE_SKIP
 } from '../constants/app';
 
 import ExportRecordType from '../reducers/types';
@@ -41,6 +43,7 @@ import OpenDirectory from './OpenDirecory';
 type Props = {
   record: ExportRecordType,
   airing: Airing,
+  actionOnDuplicate: string,
   updateExportRecord: ExportRecordType => void
 };
 
@@ -63,7 +66,7 @@ class RecordingExport extends Component<Props, State> {
   };
 
   render() {
-    const { record } = this.props;
+    const { record, actionOnDuplicate } = this.props;
     const { exportInc, exportLabel, duration, log } = record.progress;
     const { airing, state: exportState } = record;
 
@@ -97,6 +100,7 @@ class RecordingExport extends Component<Props, State> {
               <Col md="auto">
                 <FileInfo
                   airing={airing}
+                  actionOnDuplicate={actionOnDuplicate}
                   exportState={exportState}
                   updateTemplate={this.updateTemplate}
                 />
@@ -303,12 +307,15 @@ function FfmpegLog(prop) {
 type FileInfoProps = {
   airing: Airing,
   exportState: number,
+  actionOnDuplicate: string,
   updateTemplate: (template: NamingTemplateType) => void
 };
 
 const FileInfo = (props: FileInfoProps) => {
-  const { airing, exportState, updateTemplate } = props;
+  const { airing, actionOnDuplicate, exportState, updateTemplate } = props;
+
   const exists = fs.existsSync(airing.exportFile);
+  const dedupedExportFile = airing.dedupedExportFile(actionOnDuplicate);
 
   if (!exists) {
     if (exportState === EXP_DONE) {
@@ -318,7 +325,7 @@ const FileInfo = (props: FileInfoProps) => {
           <span className="pr-2">File does not exist after export.</span>
           <span>
             <OpenDirectory path={airing.exportFile} />
-            {airing.exportFile}
+            {dedupedExportFile}
           </span>
         </div>
       );
@@ -343,31 +350,48 @@ const FileInfo = (props: FileInfoProps) => {
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';
   let icon = 'fa pr-1 ';
-  if (exportState === EXP_WORKING) {
+  let title = 'in progress....';
+  if (exportState === EXP_WORKING || airing.exportFile !== dedupedExportFile) {
     showSize = false;
     baseClass = `${baseClass} text-warning`;
-    icon = `${icon} fa-exclamation`;
+    title = 'Exporting...';
+    if (airing.exportFile !== dedupedExportFile) {
+      icon = `${icon} fa-check-circle`;
+      title = 'New, de-duplicated name';
+    } else {
+      icon = `${icon} fa-cog`;
+    }
   } else if (exportState === EXP_DONE || exportState === EXP_DELETE) {
     showSize = true;
     baseClass = `${baseClass} text-success`;
     icon = `${icon} fa-check-circle`;
+    title = 'No exisiting file found';
   } else {
     showSize = true;
     baseClass = `${baseClass} text-danger`;
-    icon = `${icon} fa-exclamation`;
+    title = 'File exists!';
+    if (actionOnDuplicate === DUPE_OVERWRITE) {
+      icon = `${icon} fa-bomb`;
+      title = 'File exists, will be overwritten';
+    } else if (actionOnDuplicate === DUPE_SKIP) {
+      icon = `${icon} fa-forward`;
+      title = 'File exists, will be skipped';
+    } else {
+      icon = `${icon} fa-exclamation`;
+    }
   }
 
   return (
-    <div className={baseClass}>
+    <div className={baseClass} title={title}>
       <span className={icon} />
-      <span className="">{airing.exportFile}</span>
+      <span className="">{dedupedExportFile}</span>
       {exportState === EXP_WAITING ? (
         <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
       ) : (
         <span className="ml-1 mr-1" />
       )}
 
-      <OpenDirectory path={airing.exportFile} />
+      <OpenDirectory path={dedupedExportFile} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
       </span>

@@ -3,9 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-// import * as fsPath from 'path';
-
-import * as slugify from 'slugify';
+import slugify from 'slugify';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -24,8 +22,8 @@ import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import {
   buildTemplateVars,
   getTemplate,
-  getTemplateSlug,
   getDefaultTemplate,
+  getDefaultTemplateSlug,
   newTemplate,
   upsertTemplate,
   isCurrentTemplate,
@@ -377,7 +375,7 @@ class SettingsNaming extends Component<Props, State> {
                   >
                     <span className="fa fa-edit" />
                   </Button>
-                  {!isCurrentTemplate(template) ? (
+                  {!isDefaultTemplate(template) ? (
                     <Button
                       size="xs"
                       variant="outline-danger"
@@ -414,7 +412,7 @@ class SettingsNaming extends Component<Props, State> {
               ) : (
                 ''
               )}
-              {view !== 'view' && getTemplateSlug(view) !== template.slug ? (
+              {view !== 'view' && getDefaultTemplateSlug() !== template.slug ? (
                 <Button
                   size="xs"
                   variant="success"

@@ -6,14 +6,14 @@ import { FlashRecordType } from '../reducers/types';
 
 type Props = { message: FlashRecordType };
 
-type State = { open: boolean };
+type State = { view: string };
 
 class Flash extends Component<Props, State> {
   timerId: any;
 
   constructor() {
     super();
-    this.state = { open: false };
+    this.state = { view: 'hidden' };
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -26,24 +26,29 @@ class Flash extends Component<Props, State> {
   receive = () => {
     if (this.timerId) clearTimeout(this.timerId);
 
-    this.setState({ open: true });
+    this.setState({ view: 'visible' });
 
-    this.timerId = setTimeout(() => this.setState({ open: false }), 1500);
+    this.timerId = setTimeout(() => this.setState({ view: 'hidden' }), 1500);
+  };
+
+  hide = () => {
+    this.setState({ view: 'hide-now' });
+    clearTimeout(this.timerId);
   };
 
   render() {
     const { message } = this.props;
-    const { open } = this.state;
+    const { view } = this.state;
 
     if (!message) return <></>; //
 
     const type = message.type || 'success';
 
-    const effect = open ? 'visible' : 'hidden';
+    // const effect = open ? 'visible' : 'hide-now';
 
     return (
-      <div className={`flash ${effect}`}>
-        <Alert variant={type}>
+      <div className={`flash ${view}`}>
+        <Alert variant={type} onMouseOver={this.hide} onFocus={this.hide}>
           <span className="flash-message">{message.message}</span>
         </Alert>
       </div>

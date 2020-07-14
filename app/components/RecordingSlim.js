@@ -105,7 +105,7 @@ class RecordingSlim extends Component<Props> {
             </div>
             {withActions === ON ? (
               <div className="d-flex flex-row-reverse">
-                <VideoExportModal airingList={[airing]} />
+                <VideoExportModal airing={airing} />
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
               </div>

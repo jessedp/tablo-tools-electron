@@ -17,12 +17,21 @@ type Props = { airing: Airing };
 export default function AiringDetailsModal(props: Props) {
   const { airing } = props;
   const [show, setShow] = useState(false);
+  const [details, setExportDetails] = useState([]);
+
+  const loadExportDetails = async () => {
+    const info = airing.getExportDetails();
+    setExportDetails(info);
+  };
 
   if (!show) {
     return (
       <Button
         variant="outline-secondary"
-        onClick={() => setShow(true)}
+        onClick={() => {
+          loadExportDetails();
+          setShow(true);
+        }}
         size="xs"
         title="Info"
         className="ml-2"
@@ -32,16 +41,15 @@ export default function AiringDetailsModal(props: Props) {
     );
   }
 
+  const host = global.Api.device.private_ip;
   const selectJson = (node: Object) => {
     if (node.name.includes('path')) {
-      console.log(node);
-      const host = global.Api.device.private_ip;
       const url = `http://${host}:8885/${node.value}`;
       shell.openExternal(url);
     }
   };
 
-  const directoryUrl = `http://192.168.1.229:18080/pvr/${airing.id}/`;
+  const directoryUrl = `http://${host}:18080/pvr/${airing.id}/`;
   const openDirectory = () => {
     shell.openExternal(directoryUrl);
   };
@@ -90,6 +98,16 @@ export default function AiringDetailsModal(props: Props) {
           displayDataTypes
           onSelect={selectJson}
         />
+        {details ? (
+          <>
+            <Alert size="sm" variant="dark" className="mt-2 p-1 pl-2">
+              Exported file info
+            </Alert>
+            <pre className="ffmpeg-details">{details}</pre>
+          </> //
+        ) : (
+          ''
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => setShow(false)}>
