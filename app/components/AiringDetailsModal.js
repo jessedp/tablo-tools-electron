@@ -18,10 +18,14 @@ export default function AiringDetailsModal(props: Props) {
   const { airing } = props;
   const [show, setShow] = useState(false);
   const [details, setExportDetails] = useState([]);
+  const [watchUrl, setWatchUrl] = useState('');
 
   const loadExportDetails = async () => {
     const info = airing.getExportDetails();
     setExportDetails(info);
+    const url = await airing.watch();
+    console.log(url);
+    setWatchUrl(url.playlist_url);
   };
 
   if (!show) {
@@ -76,6 +80,13 @@ export default function AiringDetailsModal(props: Props) {
           withActions={OFF}
         />
         <RecordingOverview airing={airing} />
+        <div className="text-lowercase text-info ml-2 pl-1 pt-0 d-block">
+          <span className="fa fa-tv pr-2" />
+          {watchUrl}
+        </div>
+        <div className="text-black-50 smaller ml-5">
+          Watch URLs will change on every load
+        </div>
         <Button
           variant="link"
           onClick={openDirectory}
@@ -90,7 +101,6 @@ export default function AiringDetailsModal(props: Props) {
             (click any <i>path</i> to open it in the browser)
           </span>
         </Alert>
-
         <ReactJson
           src={airing.data}
           enableClipboard
