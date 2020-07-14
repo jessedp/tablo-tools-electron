@@ -100,10 +100,6 @@ export default class Build extends Component<Props, State> {
       console.log('Not connected, not bulding...');
       return;
     }
-    if (global.EXPORTING) {
-      console.log('Exporting, not bulding...');
-      return;
-    }
 
     this.building = true;
     console.time('Building');

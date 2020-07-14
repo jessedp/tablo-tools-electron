@@ -1,15 +1,13 @@
 // @flow
+// import ffmpeg from 'ffmpeg-static-electron';
+import ffmpeg from 'ffmpeg-static-electron-jdp';
+
+import os from 'os';
 import fs from 'fs';
-import { execSync } from 'child_process';
 import * as fsPath from 'path';
 import log from 'electron-log';
 
-import {
-  asyncForEach,
-  readableDuration,
-  findFfmpegPath,
-  timeStrToSeconds
-} from './utils';
+import { asyncForEach, readableDuration } from './utils';
 
 import Show from './Show';
 import getConfig from './config';
@@ -19,11 +17,7 @@ import {
   PROGRAM,
   SERIES,
   beginTimemark,
-  NamingTemplateType,
-  DUPE_ADDID,
-  DUPE_OVERWRITE,
-  DUPE_SKIP,
-  DUPE_INC
+  NamingTemplateType
 } from '../constants/app';
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
@@ -314,49 +308,11 @@ export default class Airing {
 
   set template(template: NamingTemplateType) {
     this.customTemplate = template;
-    this.cachedExportFile = '';
   }
 
-  cachedExportFile: string;
-
-  // TODO: Cache this somehow?
   get exportFile() {
-    if (!this.cachedExportFile) {
-      const vars = buildTemplateVars(this);
-      this.cachedExportFile = fillTemplate(this.template, vars);
-    }
-    return this.cachedExportFile;
-  }
-
-  cachedDedupedExportFile = '';
-
-  // TODO: Cache this somehow?
-  dedupedExportFile(actionOnDuplicate: string = getConfig().actionOnDuplicate) {
-    const { exportFile } = this;
-    if (
-      !fs.existsSync(exportFile) ||
-      actionOnDuplicate === DUPE_OVERWRITE ||
-      actionOnDuplicate === DUPE_SKIP
-    ) {
-      return exportFile;
-    }
-    const parsed = fsPath.parse(exportFile);
-
-    if (actionOnDuplicate === DUPE_ADDID) {
-      return fsPath.join(parsed.dir, `${parsed.name}-${this.id}${parsed.ext}`);
-    }
-
-    if (actionOnDuplicate === DUPE_INC) {
-      let cnt = 1;
-      let test;
-      do {
-        test = fsPath.join(parsed.dir, `${parsed.name}-${cnt}${parsed.ext}`);
-        cnt += 1;
-      } while (fs.existsSync(test));
-      return test;
-    }
-    console.log('DEFAULT', exportFile);
-    return exportFile;
+    const vars = buildTemplateVars(this);
+    return fillTemplate(this.template, vars);
   }
 
   async watch() {
@@ -429,58 +385,7 @@ export default class Airing {
     }
   }
 
-  getExportDetails(): string {
-    const { exportFile } = this;
-    if (!fs.existsSync(exportFile)) return '';
-
-    // this is janky becuase it should be using ffprobe, but
-    // I don't want to package it, too. So ffmpeg throws an
-    // warning in the logs and the last line output is
-    const lastLine = 'At least one output file must be specified';
-    const firstLine = /^Error: Command failed:(.*)/;
-
-    const ffmpeg = findFfmpegPath();
-
-    let info;
-    try {
-      info = execSync(`${ffmpeg} -i "${exportFile}"`);
-    } catch (e) {
-      console.log(e);
-      info = e.toString();
-    }
-    info = info.toString().trim();
-
-    return info.replace(firstLine, '').replace(lastLine, '');
-  }
-
-  isExportValid(): { valid: boolean, reason?: string } {
-    const { exportFile, videoDetails } = this;
-
-    if (!fs.existsSync(exportFile))
-      return { valid: false, reason: 'No exported file found.' };
-
-    const info = this.getExportDetails();
-    // Duration: 01:01:16.16,
-    const durRe = /Duration: ([0-9:]*)/;
-    const matches = info.match(durRe);
-    if (!matches) return { valid: false, reason: 'No exported file found.' };
-
-    const realSec = timeStrToSeconds(matches[1]);
-    const thisSec = videoDetails.duration;
-    const threshold = 20;
-    if (realSec + threshold < thisSec)
-      return {
-        valid: false,
-        reason: `Exported (${realSec}) duration is less than exected (${this.actualDuration}) by more than ${threshold} seconds`
-      };
-
-    return { valid: true };
-  }
-
-  async processVideo(
-    actionOnDuplicate: string = getConfig().actionOnDuplicate,
-    progressCallback: Function = null
-  ) {
+  async processVideo(callback: Function = null) {
     const debug = getConfig().enableDebug;
     let date = new Date()
       .toISOString()
@@ -500,7 +405,96 @@ export default class Airing {
     if (debug) log.info('start processVideo', new Date());
     if (debug) log.info('env', process.env.NODE_ENV);
 
-    FfmpegCommand.setFfmpegPath(findFfmpegPath(debug, log));
+    const ffmpegPath = ffmpeg.path;
+    if (debug) log.info('ffmpegPath', ffmpegPath);
+
+    // $FlowFixMe  dirty, but flow complains about process.resourcesPath
+    const resourcePath = `${process.resourcesPath}`;
+
+    // TODO - figure out why I did this...
+    const psuedoProdPath = resourcePath.replace(
+      '/electron/dist/resources',
+      '/ffmpeg-static-electron-jdp/bin'
+    );
+    if (debug) log.info('resourcePath', resourcePath);
+    if (debug) log.info('prodPath', psuedoProdPath);
+
+    let ffmpegPathReal = ffmpegPath;
+
+    /** In dev, the prod path gets returned, so "fix" that * */
+    if (process.env.NODE_ENV === 'development') {
+      if (os.platform() === 'win32') {
+        if (ffmpegPathReal === ffmpegPath) {
+          ffmpegPathReal = ffmpegPath.replace(
+            '\\app\\',
+            '\\node_modules\\ffmpeg-static-electron-jdp\\'
+          );
+        }
+      } else {
+        // *nix
+        ffmpegPathReal = ffmpegPath.replace(
+          '/app/',
+          '/node_modules/ffmpeg-static-electron-jdp/'
+        );
+      }
+    }
+
+    if (debug) log.info('after "app" replacements for dev', ffmpegPathReal);
+
+    const ffmpegOpts = [
+      '-c copy',
+      '-y' // overwrite existing files
+    ];
+
+    if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
+    // In true prod (not yarn build/start), ffmpeg is built into resources dir
+    // this will likely fall on it's face with "yarn start"
+    if (process.env.NODE_ENV === 'production') {
+      if (os.platform() === 'darwin') {
+        ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
+      } else {
+        const testStartPath = ffmpegPathReal.replace(
+          /^[/|\\]bin/,
+          psuedoProdPath
+        );
+        if (fs.existsSync(testStartPath)) {
+          if (debug)
+            log.info(
+              'START replacing ffmpegPathReal for prodPath',
+              psuedoProdPath
+            );
+          ffmpegPathReal = testStartPath;
+          if (debug)
+            log.info('START replaced prodPath for prod', ffmpegPathReal);
+        } else {
+          if (debug)
+            log.info(
+              'PROD replacing ffmpegPathReal for prodPath',
+              psuedoProdPath
+            );
+          ffmpegPathReal = psuedoProdPath.replace(
+            /[/|\\]resources/,
+            `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+          );
+          if (debug)
+            log.info('PROD replaced prodPath for prod', ffmpegPathReal);
+        }
+      }
+    } else {
+      if (os.platform() === 'win32') {
+        // otherwise we can hit the node_modules dir
+        ffmpegPathReal = ffmpegPathReal.replace(
+          /^\/bin\//,
+          './node_modules/ffmpeg-static-electron-jdp/bin/'
+        );
+      }
+      // verbosity log level
+      ffmpegOpts.push('-v 40');
+    }
+
+    if (debug) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
+
+    FfmpegCommand.setFfmpegPath(ffmpegPathReal);
 
     let watchPath;
     let input;
@@ -509,15 +503,16 @@ export default class Airing {
       input = watchPath.playlist_url;
     } catch (err) {
       log.warn(`An error occurred: ${err}`);
-      if (typeof progressCallback === 'function') {
-        progressCallback(this.object_id, { failed: true, failedMsg: err });
+      if (typeof callback === 'function') {
+        callback(this.object_id, { failed: true, failedMsg: err });
       }
       return;
     }
 
-    outFile = this.dedupedExportFile();
-    console.log('outFile', outFile);
+    // const input = '/tmp/test_ys_p1.mp4';
+    // outFile = '/tmp/test.mp4';
 
+    outFile = await this.exportFile;
     const outPath = fsPath.dirname(outFile);
 
     if (debug) log.info('exporting to path:', outPath);
@@ -525,25 +520,7 @@ export default class Airing {
 
     fs.mkdirSync(outPath, { recursive: true });
 
-    const ffmpegOpts = [
-      '-c copy',
-      '-y' // overwrite existing files
-    ];
-    if (process.env.NODE_ENV !== 'production') {
-      ffmpegOpts.push('-v 40');
-    }
-
     return new Promise(resolve => {
-      if (outFile !== this.exportFile) {
-        if (actionOnDuplicate === DUPE_SKIP) {
-          progressCallback(this.object_id, {
-            skipped: true,
-            finished: true
-          });
-          resolve();
-        }
-      }
-
       const ffmpegLog = [];
       let record = true;
       this.cmd = new FfmpegCommand();
@@ -553,13 +530,10 @@ export default class Airing {
         .addOutputOptions(ffmpegOpts)
         .on('end', () => {
           // log.info('Finished processing');
-          if (typeof progressCallback === 'function') {
-            progressCallback(this.object_id, {
-              finished: true,
-              log: ffmpegLog
-            });
+          if (typeof callback === 'function') {
+            callback(this.object_id, { finished: true, log: ffmpegLog });
           }
-          if (debug) log.info(ffmpegLog.join('\n'));
+          if (debug) log.info('result', ffmpegLog);
           if (debug) log.info('end processVideo', new Date());
 
           resolve(ffmpegLog);
@@ -568,17 +542,11 @@ export default class Airing {
           const errMsg = `An error occurred: ${err}`;
           log.info(errMsg);
           ffmpegLog.push(errMsg);
-          if (typeof progressCallback === 'function') {
+          if (typeof callback === 'function') {
             if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
-              progressCallback(this.object_id, {
-                cancelled: true,
-                finished: false
-              });
+              callback(this.object_id, { cancelled: true, finished: false });
             } else {
-              progressCallback(this.object_id, {
-                failed: true,
-                failedMsg: err
-              });
+              callback(this.object_id, { failed: true, failedMsg: err });
             }
           }
           // reject(err);
@@ -609,13 +577,13 @@ export default class Airing {
           }
         })
         .on('progress', progress => {
-          if (typeof progressCallback === 'function') {
-            progressCallback(this.object_id, progress);
+          if (typeof callback === 'function') {
+            callback(this.object_id, progress);
           }
         });
 
-      if (typeof progressCallback === 'function') {
-        progressCallback(this.object_id, { timemark: beginTimemark });
+      if (typeof callback === 'function') {
+        callback(this.object_id, { timemark: beginTimemark });
       }
       this.cmd.run();
     });

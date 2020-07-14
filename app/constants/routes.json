@@ -16,7 +16,6 @@
   "GENSETTINGS": "/settings/general",
   "FILENAMETPLs": "/settings/filename-templates",
   "ADVSETTINGS": "/settings/advanced",
-  "EXPSETTINGS": "/settings/export",
   "EXPORT": "/export",
   "DELETE": "/delete",
   "SELECTED": "/selected",

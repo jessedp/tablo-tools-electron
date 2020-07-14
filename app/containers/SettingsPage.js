@@ -15,7 +15,6 @@ import routes from '../constants/routes.json';
 import SettingsGeneral from '../components/SettingsGeneral';
 import SettingsAdvanced from '../components/SettingsAdvanced';
 import SettingsNaming from '../components/SettingsNaming';
-import SettingsExport from '../components/SettingsExport';
 
 type Props = { location: any };
 
@@ -32,9 +31,6 @@ class SettingsPage extends Component<Props> {
         break;
       case routes.FILENAMETPLs:
         content = <SettingsNaming />;
-        break;
-      case routes.EXPSETTINGS:
-        content = <SettingsExport />;
         break;
       default:
     }
@@ -53,26 +49,8 @@ class SettingsPage extends Component<Props> {
                     activeClassName="active"
                     to={routes.GENSETTINGS}
                   >
-                    <Button
-                      size="sm"
-                      variant="light"
-                      as="button"
-                      title="General"
-                    >
+                    <Button size="sm" variant="light" as="button" title="Home">
                       General
-                    </Button>
-                  </LinkContainer>
-                  <LinkContainer
-                    activeClassName="active"
-                    to={routes.EXPSETTINGS}
-                  >
-                    <Button
-                      size="sm"
-                      variant="light"
-                      as="button"
-                      title="Export"
-                    >
-                      Export
                     </Button>
                   </LinkContainer>
                   <LinkContainer
@@ -83,7 +61,7 @@ class SettingsPage extends Component<Props> {
                       size="sm"
                       variant="light"
                       as="button"
-                      title="Naming"
+                      title="Watch Live"
                     >
                       Naming
                     </Button>
@@ -92,13 +70,8 @@ class SettingsPage extends Component<Props> {
                     activeClassName="active"
                     to={routes.ADVSETTINGS}
                   >
-                    <Button
-                      size="sm"
-                      variant="light"
-                      as="button"
-                      title="Advanced"
-                    >
-                      Advanced
+                    <Button size="sm" variant="light" as="button" title="Home">
+                      Advaned
                     </Button>
                   </LinkContainer>
                 </ButtonGroup>

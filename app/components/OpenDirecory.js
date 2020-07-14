@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import fs from 'fs';
 import * as fsPath from 'path';
 
 import { Button } from 'react-bootstrap';
@@ -13,7 +14,11 @@ export default function OpenDirectory(prop: Props) {
   const { path } = prop;
 
   const openDir = () => {
-    remote.shell.openItem(fsPath.dirname(path));
+    if (fs.existsSync(path)) {
+      remote.shell.showItemInFolder(path);
+    } else {
+      remote.shell.showItemInFolder(fsPath.dirname(path));
+    }
   };
 
   return (
