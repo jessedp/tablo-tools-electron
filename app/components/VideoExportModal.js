@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import fs from 'fs';
+
 import PubSub from 'pubsub-js';
 
 import Button from 'react-bootstrap/Button';
@@ -12,28 +14,33 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 
+import { format } from 'date-fns';
+
 import VideoExport from './VideoExport';
 
 import ExportRecordType from '../reducers/types';
 import * as ExportListActions from '../actions/exportList';
 import * as ActionListActions from '../actions/actionList';
-import { EXP_WORKING, EXP_DONE } from '../constants/app';
+import { EXP_WORKING } from '../constants/app';
 
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
-import Checkbox from './Checkbox';
+import Checkbox, { CHECKBOX_ON } from './Checkbox';
+// import getConfig from '../utils/config';
 
 type Props = {
-  airingList: Array<Airing>,
+  airing: Airing,
   exportList: Array<ExportRecordType>,
   label?: string,
-
-  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
   exportState: number,
-  atOnce: number,
-  deleteOnFinish: number,
+
   toggleDOF: () => void,
+  deleteOnFinish: number,
+
+  atOnce: number,
+  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
+
   cancelProcess: () => void,
   processVideo: () => void,
 
@@ -58,32 +65,40 @@ class VideoExportModal extends Component<Props, State> {
   }
 
   close = async () => {
-    const { exportList, remAiring, bulkRemExportRecord } = this.props;
+    const {
+      exportList,
+      deleteOnFinish,
+      remAiring,
+      bulkRemExportRecord
+    } = this.props;
     bulkRemExportRecord([]);
-    remAiring(exportList[0].airing);
-    PubSub.publish('DB_CHANGE', '');
+    if (deleteOnFinish === CHECKBOX_ON) {
+      remAiring(exportList[0].airing);
+      PubSub.publish('DB_CHANGE', '');
+    }
     this.setState({ opened: false });
   };
 
   show() {
-    const { airingList, bulkRemExportRecord, addExportRecord } = this.props;
+    const { airing, bulkRemExportRecord, addExportRecord } = this.props;
     bulkRemExportRecord([]);
-    airingList.forEach(rec => {
-      addExportRecord(ExportRecord(rec));
-    });
+
+    addExportRecord(ExportRecord(airing));
+
     this.setState({ opened: true });
   }
 
   render() {
     const {
+      airing,
       exportList,
       exportState,
       atOnce,
-      deleteOnFinish,
       atOnceChange,
+      deleteOnFinish,
+      toggleDOF,
       cancelProcess,
-      processVideo,
-      toggleDOF
+      processVideo
     } = this.props;
     let { label } = this.props;
 
@@ -100,21 +115,19 @@ class VideoExportModal extends Component<Props, State> {
     }
     const airingList = exportList.map(rec => rec.airing);
 
-    const timeSort = (a, b) => {
-      if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
-      return -1;
-    };
+    let variant = 'outline-secondary';
+    let title = 'Export Video';
 
-    airingList.sort((a, b) => timeSort(a, b));
+    if (fs.existsSync(airing.exportFile)) {
+      const stats = fs.statSync(airing.exportFile);
+      const ctime = format(new Date(stats.ctime), 'ccc M/d/yy @ h:mm:ss a');
+      variant = 'outline-warning';
+      title = `Previously Exported ${ctime}`;
+    }
 
     return (
       <>
-        <Button
-          variant="outline-secondary"
-          size={size}
-          onClick={this.show}
-          title="Export Video"
-        >
+        <Button variant={variant} size={size} onClick={this.show} title={title}>
           <span className="fa fa-download" />
           {label}
         </Button>
@@ -130,11 +143,11 @@ class VideoExportModal extends Component<Props, State> {
             <Modal.Title>Export</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {airingList.map(airing => {
+            {airingList.map(expAiring => {
               return (
                 <RecordingExport
-                  airing={airing}
-                  key={`RecordingExport-${airing.object_id}`}
+                  airing={expAiring}
+                  key={`RecordingExport-${expAiring.object_id}`}
                 />
               );
             })}
@@ -142,9 +155,9 @@ class VideoExportModal extends Component<Props, State> {
           <Modal.Footer>
             <ExportButton
               state={exportState}
-              atOnce={atOnce}
               deleteOnFinish={deleteOnFinish}
               toggleDOF={toggleDOF}
+              atOnce={atOnce}
               atOnceChange={atOnceChange}
               cancel={cancelProcess}
               process={processVideo}
@@ -172,7 +185,6 @@ function ExportButton(prop) {
     deleteOnFinish,
     toggleDOF
   } = prop;
-  // , atOnce, atOnceChange
 
   if (state === EXP_WORKING) {
     return (
@@ -182,13 +194,13 @@ function ExportButton(prop) {
     );
   }
 
-  if (state === EXP_DONE) {
-    return (
-      <Button variant="secondary" onClick={close}>
-        Close
-      </Button>
-    );
-  }
+  // if (state === EXP_DONE) {
+  //   return (
+  //     <Button variant="secondary" onClick={close}>
+  //       Close
+  //     </Button>
+  //   );
+  // }
 
   // if state === EXP_WAITING || EXP_CANCEL
   return (

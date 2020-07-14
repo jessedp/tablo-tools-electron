@@ -129,7 +129,7 @@ class Recording extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
-                <VideoExportModal airingList={[airing]} />
+                <VideoExportModal airing={airing} />
                 &nbsp;
                 <ConfirmDelete airing={airing} />
               </Col>

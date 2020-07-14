@@ -17,7 +17,13 @@ import * as ExportListActions from '../actions/exportList';
 
 import VideoExport from './VideoExport';
 import ExportRecordType from '../reducers/types';
-import { EXP_WORKING } from '../constants/app';
+import {
+  EXP_WORKING,
+  DUPE_SKIP,
+  DUPE_INC,
+  DUPE_OVERWRITE,
+  DUPE_ADDID
+} from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
@@ -25,11 +31,17 @@ import routes from '../constants/routes.json';
 type Props = {
   actionList: Array<Airing>,
   exportList: Array<ExportRecordType>,
-  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
   exportState: number,
+
   atOnce: number,
+  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
+
+  actionOnDuplicate: string,
+  setActionOnDuplicate: (action: string) => void,
+
   deleteOnFinished: number,
   toggleDOF: () => void,
+
   cancelProcess: () => void,
   processVideo: () => void,
 
@@ -66,11 +78,13 @@ class VideoExportPage extends Component<Props, State> {
       exportList,
       exportState,
       atOnce,
-      deleteOnFinished,
       atOnceChange,
+      deleteOnFinished,
+      toggleDOF,
+      actionOnDuplicate,
+      setActionOnDuplicate,
       cancelProcess,
-      processVideo,
-      toggleDOF
+      processVideo
     } = this.props;
 
     if (!loaded) return <></>; //
@@ -99,14 +113,17 @@ class VideoExportPage extends Component<Props, State> {
           atOnceChange={atOnceChange}
           cancel={cancelProcess}
           process={processVideo}
-          toggle={toggleDOF}
+          toggleDOF={toggleDOF}
           deleteOnFinish={deleteOnFinished}
+          actionOnDuplicate={actionOnDuplicate}
+          setActionOnDuplicate={setActionOnDuplicate}
         />
         {exportList.map(rec => {
           return (
             <RecordingExport
               airing={rec.airing}
               key={`RecordingExport-${rec.airing.object_id}`}
+              actionOnDuplicate={actionOnDuplicate}
             />
           );
         })}
@@ -126,7 +143,9 @@ function ExportActions(prop) {
     atOnce,
     atOnceChange,
     deleteOnFinish,
-    toggle
+    toggleDOF,
+    actionOnDuplicate,
+    setActionOnDuplicate
   } = prop;
 
   if (state === EXP_WORKING) {
@@ -181,10 +200,34 @@ function ExportActions(prop) {
         <Col md="auto" className="pt-2">
           <Checkbox
             checked={deleteOnFinish}
-            handleChange={toggle}
+            handleChange={toggleDOF}
             label="Delete when finished?"
           />
         </Col>
+        <Col md="auto">
+          <InputGroup size="sm" className="pt-1">
+            <InputGroup.Prepend>
+              <InputGroup.Text title="More than 2 is probably silly, but YOLO!">
+                <span className="fa fa-info pr-2" />
+                On duplicate:
+              </InputGroup.Text>
+            </InputGroup.Prepend>
+            <Form.Control
+              as="select"
+              value={actionOnDuplicate}
+              aria-describedby="btnState"
+              onChange={setActionOnDuplicate}
+              title="More than 2 is probably silly, but YOLO!"
+            >
+              <option value={DUPE_INC}>{DUPE_INC.toLowerCase()}</option>
+              <option value={DUPE_OVERWRITE}>
+                {DUPE_OVERWRITE.toLowerCase()}
+              </option>
+              <option value={DUPE_ADDID}>add id</option>
+              <option value={DUPE_SKIP}>{DUPE_SKIP.toLowerCase()}</option>
+            </Form.Control>
+          </InputGroup>
+        </Col>{' '}
       </Row>
     </Alert>
   );
