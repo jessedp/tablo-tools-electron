@@ -105,7 +105,7 @@ class Recording extends Component<Props, State> {
       <Container className={classes}>
         <img
           alt="background"
-          src={getTabloImageUrl(airing.show.background)}
+          src={getTabloImageUrl(airing.show.cover)}
           style={{
             position: 'absolute',
             left: 0,
