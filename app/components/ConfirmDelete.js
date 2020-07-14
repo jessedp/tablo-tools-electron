@@ -16,8 +16,10 @@ import routes from '../constants/routes.json';
 
 import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
-import RecordingSlim from './RecordingSlim';
+
 import { throttleActions } from '../utils/utils';
+import RecordingMini from './RecordingMini';
+import { ON } from '../constants/app';
 
 type Props = {
   actionList: Array<Airing>,
@@ -193,16 +195,14 @@ class ConfirmDelete extends Component<Props, State> {
 
                 <br />
                 {airingList.map(item => (
-                  <RecordingSlim
-                    withShow={1}
+                  <RecordingMini
+                    withShow={ON}
                     airing={item}
                     doDelete={() => {}}
-                    key={`${item.object_id}-${Math.floor(
-                      Math.random() * 1000000
-                    )}`}
+                    key={`cfd-mini-${item.object_id}`}
                   />
                 ))}
-              </>
+              </> //
             )}
           </Modal.Body>
           <Modal.Footer>
