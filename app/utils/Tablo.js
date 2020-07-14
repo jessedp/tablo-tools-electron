@@ -136,7 +136,6 @@ export const comskipAvailable = () => {
   if (!currentDevice.server_version) return false;
 
   const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
-  console.log('CSA', testVersion, global.Api.device.info);
   if (!compareVersions.compare(testVersion, '2.2.26', '>=')) return false;
 
   if (global.Api.device.info && global.Api.device.info.commercial_skip) {
