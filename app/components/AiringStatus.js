@@ -7,32 +7,14 @@ type Props = { airing: Airing };
 export default class AiringStatus extends Component<Props> {
   props: Props;
 
-  isGoodRecording = () => {
-    const { airing } = this.props;
-    const { videoDetails } = airing;
-
-    if (this.isComskipGood()) return true;
-
-    return (
-      airing.videoDetails.state === 'finished' &&
-      videoDetails.clean &&
-      this.cleanPercent() >= 100
-    );
-  };
-
-  isComskipGood = () => {
+  airingState() {
     const { airing } = this.props;
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
 
-    return comskip && comskip.state === 'ready';
-  };
-
-  airingState() {
-    const { airing } = this.props;
-    const { videoDetails } = airing;
-
-    if (this.isComskipGood()) return '';
+    if (comskip && comskip.state === 'ready') {
+      return '';
+    }
 
     switch (videoDetails.state) {
       case 'failed':
@@ -113,20 +95,20 @@ export default class AiringStatus extends Component<Props> {
     );
   }
 
-  cleanPercent = () => {
+  clean() {
     const { airing } = this.props;
     const { airingDetails } = airing;
     const { videoDetails } = airing;
+    const { comskip } = videoDetails;
 
-    return Math.ceil((videoDetails.duration / airingDetails.duration) * 100);
-  };
+    if (comskip && comskip.state === 'ready') {
+      return '';
+    }
 
-  clean() {
-    if (this.isComskipGood()) return '';
-
-    const pct = this.cleanPercent();
-
-    if (pct >= 100) {
+    const pct = Math.ceil(
+      (videoDetails.duration / airingDetails.duration) * 100
+    );
+    if (pct > 95) {
       return (
         <i
           className="fa fa-thermometer-full p-1"
@@ -172,19 +154,6 @@ export default class AiringStatus extends Component<Props> {
     );
   }
 
-  good = () => {
-    let msg = 'Recording successful';
-    if (this.isComskipGood()) msg = 'Commercial Skip ready';
-
-    return (
-      <i
-        className="fa fa-check-circle p-1"
-        style={{ color: 'forestgreen' }}
-        title={msg}
-      />
-    );
-  };
-
   comskip() {
     const { airing } = this.props;
     const { videoDetails } = airing;
@@ -193,9 +162,16 @@ export default class AiringStatus extends Component<Props> {
     if (!comskip) return;
 
     if (comskip.state === 'ready') {
-      return this.good();
+      return (
+        <i
+          className="fa fa-check-circle p-1"
+          style={{ color: 'forestgreen' }}
+          title="Commercial Skip ready"
+        />
+      );
     }
 
+    // TODO: missing comskip?
     let error = 'no comskip data';
     if (comskip) error = comskip.error;
 
@@ -227,6 +203,7 @@ export default class AiringStatus extends Component<Props> {
   protected() {
     const { airing } = this.props;
     const { userInfo } = airing;
+    // const { comskip } = videoDetails;
 
     if (userInfo.protected) {
       return (
@@ -246,9 +223,6 @@ export default class AiringStatus extends Component<Props> {
     if (videoDetails.state === 'recording') {
       return this.airingState();
     }
-    if (this.isComskipGood() || this.isGoodRecording())
-      return <>{this.good()}</>; //
-
     return (
       <div>
         {this.clean()}

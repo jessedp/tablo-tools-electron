@@ -18,8 +18,6 @@ import getConfig from './utils/config';
 
 require('./sentry');
 
-app.allowRendererProcessReuse = true;
-
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

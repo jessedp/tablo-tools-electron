@@ -65,7 +65,9 @@ export const makeShowDb = () => {
 };
 
 export const makeSearchDb = () => {
-  const showDbName = `saved-search.db`;
+  const device = store.get('CurrentDevice');
+  if (!device.serverid) return null;
+  const showDbName = `${device.serverid}-search.db`;
   const showFile = path.join(dataDir, showDbName);
 
   return new AsyncNedb({
