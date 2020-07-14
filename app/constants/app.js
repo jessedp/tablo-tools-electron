@@ -47,6 +47,7 @@ export type NamingTemplateType = {
 
 export type ExportLogRecordType = {
   server_id: string,
+  via: string,
   object_id: number,
   startTime: Date,
   endTime: Date,
