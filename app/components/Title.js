@@ -28,13 +28,15 @@ export default class Title extends Component<Props> {
             {airing.datetime}
             {episodeNum}
           </div>
-          <b>
-            {airing.showTitle}
-            {airing.title ? ` - ${airing.title}` : ''}{' '}
-          </b>
-          <Description description={airing.description} />
+          <div className="title-area" style={{ display: '100vh' }}>
+            <b>
+              {airing.showTitle}
+              {airing.title ? ` - ${airing.title}` : ''}{' '}
+            </b>
+            <Description description={airing.description} />
+          </div>
         </h6>
-      </>
+      </> //
     );
   }
 }

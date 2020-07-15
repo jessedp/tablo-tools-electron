@@ -43,7 +43,6 @@ class Recording extends Component<Props, State> {
     this.checkboxRef = React.createRef();
 
     (this: any).toggleSelection = this.toggleSelection.bind(this);
-    (this: any).processVideo = this.processVideo.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -77,11 +76,6 @@ class Recording extends Component<Props, State> {
       remAiring(airing);
     }
   };
-
-  async processVideo() {
-    const { airing } = this.props;
-    await airing.processVideo();
-  }
 
   render() {
     const { airing, checked } = this.props;
@@ -152,7 +146,7 @@ class Recording extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
                 &nbsp;
-                <VideoExportModal airingList={[airing]} />
+                <VideoExportModal airing={airing} />
                 &nbsp;
                 <ConfirmDelete airing={airing} />
               </Col>

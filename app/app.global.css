@@ -82,6 +82,12 @@ label {
   transition: visibility 0s 1.5s, opacity 1.5s linear;
 }
 
+/* No-fade-Out Effect */
+.hide-now {
+  visibility: hidden;
+  opacity: 0;
+}
+
 .naming-tpl-header {
   font-size: 16px;
   font-weight: bold;
@@ -578,4 +584,39 @@ body,
 
 .fa-scroll:hover {
   cursor: pointer;
+}
+
+/** z-index maddness */
+
+/* .top-bar {
+  z-index: 100;
+}
+
+.page-container {
+  z-index: 100;
+}
+
+.selected-basket {
+  z-index: 100;
+}
+
+.btn {
+  z-index: 10;
+}
+
+.popover, .bs-popover-bottom {
+  z-index: 20;
+} */
+
+.title-area {
+  height: 55px;
+  overflow-y: auto;
+}
+
+.description {
+  font-size: 0.75rem;
+}
+
+.ffmpeg-details {
+  font-size: 12px;
 }

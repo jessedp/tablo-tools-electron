@@ -1,6 +1,12 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
+import {
+  DUPE_ADDID,
+  DUPE_INC,
+  DUPE_OVERWRITE,
+  DUPE_SKIP
+} from '../constants/app';
 
 const electron = require('electron');
 
@@ -51,10 +57,20 @@ export type ConfigType = {
   eventTemplate: string,
   programTemplate: string,
 
+  // TODO: enum
+  actionOnDuplicate: string,
+
   // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number,
   saveData: Array<string>
 };
+
+export const VALID_DUPE_ACTIONS = [
+  DUPE_ADDID,
+  DUPE_INC,
+  DUPE_OVERWRITE,
+  DUPE_SKIP
+];
 
 export const defaultConfig: ConfigType = {
   autoRebuild: true,
@@ -80,6 +96,7 @@ export const defaultConfig: ConfigType = {
   movieTemplate: 'tablo-tools',
   eventTemplate: 'tablo-tools',
   programTemplate: 'tablo-tools',
+
   actionOnDuplicate: DUPE_INC,
 
   saveData: []

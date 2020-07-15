@@ -57,7 +57,12 @@ export default () => {
         <Route path={routes.SEARCH} component={SearchForm} />
         <Route path={routes.SELECTED} component={ActionList} />
         <Route
-          path={[routes.GENSETTINGS, routes.FILENAMETPLs, routes.ADVSETTINGS]}
+          path={[
+            routes.GENSETTINGS,
+            routes.FILENAMETPLs,
+            routes.ADVSETTINGS,
+            routes.EXPSETTINGS
+          ]}
           component={SettingsPage}
         />
         <Route path={routes.EXPORT} component={VideoExportPage} />

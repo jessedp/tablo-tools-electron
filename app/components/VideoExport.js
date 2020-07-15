@@ -31,7 +31,12 @@ type Props = {
   bulkRemExportRecord: (Array<ExportRecordType>) => void
 };
 
-type State = { exportState: number, atOnce: number, deleteOnFinish: number };
+type State = {
+  exportState: number,
+  atOnce: number,
+  deleteOnFinish: number,
+  actionOnDuplicate: string
+};
 
 const VideoExport = (WrappedComponent: any) => {
   // $FlowFixMe wtf typing
@@ -51,7 +56,8 @@ const VideoExport = (WrappedComponent: any) => {
       this.state = {
         exportState: EXP_WAITING,
         atOnce: 1,
-        deleteOnFinish: CHECKBOX_OFF
+        deleteOnFinish: CHECKBOX_OFF,
+        actionOnDuplicate: getConfig().actionOnDuplicate
       };
 
       this.shouldCancel = false;
@@ -71,9 +77,11 @@ const VideoExport = (WrappedComponent: any) => {
 
     processVideo = async () => {
       const { exportList } = this.props;
-      const { exportState, atOnce } = this.state;
+      const { atOnce, actionOnDuplicate } = this.state;
 
-      if (exportState === EXP_DONE) return;
+      global.EXPORTING = true;
+
+      // if (exportState === EXP_DONE) return;
       await this.setState({ exportState: EXP_WORKING });
 
       const actions = [];
@@ -81,7 +89,10 @@ const VideoExport = (WrappedComponent: any) => {
       exportList.forEach(rec => {
         actions.push(() => {
           if (this.shouldCancel === false)
-            return rec.airing.processVideo(this.updateProgress);
+            return rec.airing.processVideo(
+              actionOnDuplicate,
+              this.updateProgress
+            );
         });
       });
 
@@ -94,6 +105,7 @@ const VideoExport = (WrappedComponent: any) => {
       } else {
         this.setState({ exportState: EXP_DONE });
       }
+      global.EXPORTING = false;
     };
 
     updateProgress = (airingId: number, progress: Object) => {
@@ -121,7 +133,10 @@ const VideoExport = (WrappedComponent: any) => {
       let dumpLog = false;
       if (progress.finished) {
         if (deleteOnFinish === CHECKBOX_ON) {
-          airing.delete();
+          const status = airing.isExportValid();
+          if (status.valid) {
+            airing.delete();
+          }
         }
         record.state = EXP_DONE;
         record.progress = {
@@ -207,20 +222,31 @@ const VideoExport = (WrappedComponent: any) => {
       });
     };
 
+    setActionOnDuplicate = (event: SyntheticEvent<HTMLInputElement>) => {
+      this.setState({ actionOnDuplicate: event.currentTarget.value });
+    };
+
     render() {
-      const { exportState, deleteOnFinish, atOnce } = this.state;
+      const {
+        exportState,
+        actionOnDuplicate,
+        deleteOnFinish,
+        atOnce
+      } = this.state;
       /* eslint-disable react/jsx-props-no-spreading */
       // $FlowFixMe
       return (
         <WrappedComponent
           {...this.props}
           exportState={exportState}
+          actionOnDuplicate={actionOnDuplicate}
+          setActionOnDuplicate={this.setActionOnDuplicate}
           deleteOnFinish={deleteOnFinish}
+          toggleDOF={this.toggleDOF}
           atOnce={atOnce}
           atOnceChange={this.atOnceChange}
           processVideo={this.processVideo}
           cancelProcess={this.cancelProcess}
-          toggleDOF={this.toggleDOF}
         />
       );
     }

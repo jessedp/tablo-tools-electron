@@ -36,6 +36,7 @@ import SavedSearchEdit from './SavedSearchEdit';
 import * as SearchActions from '../actions/search';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
+import MatchesToBadges from './SearchFilterMatches';
 
 type Props = {
   sendResults: Object => void
@@ -47,6 +48,7 @@ type Season = {
 };
 
 export type SearchState = {
+  emptySearch: boolean,
   skip: number,
   limit: number,
   view: string,
@@ -91,6 +93,7 @@ class SearchForm extends Component<Props, SearchState> {
     super();
 
     this.initialState = {
+      emptySearch: true,
       skip: 0,
       limit: 50,
       view: 'grid',
@@ -364,19 +367,32 @@ class SearchForm extends Component<Props, SearchState> {
     this.search();
   };
 
-  updateSavedSearch = async (searchId: string) => {
-    const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
-    // eslint-disable-next-line no-underscore-dangle
-    delete rec._id;
+  updateSavedSearch = async (searchId: string = '') => {
+    const { savedSearchFilter } = this.state;
 
     this.savedSearchList = await global.SearchDb.asyncFind({});
 
-    rec.state.savedSearchFilter = searchId;
+    if (!searchId) {
+      await this.resetSearch();
+    }
 
-    const initialStateCopy = { ...this.initialState };
-    const newState = Object.assign(initialStateCopy, rec.state);
-    await this.setState(newState);
-    await this.search();
+    const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
+    if (!rec) {
+      console.log(searchId, rec);
+      console.warn('Unable to find Saved Seach', searchId);
+      return;
+    }
+
+    if (searchId !== savedSearchFilter) {
+      rec.state.savedSearchFilter = searchId;
+
+      const initialStateCopy = { ...this.initialState };
+      const newState = Object.assign(initialStateCopy, rec.state);
+      await this.setState(newState);
+      await this.search();
+    } else {
+      await this.resetSearch();
+    }
   };
 
   savedSearchChange = async (event: Option) => {
@@ -560,9 +576,8 @@ class SearchForm extends Component<Props, SearchState> {
         });
       }
     }
-    // console.log(query);
 
-    // TODO: savedSearchFilter
+    const emptySearch = Object.keys(query).length === 0;
 
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
@@ -679,12 +694,12 @@ class SearchForm extends Component<Props, SearchState> {
       airingList
     });
     updateState.airingList = airingList;
-
-    this.setStateStore(updateState);
+    this.setStateStore({ ...updateState, ...{ emptySearch } });
   };
 
   render() {
     const {
+      emptySearch,
       searchValue,
       stateFilter,
       typeFilter,
@@ -783,13 +798,16 @@ class SearchForm extends Component<Props, SearchState> {
               >
                 <span className="fa fa-recycle pr-1" /> reset
               </Button>
-
-              <SavedSearch
-                updateValue={this.savedSearchUpdate}
-                searchState={this.state}
-                recordCount={recordCount}
-                searches={this.savedSearchList}
-              />
+              {!emptySearch ? (
+                <SavedSearch
+                  updateValue={this.savedSearchUpdate}
+                  searchState={this.state}
+                  recordCount={recordCount}
+                  searches={this.savedSearchList}
+                />
+              ) : (
+                ''
+              )}
             </InputGroup>
           </Col>
           <Col md="4" className="">
@@ -801,9 +819,17 @@ class SearchForm extends Component<Props, SearchState> {
                   searches={this.savedSearchList}
                 />
               </Col>
-              <Col md="auto" className="p-0 align-bottom">
-                <SavedSearchEdit onClose={this.refresh} />
-              </Col>
+              {savedSearchFilter !== '' ? (
+                <Col md="auto" className="p-0 align-bottom">
+                  <SavedSearchEdit
+                    updateValue={this.savedSearchUpdate}
+                    searchId={savedSearchFilter}
+                    onClose={this.refresh}
+                  />
+                </Col>
+              ) : (
+                ''
+              )}
             </Row>
           </Col>
 
@@ -873,7 +899,7 @@ class SearchForm extends Component<Props, SearchState> {
         </Row>
 
         <SearchResults />
-      </>
+      </> //
     );
   }
 }
@@ -972,7 +998,7 @@ function ShowFilter(props: filterProps) {
               {item.showCounts.airing_count}
             </Badge>
           </>
-        )
+        ) //
       })
     );
   }
@@ -1004,7 +1030,7 @@ function SeasonFilter(props: filterProps) {
               {item.count}
             </Badge>
           </>
-        )
+        ) //
       })
     );
   }
@@ -1086,7 +1112,16 @@ function SavedSearchFilter(props: filterProps) {
       options.push({
         // eslint-disable-next-line no-underscore-dangle
         value: item._id,
-        label: <span className="pl-1"> {item.name}</span>
+        label: (
+          <span className="pl-1">
+            {item.name}
+            <MatchesToBadges
+              matches={item.state.searchAlert.matches}
+              prefix="select-list"
+              className="badge-sm"
+            />
+          </span>
+        )
       })
     );
   } else {
