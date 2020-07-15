@@ -129,7 +129,7 @@ class SportDetails extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={event} />
                 &nbsp;
-                <VideoExportModal airing={event} />
+                <VideoExportModal airingList={[event]} />
                 <Button
                   size="xs"
                   className="ml-3 mr-2"

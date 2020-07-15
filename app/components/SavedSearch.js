@@ -1,9 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
@@ -12,9 +9,6 @@ import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import Select from 'react-select';
 import Row from 'react-bootstrap/Row';
-import slugify from 'slugify';
-import type { FlashRecordType } from '../reducers/types';
-import * as FlashActions from '../actions/flash';
 import type { SearchState } from './SearchForm';
 import MatchesToBadges from './SearchFilterMatches';
 
@@ -23,128 +17,114 @@ import SelectStyles from './SelectStyles';
 
 type Props = {
   searchState: SearchState,
-  slug?: string,
+  searchId?: string,
   updateValue: Function => any,
   recordCount: number,
-  searches: Array<Object>,
-  sendFlash: (message: FlashRecordType) => void
+  searches: Array<Object>
 };
 
 type State = {
   show: boolean,
-  chkOverwrite: number,
-  overwriteId: string,
+  chkOverride: number,
+  chkNew: number,
   searchName: string,
-  slug?: string
+  searchId?: string,
+  alertType: string,
+  alertText: string
 };
 
 type SavedSearchType = {
-  slug?: string,
+  id?: string,
   state: SearchState,
   created: string,
   updated?: string,
   version: string
 };
 
-class SavedSearch extends Component<Props, State> {
+export default class SavedSearch extends Component<Props, State> {
   props: Props;
+
+  chkNewRef: any;
 
   chkOverRef: any;
 
-  static defaultProps = { slug: '' };
+  static defaultProps = { searchId: '' };
 
   constructor(props: Props) {
     super();
-    const { slug } = props;
+    const { searchId } = props;
     this.state = {
       show: false,
       searchName: '',
-      overwriteId: '',
-      chkOverwrite: CHECKBOX_OFF,
-      slug
+      chkOverride: CHECKBOX_OFF,
+      chkNew: CHECKBOX_ON,
+      searchId,
+      alertType: 'light',
+      alertText: ''
     };
 
+    this.chkNewRef = React.createRef();
     this.chkOverRef = React.createRef();
 
     (this: any).handleShow = this.handleShow.bind(this);
     (this: any).handleClose = this.handleClose.bind(this);
     (this: any).saveSearch = this.saveSearch.bind(this);
-    (this: any).changeOverwrite = this.changeOverwrite.bind(this);
+    (this: any).changeOverride = this.changeOverride.bind(this);
     (this: any).toggleType = this.toggleType.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { slug, searchState } = this.props;
-    if (
-      prevProps.slug !== slug ||
-      prevProps.searchState.savedSearchFilter !== searchState.savedSearchFilter
-    ) {
+    const { searchId } = this.props;
+    if (prevProps.searchId !== searchId) {
       this.render();
     }
   }
 
   handleClose() {
-    this.setState({ searchName: '', slug: '', show: false });
+    this.setState({ show: false });
   }
 
   handleShow = () => {
     this.setState({ show: true });
   };
 
-  changeOverwrite = async (event: any) => {
+  changeOverride = async (event: Option) => {
+    this.chkNewRef.toggle(CHECKBOX_OFF);
     this.chkOverRef.toggle(CHECKBOX_ON);
+
     this.setState({
-      overwriteId: event.value,
-      chkOverwrite: CHECKBOX_ON
+      searchId: event.value,
+      chkNew: CHECKBOX_OFF,
+      chkOverride: CHECKBOX_ON
     });
   };
 
   toggleType = async () => {
-    let { chkOverwrite } = this.state;
+    let { chkNew, chkOverride } = this.state;
 
-    chkOverwrite = chkOverwrite === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF;
+    chkNew = chkNew === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF;
+    chkOverride = chkOverride === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF;
 
-    await this.setState({ chkOverwrite });
+    this.chkNewRef.toggle();
+    this.chkOverRef.toggle();
+    await this.setState({ chkOverride, chkNew });
   };
 
   setSearchName = (event: SyntheticEvent<HTMLInputElement>) => {
-    const searchName = event.currentTarget.value;
+    this.chkNewRef.toggle(CHECKBOX_ON);
+    this.chkOverRef.toggle(CHECKBOX_OFF);
+
     this.setState({
-      searchName
+      chkNew: CHECKBOX_ON,
+      chkOverride: CHECKBOX_OFF,
+      searchName: event.currentTarget.value
     });
-  };
-
-  populateSlug = (event: SyntheticEvent<HTMLInputElement>) => {
-    let { slug } = this.state;
-
-    if (slug === '')
-      slug = slugify(event.currentTarget.value, {
-        lower: true,
-        strict: true
-      });
-
-    this.setState({ slug });
-  };
-
-  setSlug = (event: SyntheticEvent<HTMLInputElement>) => {
-    const slug = slugify(event.currentTarget.value, {
-      lower: true,
-      strict: true
-    });
-    this.setState({
-      slug
-    });
-  };
-
-  setNew = () => {
-    if (typeof this.chkOverRef.toggle === 'function')
-      this.chkOverRef.toggle(CHECKBOX_OFF);
   };
 
   saveSearch = async () => {
-    const { slug, overwriteId, chkOverwrite } = this.state;
-    let { searchName } = this.state;
-    const { searchState, updateValue, sendFlash } = this.props;
+    const { chkNew } = this.state;
+    let { searchId, searchName } = this.state;
+    const { searchState, updateValue } = this.props;
     const db = global.SearchDb;
     searchState.actionList = [];
     searchState.airingList = [];
@@ -153,52 +133,76 @@ class SavedSearch extends Component<Props, State> {
     searchState.skip = 0;
     searchState.recordCount = 0;
 
-    if (chkOverwrite === CHECKBOX_OFF && overwriteId === '') {
+    let show = true;
+    if (searchId === 0 || chkNew === CHECKBOX_ON) {
       searchName = searchName.trim();
-      const check = await db.asyncFindOne({ slug });
+      const check = await db.asyncFindOne({ name: searchName });
 
-      if (!check && searchName) {
+      if (!check || !searchName) {
         const newRec: SavedSearchType = {
-          slug,
           name: searchName,
           state: searchState,
           created: new Date().toISOString(),
           version: '1'
         };
 
-        const rec = await db.asyncInsert(newRec);
-        sendFlash({ message: 'Saved!' });
-        this.setState({
-          chkOverwrite: CHECKBOX_OFF,
-          show: false
-        });
+        const result = await db.asyncInsert(newRec);
         // eslint-disable-next-line no-underscore-dangle
-        updateValue(rec._id);
+        searchId = result._id;
+        this.setState({
+          // eslint-disable-next-line no-underscore-dangle
+          searchId,
+          alertType: 'success',
+          alertText: 'Saved!',
+          chkNew: CHECKBOX_ON,
+          chkOverride: CHECKBOX_OFF
+        });
+        updateValue(searchId);
+        show = false;
       } else {
-        let message = 'Slug is empty or already exists!';
+        let msg = 'That name is empty or already exists!';
         if (!searchName) {
-          message = 'Name cannot be empty';
+          msg = 'Name cannot be empty';
         }
-        sendFlash({ type: 'danger', message });
+        this.setState({
+          alertType: 'danger',
+          alertText: msg
+        });
       }
     } else {
-      await db.asyncUpdate(
-        { _id: overwriteId },
-        {
-          $set: { slug, state: searchState, updated: new Date().toISOString() }
-        }
+      const result = db.asyncUpdate(
+        { _id: searchId },
+        { $set: { state: searchState, updated: new Date().toISOString() } }
       );
-      sendFlash({ message: 'Updated!' });
+      console.log('update result', result);
       this.setState({
-        chkOverwrite: CHECKBOX_OFF,
-        show: false
+        alertType: 'success',
+        alertText: 'Updated!',
+        chkNew: CHECKBOX_ON,
+        chkOverride: CHECKBOX_OFF
       });
-      updateValue(overwriteId);
+      updateValue(searchId);
+      show = false;
     }
+
+    setTimeout(
+      () => {
+        this.setState({ show, alertType: '', alertText: '' });
+      },
+      show ? 2000 : 1000
+    );
   };
 
   render() {
-    const { show, slug, searchName, overwriteId, chkOverwrite } = this.state;
+    const {
+      show,
+      searchId,
+      searchName,
+      chkNew,
+      chkOverride,
+      alertText,
+      alertType
+    } = this.state;
     const { searchState, recordCount } = this.props;
     const { searches } = this.props;
 
@@ -217,7 +221,7 @@ class SavedSearch extends Component<Props, State> {
               className="badge-sm"
             />
           </>
-        ) //
+        )
       });
     });
 
@@ -232,10 +236,8 @@ class SavedSearch extends Component<Props, State> {
           size="xs"
           variant="primary"
           onClick={this.handleShow}
-          title="Save this search"
         >
-          <span className="fa fa-save pr-1" />
-          {searchState.savedSearchFilter ? 'save as' : 'save'}
+          <span className="fa fa-save pr-1" /> save
         </Button>
         <Modal
           size="md"
@@ -254,13 +256,13 @@ class SavedSearch extends Component<Props, State> {
                   <Col md="2">
                     <InputGroup size="sm">
                       <InputGroup.Prepend>
-                        <InputGroup.Text title="Overwrite">
+                        <InputGroup.Text title="Override">
                           <div style={{ maxHeight: '20px' }}>
                             <Checkbox
                               ref={chkOverRef => (this.chkOverRef = chkOverRef)}
                               handleChange={this.toggleType}
                               label="Overwrite:"
-                              checked={chkOverwrite}
+                              checked={chkOverride}
                             />
                           </div>
                         </InputGroup.Text>
@@ -272,10 +274,10 @@ class SavedSearch extends Component<Props, State> {
                       options={options}
                       placeholder="select saved search"
                       name="overwriteId"
-                      onChange={this.changeOverwrite}
+                      onChange={this.changeOverride}
                       styles={SelectStyles('30px')}
                       value={options.filter(
-                        option => option.value === overwriteId
+                        option => option.value === searchId
                       )}
                     />
                   </Col>
@@ -287,52 +289,36 @@ class SavedSearch extends Component<Props, State> {
                     </b>
                   </Col>
                 </Row>
-              </> //
+              </>
             ) : (
               ''
             )}
-            <Row onFocus={this.setNew}>
+            <Row>
+              <Col md="2">
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text title="New name">
+                      <div style={{ maxHeight: '18px' }} className="pr-3">
+                        <Checkbox
+                          ref={chkNewRef => (this.chkNewRef = chkNewRef)}
+                          handleChange={this.toggleType}
+                          label="Name:"
+                          checked={chkNew}
+                        />
+                      </div>
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+                </InputGroup>
+              </Col>
               <Col className="ml-2">
-                <Row>
-                  <Col>
-                    <InputGroup size="sm">
-                      <InputGroup.Prepend>
-                        <InputGroup.Text title="Name" style={{ width: '50px' }}>
-                          Name:
-                        </InputGroup.Text>
-                      </InputGroup.Prepend>
-                      <Form.Control
-                        autoFocus
-                        size="sm"
-                        value={searchName}
-                        style={{ maxHeight: '30px' }}
-                        type="text"
-                        placeholder="name for this search"
-                        onChange={this.setSearchName}
-                        onBlur={this.populateSlug}
-                      />
-                    </InputGroup>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col>
-                    <InputGroup size="sm">
-                      <InputGroup.Prepend>
-                        <InputGroup.Text title="Slug" style={{ width: '50px' }}>
-                          Slug:
-                        </InputGroup.Text>
-                      </InputGroup.Prepend>
-                      <Form.Control
-                        size="sm"
-                        value={slug}
-                        style={{ maxHeight: '30px', width: '50px' }}
-                        type="text"
-                        placeholder="unique slug for this search"
-                        onChange={this.setSlug}
-                      />
-                    </InputGroup>
-                  </Col>
-                </Row>
+                <Form.Control
+                  size="sm"
+                  value={searchName}
+                  style={{ maxHeight: '30px' }}
+                  type="text"
+                  placeholder="search name"
+                  onChange={this.setSearchName}
+                />
               </Col>
             </Row>
             <Row>
@@ -341,17 +327,24 @@ class SavedSearch extends Component<Props, State> {
                   Currently matches
                   <Badge variant="info" pill className="pt-1 pb-1 ml-1 mr-1">
                     {recordCount}
-                  </Badge>
+                  </Badge>{' '}
                   recordings
                 </div>
 
                 <div>
-                  <MatchesToBadges matches={matches} prefix="save-dlg" />
+                  <MatchesToBadges
+                    matches={matches}
+                    prefix="save-dlg"
+                    className=""
+                  />
                 </div>
               </Col>
             </Row>
           </Modal.Body>
           <Modal.Footer>
+            <Alert variant={alertType} size="sm">
+              {alertText}
+            </Alert>
             <Button variant="primary" onClick={this.saveSearch}>
               Save
             </Button>
@@ -361,13 +354,12 @@ class SavedSearch extends Component<Props, State> {
             </Button>
           </Modal.Footer>
         </Modal>
-      </> //
+      </>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators(FlashActions, dispatch);
+type Option = {
+  value: string,
+  label: any
 };
-
-export default connect<*, *, *, *, *, *>(null, mapDispatchToProps)(SavedSearch);

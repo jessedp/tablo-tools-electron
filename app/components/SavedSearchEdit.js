@@ -1,27 +1,16 @@
 // @flow
 import React, { Component } from 'react';
-
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { InputGroup, Form } from 'react-bootstrap';
-import slugify from 'slugify';
+import MatchesToBadges from './SearchFilterMatches';
+import RelativeDate from './RelativeDate';
 
-import type { FlashRecordType } from '../reducers/types';
-import * as FlashActions from '../actions/flash';
+type Props = { onClose: Function => Promise<any> };
+type State = { show: boolean };
 
-type Props = {
-  searchId: string,
-  updateValue: Function => any,
-  sendFlash: (message: FlashRecordType) => void
-};
-type State = { name: string, slug: string, show: boolean };
-
-class SavedSearchEdit extends Component<Props, State> {
+export default class SavedSearchEdit extends Component<Props, State> {
   props: Props;
 
   searchList: [];
@@ -29,7 +18,7 @@ class SavedSearchEdit extends Component<Props, State> {
   constructor() {
     super();
 
-    this.state = { name: '', slug: '', show: false };
+    this.state = { show: false };
     this.searchList = [];
 
     (this: any).handleShow = this.handleShow.bind(this);
@@ -37,24 +26,13 @@ class SavedSearchEdit extends Component<Props, State> {
     (this: any).deleteSearch = this.deleteSearch.bind(this);
   }
 
-  componentDidMount = () => {
-    this.refresh();
-  };
-
-  componentDidUpdate(prevProps: Props) {
-    const { searchId } = this.props;
-    if (prevProps.searchId !== searchId) {
-      this.refresh();
-    }
-  }
-
-  refresh = async () => {
-    const { searchId } = this.props;
-    const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
-    if (rec) this.setState({ name: rec.name, slug: rec.slug });
+  componentDidMount = async () => {
+    this.searchList = await global.SearchDb.asyncFind({});
   };
 
   handleClose() {
+    const { onClose } = this.props;
+    onClose();
     this.setState({ show: false });
   }
 
@@ -62,92 +40,15 @@ class SavedSearchEdit extends Component<Props, State> {
     this.setState({ show: true });
   };
 
-  deleteSearch = async () => {
-    const { searchId, updateValue, sendFlash } = this.props;
-    const { name } = this.state;
-
-    await global.SearchDb.asyncRemove({ _id: searchId });
-    sendFlash({ message: `"${name}" saved search deleted!` });
-    updateValue();
-    this.setState({ show: false });
-  };
-
-  setName = (event: SyntheticEvent<HTMLInputElement>) => {
-    const name = event.currentTarget.value;
-    this.setState({
-      name
-    });
-  };
-
-  populateSlug = (event: SyntheticEvent<HTMLInputElement>) => {
-    let { slug } = this.state;
-
-    if (slug === '')
-      slug = slugify(event.currentTarget.value, {
-        lower: true,
-        strict: true
-      });
-
-    this.setState({ slug });
-  };
-
-  setSlug = (event: SyntheticEvent<HTMLInputElement>) => {
-    const slug = slugify(event.currentTarget.value, {
-      lower: true,
-      strict: true
-    });
-    this.setState({
-      slug
-    });
-  };
-
-  saveSearch = async () => {
-    const { searchId, updateValue, sendFlash } = this.props;
-    const { slug } = this.state;
-    let { name } = this.state;
-
-    name = name.trim();
-
-    if (!name) {
-      sendFlash({ message: 'Name cannot be empty', type: 'danger' });
-      return;
-    }
-    if (!slug) {
-      sendFlash({ message: 'Slug cannot be empty', type: 'danger' });
-      return;
-    }
-
-    let rec = await global.SearchDb.asyncFindOne({ slug });
-    // eslint-disable-next-line no-underscore-dangle
-    if (rec && rec._id !== searchId) {
-      sendFlash({
-        message: 'Slug is empty or already exists!',
-        type: 'danger'
-      });
-      return;
-    }
-    // TODO: this nonsense is because nedb doesn't want to update fields, just docs
-    if (!rec) {
-      rec = await global.SearchDb.asyncFindOne({ _id: searchId });
-    }
-
-    // eslint-disable-next-line no-underscore-dangle
-    delete rec._id;
-    rec = { ...rec, ...{ name, slug, updated: new Date().toISOString() } };
-
-    await global.SearchDb.asyncRemove({ _id: searchId });
-    rec = await global.SearchDb.asyncInsert(rec);
-
-    sendFlash({ message: 'Updated!' });
-    this.setState({
-      show: false
-    });
-    // eslint-disable-next-line no-underscore-dangle
-    updateValue(rec._id);
+  deleteSearch = async (id: string) => {
+    console.log('id', id);
+    await global.SearchDb.asyncRemove({ _id: id });
+    this.searchList = await global.SearchDb.asyncFind({});
+    this.setState({ show: true });
   };
 
   render() {
-    const { name, slug, show } = this.state;
+    const { show } = this.state;
 
     return (
       <>
@@ -160,89 +61,77 @@ class SavedSearchEdit extends Component<Props, State> {
           <span className="fa fa-edit pl-1 pt-1 text-primary" />
         </Button>
         <Modal
-          size="sm"
+          size="xl"
           show={show}
           onHide={this.handleClose}
           animation={false}
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edit Saved Search</Modal.Title>
+            <Modal.Title>Saved Searches</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>
-              <Col className="ml-2">
-                <Row>
-                  <Col>
-                    <InputGroup size="sm">
-                      <InputGroup.Prepend>
-                        <InputGroup.Text title="Name" style={{ width: '50px' }}>
-                          Name:
-                        </InputGroup.Text>
-                      </InputGroup.Prepend>
-                      <Form.Control
-                        autoFocus
-                        size="sm"
-                        value={name}
-                        style={{ maxHeight: '30px' }}
-                        type="text"
-                        placeholder="name for this search"
-                        onChange={this.setName}
-                        onBlur={this.populateSlug}
-                      />
-                    </InputGroup>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col>
-                    <InputGroup size="sm">
-                      <InputGroup.Prepend>
-                        <InputGroup.Text title="Slug" style={{ width: '50px' }}>
-                          Slug:
-                        </InputGroup.Text>
-                      </InputGroup.Prepend>
-                      <Form.Control
-                        size="sm"
-                        value={slug}
-                        style={{ maxHeight: '30px', width: '50px' }}
-                        type="text"
-                        placeholder="unique slug for this search"
-                        onChange={this.setSlug}
-                      />
-                    </InputGroup>
-                  </Col>
-                </Row>
+              <Col md="8" />
+              <Col md="2">
+                <i>created</i>
+              </Col>
+              <Col md="2">
+                <i>updated</i>
               </Col>
             </Row>
-            <Modal.Footer>
-              <Button
-                variant="danger"
-                className="mr-2"
-                onClick={this.deleteSearch}
-              >
-                Delete
-              </Button>
-
-              <Button variant="primary" onClick={this.saveSearch}>
-                Save
-              </Button>
-
-              <Button variant="secondary" onClick={this.handleClose}>
-                Cancel
-              </Button>
-            </Modal.Footer>
+            {this.searchList.map(item => {
+              // eslint-disable-next-line no-underscore-dangle
+              const id = item._id;
+              return (
+                <Search
+                  search={item}
+                  key={`${id}-edit-row`}
+                  onDelete={this.deleteSearch}
+                />
+              );
+            })}
           </Modal.Body>
         </Modal>
-      </> //
+      </>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators(FlashActions, dispatch);
-};
+function Search(prop) {
+  const { search, onDelete } = prop;
+  // eslint-disable-next-line no-underscore-dangle
+  const id = search._id;
 
-export default connect<*, *, *, *, *, *>(
-  null,
-  mapDispatchToProps
-)(SavedSearchEdit);
+  // console.log(Date(search.created)
+  return (
+    <Row className="border-top mt-2 p-2">
+      <Col md="3">
+        <Button
+          className="pt-0 mt-0"
+          size="xs"
+          variant="link"
+          onClick={() => onDelete(id)}
+          title="Delete saved search"
+        >
+          <span className="fa fa-stop-circle pl-1 pt-1 text-danger" />
+        </Button>
+
+        {search.name}
+      </Col>
+      <Col md="5">
+        <MatchesToBadges
+          matches={search.state.searchAlert.matches}
+          prefix="edit-list"
+          className=""
+        />
+      </Col>
+      <Col md="2">
+        <RelativeDate date={search.created} term="ago" />
+      </Col>
+      <Col md="2">
+        <RelativeDate date={search.updated} term="ago" />
+      </Col>
+    </Row>
+  );
+}

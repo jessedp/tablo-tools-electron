@@ -3,15 +3,11 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 
 import Modal from 'react-bootstrap/Modal';
-
-import { Player } from 'video-react';
-import HLSSource from './HLSSource';
-
-// import MyPlayer from './MyPlayer';
+import MyPlayer from './MyPlayer';
 import Airing from '../utils/Airing';
 
 type Props = { airing: Airing };
-type State = { opened: boolean, url: string };
+type State = { opened: boolean };
 
 export default class TabloVideoPlayer extends Component<Props, State> {
   props: Props;
@@ -19,30 +15,24 @@ export default class TabloVideoPlayer extends Component<Props, State> {
   constructor() {
     super();
     this.state = {
-      opened: false,
-      url: ''
+      opened: false
     };
     (this: any).toggle = this.toggle.bind(this);
   }
 
-  toggle = async () => {
-    const { airing } = this.props;
+  toggle() {
     const { opened } = this.state;
-    let { url } = this.state;
-
-    if (!opened) {
-      const watch = await airing.watch();
-      url = watch.playlist_url;
-    }
-    this.setState({ opened: !opened, url });
-  };
+    this.setState({
+      opened: !opened
+    });
+  }
 
   render() {
     const { airing } = this.props;
-    const { opened, url } = this.state;
+    const { opened } = this.state;
 
-    if (!opened) {
-      return (
+    return (
+      <>
         <Button
           variant="outline-secondary"
           size="xs"
@@ -51,11 +41,7 @@ export default class TabloVideoPlayer extends Component<Props, State> {
         >
           <span className="fa fa-play-circle" />
         </Button>
-      );
-    }
 
-    return (
-      <>
         <Modal size="lg" show={opened} onHide={this.toggle} centered>
           <Modal.Header closeButton>
             <Modal.Title>
@@ -63,16 +49,10 @@ export default class TabloVideoPlayer extends Component<Props, State> {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {!airing.cachedWatch ? (
-              <div>Loading...</div>
-            ) : (
-              <Player fluid width={300} height={240}>
-                <HLSSource isVideoChild src={url} video={{}} type="" />
-              </Player>
-            )}
+            <MyPlayer airing={airing} />
           </Modal.Body>
         </Modal>
-      </> //
+      </>
     );
   }
 }
