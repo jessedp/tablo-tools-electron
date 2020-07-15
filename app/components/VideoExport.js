@@ -8,8 +8,7 @@ import {
   EXP_WORKING,
   EXP_DONE,
   EXP_CANCEL,
-  EXP_FAIL,
-  ExportLogRecordType
+  EXP_FAIL
 } from '../constants/app';
 
 import {
@@ -19,8 +18,6 @@ import {
 } from '../utils/utils';
 import Airing from '../utils/Airing';
 import { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
-import getConfig from '../utils/config';
-import { ExportLogRecord } from '../utils/factories';
 
 type Props = {
   airingList: Array<Airing>,
@@ -41,8 +38,6 @@ const VideoExport = (WrappedComponent: any) => {
     static defaultProps: {};
 
     shouldCancel: boolean;
-
-    logRecord: ExportLogRecordType;
 
     timings: Object;
 
@@ -97,7 +92,7 @@ const VideoExport = (WrappedComponent: any) => {
     };
 
     updateProgress = (airingId: number, progress: Object) => {
-      const { atOnce, deleteOnFinish, actionOnDuplicate } = this.state;
+      const { deleteOnFinish } = this.state;
       const { exportList, updateExportRecord } = this.props;
       const record: ExportRecordType = exportList.find(
         rec => rec.airing.object_id === airingId
@@ -106,19 +101,11 @@ const VideoExport = (WrappedComponent: any) => {
 
       const { airing } = record;
 
-      if (!this.logRecord) {
-        this.logRecord = ExportLogRecord(airing);
-        this.logRecord.deleteOnFinish = deleteOnFinish;
-        this.logRecord.atOnce = atOnce;
-        this.logRecord.dupeAction = actionOnDuplicate;
-      }
-
       if (!this.timings[airing.id]) {
         this.timings[airing.id] = { start: Date.now(), duration: 0 };
       }
       const timing = this.timings[airing.id];
 
-      let dumpLog = false;
       if (progress.finished) {
         if (deleteOnFinish === CHECKBOX_ON) {
           airing.delete();
@@ -129,27 +116,18 @@ const VideoExport = (WrappedComponent: any) => {
           exportLabel: 'Complete',
           log: progress.log
         };
-
-        this.logRecord.status = EXP_DONE;
-        dumpLog = true;
       } else if (progress.cancelled) {
         record.state = EXP_CANCEL;
         record.progress = {
           exportInc: 0,
           exportLabel: 'Cancelled'
         };
-
-        this.logRecord.status = EXP_CANCEL;
-        dumpLog = true;
       } else if (progress.failed) {
         record.state = EXP_FAIL;
         record.progress = {
           exportInc: 0,
           exportLabel: 'Failed'
         };
-
-        this.logRecord.status = EXP_FAIL;
-        dumpLog = true;
       } else {
         // const pct = progress.percent  doesn't always work, so..
         const pct = Math.round(
@@ -167,13 +145,6 @@ const VideoExport = (WrappedComponent: any) => {
           exportInc: pct,
           exportLabel: label
         };
-      }
-
-      if (dumpLog) {
-        this.logRecord.ffmpegLog = progress.log;
-        this.logRecord.endTime = new Date().toLocaleString();
-        global.ExportLogDb.asyncInsert(this.logRecord);
-        this.logRecord = null;
       }
 
       timing.duration = Date.now() - timing.start;

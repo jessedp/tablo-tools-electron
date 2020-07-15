@@ -41,15 +41,7 @@ export default class TitleSlim extends Component<Props> {
 
       return (
         <div className="d-inline-block">
-          <Row
-            style={{
-              fontSize: 'small',
-              maxHeight: '24px',
-              overflowY: 'auto',
-              maxWidth: '55vw'
-            }}
-            className=""
-          >
+          <Row style={{ fontSize: 'small' }}>
             <Col>
               {episodeContent}
               {showTitle}

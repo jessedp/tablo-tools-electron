@@ -80,7 +80,6 @@ export const defaultConfig: ConfigType = {
   movieTemplate: 'tablo-tools',
   eventTemplate: 'tablo-tools',
   programTemplate: 'tablo-tools',
-  actionOnDuplicate: DUPE_INC,
 
   saveData: []
 };

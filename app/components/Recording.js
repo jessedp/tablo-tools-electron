@@ -19,7 +19,6 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
 import AiringDetailsModal from './AiringDetailsModal';
-import { getTabloImageUrl } from '../utils/utils';
 
 type Props = {
   airing: Airing,
@@ -103,22 +102,6 @@ class Recording extends Component<Props, State> {
     }
     return (
       <Container className={classes}>
-        <img
-          alt="background"
-          src={getTabloImageUrl(airing.show.cover)}
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: 'auto',
-            opacity: '0.2',
-            zIndex: '-1',
-            overflow: 'hidden',
-            overflowY: 'hidden'
-          }}
-        />
-
         <Row>
           <Col md="3" className="ml-0 mr-0 pl-0 pr-0">
             <TabloImage

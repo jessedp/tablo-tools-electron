@@ -103,19 +103,6 @@ export const makeNamingDb = () => {
   });
 };
 
-export const makeExportLoggingDb = () => {
-  const device = store.get('CurrentDevice');
-  if (!device.serverid) return null;
-  const namingDbName = `export-log.db`;
-  const namingFile = path.join(dataDir, namingDbName);
-
-  return new AsyncNedb({
-    filename: namingFile,
-    autoload: true,
-    inMemoryOnly: false
-  });
-};
-
 export const setupDb = async () => {
   if (!hasDevice()) return;
 
@@ -124,6 +111,5 @@ export const setupDb = async () => {
   global.ChannelDb = makeChannelDb();
   global.SearchDb = makeSearchDb();
   global.NamingDb = makeNamingDb();
-  global.ExportLogDb = makeExportLoggingDb();
   PubSub.publish('DB_CHANGE', true);
 };

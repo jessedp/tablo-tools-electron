@@ -11,7 +11,6 @@ import Airing, { ensureAiringArray } from '../utils/Airing';
 import type { SearchAlert } from '../utils/types';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';
-import { ON } from '../constants/app';
 
 type Props = {
   results: Object
@@ -73,14 +72,11 @@ class SearchResults extends Component<Props, State> {
     let rows = [];
     if (!loading) {
       rows = airingList.map(airing => {
-        if (view === 'list') {
+        if (view === 'slim') {
           return (
             <RecordingSlim
               key={`recording-${airing.object_id}`}
               airing={airing}
-              withShow={ON}
-              withSelect={ON}
-              withActions={ON}
             />
           );
         }
@@ -105,7 +101,7 @@ class SearchResults extends Component<Props, State> {
 
 function Loading(prop) {
   const { loading } = prop;
-  if (!loading) return <></>; //
+  if (!loading) return <></>;
 
   return (
     <div

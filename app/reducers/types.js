@@ -13,9 +13,7 @@ export type actionListType = {
 export type ExportRecordType = {
   airing: Airing,
   state: number,
-  progress: Object,
-  startTime: Date,
-  endTime: Date
+  progress: Object
 };
 
 export type FlashRecordType = {

@@ -16,8 +16,6 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import { ON, OFF } from '../constants/app';
 import VideoExportModal from './VideoExportModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
-import AiringDetailsModal from './AiringDetailsModal';
-import ConfirmDelete from './ConfirmDelete';
 
 type Props = {
   doDelete: () => void,
@@ -72,7 +70,7 @@ class RecordingSlim extends Component<Props> {
     if (withShow === ON) {
       showCol = (
         <div className="d-inline-block align-top mr-2 ">
-          <TabloImage imageId={airing.thumbnail} className="menu-image-md" />
+          <TabloImage imageId={airing.image} className="menu-image-md" />
         </div>
       );
     }
@@ -87,10 +85,7 @@ class RecordingSlim extends Component<Props> {
 
     return (
       <>
-        <Row
-          className="border-bottom mb-1 pb-1 pr-2"
-          style={{ width: '100%', maxHeight: '55px' }}
-        >
+        <Row className="border-bottom mb-1 pb-1 pr-2" style={{ width: '100%' }}>
           <Col md="8">
             {showCol}
             <TitleSlim airing={airing} withShow={OFF} />
@@ -99,14 +94,9 @@ class RecordingSlim extends Component<Props> {
             <div className="">
               <div className="d-flex flex-row-reverse d-block">
                 {chkCol}
-                <div
-                  className="smaller text-secondary align-top d-inline-block pt-1"
-                  style={{ width: '110px' }}
-                >
-                  <span className="fa fa-clock pr-2 " />
-                  <span>
-                    {airing.actualDuration} / {airing.duration}
-                  </span>
+                <div className="smaller text-secondary align-top d-inline-block pt-1">
+                  <span className="fa fa-clock pr-1" />
+                  {airing.actualDuration} / {airing.duration}
                 </div>
                 <div className="d-inline-block mr-3">
                   <AiringStatus airing={airing} />
@@ -115,13 +105,9 @@ class RecordingSlim extends Component<Props> {
             </div>
             {withActions === ON ? (
               <div className="d-flex flex-row-reverse">
-                <ConfirmDelete airing={airing} />
-                &nbsp;
-                <VideoExportModal airing={airing} />
+                <VideoExportModal airingList={[airing]} />
                 &nbsp;
                 <TabloVideoPlayer airing={airing} />
-                &nbsp;
-                <AiringDetailsModal airing={airing} />
               </div>
             ) : (
               ''
