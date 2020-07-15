@@ -49,6 +49,7 @@ type Season = {
 export type SearchState = {
   skip: number,
   limit: number,
+  view: string,
   searchValue: string,
   typeFilter: string,
   stateFilter: string,
@@ -92,6 +93,7 @@ class SearchForm extends Component<Props, SearchState> {
     this.initialState = {
       skip: 0,
       limit: 50,
+      view: 'grid',
       searchValue: '',
       typeFilter: 'any',
       stateFilter: 'any',
@@ -155,6 +157,7 @@ class SearchForm extends Component<Props, SearchState> {
 
     (this: any).handlePageClick = this.handlePageClick.bind(this);
     (this: any).updatePerPage = this.updatePerPage.bind(this);
+    (this: any).changeView = this.changeView.bind(this);
     (this: any).refresh = this.refresh.bind(this);
   }
 
@@ -204,6 +207,11 @@ class SearchForm extends Component<Props, SearchState> {
     this.search();
   };
 
+  changeView = async (event: Option) => {
+    await this.setState({ view: event.value });
+    this.search();
+  };
+
   async refresh() {
     this.showsList = await showList();
     this.savedSearchList = await global.SearchDb.asyncFind({});
@@ -213,7 +221,7 @@ class SearchForm extends Component<Props, SearchState> {
 
   showSelected = async () => {
     const { sendResults } = this.props;
-    const { actionList } = this.state;
+    const { view, actionList } = this.state;
     let { searchAlert } = this.state;
     console.log('showSelected');
 
@@ -254,6 +262,7 @@ class SearchForm extends Component<Props, SearchState> {
 
     sendResults({
       loading: false,
+      view,
       airingList: actionList,
       searchAlert,
       actionList
@@ -286,11 +295,12 @@ class SearchForm extends Component<Props, SearchState> {
   };
 
   resetSearch = async () => {
-    const { actionList, sortFilter, limit } = this.state;
+    const { actionList, view, sortFilter, limit } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
     newState.sortFilter = sortFilter;
     newState.limit = limit;
+    newState.view = view;
     await this.setStateStore(newState);
     this.refresh();
   };
@@ -437,6 +447,7 @@ class SearchForm extends Component<Props, SearchState> {
     const {
       skip,
       limit,
+      view,
       percent,
       searchValue,
       stateFilter,
@@ -662,6 +673,7 @@ class SearchForm extends Component<Props, SearchState> {
     }
 
     sendResults({
+      view,
       loading: false,
       searchAlert: alert,
       airingList
@@ -686,7 +698,8 @@ class SearchForm extends Component<Props, SearchState> {
       seasonList,
       percent,
       recordCount,
-      limit
+      limit,
+      view
     } = this.state;
 
     let { percentLocation } = this.state;
@@ -826,51 +839,39 @@ class SearchForm extends Component<Props, SearchState> {
           </Col>
         </Row>
 
-        <Row>
-          <Col md="5" />
-          <Col md="7">
-            <Row>
-              <Col md="8">
-                {recordCount >= limit && limit !== -1 ? (
-                  <ReactPaginate
-                    previousLabel={
-                      <span
-                        className="fa fa-arrow-left"
-                        title="previous page"
-                      />
-                    }
-                    nextLabel={
-                      <span className="fa fa-arrow-right" title="next page" />
-                    }
-                    breakLabel="..."
-                    breakClassName="break-me"
-                    pageCount={Math.ceil(recordCount / limit)}
-                    marginPagesDisplayed={2}
-                    pageRangeDisplayed={parseInt(limit, 10)}
-                    onPageChange={this.handlePageClick}
-                    containerClassName="pagination"
-                    subContainerClassName="pages pagination"
-                    activeClassName="active-page"
-                  />
-                ) : (
-                  <></> //
-                )}
-              </Col>
-              <Col md="3" className="mr-0">
-                <div className="d-flex flex-row">
-                  <PerPageFilter
-                    value={`${limit}`}
-                    onChange={this.updatePerPage}
-                  />
-                  <SortFilter
-                    value={`${sortFilter}`}
-                    onChange={this.sortChange}
-                  />
-                </div>
-              </Col>
-            </Row>
+        <Row className="">
+          <Col md="9">
+            {recordCount >= limit && limit !== -1 ? (
+              <ReactPaginate
+                previousLabel={
+                  <span className="fa fa-arrow-left" title="previous page" />
+                }
+                nextLabel={
+                  <span className="fa fa-arrow-right" title="next page" />
+                }
+                breakLabel="..."
+                breakClassName="break-me"
+                pageCount={Math.ceil(recordCount / limit)}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={parseInt(limit, 10)}
+                onPageChange={this.handlePageClick}
+                containerClassName="pagination"
+                subContainerClassName="pages pagination"
+                activeClassName="active-page"
+              />
+            ) : (
+              <></> //
+            )}
+          </Col>
+          <Col md="3" className="">
+            <div className="d-flex flex-row-reverse mr-3">
+              <ViewFilter value={`${view}`} onChange={this.changeView} />
+              <SortFilter value={`${sortFilter}`} onChange={this.sortChange} />
+              <PerPageFilter value={`${limit}`} onChange={this.updatePerPage} />
+            </div>
           </Col>
         </Row>
+
         <SearchResults />
       </>
     );
@@ -1179,7 +1180,7 @@ function SortFilter(props: filterProps) {
       ...provided,
       height,
       minHeight: height,
-      minWidth: 75,
+      minWidth: 55,
       width: '100%',
       maxWidth: 600,
       background: '#fff',
@@ -1229,6 +1230,90 @@ function SortFilter(props: filterProps) {
   );
 }
 SortFilter.defaultProps = { shows: [], seasons: [], searches: [] };
+
+function ViewFilter(props: filterProps) {
+  const { value, onChange } = props;
+
+  const options = [
+    {
+      value: 'grid',
+      label: (
+        <div title="grid">
+          <span className="fa fa-th pl-2 muted" />
+        </div>
+      )
+    },
+    {
+      value: 'list',
+      label: (
+        <div title="list">
+          <span className="fa fa-list pl-2 muted" />
+        </div>
+      )
+    }
+  ];
+
+  const height = '24px';
+  const customStyles = {
+    container: base => ({
+      ...base,
+      flex: 1,
+      fontSize: '10px'
+    }),
+    control: provided => ({
+      ...provided,
+      height,
+      minHeight: height,
+      minWidth: 20,
+      width: '100%',
+      maxWidth: 30,
+      background: '#fff',
+      border: 0,
+      marginLeft: '5px'
+    }),
+    valueContainer: provided => ({
+      ...provided,
+      height,
+      paddingLeft: '10px'
+    }),
+    menu: provided => ({
+      ...provided,
+      minWidth: 40,
+      width: '100%',
+      maxWidth: 500,
+      zIndex: '99999'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      fontSize: '12px',
+      borderBottom: '1px solid #CCC',
+      padding: '10px 0 10px 5px',
+      color: '#3E3F3A',
+      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor
+    }),
+    indicatorSeparator: base => ({ ...base, display: 'none' }),
+    dropdownIndicator: base => ({ ...base, display: 'none' })
+  };
+
+  return (
+    <div>
+      <div className="input-group input-group-sm" title="View">
+        <div>
+          <Select
+            options={options}
+            name="view"
+            onChange={onChange}
+            placeholder="view..."
+            styles={customStyles}
+            value={options.filter(option => `${option.value}` === `${value}`)}
+            components={{ DropdownIndicator }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+ViewFilter.defaultProps = { shows: [], seasons: [], searches: [] };
 
 const DropdownIndicator = props => {
   // eslint-disable-next-line react/prop-types

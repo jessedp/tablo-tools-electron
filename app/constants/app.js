@@ -40,6 +40,25 @@ export type NamingTemplateType = {
   template: string
 };
 
+export type ExportLogRecordType = {
+  server_id: string,
+  via: string,
+  object_id: number,
+  startTime: Date,
+  endTime: Date,
+  status: string,
+  atOnce: number,
+  origPath: string,
+  realPath: string,
+
+  deleteOnFinish: boolean,
+  dupeAction: string,
+
+  result: string,
+  ffmpeglog: Array<string>,
+  airingData: Object
+};
+
 export const versionUpdateTestMessage2 = {
   available: true,
   info: {

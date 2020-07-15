@@ -20,14 +20,11 @@ export async function setupApi() {
   if (!currentDevice || currentDevice[0] === true) {
     // eslint-disable-next-line prefer-destructuring
     currentDevice = global.discoveredDevices[0];
-    setCurrentDevice(currentDevice, false);
     store.delete('LastDevice');
     store.delete('last_device');
-
     localStorage.removeItem('LastDbBuild');
-  } else {
-    global.Api.device = store.get('CurrentDevice');
   }
+  setCurrentDevice(currentDevice, false);
 }
 
 export function setCurrentDevice(device, publish = true) {
@@ -49,6 +46,15 @@ export function setCurrentDevice(device, publish = true) {
     );
     store.delete('CurrentDevice');
   }
+
+  global.Api.get('/settings/info')
+    .then(info => {
+      global.Api.device.info = info;
+      return 'why';
+    })
+    .catch(e => {
+      console.error('Unable to load settings/info', e);
+    });
 }
 
 export const discover = async () => {
@@ -127,9 +133,14 @@ export const comskipAvailable = () => {
 
   if (!global.CONNECTED) return false;
 
-  if (currentDevice.server_version) {
-    const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
-    return compareVersions(testVersion, '2.2.26') >= 0;
+  if (!currentDevice.server_version) return false;
+
+  const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
+  if (!compareVersions.compare(testVersion, '2.2.26', '>=')) return false;
+
+  if (global.Api.device.info && global.Api.device.info.commercial_skip) {
+    return global.Api.device.info.commercial_skip === 'on';
   }
+
   return false;
 };

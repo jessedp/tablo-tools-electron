@@ -7,16 +7,25 @@ import Button from 'react-bootstrap/Button';
 import { Alert } from 'react-bootstrap';
 
 import ReactJson from 'react-json-view';
-import { ON, OFF } from '../constants/app';
+import { ON } from '../constants/app';
 import RecordingOverview from './RecordingOverview';
 import Airing from '../utils/Airing';
-import RecordingSlim from './RecordingSlim';
+import RecordingMini from './RecordingMini';
 
 type Props = { airing: Airing };
 
 export default function AiringDetailsModal(props: Props) {
   const { airing } = props;
   const [show, setShow] = useState(false);
+  const [details, setExportDetails] = useState([]);
+  const [watchUrl, setWatchUrl] = useState('');
+
+  const loadExportDetails = async () => {
+    const info = airing.getExportDetails();
+    setExportDetails(info);
+    const url = await airing.watch();
+    setWatchUrl(url.playlist_url);
+  };
 
   if (!show) {
     return (
@@ -25,7 +34,7 @@ export default function AiringDetailsModal(props: Props) {
         onClick={() => setShow(true)}
         size="xs"
         title="Info"
-        className="ml-2"
+        className=""
       >
         <span className="fa fa-info-circle" />
       </Button>
@@ -61,13 +70,15 @@ export default function AiringDetailsModal(props: Props) {
         </Alert>
       </Modal.Header>
       <Modal.Body>
-        <RecordingSlim
-          airing={airing}
-          withShow={ON}
-          withSelect={ON}
-          withActions={OFF}
-        />
+        <RecordingMini airing={airing} withShow={ON} withSelect={ON} />
         <RecordingOverview airing={airing} />
+        <div className="text-lowercase text-info ml-2 pl-1 pt-0 d-block">
+          <span className="fa fa-tv pr-2" />
+          {watchUrl}
+        </div>
+        <div className="text-black-50 smaller ml-5">
+          Watch URLs will change on every load
+        </div>
         <Button
           variant="link"
           onClick={openDirectory}
@@ -82,7 +93,6 @@ export default function AiringDetailsModal(props: Props) {
             (click any <i>path</i> to open it in the browser)
           </span>
         </Alert>
-
         <ReactJson
           src={airing.data}
           enableClipboard

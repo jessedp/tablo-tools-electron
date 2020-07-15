@@ -14,10 +14,6 @@ import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 import { ON, OFF } from '../constants/app';
-import VideoExportModal from './VideoExportModal';
-import TabloVideoPlayer from './TabloVideoPlayer';
-import AiringDetailsModal from './AiringDetailsModal';
-import ConfirmDelete from './ConfirmDelete';
 
 type Props = {
   doDelete: () => void,
@@ -26,11 +22,10 @@ type Props = {
   addAiring: Airing => void,
   remAiring: Airing => void,
   withShow?: number,
-  withSelect?: number,
-  withActions?: number
+  withSelect?: number
 };
 
-class RecordingSlim extends Component<Props> {
+class RecordingMini extends Component<Props> {
   props: Props;
 
   static defaultProps: {};
@@ -63,7 +58,7 @@ class RecordingSlim extends Component<Props> {
   };
 
   render() {
-    const { airing, checked, withShow, withSelect, withActions } = this.props;
+    const { airing, checked, withShow, withSelect } = this.props;
 
     // const classes = `border pb-1 mb-2 pt-1`;
 
@@ -99,43 +94,24 @@ class RecordingSlim extends Component<Props> {
             <div className="">
               <div className="d-flex flex-row-reverse d-block">
                 {chkCol}
-                <div
-                  className="smaller text-secondary align-top d-inline-block pt-1"
-                  style={{ width: '110px' }}
-                >
-                  <span className="fa fa-clock pr-2 " />
-                  <span>
-                    {airing.actualDuration} / {airing.duration}
-                  </span>
+                <div className="smaller text-secondary align-top d-inline-block pt-1">
+                  <span className="fa fa-clock pr-1" />
+                  {airing.actualDuration} / {airing.duration}
                 </div>
                 <div className="d-inline-block mr-3">
                   <AiringStatus airing={airing} />
                 </div>
               </div>
             </div>
-            {withActions === ON ? (
-              <div className="d-flex flex-row-reverse">
-                <ConfirmDelete airing={airing} />
-                &nbsp;
-                <VideoExportModal airing={airing} />
-                &nbsp;
-                <TabloVideoPlayer airing={airing} />
-                &nbsp;
-                <AiringDetailsModal airing={airing} />
-              </div>
-            ) : (
-              ''
-            )}
           </Col>
         </Row>
       </> //
     );
   }
 }
-RecordingSlim.defaultProps = {
+RecordingMini.defaultProps = {
   withShow: OFF,
-  withSelect: OFF,
-  withActions: ON
+  withSelect: OFF
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -155,4 +131,4 @@ const mapDispatchToProps = dispatch => {
 export default connect<*, *, *, *, *, *>(
   mapStateToProps,
   mapDispatchToProps
-)(RecordingSlim);
+)(RecordingMini);
