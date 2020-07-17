@@ -65,7 +65,7 @@ class ErrorContainer extends React.Component<Props, State> {
         <Container>
           <Alert variant="danger" className="mt-3">
             <h4>Uh-oh, something went wrong!</h4>
-            {!reportingEnabled ? (
+            {reportingEnabled ? (
               <>
                 Hard to say what happened right now, but it&apos;s been
                 reported!
