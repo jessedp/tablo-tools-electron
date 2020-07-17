@@ -144,7 +144,7 @@ class MovieDetails extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={movie} />
                 &nbsp;
-                <VideoExportModal airingList={[movie]} />
+                <VideoExportModal airing={movie} />
                 <Button
                   size="xs"
                   className="ml-3 mr-2"
