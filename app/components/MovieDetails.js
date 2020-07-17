@@ -88,7 +88,7 @@ class MovieDetails extends Component<Props, State> {
     const { show } = movie;
 
     return (
-      <div className="section">
+      <div className="section overflow-hidden">
         <img
           alt="background"
           src={getTabloImageUrl(show.background)}
@@ -99,8 +99,8 @@ class MovieDetails extends Component<Props, State> {
             width: '100%',
             height: 'auto',
             opacity: '0.25',
-            zIndex: '-1',
-            maxHeight: '90vh'
+            zIndex: '-1'
+            // maxHeight: '90vh'
           }}
         />
 
@@ -144,7 +144,7 @@ class MovieDetails extends Component<Props, State> {
                 &nbsp;
                 <TabloVideoPlayer airing={movie} />
                 &nbsp;
-                <VideoExportModal airingList={[movie]} />
+                <VideoExportModal airing={movie} />
                 <Button
                   size="xs"
                   className="ml-3 mr-2"

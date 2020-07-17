@@ -6,6 +6,7 @@ import VersionInfo from '../components/VersionInfo';
 import IssueSearch from '../components/IssueSearch';
 import PermissionRequests from '../components/PermissionRequests';
 import Flash from '../components/Flash';
+import ErrorContainer from './ErrorContainer';
 
 type Props = {
   children: React.Node
@@ -26,7 +27,9 @@ export default class App extends React.Component<Props> {
           <Navbar />
         </div>
 
-        <div className="page-container pl-3 pr-0">{children}</div>
+        <div className="page-container pl-3 pr-0">
+          <ErrorContainer>{children}</ErrorContainer>
+        </div>
       </div>
     );
   }
