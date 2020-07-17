@@ -75,7 +75,7 @@ class VersionStatus extends Component<Props, State> {
       }
     });
 
-    if (notify) {
+    if (notify && this) {
       this.setState({ updateAvailable: true, record: notify });
     }
   }
