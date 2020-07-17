@@ -788,10 +788,10 @@ class SearchForm extends Component<Props, SearchState> {
               </InputGroup.Append>
             </InputGroup>
           </Col>
-          <Col md="2" className="pt-1">
+          <Col md="2" className="pt-1 pr-0">
             <InputGroup size="sm" className="d-inline">
               <Button
-                className="mb-3 mr-2"
+                className="mb-3 mr-1"
                 size="xs"
                 variant="outline-dark"
                 onClick={this.resetSearch}
