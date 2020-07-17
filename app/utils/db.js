@@ -64,17 +64,6 @@ export const makeShowDb = () => {
   });
 };
 
-export const makeSearchDb = () => {
-  const showDbName = `saved-search.db`;
-  const showFile = path.join(dataDir, showDbName);
-
-  return new AsyncNedb({
-    filename: showFile,
-    autoload: true,
-    inMemoryOnly: false
-  });
-};
-
 export const makeChannelDb = () => {
   const device = store.get('CurrentDevice');
   if (!device.serverid) return null;
@@ -88,9 +77,18 @@ export const makeChannelDb = () => {
   });
 };
 
+export const makeSearchDb = () => {
+  const showDbName = `saved-search.db`;
+  const showFile = path.join(dataDir, showDbName);
+
+  return new AsyncNedb({
+    filename: showFile,
+    autoload: true,
+    inMemoryOnly: false
+  });
+};
+
 export const makeNamingDb = () => {
-  const device = store.get('CurrentDevice');
-  if (!device.serverid) return null;
   const namingDbName = `template-naming.db`;
   const namingFile = path.join(dataDir, namingDbName);
 
@@ -102,26 +100,26 @@ export const makeNamingDb = () => {
 };
 
 export const makeExportLoggingDb = () => {
-  const device = store.get('CurrentDevice');
-  if (!device.serverid) return null;
-  const namingDbName = `export-log.db`;
-  const namingFile = path.join(dataDir, namingDbName);
+  const exportDbName = `export-log.db`;
+  const exportFile = path.join(dataDir, exportDbName);
 
   return new AsyncNedb({
-    filename: namingFile,
+    filename: exportFile,
     autoload: true,
     inMemoryOnly: false
   });
 };
 
 export const setupDb = async () => {
+  global.SearchDb = makeSearchDb();
+  global.NamingDb = makeNamingDb();
+  global.ExportLogDb = makeExportLoggingDb();
+
   if (!hasDevice()) return;
 
   global.RecDb = makeRecDb();
   global.ShowDb = makeShowDb();
   global.ChannelDb = makeChannelDb();
-  global.SearchDb = makeSearchDb();
-  global.NamingDb = makeNamingDb();
-  global.ExportLogDb = makeExportLoggingDb();
+
   PubSub.publish('DB_CHANGE', true);
 };
