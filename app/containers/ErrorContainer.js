@@ -56,8 +56,6 @@ class ErrorContainer extends React.Component<Props, State> {
   render() {
     const { children } = this.props;
     const { hasError, showDetails, error, info } = this.state;
-    console.log('ERR', error);
-    console.log('INFO', info);
 
     const reportingEnabled = getConfig().allowErrorReport;
     if (hasError) {
