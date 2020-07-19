@@ -19,7 +19,6 @@ import Select, { components } from 'react-select';
 
 import {
   asyncForEach,
-  escapeRegExp,
   readableBytes,
   readableDuration,
   throttleActions
@@ -37,6 +36,7 @@ import * as SearchActions from '../actions/search';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import MatchesToBadges from './SearchFilterMatches';
+import buildSearchQuery from '../utils/search';
 
 type Props = {
   sendResults: Object => void
@@ -460,122 +460,9 @@ class SearchForm extends Component<Props, SearchState> {
   search = async () => {
     const { sendResults } = this.props;
 
-    const {
-      skip,
-      limit,
-      view,
-      percent,
-      searchValue,
-      stateFilter,
-      typeFilter,
-      watchedFilter,
-      comskipFilter,
-      cleanFilter,
-      showFilter,
-      seasonFilter,
-      sortFilter
-    } = this.state;
+    const { skip, limit, view, percent, sortFilter } = this.state;
 
-    const query = {};
-    const steps = [];
-
-    if (searchValue.trim()) {
-      const re = new RegExp(escapeRegExp(searchValue), 'i');
-      // query['airing_details.show_title'] =  { $regex: re };
-      query.$or = [
-        { 'airing_details.show_title': { $regex: re } },
-        { 'episode.title': { $regex: re } },
-        { 'episode.description': { $regex: re } },
-        { 'event.title': { $regex: re } },
-        { 'event.description': { $regex: re } }
-      ];
-
-      steps.push({
-        type: 'search',
-        value: searchValue,
-        text: `title or description contains "${searchValue}"`
-      });
-    }
-
-    if (typeFilter !== 'any') {
-      const typeRe = new RegExp(typeFilter, 'i');
-      query.path = { $regex: typeRe };
-
-      steps.push({
-        type: 'type',
-        value: typeFilter,
-        text: `is: ${typeFilter}`
-      });
-    }
-
-    if (stateFilter !== 'any') {
-      query['video_details.state'] = stateFilter;
-
-      steps.push({
-        type: 'state',
-        value: stateFilter,
-        text: `${stateFilter}`
-      });
-    }
-
-    if (cleanFilter !== 'any') {
-      query['video_details.clean'] = cleanFilter !== 'dirty';
-
-      steps.push({
-        type: 'clean',
-        value: cleanFilter,
-        text: `is ${cleanFilter}`
-      });
-    }
-
-    if (watchedFilter !== 'all') {
-      query['user_info.watched'] = watchedFilter === 'yes';
-      steps.push({
-        type: 'watched',
-        value: stateFilter,
-        text: `${watchedFilter === 'yes' ? 'watched' : 'not watched'}`
-      });
-    }
-
-    if (comskipFilter !== 'all') {
-      let text = 'comskip is not ready';
-      if (comskipFilter === 'ready') {
-        query['video_details.comskip.state'] = 'ready';
-        text = 'comskip is ready';
-      } else if (comskipFilter === 'failed') {
-        query['video_details.comskip.state'] = { $ne: 'ready' };
-      } else {
-        query['video_details.comskip.error'] = comskipFilter;
-        text = `comskip failed b/c ${comskipFilter}`;
-      }
-      steps.push({
-        type: 'comskip',
-        value: stateFilter,
-        text
-      });
-    }
-
-    if (showFilter !== '' && showFilter !== 'all') {
-      let show = this.showsList.find(item => item.path === showFilter);
-      if (!show) show = { title: 'Unknown' };
-      query.series_path = showFilter;
-
-      steps.push({
-        type: 'show',
-        value: showFilter,
-        text: `show is ${show.title}`
-      });
-
-      if (seasonFilter !== '' && seasonFilter !== 'all') {
-        // / seasonList
-        query['episode.season_number'] = parseInt(seasonFilter, 10);
-        steps.push({
-          type: 'season',
-          value: seasonFilter,
-          text: `season #${seasonFilter}`
-        });
-      }
-    }
+    const { query, steps } = await buildSearchQuery(this.state, this.showsList);
 
     const emptySearch = Object.keys(query).length === 0;
 
