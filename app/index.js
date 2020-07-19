@@ -19,16 +19,10 @@ const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;
 const run = new Promise((resolve, reject) => {
   setupApi(false)
     .then(() => {
-      setupDb(false)
-        .then(() => {
-          loadTemplates();
-          PubSub.subscribe('DEVICE_CHANGE', setupDb);
-          resolve('done');
-          return 'why';
-        })
-        .catch(e => {
-          reject(e);
-        });
+      setupDb(false);
+      loadTemplates();
+      PubSub.subscribe('DEVICE_CHANGE', setupDb);
+      resolve('done');
       return 'why';
     })
     .catch(e => {

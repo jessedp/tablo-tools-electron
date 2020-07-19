@@ -110,7 +110,7 @@ export const makeExportLoggingDb = () => {
   });
 };
 
-export const setupDb = async () => {
+export const setupDb = () => {
   global.SearchDb = makeSearchDb();
   global.NamingDb = makeNamingDb();
   global.ExportLogDb = makeExportLoggingDb();
