@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import Image from 'react-bootstrap/Image';
 
-import unknownImg from '../../resources/white-question-mark.png';
+// import unknownImg from '../../resources/white-question-mark.png';
 import { getTabloImageUrl } from '../utils/utils';
 
 type Props = {
@@ -22,9 +22,9 @@ export default class TabloImage extends Component<Props> {
     const style = {};
     const fullClass = `${className} badge-light pt-5`;
 
-    let url = unknownImg;
+    // let url = unknownImg;
     if (imageId && parseInt(imageId, 10)) {
-      url = getTabloImageUrl(imageId);
+      const url = getTabloImageUrl(imageId);
       return (
         <Image
           title={title}
