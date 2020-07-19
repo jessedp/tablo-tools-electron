@@ -38,7 +38,7 @@ type State = {
   slug?: string
 };
 
-type SavedSearchType = {
+export type SavedSearchType = {
   slug?: string,
   state: SearchState,
   created: string,
