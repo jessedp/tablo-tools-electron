@@ -13,8 +13,13 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import chalk from 'chalk';
+import { exit } from 'yargs';
+
 import MenuBuilder from './menu';
+
 import getConfig from './utils/config';
+import runCLIApp from './cli/app';
 
 require('./sentry');
 
@@ -168,10 +173,31 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('ready', createWindow);
+app.on('ready', async () => {
+  // createWindow
+  const isCalledViaCLI = checkIfCalledViaCLI(process.argv);
+
+  if (isCalledViaCLI) {
+    try {
+      await runCLIApp();
+      exit(0);
+    } catch (e) {
+      console.error(chalk.redBright(e.toString()));
+      exit(-1);
+    }
+  }
+
+  createWindow();
+});
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
 });
+
+function checkIfCalledViaCLI(args) {
+  console.log('checkIfCalledViaCLI', args);
+  if (args && args.length > 4) return true;
+  return false;
+}
