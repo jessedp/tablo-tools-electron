@@ -481,7 +481,9 @@ export default class Airing {
     actionOnDuplicate: string = getConfig().actionOnDuplicate,
     progressCallback: Function = null
   ) {
-    const debug = getConfig().enableDebug;
+    let debug = false;
+
+    // setup the log file
     let date = new Date()
       .toISOString()
       .replace('T', '_')
@@ -493,8 +495,20 @@ export default class Airing {
       this.showTitle
     )}-${date}.log`;
     log.transports.file.maxSize = 1048576; // 1mb
-    if (!debug) {
-      log.transports.file.level = false;
+
+    log.transports.console.level = true;
+    log.transports.file.level = false;
+
+    if (global.isCLI) {
+      log.transports.console.level = false;
+      debug = global.VERBOSITY > 1;
+    } else {
+      debug = getConfig().enableDebug;
+    }
+
+    if (debug) {
+      log.transports.console.level = true;
+      log.transports.file.level = true;
     }
 
     if (debug) log.info('start processVideo', new Date());
@@ -516,7 +530,6 @@ export default class Airing {
     }
 
     outFile = this.dedupedExportFile();
-    console.log('outFile', outFile);
 
     const outPath = fsPath.dirname(outFile);
 
