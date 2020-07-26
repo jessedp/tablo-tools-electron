@@ -1,4 +1,6 @@
 // @flow
+import fs from 'fs';
+import { globalShortcut } from 'electron';
 import cliProgress from 'cli-progress';
 import chalk from 'chalk';
 
@@ -47,6 +49,16 @@ const runExport = async (args: any) => {
 
     const processVideo = async (airing: Airing) => {
       return new Promise((resolve, reject) => {
+        const workingFile = airing.dedupedExportFile();
+        globalShortcut.register('CommandOrControl+C', () => {
+          try {
+            fs.unlinkSync(workingFile);
+          } catch (e) {
+            console.warn('unlink problem', e);
+          }
+          reject(Error('Cleaning up and exiting...'));
+        });
+
         // console.log('VERB', global.VERBOSITY);
         if (global.VERBOSITY > 0) {
           console.log(

@@ -140,8 +140,15 @@ const runCLIApp = async (): Promise<void> => {
 export default runCLIApp;
 
 function die(message: any): void {
+  console.log('');
   if (typeof message === 'object') {
-    console.log(chalk.redBright(message.stack));
+    if (message.toString().match('Cleaning up')) {
+      console.log(
+        chalk.hex('A54242')(message.toString().replace('Error: ', ''))
+      );
+    } else {
+      console.log(chalk.redBright(message.stack));
+    }
   } else {
     console.log(chalk.redBright(message.toString()));
   }
