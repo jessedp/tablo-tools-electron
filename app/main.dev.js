@@ -175,9 +175,9 @@ app.on('window-all-closed', () => {
 
 app.on('ready', async () => {
   // createWindow
-  const isCalledViaCLI = checkIfCalledViaCLI(process.argv);
+  global.isCLI = checkIfCalledViaCLI(process.argv);
 
-  if (isCalledViaCLI) {
+  if (global.isCLI) {
     try {
       await runCLIApp();
       exit(0);
@@ -197,7 +197,12 @@ app.on('activate', () => {
 });
 
 function checkIfCalledViaCLI(args) {
-  console.log('checkIfCalledViaCLI', args);
-  if (args && args.length > 4) return true;
-  return false;
+  // console.log('checkIfCalledViaCLI', args);
+  if (args) {
+    if (app.isPackaged) {
+      if (args.length > 1) return true;
+    } else if (args.length > 4) return true;
+
+    return false;
+  }
 }
