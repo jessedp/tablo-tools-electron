@@ -269,23 +269,41 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
         /^[/|\\]bin/,
         psuedoProdPath
       );
-      if (fs.existsSync(testStartPath)) {
-        if (debug)
-          log.info(
-            'START replacing ffmpegPathReal for prodPath',
-            psuedoProdPath
-          );
+
+      if (fs.existsSync(ffmpegPathReal)) {
+        if (debug) log.info('Using default ', ffmpegPathReal);
+      } else if (fs.existsSync(testStartPath)) {
+        if (debug) log.info('FOUND and using', testStartPath);
         ffmpegPathReal = testStartPath;
         if (debug) log.info('START replaced prodPath for prod', ffmpegPathReal);
       } else {
         if (debug)
           log.info(
-            'PROD replacing ffmpegPathReal for prodPath',
+            'PROD setting ffmpegPathReal to psuedoProdPath - change resource to full path?',
             psuedoProdPath
           );
-        ffmpegPathReal = psuedoProdPath.replace(
-          /[/|\\]resources/,
-          `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+
+        log.info(
+          '1| psuedoProdPath',
+          psuedoProdPath,
+          'ffmpegPathReal',
+          ffmpegPathReal
+        );
+
+        // ffmpegPathReal = psuedoProdPath.replace(
+        //   /[/|\\]resources/,
+        //   `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+        // );
+
+        ffmpegPathReal = ffmpegPathReal.replace(
+          'app.asar',
+          `node_modules/ffmpeg-static-electron-jdp`
+        );
+        log.info(
+          '2| psuedoProdPath',
+          psuedoProdPath,
+          'ffmpegPathReal',
+          ffmpegPathReal
         );
         if (debug) log.info('PROD replaced prodPath for prod', ffmpegPathReal);
       }
