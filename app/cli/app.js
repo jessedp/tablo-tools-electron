@@ -13,6 +13,7 @@ import { setupDb } from '../utils/db';
 
 import runExport from './export';
 import { loadTemplates } from '../utils/namingTpl';
+import getConfig from '../utils/config';
 
 const { version } = require('../../package.json');
 
@@ -68,7 +69,7 @@ const runCLIApp = async (): Promise<void> => {
       .describe('i', 'A space-separated list of object_ids to operate on');
 
     options
-      .alias('d', 'duplicate-control')
+      .alias('d', 'dupe-action')
       .choices('d', [DUPE_INC, DUPE_ADDID, DUPE_OVERWRITE, DUPE_SKIP])
       .describe(
         'd',
@@ -115,8 +116,12 @@ const runCLIApp = async (): Promise<void> => {
       global.VERBOSITY = 0;
     }
 
-    // console.log('VERB', global.VERBOSITY);
-    // console.log('LAST RESORT', args);
+    if (args.dupeAction) {
+      global.DUPE_ACTION = args.dupeAction;
+    } else {
+      global.DUPE_ACTION = getConfig().actionOnDuplicate;
+    }
+
     if (args._.includes('export')) {
       await runExport(args);
       process.exit(0);
@@ -124,9 +129,6 @@ const runCLIApp = async (): Promise<void> => {
       console.log('deleting....');
     } else {
       console.log(chalk.redBright('Unknown commands or options!'));
-
-      // console.log('argv', process.argv);
-      // console.log('argv slice', slice, process.argv.slice(slice));
 
       options.version();
       options.showHelp();
@@ -140,7 +142,7 @@ const runCLIApp = async (): Promise<void> => {
 export default runCLIApp;
 
 function die(message: any): void {
-  console.log('');
+  console.log();
   if (typeof message === 'object') {
     if (message.toString().match('Cleaning up')) {
       console.log(
@@ -152,6 +154,6 @@ function die(message: any): void {
   } else {
     console.log(chalk.redBright(message.toString()));
   }
-
-  app.exit(-1);
+  console.log('done');
+  // app.exit(-1);
 }

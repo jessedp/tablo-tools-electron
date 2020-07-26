@@ -331,8 +331,18 @@ export default class Airing {
   cachedDedupedExportFile = '';
 
   // TODO: Cache this somehow?
-  dedupedExportFile(actionOnDuplicate: string = getConfig().actionOnDuplicate) {
+  dedupedExportFile(
+    passedActionOnDuplicate: string = getConfig().actionOnDuplicate
+  ) {
     const { exportFile } = this;
+
+    let actionOnDuplicate = passedActionOnDuplicate;
+
+    // CLI, of course
+    if (global.DUPE_ACTION) {
+      actionOnDuplicate = global.DUPE_ACTION;
+    }
+
     if (
       !fs.existsSync(exportFile) ||
       actionOnDuplicate === DUPE_OVERWRITE ||
@@ -413,19 +423,14 @@ export default class Airing {
   }
 
   cancelVideoProcess() {
-    const { _id, path } = this;
-    // this is to be clean while Mac doesn't work
-    if (!this.cmd) {
-      console.warn('No cmd process exists while canceling!');
-      return;
+    if (this.cmd) {
+      this.cmd.kill();
     }
-
-    this.cmd.kill();
 
     try {
       fs.unlinkSync(outFile);
     } catch (e) {
-      console.debug(_id, path, e);
+      // console.debug(this.id, outFile, e);
     }
   }
 
@@ -553,7 +558,7 @@ export default class Airing {
             skipped: true,
             finished: true
           });
-          resolve();
+          return resolve([]);
         }
       }
 

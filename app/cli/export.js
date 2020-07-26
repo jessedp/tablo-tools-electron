@@ -1,6 +1,8 @@
 // @flow
 import fs from 'fs';
-import { globalShortcut } from 'electron';
+
+import exitHook from 'exit-hook';
+
 import cliProgress from 'cli-progress';
 import chalk from 'chalk';
 
@@ -9,7 +11,7 @@ import type { SavedSearchType } from '../components/SavedSearch';
 import buildSearchQuery from '../utils/search';
 import { asyncForEach, throttleActions, readableBytes } from '../utils/utils';
 import Airing from '../utils/Airing';
-import getConfig from '../utils/config';
+import { DUPE_SKIP } from '../constants/app';
 
 const runExport = async (args: any) => {
   const inputs = await hasInput(args);
@@ -50,16 +52,15 @@ const runExport = async (args: any) => {
     const processVideo = async (airing: Airing) => {
       return new Promise((resolve, reject) => {
         const workingFile = airing.dedupedExportFile();
-        globalShortcut.register('CommandOrControl+C', () => {
-          try {
-            fs.unlinkSync(workingFile);
-          } catch (e) {
-            console.warn('unlink problem', e);
-          }
-          reject(Error('Cleaning up and exiting...'));
+
+        const unsubscribe = exitHook(() => {});
+        unsubscribe();
+
+        exitHook(() => {
+          airing.cancelVideoProcess();
+          reject(Error('Cleaning up...'));
         });
 
-        // console.log('VERB', global.VERBOSITY);
         if (global.VERBOSITY > 0) {
           console.log(
             '\n',
@@ -80,10 +81,18 @@ const runExport = async (args: any) => {
             )
           );
         }
+        if (fs.existsSync(workingFile) && global.DUPE_ACTION === DUPE_SKIP) {
+          if (global.VERBOSITY > 0) {
+            console.log(
+              chalk.hex('CC6666')('\nExists. Skipping due to policy.')
+            );
+          }
+          return resolve();
+        }
 
         if (global.VERBOSITY !== 1) {
           airing
-            .processVideo(getConfig().actionOnDuplicate, () => {})
+            .processVideo(global.DUPE_ACTION, () => {})
             .then(val => resolve(val))
             .catch(err => {
               error(err.toString() + err.stack);
@@ -99,26 +108,31 @@ const runExport = async (args: any) => {
               )} {duration_formatted} ${chalk.hex('8C9440')(
                 '|'
               )} {kbps}/kbps ${chalk.hex('8C9440')('|')} ETA: {eta_formatted}`,
-              stopOnComplete: true
+              clearOnComplete: true
             },
             cliProgress.Presets.shades_classic
           );
           bar.start(100, 0, { kbps: 0 });
 
           const updateProgress = (_, progress: any) => {
-            if (typeof progress === 'object' && progress.percent) {
+            if (typeof progress !== 'object') return;
+
+            if (progress.skipped) {
+              console.log();
+              bar.stop();
+            } else if (progress.finished) {
+              console.log();
+              bar.stop();
+            } else if (progress.percent) {
               // console.log('prog', progress);
               const curr = progress.percent ? Math.round(progress.percent) : 0;
               const kbps = progress.currentKbps;
               bar.update(curr, { kbps });
             }
-            if (progress.finished) {
-              console.log();
-              bar.stop();
-            }
           };
+
           airing
-            .processVideo(getConfig().actionOnDuplicate, updateProgress)
+            .processVideo(global.DUPE_ACTION, updateProgress)
             .then(val => resolve(val))
             .catch(err => {
               error(err.toString() + err.stack);
@@ -137,9 +151,7 @@ const runExport = async (args: any) => {
 
   const atOnce = 1;
 
-  await throttleActions(actions, atOnce).then(results => {
-    return results;
-  });
+  await throttleActions(actions, atOnce);
 };
 
 export default runExport;
