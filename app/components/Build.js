@@ -11,7 +11,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
+import { recDbCreated, recDbStats, setDbCreated } from '../utils/db';
 
 import Airing from '../utils/Airing';
 import RelativeDate from './RelativeDate';
@@ -188,7 +188,7 @@ export default class Build extends Component<Props, State> {
         status
       });
 
-      localStorage.setItem(dbCreatedKey(), new Date().toISOString());
+      setDbCreated();
       PubSub.publish('DB_CHANGE', true);
       console.timeEnd('Building');
     } catch (e) {

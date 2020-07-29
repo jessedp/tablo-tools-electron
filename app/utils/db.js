@@ -23,9 +23,18 @@ export const dbCreatedKey = () => {
   return `LastDbBuild-${dev.serverid}`;
 };
 
+export const setDbCreated = () => {
+  store.set(dbCreatedKey(), new Date().toISOString());
+};
+
 export function recDbCreated() {
-  // localStorage.setItem(dbCreatedKey(), null);
-  return localStorage.getItem(dbCreatedKey());
+  let created = store.get(dbCreatedKey());
+  if (!created) {
+    // v0.2.4+ changed to store above, remove localStorage at some point
+    created = localStorage.getItem(dbCreatedKey());
+  }
+
+  return created;
 }
 
 export function recDbCreatedDisp() {
