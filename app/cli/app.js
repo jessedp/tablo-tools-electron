@@ -79,13 +79,11 @@ const runCLIApp = async (): Promise<void> => {
     // A ,  --all-devices do this on every device on the network
     // D , --devices list of device ids to do this on
 
-    // --updateDB
-    // force, natural [db age not older than last 1/2 hr, record count matches] (Default), no
     options
       .alias('u', 'updateDb')
       .describe(
         'u',
-        'Whether to update DBs before running (default NAT ==> only if db is older than 30 minutes).\n'
+        'Whether to update DBs before running any command\ndefault "NAT" => only if db is older than 30 minutes\n'
       )
       .choices('u', ['YES', 'NO', 'NAT']);
 
@@ -97,7 +95,10 @@ const runCLIApp = async (): Promise<void> => {
     options
       .alias('v', 'verbose')
       .count('v')
-      .describe('v', 'Turn output logging. Disables progress bar.');
+      .describe(
+        'v',
+        'Turn on output logging - more vs, more info. Disables progress bars'
+      );
 
     options
       .alias('q', 'quiet')
