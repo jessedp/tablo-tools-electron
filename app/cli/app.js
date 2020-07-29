@@ -27,7 +27,7 @@ const runCLIApp = async (): Promise<void> => {
     if (!device || !device.private_ip) {
       throw Error('No devices available.');
     }
-    // TODO: connectivity check...
+    // TODO: connectivity check?
 
     console.log(
       chalk.bgHex('282A2E')(
@@ -82,6 +82,14 @@ const runCLIApp = async (): Promise<void> => {
     // --updateDB
     // force, natural [db age not older than last 1/2 hr, record count matches] (Default), no
     options
+      .alias('u', 'updateDb')
+      .describe(
+        'u',
+        'Whether to update DBs before running (default NAT ==> only if db is older than 30 minutes).\n'
+      )
+      .choices('u', ['YES', 'NO', 'NAT']);
+
+    options
       .alias('p', 'progress')
       .describe('p', 'Display progress bar (default True).')
       .boolean('p');
@@ -126,14 +134,13 @@ const runCLIApp = async (): Promise<void> => {
       await runExport(args);
       process.exit(0);
     } else if (args._.includes('delete')) {
+      // await build(args.updateDb);
       console.log('deleting....');
-    } else {
+    } else if (!args.help) {
       console.log(chalk.redBright('Unknown commands or options!'));
 
       options.version();
       options.showHelp();
-
-      die('');
     }
   } catch (e) {
     die(e);
@@ -142,18 +149,16 @@ const runCLIApp = async (): Promise<void> => {
 export default runCLIApp;
 
 function die(message: any): void {
-  console.log();
+  console.log(chalk.redBright.bold('FATAL, EXITING...'));
   if (typeof message === 'object') {
-    if (message.toString().match('Cleaning up')) {
-      console.log(
-        chalk.hex('A54242')(message.toString().replace('Error: ', ''))
-      );
+    if (global.VERBOSITY > 1) {
+      console.error(chalk.redBright(message.stack));
     } else {
-      console.log(chalk.redBright(message.stack));
+      const msg = chalk.hex('A54242')(message.toString().replace('Error:', ''));
+      console.error(msg);
     }
   } else {
-    console.log(chalk.redBright(message.toString()));
+    const msg = chalk.hex('A54242')(message.toString().replace('Error:', ''));
+    console.error(msg);
   }
-  console.log('done');
-  // app.exit(-1);
 }
