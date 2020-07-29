@@ -12,9 +12,12 @@ import buildSearchQuery from '../utils/search';
 import { asyncForEach, throttleActions, readableBytes } from '../utils/utils';
 import Airing from '../utils/Airing';
 import { DUPE_SKIP } from '../constants/app';
+import build from './build';
 
 const runExport = async (args: any) => {
   const inputs = await hasInput(args);
+
+  await build(args.updateDb);
 
   if (!inputs) {
     throw Error('No input source found');
