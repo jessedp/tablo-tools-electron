@@ -8,12 +8,13 @@ import {
   DUPE_INC,
   DUPE_SKIP
 } from '../constants/app';
-import { setupApi } from '../utils/Tablo';
+import { setupApi, setCurrentDevice } from '../utils/Tablo';
 import { setupDb } from '../utils/db';
 
 import runExport from './export';
 import { loadTemplates } from '../utils/namingTpl';
 import getConfig from '../utils/config';
+import { throttleActions } from '../utils/utils';
 
 const { version } = require('../../package.json');
 
@@ -25,18 +26,9 @@ const runCLIApp = async (): Promise<void> => {
 
     const { device } = global.Api;
     if (!device || !device.private_ip) {
-      throw Error('No devices available.');
+      throw Error('No devices found.');
     }
     // TODO: connectivity check?
-
-    console.log(
-      chalk.bgHex('282A2E')(
-        chalk.hex('C5C8C6')('Current Device:'),
-        chalk.hex('5E8D87')(
-          ` ${device.name} - ${device.private_ip} - ${device.serverid}\n`
-        )
-      )
-    );
 
     // how many cli args do we not care about?
     let slice = 4;
@@ -45,15 +37,6 @@ const runCLIApp = async (): Promise<void> => {
     }
 
     const options = yargs(process.argv.slice(slice));
-    options.version();
-    options.usage = `
-    Tablo Tools v${version}
-    Usage: tablo-tools [options] [path ...]
-  `;
-    options
-      .alias('h', 'help')
-      .boolean('h')
-      .describe('h', 'Print this usage message.');
 
     options
       .alias('s', 'saved-search')
@@ -64,7 +47,7 @@ const runCLIApp = async (): Promise<void> => {
       );
 
     options
-      .alias('i', 'ids')
+      .alias('i', 'object-ids')
       .array('i')
       .describe('i', 'A space-separated list of object_ids to operate on');
 
@@ -76,8 +59,18 @@ const runCLIApp = async (): Promise<void> => {
         `Exports Only. Action to take when duplicate file is encountered (default ${DUPE_INC}).`
       );
 
-    // A ,  --all-devices do this on every device on the network
-    // D , --devices list of device ids to do this on
+    options
+      .alias('S', 'server-ids')
+      .array('S')
+      .describe(
+        'S',
+        'A space-separated list of Server Ids to operate on. Only necessary if more than 1 device exists. -A overrides this.'
+      );
+
+    options
+      .alias('A', 'all-devices')
+      .boolean('A')
+      .describe('A', 'Try to operate on all found devices. Overrides -S');
 
     options
       .alias('u', 'updateDb')
@@ -86,11 +79,6 @@ const runCLIApp = async (): Promise<void> => {
         'Whether to update DBs before running any command\ndefault "NAT" => only if db is older than 30 minutes\n'
       )
       .choices('u', ['YES', 'NO', 'NAT']);
-
-    options
-      .alias('p', 'progress')
-      .describe('p', 'Display progress bar (default True).')
-      .boolean('p');
 
     options
       .alias('v', 'verbose')
@@ -115,11 +103,53 @@ const runCLIApp = async (): Promise<void> => {
       // console.log('deleting...');
     });
 
+    options
+      .alias('h', 'help')
+      .boolean('h')
+      .describe('h', 'Print this help message.');
+
+    options.version();
+
     options.epilogue(
       'for more information, visit https://jessedp.github.com/tablo-tools-electron'
     );
 
+    // Device info
+    const totalDevs = global.discoveredDevices.length;
+
+    let curDevLine = chalk.bgHex('282A2E')(
+      chalk.hex('C5C8C6')('Current Device:'),
+      chalk.hex('5E8D87')(
+        ` ${device.name} - ${device.private_ip} - ${device.serverid}\n`
+      )
+    );
+    let deviceList = '';
+    if (totalDevs > 1) {
+      global.discoveredDevices.forEach(dev => {
+        deviceList += chalk.hex('5E8D87')(
+          `    ${dev.serverid} - ${dev.name} - ${dev.private_ip}\n`
+        );
+      });
+    }
+
+    // shows up before Help is displayed!
+    options.usage(
+      chalk.hex('4E9CDE')(
+        chalk.hex('4E9CDE').bold(`Tablo Tools v${version}`),
+        `\n────────────────────────────────────────────────────────────────────────────────\n`,
+        'Usage: tablo-tools command [options]\n',
+        curDevLine,
+        totalDevs < 1
+          ? ''
+          : chalk.hex('FFF')(`${totalDevs} devices found:\n${deviceList}`)
+      )
+    );
+
     const args = options.argv;
+    // If help is requested, we're done
+    if (args.help) return;
+
+    // arguments to "Settings"
     global.VERBOSITY = args.verbose + 1;
     if (args.quiet) {
       global.VERBOSITY = 0;
@@ -131,14 +161,83 @@ const runCLIApp = async (): Promise<void> => {
       global.DUPE_ACTION = getConfig().actionOnDuplicate;
     }
 
-    if (args._.includes('export')) {
-      await runExport(args);
-      process.exit(0);
-    } else if (args._.includes('delete')) {
-      // await build(args.updateDb);
-      console.log('deleting....');
+    const hasCommand = ['export', 'delete'].some(el => args._.indexOf(el) >= 0);
+
+    if (hasCommand) {
+      if (totalDevs > 1 && !args.serverIds && !args.allDevices) {
+        console.log(
+          chalk.redBright.bold(`${totalDevs} devices found, but none selected!`)
+        );
+        console.log(chalk.hex('FFF')(deviceList));
+
+        options.showHelp();
+        return;
+      }
+      if (args.allDevices) {
+        args.serverIds = global.discoveredDevices.map(dev => dev.serverid);
+      }
+      args.serverIds = args.serverIds ? args.serverIds : [device.serverid];
+
+      // validate the Server Ids:
+      args.serverIds.forEach(id => {
+        if (!global.discoveredDevices.find(dev => dev.serverid === id)) {
+          throw Error(`${id} is not a valid Server ID!`);
+        }
+      });
+
+      // The Command logic
+      const processCommand = async (serverId: string) => {
+        return new Promise((resolve, reject) => {
+          const curDevice = global.discoveredDevices.find(
+            dev => dev.serverid === serverId
+          );
+
+          setCurrentDevice(curDevice, false);
+
+          setupDb();
+
+          curDevLine = chalk.bgHex('282A2E')(
+            chalk.hex('C5C8C6')('Current Device:'),
+            chalk.hex('5E8D87')(
+              ` ${curDevice.name} - ${curDevice.private_ip} - ${curDevice.serverid}\n`
+            )
+          );
+
+          if (global.VERBOSITY > 0) {
+            console.log(curDevLine);
+          }
+
+          if (args._.includes('export')) {
+            runExport(args)
+              .then(res => {
+                return resolve(res);
+              })
+              .catch(e => reject(e));
+            // process.exit(0);
+          } else if (args._.includes('delete')) {
+            if (global.VERBOSITY > 0) {
+              console.log(curDevLine);
+            }
+
+            // await build(args.updateDb);
+            console.log('deleting....');
+          }
+        });
+      };
+
+      // Build an Action for each device...
+      const actions = [];
+      args.serverIds.forEach(id => {
+        actions.push(() => {
+          return processCommand(id);
+        });
+      });
+
+      // off we go!
+      const atOnce = 1;
+      await throttleActions(actions, atOnce);
     } else if (!args.help) {
-      console.log(chalk.redBright('Unknown commands or options!'));
+      console.log(chalk.redBright.bold('Unknown commands or options!\n'));
 
       options.version();
       options.showHelp();
