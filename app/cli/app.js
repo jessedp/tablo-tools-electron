@@ -11,10 +11,11 @@ import {
 import { setupApi, setCurrentDevice } from '../utils/Tablo';
 import { setupDb } from '../utils/db';
 
-import runExport from './export';
 import { loadTemplates } from '../utils/namingTpl';
 import getConfig from '../utils/config';
 import { throttleActions } from '../utils/utils';
+import runDelete from './delete';
+import runExport from './export';
 
 const { version } = require('../../package.json');
 
@@ -146,6 +147,7 @@ const runCLIApp = async (): Promise<void> => {
     );
 
     const args = options.argv;
+
     // If help is requested, we're done
     if (args.help) return;
 
@@ -213,14 +215,12 @@ const runCLIApp = async (): Promise<void> => {
                 return resolve(res);
               })
               .catch(e => reject(e));
-            // process.exit(0);
           } else if (args._.includes('delete')) {
-            if (global.VERBOSITY > 0) {
-              console.log(curDevLine);
-            }
-
-            // await build(args.updateDb);
-            console.log('deleting....');
+            runDelete(args)
+              .then(res => {
+                return resolve(res);
+              })
+              .catch(e => reject(e));
           }
         });
       };
