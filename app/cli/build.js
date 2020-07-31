@@ -22,7 +22,7 @@ export default async function build(updateArg: string = 'NAT') {
   if (global.VERBOSITY > 0) console.time(chalk.hex('8C9440')('Build Timer'));
 
   try {
-    const total = await Api.getRecordingsCount();
+    const total = await Api.getRecordingsCount(true);
     if (global.VERBOSITY > 1) console.log('total', total);
 
     let recs;
@@ -43,7 +43,7 @@ export default async function build(updateArg: string = 'NAT') {
     }
 
     if (global.VERBOSITY > 1)
-      console.log(`retrieved ${recs.length} recordings`);
+      console.log(`\nretrieved ${recs.length} recordings`);
 
     const spinner = new Spinner('Gathering Shows and finishing... %s');
     spinner.setSpinnerString('⢹⢺⢼⣸⣇⡧⡗⡏');
