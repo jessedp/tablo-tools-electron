@@ -20,9 +20,16 @@ const run = new Promise((resolve, reject) => {
   setupApi(false)
     .then(() => {
       setupDb(false);
-      loadTemplates();
-      PubSub.subscribe('DEVICE_CHANGE', setupDb);
-      resolve('done');
+      loadTemplates()
+        .then(() => {
+          PubSub.subscribe('DEVICE_CHANGE', setupDb);
+          resolve('done');
+          return 'why';
+        })
+        .catch(e => {
+          reject(e);
+        });
+      // resolve('done');
       return 'why';
     })
     .catch(e => {
