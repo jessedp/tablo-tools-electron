@@ -271,6 +271,7 @@ export function fillTemplate(
     tplStr = template.template;
   }
 
+  // original checking each part of path individually - most leeway
   const parts = tplStr.split(fsPath.sep).map(part => {
     const hbTemplate = Handlebars.compile(part, {
       noEscape: true,
@@ -286,20 +287,26 @@ export function fillTemplate(
     }
     return part;
   });
-
   let filledPath = fsPath.normalize(parts.join(fsPath.sep));
+
+  // just check the whole string - will be necessary for regex, not as resilient as path splitting
+  // const hbTemplate = Handlebars.compile(tplStr, {
+  //   noEscape: true,
+  //   preventIndent: true
+  // });
+  // let tpl = tplStr;
+  // if (templateVars) {
+  //   try {
+  //     tpl = hbTemplate({ ...templateVars[0], ...templateVars[1] });
+  //     // return tpl;
+  //   } catch (e) {
+  //     console.warn('Handlebars unable to parse', e);
+  //   }
+  // }
+
+  // let filledPath = fsPath.normalize(tpl);
+
   let i = 0;
-
-  // const secondaryReplacements = [`'`, `’`, ',', ':'];
-
-  // const stripSecondary = (piece: string) => {
-  //   console.log('stringSecondary', piece);
-  //   let newPiece = piece;
-  //   secondaryReplacements.forEach(rep => {
-  //     newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
-  //   });
-  //   return newPiece;
-  // };
 
   const sanitizeParts = filledPath.split(fsPath.sep).map(part => {
     i += 1;
