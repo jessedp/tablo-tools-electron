@@ -255,11 +255,11 @@ function die(message: any): void {
     if (global.VERBOSITY > 1) {
       console.error(chalk.redBright(message.stack));
     } else {
-      const msg = chalk.hex('A54242')(message.toString().replace('Error:', ''));
+      const msg = chalk.hex('FA3131')(message.toString().replace('Error:', ''));
       console.error(msg);
     }
   } else {
-    const msg = chalk.hex('A54242')(message.toString().replace('Error:', ''));
+    const msg = chalk.hex('FA3131')(message.toString().replace('Error:', ''));
     console.error(msg);
   }
 }

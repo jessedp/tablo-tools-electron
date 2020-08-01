@@ -11,7 +11,7 @@ export function error(msg: string) {
 }
 
 export async function hasInput(args: any) {
-  if (args.savedSearch && args.ids) {
+  if (args.savedSearch && args.objectIds) {
     throw Error(
       'Ambiguos input options - "saved-search" and "ids" parameters found'
     );
@@ -28,12 +28,12 @@ export async function hasInput(args: any) {
     return true;
   }
 
-  if (args.ids) {
-    if (args.ids.length === 0) {
-      throw Error('"ids" parameter used, but no ids given');
+  if (args.objectIds) {
+    if (args.objectIds.length === 0) {
+      throw Error('"object-ids" parameter used, but no ids given');
     }
     return true;
   }
 
-  throw Error('No "saved-search" or "ids" parameter found');
+  throw Error('No "saved-search" or "object-ids" parameter found');
 }

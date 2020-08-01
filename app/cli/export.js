@@ -23,7 +23,7 @@ const runExport = async (args: any) => {
     throw Error('No input source found');
   }
 
-  let exportIds = args.ids;
+  let exportIds = args.objectIds;
 
   if (args.savedSearch) {
     // need to search using SearchState

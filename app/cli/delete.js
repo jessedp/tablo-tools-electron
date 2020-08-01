@@ -19,7 +19,7 @@ const runDelete = async (args: any) => {
 
   await build(args.updateDb);
 
-  let deleteIds = args.ids;
+  let deleteIds = args.objectIds;
 
   if (args.savedSearch) {
     // need to search using SearchState
