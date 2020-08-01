@@ -79,7 +79,8 @@ const runCLIApp = async (): Promise<void> => {
         'u',
         'Whether to update DBs before running any command\ndefault "NAT" => only if db is older than 30 minutes\n'
       )
-      .choices('u', ['YES', 'NO', 'NAT']);
+      .choices('u', ['YES', 'NO', 'NAT'])
+      .coerce(['u'], (arg: string) => arg.toUpperCase());
 
     options
       .alias('v', 'verbose')
