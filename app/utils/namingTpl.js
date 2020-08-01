@@ -13,7 +13,10 @@ import NamingTemplateType, {
   EVENT
 } from '../constants/app';
 
+const helpers = require('template-helpers')();
 const sanitize = require('sanitize-filename');
+
+Handlebars.registerHelper(helpers);
 
 /** BUILT-INS       */
 export const defaultTemplates: Array<NamingTemplateType> = [
