@@ -225,28 +225,15 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
   const ffmpegPath = ffmpeg.path;
   if (debug) log.info('ffmpegPath', ffmpegPath);
 
-  // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-  const resourcePath = `${process.resourcesPath}`;
-
-  // TODO - figure out why I did this...
-  const psuedoProdPath = resourcePath.replace(
-    '/electron/dist/resources',
-    '/ffmpeg-static-electron-jdp/bin'
-  );
-  if (debug) log.info('resourcePath', resourcePath);
-  if (debug) log.info('prodPath', psuedoProdPath);
-
   let ffmpegPathReal = ffmpegPath;
 
-  /** In dev, the prod path gets returned, so "fix" that * */
+  /** Setup and return path in Development */
   if (process.env.NODE_ENV === 'development') {
     if (os.platform() === 'win32') {
-      if (ffmpegPathReal === ffmpegPath) {
-        ffmpegPathReal = ffmpegPath.replace(
-          '\\app\\',
-          '\\node_modules\\ffmpeg-static-electron-jdp\\'
-        );
-      }
+      ffmpegPathReal = ffmpegPath.replace(
+        '\\app\\',
+        '\\node_modules\\ffmpeg-static-electron-jdp\\'
+      );
     } else {
       // *nix
       ffmpegPathReal = ffmpegPath.replace(
@@ -254,69 +241,99 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
         '/node_modules/ffmpeg-static-electron-jdp/'
       );
     }
+    if (debug) log.info('final Dev ffmpeg path', ffmpegPathReal);
+    return ffmpegPathReal;
   }
 
-  if (debug) log.info('after "app" replacements for dev', ffmpegPathReal);
-
-  if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
+  /**
+   * Everything else is
+   * process.env.NODE_ENV === 'production'
+   * */
   // In true prod (not yarn build/start), ffmpeg is built into resources dir
   // this will likely fall on it's face with "yarn start"
-  if (process.env.NODE_ENV === 'production') {
-    if (os.platform() === 'darwin') {
-      ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
-    } else {
-      const testStartPath = ffmpegPathReal.replace(
-        /^[/|\\]bin/,
-        psuedoProdPath
+
+  // $FlowFixMe  dirty, but flow complains about process.resourcesPath
+  const resourcePath = `${process.resourcesPath}`;
+
+  // TODO - figure out why I did this...
+  // const psuedoProdPath = resourcePath.replace(
+  //   '/electron/dist/resources',
+  //   '/ffmpeg-static-electron-jdp/bin'
+  // );
+  if (debug) log.info('resourcePath', resourcePath);
+  // if (debug) log.info('prodPath', psuedoProdPath);
+  // if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
+
+  if (os.platform() === 'darwin' || os.platform() === 'linux') {
+    if (global.isCLI) {
+      ffmpegPathReal = ffmpegPathReal.replace(
+        'app.asar',
+        `node_modules/ffmpeg-static-electron-jdp`
       );
-
-      if (fs.existsSync(ffmpegPathReal)) {
-        if (debug) log.info('Using default ', ffmpegPathReal);
-      } else if (fs.existsSync(testStartPath)) {
-        if (debug) log.info('FOUND and using', testStartPath);
-        ffmpegPathReal = testStartPath;
-        if (debug) log.info('START replaced prodPath for prod', ffmpegPathReal);
-      } else {
-        if (debug)
-          log.info(
-            'PROD setting ffmpegPathReal to psuedoProdPath - change resource to full path?',
-            psuedoProdPath
-          );
-
-        log.info(
-          '1| psuedoProdPath',
-          psuedoProdPath,
-          'ffmpegPathReal',
-          ffmpegPathReal
-        );
-
-        // ffmpegPathReal = psuedoProdPath.replace(
-        //   /[/|\\]resources/,
-        //   `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-        // );
-
-        ffmpegPathReal = ffmpegPathReal.replace(
-          'app.asar',
-          `node_modules/ffmpeg-static-electron-jdp`
-        );
-        log.info(
-          '2| psuedoProdPath',
-          psuedoProdPath,
-          'ffmpegPathReal',
-          ffmpegPathReal
-        );
-        if (debug) log.info('PROD replaced prodPath for prod', ffmpegPathReal);
-      }
+    } else {
+      ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
     }
-  } else if (os.platform() === 'win32') {
-    // otherwise we can hit the node_modules dir
-    ffmpegPathReal = ffmpegPathReal.replace(
-      /^\/bin\//,
-      './node_modules/ffmpeg-static-electron-jdp/bin/'
-    );
+    return ffmpegPathReal;
   }
 
-  if (debug) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
+  if (os.platform() === 'win32') {
+    if (global.isCLI) {
+      // shot in the dark #1
+      ffmpegPathReal = ffmpegPathReal.replace(
+        'app.asar',
+        `node_modules\\ffmpeg-static-electron-jdp`
+      );
+    } else {
+      // otherwise we can hit the node_modules dir
+      ffmpegPathReal = ffmpegPathReal.replace(
+        /^\/bin\//,
+        './node_modules/ffmpeg-static-electron-jdp/bin/'
+      );
+    }
+  }
+  //  else {
+  //   const testStartPath = ffmpegPathReal.replace(/^[/|\\]bin/, psuedoProdPath);
+
+  //   if (fs.existsSync(ffmpegPathReal)) {
+  //     if (debug) log.info('Using default ', ffmpegPathReal);
+  //   } else if (fs.existsSync(testStartPath)) {
+  //     if (debug) log.info('FOUND and using', testStartPath);
+  //     ffmpegPathReal = testStartPath;
+  //     if (debug) log.info('START replaced prodPath for prod', ffmpegPathReal);
+  //   } else {
+  //     if (debug)
+  //       log.info(
+  //         'PROD setting ffmpegPathReal to psuedoProdPath - change resource to full path?',
+  //         psuedoProdPath
+  //       );
+
+  //     log.info(
+  //       '1| psuedoProdPath',
+  //       psuedoProdPath,
+  //       'ffmpegPathReal',
+  //       ffmpegPathReal
+  //     );
+
+  //     // ffmpegPathReal = psuedoProdPath.replace(
+  //     //   /[/|\\]resources/,
+  //     //   `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+  //     // );
+
+  //     ffmpegPathReal = ffmpegPathReal.replace(
+  //       'app.asar',
+  //       `node_modules/ffmpeg-static-electron-jdp`
+  //     );
+  //     log.info(
+  //       '2| psuedoProdPath',
+  //       psuedoProdPath,
+  //       'ffmpegPathReal',
+  //       ffmpegPathReal
+  //     );
+  //     if (debug) log.info('PROD replaced prodPath for prod', ffmpegPathReal);
+  //   }
+  // }
+
+  if (debug) log.info(`final Prod ffmpeg path : ${ffmpegPathReal}`);
 
   return ffmpegPathReal;
 }
