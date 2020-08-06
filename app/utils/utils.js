@@ -255,11 +255,6 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
   // $FlowFixMe  dirty, but flow complains about process.resourcesPath
   const resourcePath = `${process.resourcesPath}`;
 
-  // TODO - figure out why I did this...
-  // const psuedoProdPath = resourcePath.replace(
-  //   '/electron/dist/resources',
-  //   '/ffmpeg-static-electron-jdp/bin'
-  // );
   if (debug) log.info('resourcePath', resourcePath);
   // if (debug) log.info('prodPath', psuedoProdPath);
   // if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
@@ -291,47 +286,6 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
       );
     }
   }
-  //  else {
-  //   const testStartPath = ffmpegPathReal.replace(/^[/|\\]bin/, psuedoProdPath);
-
-  //   if (fs.existsSync(ffmpegPathReal)) {
-  //     if (debug) log.info('Using default ', ffmpegPathReal);
-  //   } else if (fs.existsSync(testStartPath)) {
-  //     if (debug) log.info('FOUND and using', testStartPath);
-  //     ffmpegPathReal = testStartPath;
-  //     if (debug) log.info('START replaced prodPath for prod', ffmpegPathReal);
-  //   } else {
-  //     if (debug)
-  //       log.info(
-  //         'PROD setting ffmpegPathReal to psuedoProdPath - change resource to full path?',
-  //         psuedoProdPath
-  //       );
-
-  //     log.info(
-  //       '1| psuedoProdPath',
-  //       psuedoProdPath,
-  //       'ffmpegPathReal',
-  //       ffmpegPathReal
-  //     );
-
-  //     // ffmpegPathReal = psuedoProdPath.replace(
-  //     //   /[/|\\]resources/,
-  //     //   `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-  //     // );
-
-  //     ffmpegPathReal = ffmpegPathReal.replace(
-  //       'app.asar',
-  //       `node_modules/ffmpeg-static-electron-jdp`
-  //     );
-  //     log.info(
-  //       '2| psuedoProdPath',
-  //       psuedoProdPath,
-  //       'ffmpegPathReal',
-  //       ffmpegPathReal
-  //     );
-  //     if (debug) log.info('PROD replaced prodPath for prod', ffmpegPathReal);
-  //   }
-  // }
 
   if (debug) log.info(`final Prod ffmpeg path : ${ffmpegPathReal}`);
 
