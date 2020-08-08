@@ -11,8 +11,17 @@ import type { SavedSearchType } from '../components/SavedSearch';
 import buildSearchQuery from '../utils/search';
 import { asyncForEach, throttleActions, readableBytes } from '../utils/utils';
 import Airing from '../utils/Airing';
-import { DUPE_SKIP } from '../constants/app';
+import {
+  DUPE_SKIP,
+  EXP_CANCEL,
+  EXP_DONE,
+  EXP_SKIP,
+  EXP_WORKING,
+  EXP_FAIL
+} from '../constants/app';
 import build from './build';
+import { ExportLogRecord } from '../utils/factories';
+import getConfig from '../utils/config';
 
 const runExport = async (args: any) => {
   const inputs = await hasInput(args);
@@ -56,10 +65,16 @@ const runExport = async (args: any) => {
       return new Promise((resolve, reject) => {
         const workingFile = airing.dedupedExportFile();
 
+        const logRecord = ExportLogRecord(airing);
+        logRecord.deleteOnFinish = getConfig().deleteOnFinish;
+
+        logRecord.dupeAction = getConfig().actionOnDuplicate;
+
         const unsubscribe = exitHook(() => {});
         unsubscribe();
 
         exitHook(() => {
+          logRecord.status = EXP_CANCEL;
           airing.cancelVideoProcess();
           reject(Error('Cleaning up...'));
         });
@@ -117,27 +132,43 @@ const runExport = async (args: any) => {
           );
           bar.start(100, 0, { kbps: 0 });
 
+          let currentLog = [];
+
           const updateProgress = (_, progress: any) => {
             if (typeof progress !== 'object') return;
-
+            currentLog = progress.log;
             if (progress.skipped) {
               console.log();
               bar.stop();
+              logRecord.status = EXP_SKIP;
             } else if (progress.finished) {
               console.log();
               bar.stop();
+              logRecord.status = EXP_DONE;
             } else if (progress.percent) {
               // console.log('prog', progress);
               const curr = progress.percent ? Math.round(progress.percent) : 0;
-              const kbps = progress.currentKbps;
+              const kbps = Math.round(progress.currentKbps);
               bar.update(curr, { kbps });
+              logRecord.status = EXP_WORKING;
             }
           };
 
           airing
             .processVideo(global.DUPE_ACTION, updateProgress)
-            .then(val => resolve(val))
+            .then(val => {
+              logRecord.ffmpegLog = currentLog;
+              logRecord.endTime = new Date().toLocaleString();
+              global.ExportLogDb.asyncInsert(logRecord);
+
+              return resolve(val);
+            })
             .catch(err => {
+              logRecord.status = EXP_FAIL;
+              logRecord.ffmpegLog = currentLog;
+              logRecord.endTime = new Date().toLocaleString();
+              global.ExportLogDb.asyncInsert(logRecord);
+
               error(err.toString() + err.stack);
               reject(err);
             });
