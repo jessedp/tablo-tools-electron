@@ -15,10 +15,11 @@ export function ExportRecord(airing: Airing) {
 
 export function ExportLogRecord(airing: Airing) {
   const { device } = global.Api;
-  const isWeb = process && process.type && process.type === 'renderer';
+  // const isWeb = process && process.type && process.type === 'renderer';
+
   const record: ExportLogRecordType = {
     server_id: device.serverid,
-    via: isWeb ? 'web' : 'cli',
+    via: global.isCLI ? 'cli' : 'web',
     object_id: airing.id,
     startTime: new Date().toLocaleString(),
     endTime: new Date().toLocaleString(),
