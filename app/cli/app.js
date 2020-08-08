@@ -6,12 +6,16 @@ import {
   DUPE_ADDID,
   DUPE_OVERWRITE,
   DUPE_INC,
-  DUPE_SKIP
+  DUPE_SKIP,
+  SERIES,
+  MOVIE,
+  EVENT,
+  PROGRAM
 } from '../constants/app';
 import { setupApi, setCurrentDevice } from '../utils/Tablo';
 import { setupDb } from '../utils/db';
 
-import { loadTemplates } from '../utils/namingTpl';
+import { loadTemplates, getTemplates } from '../utils/namingTpl';
 import getConfig from '../utils/config';
 import { throttleActions } from '../utils/utils';
 import runDelete from './delete';
@@ -39,6 +43,9 @@ const runCLIApp = async (): Promise<void> => {
 
     const options = yargs(process.argv.slice(slice));
 
+    // TODO: determine real executable
+    options.scriptName('tablo-tools');
+
     options
       .alias('s', 'saved-search')
       .string('s')
@@ -55,9 +62,10 @@ const runCLIApp = async (): Promise<void> => {
     options
       .alias('d', 'dupe-action')
       .choices('d', [DUPE_INC, DUPE_ADDID, DUPE_OVERWRITE, DUPE_SKIP])
+      .default('d', getConfig().actionOnDuplicate)
       .describe(
         'd',
-        `Exports Only. Action to take when duplicate file is encountered (default ${DUPE_INC}).`
+        `Exports Only. Action to take when duplicate file is encountered.`
       );
 
     options
@@ -69,9 +77,53 @@ const runCLIApp = async (): Promise<void> => {
       );
 
     options
-      .alias('A', 'all-devices')
-      .boolean('A')
-      .describe('A', 'Try to operate on all found devices. Overrides -S');
+      .alias('E', 'episode-template')
+      .choices(
+        'E',
+        getTemplates(SERIES).map(t => t.slug)
+      )
+      .default('E', getConfig().episodeTemplate)
+      .describe(
+        'E',
+        `Exports Only. The slug for the Series/Episode Naming Template to be used.`
+      );
+
+    options
+      .alias('M', 'movie-template')
+      .choices(
+        'M',
+        getTemplates(MOVIE).map(t => t.slug)
+      )
+      .default('M', getConfig().movieTemplate)
+      .describe(
+        'M',
+        `Exports Only. The slug for the Event Naming Template to be used.`
+      );
+
+    options
+      .alias('N', 'event-template')
+      .choices(
+        'N',
+        getTemplates(EVENT).map(t => t.slug)
+      )
+
+      .default('N', getConfig().eventTemplate)
+      .describe(
+        'N',
+        `Exports Only. The slug for the Event Naming Template to be used.`
+      );
+
+    options
+      .alias('P', 'manual-template')
+      .choices(
+        'P',
+        getTemplates(PROGRAM).map(t => t.slug)
+      )
+      .default('P', getConfig().programTemplate)
+      .describe(
+        'P',
+        `Exports Only. The slug for the Manual Naming Template to be used.`
+      );
 
     options
       .alias('u', 'updateDb')
@@ -81,6 +133,11 @@ const runCLIApp = async (): Promise<void> => {
       )
       .choices('u', ['YES', 'NO', 'NAT'])
       .coerce(['u'], (arg: string) => arg.toUpperCase());
+
+    options
+      .alias('A', 'all-devices')
+      .boolean('A')
+      .describe('A', 'Try to operate on all found devices. Overrides -S');
 
     options
       .alias('v', 'verbose')
@@ -134,7 +191,7 @@ const runCLIApp = async (): Promise<void> => {
       });
     }
 
-    // shows up before Help is displayed!
+    // Usage is displayed before generated Help is displayed
     options.usage(
       chalk.hex('4E9CDE')(
         chalk.hex('4E9CDE').bold(`Tablo Tools v${version}`),
@@ -160,9 +217,21 @@ const runCLIApp = async (): Promise<void> => {
 
     if (args.dupeAction) {
       global.DUPE_ACTION = args.dupeAction;
-    } else {
-      global.DUPE_ACTION = getConfig().actionOnDuplicate;
     }
+
+    // check/set the template options - really should only be if Exporting, but shouldn't matter
+    const tplArgs = [
+      'episodeTemplate',
+      'movieTemplate',
+      'eventTemplate',
+      'manualTemplate'
+    ];
+    // also just registering all of the templates. The choices/default ensure it's a valid
+    // template so this basically means the config value read for this is here instead of
+    // always in getConfig()
+    tplArgs.forEach(arg => {
+      global[arg] = args[arg];
+    });
 
     const hasCommand = ['export', 'delete'].some(el => args._.indexOf(el) >= 0);
 
@@ -173,7 +242,7 @@ const runCLIApp = async (): Promise<void> => {
         );
         console.log(chalk.hex('FFF')(deviceList));
 
-        options.showHelp();
+        // options.showHelp();
         return;
       }
       if (args.allDevices) {
@@ -184,6 +253,8 @@ const runCLIApp = async (): Promise<void> => {
       // validate the Server Ids:
       args.serverIds.forEach(id => {
         if (!global.discoveredDevices.find(dev => dev.serverid === id)) {
+          console.log(chalk.hex('FFF')(deviceList));
+
           throw Error(`${id} is not a valid Server ID!`);
         }
       });
