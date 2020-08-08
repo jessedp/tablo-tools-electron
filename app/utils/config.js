@@ -52,7 +52,7 @@ export type ConfigType = {
   allowErrorReport: boolean,
   enableDebug: boolean,
 
-  episodeTemplte: string,
+  episodeTemplate: string,
   movieTemplate: string,
   eventTemplate: string,
   programTemplate: string,
@@ -120,48 +120,29 @@ export function setConfig(data: ConfigType) {
   fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
 }
 
-// TODO: should do setConfig. Should redo all of this config mess.
-// setConfig Partial<ConfigType> react-hot-loader
 export default function getConfig(): ConfigType {
   if (!cachedConfig || !Object.keys(cachedConfig).length) {
     if (fs.existsSync(CONFIG_FILE_NAME)) {
       cachedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE_NAME) || '{}');
-    } else if (typeof localStorage === 'undefined') {
-      cachedConfig = defaultConfig;
     } else {
-      // TODO: from 0.0.14 - remove localStorage conversion at some point
-      const lsConfig = localStorage.getItem('AppConfig');
-      if (lsConfig) {
-        const storedConfig: ConfigType = JSON.parse(
-          localStorage.getItem('AppConfig') || '{}'
-        );
-
-        if (Object.keys(storedConfig).length > 0) {
-          // TODO: remove sometime after 0.0.7
-          // change: enableIpOverride => enableTestDevice
-          if (
-            Object.prototype.hasOwnProperty.call(
-              storedConfig,
-              'enableIpOverride'
-            )
-          ) {
-            storedConfig.enableTestDevice = storedConfig.enableIpOverride;
-            delete storedConfig.enableIpOverride;
-          }
-          // change: overrideIp => testDeviceIp
-          if (
-            Object.prototype.hasOwnProperty.call(storedConfig, 'overrideIp')
-          ) {
-            storedConfig.testDeviceIp = storedConfig.overrideIp;
-            delete storedConfig.overrideIp;
-          }
-        }
-        // localStorage.removeItem('AppConfig');
-        cachedConfig = storedConfig;
-        fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
-      }
+      cachedConfig = defaultConfig;
     }
   }
 
-  return Object.assign(defaultConfig, cachedConfig);
+  const config = Object.assign(defaultConfig, cachedConfig);
+  // allow some global overrides for the CLi
+  const overrides = [
+    'episodeTemplate',
+    'movieTemplate',
+    'eventTemplate',
+    'programTemplate',
+    'actionOnDuplicate'
+  ];
+  overrides.forEach(key => {
+    if (Object.prototype.hasOwnProperty.call(global, key)) {
+      config[key] = global[key];
+    }
+  });
+
+  return config;
 }
