@@ -17,6 +17,7 @@ export const EXP_DONE = 3;
 export const EXP_CANCEL = 4;
 export const EXP_FAIL = 5;
 export const EXP_DELETE = 6;
+export const EXP_SKIP = 7;
 
 export const DUPE_OVERWRITE = 'OVERWRITE';
 export const DUPE_SKIP = 'SKIP';
