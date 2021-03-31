@@ -12,8 +12,8 @@ type Props = { path: string };
 export default function OpenDirectory(prop: Props) {
   const { path } = prop;
 
-  const openDir = () => {
-    remote.shell.openItem(fsPath.dirname(path));
+  const openDir = async () => {
+    await remote.shell.openPath(fsPath.dirname(path));
   };
 
   return (
