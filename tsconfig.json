@@ -10,6 +10,8 @@
     "strict": true,
     "pretty": true,
     "sourceMap": true,
+    /* TODO: yuck! Nivo, D3 types have issues sometimes */
+    "skipLibCheck": true,
     /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -20,7 +22,17 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+
+    /* Override decalarations */
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "@types/*",
+        "src/*",
+      ]
+    }
+
   },
   "exclude": [
     "test",

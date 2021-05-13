@@ -1,10 +1,20 @@
 module.exports = {
   extends: 'erb',
   rules: {
-    /** done solely for checkboxRef in Episode.js **/
+    /** done solely for checkboxRef in Episode.js * */
     'no-return-assign': 'off',
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
+    // note you must disable the base rule as it can report incorrect errors
+    'eslint/no-use-before-define': 'off',
+    'no-use-before-define': 'off',
+    // '@typescript-eslint/no-use-before-define': ['error'],
+    '@typescript-eslint/no-use-before-define': ['error'],
+
+    // Since we do not use prop-types
+    'react/prop-types': 'off',
+    'react/static-property-placement': 'off',
+    'react/require-default-props': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
