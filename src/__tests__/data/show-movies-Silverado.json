@@ -1,0 +1,52 @@
+{
+  "object_id": 974203,
+  "path": "/recordings/movies/974203",
+  "movie": {
+    "title": "Adventures in Silverado",
+    "plot": "A stagecoach driver seeks to capture \"The Monk,\" a notorious highwayman, in order to clear himself.",
+    "original_runtime": 4500,
+    "release_year": 1948,
+    "film_rating": null,
+    "quality_rating": 6,
+    "cast": [
+      "William Bishop",
+      "Forrest Tucker",
+      "Gloria Henry"
+    ],
+    "directors": [
+      "Phil Karlson"
+    ],
+    "awards": [],
+    "background_image": {
+      "image_id": 930054,
+      "has_title": true
+    },
+    "cover_image": {
+      "image_id": 930053,
+      "has_title": true
+    },
+    "thumbnail_image": {
+      "image_id": 930052,
+      "has_title": true
+    },
+    "tms_id": "MV000204150000",
+    "genres": [
+      "Western"
+    ]
+  },
+  "show_counts": {
+    "airing_count": 1,
+    "unwatched_count": 1,
+    "protected_count": 1,
+    "watched_and_protected_count": 0,
+    "failed_count": 0
+  },
+  "user_info": {
+    "up_next": "/recordings/movies/airings/974202"
+  },
+  "keep": {
+    "rule": "none",
+    "count": null
+  },
+  "guide_path": null
+}

@@ -1,0 +1,71 @@
+{
+  "object_id": 974202,
+  "path": "/recordings/movies/airings/974202",
+  "movie_path": "/recordings/movies/974203",
+  "airing_details": {
+    "datetime": "2020-05-28T06:35Z",
+    "duration": 6000,
+    "channel_path": "/recordings/channels/661344",
+    "channel": {
+      "object_id": 661344,
+      "path": "/recordings/channels/661344",
+      "channel": {
+        "call_sign": "MOVIES!",
+        "call_sign_src": "MOVIES!",
+        "major": 5,
+        "minor": 2,
+        "network": "MVIES",
+        "resolution": "sd"
+      }
+    },
+    "show_title": "Adventures in Silverado"
+  },
+  "movie_airing": {
+    "tms_id": "MV000204150000",
+    "release_year": 1948,
+    "film_rating": null,
+    "quality_rating": 6
+  },
+  "video_details": {
+    "state": "finished",
+    "clean": true,
+    "cloud": false,
+    "uploading": false,
+    "audio": "ac3",
+    "size": 1340993536,
+    "duration": 6075,
+    "width": 704,
+    "height": 480,
+    "comskip": {
+      "state": "ready",
+      "error": null
+    },
+    "schedule_offsets": {
+      "start": -15,
+      "end": 64,
+      "deprecated": true
+    },
+    "recorded_offsets": {
+      "start": -15,
+      "end": 64
+    },
+    "airing_offsets": {
+      "start": 0,
+      "end": 0,
+      "source": "none"
+    },
+    "seek": 15,
+    "error": null,
+    "warnings": []
+  },
+  "qualifiers": [],
+  "user_info": {
+    "position": 0,
+    "watched": false,
+    "protected": true
+  },
+  "snapshot_image": {
+    "image_id": 974204,
+    "has_title": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "object_id": 982745,
+  "path": "/guide/channels/982745",
+  "channel": {
+    "call_sign": "BUZZR",
+    "call_sign_src": "BUZZR",
+    "major": 5,
+    "minor": 3,
+    "network": "BUZZR",
+    "resolution": "sd",
+    "callSign": "BUZZR",
+    "callSignSrc": "BUZZR"
+  }
+}
