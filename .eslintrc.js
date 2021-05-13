@@ -9,7 +9,7 @@ module.exports = {
     'eslint/no-use-before-define': 'off',
     'no-use-before-define': 'off',
     // '@typescript-eslint/no-use-before-define': ['error'],
-    '@typescript-eslint/no-use-before-define': ['error'],
+    '@typescript-eslint/no-use-before-define': ['warn'],
 
     // Since we do not use prop-types
     'react/prop-types': 'off',

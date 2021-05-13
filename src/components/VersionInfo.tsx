@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Store from 'electron-store';
 import Modal from 'react-bootstrap/Modal';
-import Button from './ButtonExtended';
 import Card from 'react-bootstrap/Card';
 import ReactMarkdown from 'react-markdown';
 import compareVersions from 'compare-versions';
+import Button from './ButtonExtended';
 import { version } from '../../package.json';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.getVersion = () => version;
 }
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
   show: boolean;
   releases: Array<Record<string, any>>;

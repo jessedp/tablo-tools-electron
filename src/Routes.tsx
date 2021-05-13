@@ -22,7 +22,7 @@ import SportDetails from './components/SportDetails';
 import ProgramEpisodeList from './components/ProgramEpisodeList';
 import { hasDevice } from './utils/Tablo';
 
-export default () => {
+export default function Routes() {
   const history = useHistory();
 
   useEffect(() => {
@@ -73,4 +73,4 @@ export default () => {
       </Switch>
     </App>
   );
-};
+}

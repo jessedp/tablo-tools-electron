@@ -100,7 +100,7 @@ export async function setupApi() {
 
 export async function checkConnection() {
   const device = store.get('CurrentDevice');
-  if (!device || !device.private_ip) return;
+  if (!device || !device.private_ip) return false;
   const connIp = device.private_ip;
   // console.log('connIp', connIp);
   const client = new net.Socket();
@@ -131,6 +131,7 @@ export async function checkConnection() {
       }
     });
   // this is easily grosser and more wronger than it looks
+  // eslint-disable-next-line compat/compat
   return new Promise((resolve) => {
     client.on('close', () => {
       global.CONNECTED = status;

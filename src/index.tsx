@@ -14,6 +14,7 @@ import { loadTemplates } from './utils/namingTpl';
 
 const store = configuredStore();
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface Global {
       document: Document;
@@ -40,6 +41,7 @@ require('./sentry');
 
 // const store = configureStore();
 
+// eslint-disable-next-line compat/compat
 const run = new Promise((resolve, reject) => {
   setupApi()
     .then(() => {

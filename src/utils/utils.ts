@@ -15,6 +15,7 @@ export async function asyncForEach(
   callback: (item: any) => Promise<void>
 ) {
   const promises = array.map(callback);
+  // eslint-disable-next-line compat/compat
   const vals = Promise.all(promises);
   return vals;
   /**
@@ -284,7 +285,7 @@ export function writeToFile(
  * @returns A Promise that resolves to the full list of values when everything is done.
  */
 export function throttleActions(
-  listOfCallableActions: Array<Function>,
+  listOfCallableActions: Array<any>,
   limit: number,
   progressCallback?: (...args: Array<any>) => any
 ) {
@@ -323,7 +324,7 @@ export function throttleActions(
   while (i < limit && i < listOfCallableActions.length) {
     listOfPromises.push(doNextAction());
   }
-
+  // eslint-disable-next-line compat/compat
   return Promise.all(listOfPromises).then(() => resultArray);
 }
 export function findFfmpegPath(debug = false, log?: any) {

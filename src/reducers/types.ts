@@ -1,10 +1,7 @@
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
 import Airing from '../utils/Airing';
 
-export type counterStateType = {
-  readonly counter: number;
-};
-export type actionListType = {
+export type ActionListType = {
   readonly airings: Array<Airing>;
 };
 export type ExportRecordType = {
@@ -38,7 +35,6 @@ export type Action = {
 };
 
 // export type GetExportList = () => exportListType;
-export type GetActionList = () => actionListType;
-export type GetState = () => counterStateType;
+export type GetActionList = () => ActionListType;
 export type Dispatch = ReduxDispatch<Action>;
 export type Store = ReduxStore<GetState, Action>;

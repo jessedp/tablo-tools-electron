@@ -62,7 +62,8 @@ export default class Airing {
 
   path!: string;
 
-  _id!: number;
+  // eslint-disable-next-line camelcase
+  _id!: string;
 
   event!: Record<string, any>;
 
@@ -436,7 +437,9 @@ export default class Airing {
   }
 
   async delete() {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { _id, path } = this;
+    // eslint-disable-next-line compat/compat
     return new Promise((resolve, reject) => {
       try {
         if (process.env.NODE_ENV === 'production') {
@@ -444,6 +447,7 @@ export default class Airing {
         }
 
         global.RecDb.asyncRemove({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           _id,
         });
 
@@ -476,6 +480,7 @@ export default class Airing {
   }
 
   cancelVideoProcess() {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { _id, path } = this;
 
     // this is to be clean while Mac doesn't work
@@ -547,6 +552,7 @@ export default class Airing {
     };
   }
 
+  // async processVideo(
   async processVideo(
     actionOnDuplicate: string = getConfig().actionOnDuplicate,
     progressCallback: (...args: Array<any>) => any
@@ -588,8 +594,8 @@ export default class Airing {
           failedMsg: err,
         });
       }
-
-      return;
+      // FIXME: not sure what this does...
+      return () => undefined;
     }
 
     outFile = this.dedupedExportFile();
@@ -609,6 +615,7 @@ export default class Airing {
       ffmpegOpts.push('-v 40');
     }
 
+    // eslint-disable-next-line compat/compat
     return new Promise((resolve) => {
       if (outFile !== this.exportFile) {
         if (actionOnDuplicate === DUPE_SKIP) {

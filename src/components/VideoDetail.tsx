@@ -51,7 +51,9 @@ function VideoDetail(props: Props) {
  */
 
 function Error(prop: any) {
-  const { error } = prop.detail;
+  const { detail } = prop;
+  if (!detail) return <></>;
+  const { error } = detail;
   if (!error) return <></>;
   return (
     <Alert variant="warning">
@@ -67,7 +69,9 @@ function Error(prop: any) {
  * @return {string}
  */
 function CommercialSkip(prop: any) {
-  const { comskip } = prop.detail;
+  const { detail } = prop;
+  if (!detail) return <></>;
+  const { comskip } = detail;
   if (!comskip) return <></>;
   return (
     <h6>

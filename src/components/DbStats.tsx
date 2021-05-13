@@ -3,12 +3,12 @@ import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import MediumPie from './MediumPie';
 
-type Props = {};
+type Props = Record<string, undefined>;
 type State = {
   recTotal: number;
-  watchedData: Array<{}>;
-  stateData: Array<{}>;
-  typeData: Array<{}>;
+  watchedData: Array<Record<string, any>>;
+  stateData: Array<Record<string, any>>;
+  typeData: Array<Record<string, any>>;
 };
 export default class DbStats extends Component<Props, State> {
   psToken: string;

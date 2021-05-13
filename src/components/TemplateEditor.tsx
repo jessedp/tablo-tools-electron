@@ -51,6 +51,26 @@ class TemplateEditor extends Component<Props, State> {
     }
   }
 
+  onChange(value: string) {
+    const { updateValue } = this.props;
+    const { workingValue } = this.state;
+    workingValue.template = value.trim();
+    this.setState({
+      workingValue,
+    });
+    updateValue(workingValue.template);
+  }
+
+  onCursorChange(newValue: any) {
+    const position = {
+      column: newValue.cursor.column,
+      row: newValue.cursor.row,
+    };
+    this.setState({
+      position,
+    });
+  }
+
   refresh = (template: NamingTemplateType) => {
     this.setState({
       workingValue: template,
@@ -77,26 +97,6 @@ class TemplateEditor extends Component<Props, State> {
     });
     updateValue(workingValue.template);
     this.editorRef.current.editor.focus();
-  }
-
-  onChange(value: string) {
-    const { updateValue } = this.props;
-    const { workingValue } = this.state;
-    workingValue.template = value.trim();
-    this.setState({
-      workingValue,
-    });
-    updateValue(workingValue.template);
-  }
-
-  onCursorChange(newValue: any) {
-    const position = {
-      column: newValue.cursor.column,
-      row: newValue.cursor.row,
-    };
-    this.setState({
-      position,
-    });
   }
 
   render() {

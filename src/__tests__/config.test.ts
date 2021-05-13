@@ -3,9 +3,7 @@ import fs from 'fs';
 import getConfig, * as cfg from '../utils/config';
 
 beforeEach(() => {
-  try {
-    fs.unlinkSync(cfg.CONFIG_FILE_NAME);
-  } catch (e) {}
+  fs.unlinkSync(cfg.CONFIG_FILE_NAME);
 });
 
 test('getConfig()', () => {
@@ -13,7 +11,7 @@ test('getConfig()', () => {
 });
 
 test('setConfig()', () => {
-  const modConfig = Object.assign({}, getConfig());
+  const modConfig = { ...getConfig() };
 
   const testVal = 'LALALALALALALALA';
   modConfig.movieTemplate = testVal;
@@ -23,7 +21,7 @@ test('setConfig()', () => {
 });
 
 test('setConfigItem()', () => {
-  const modConfig = Object.assign({}, getConfig());
+  const modConfig = { ...getConfig() };
 
   const testVal = { movieTemplate: 'LALALALALALALALA' };
 

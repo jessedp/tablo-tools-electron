@@ -79,7 +79,8 @@ const VideoExport = (WrappedComponent: any) => {
       await this.setState({
         exportState: EXP_WORKING,
       });
-      const actions: Array<Function> = [];
+      // TODO: any to function def
+      const actions: Array<any> = [];
       exportList.forEach((rec) => {
         actions.push(() => {
           if (this.shouldCancel === false)
