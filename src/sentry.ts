@@ -1,3 +1,5 @@
+import { Event } from '@sentry/types';
+
 const { init } =
   process.type === 'browser'
     ? require('@sentry/electron/dist/main')
@@ -12,7 +14,7 @@ if (process.env.NODE_ENV === 'production') {
     org: 'jessedp',
     project: 'tablo-tools-electron',
     release: version,
-    beforeSend(event) {
+    beforeSend(event: Event) {
       if (
         !event.exception ||
         !event.exception.values ||
@@ -24,8 +26,8 @@ if (process.env.NODE_ENV === 'production') {
       const value = event.exception.values[0];
 
       if (value.stacktrace && value.stacktrace.frames) {
-        value.stacktrace.frames.forEach(frame => {
-          if (frame.filename.includes('dist/')) {
+        value.stacktrace.frames.forEach((frame) => {
+          if (frame && frame.filename && frame.filename.includes('dist/')) {
             // this is stupid, but it seems to work for now @sentry/electron": "1.3.0
             // eslint-disable-next-line no-param-reassign
             frame.filename = frame.filename.replace('dist/', 'app/dist/');
@@ -36,6 +38,6 @@ if (process.env.NODE_ENV === 'production') {
       }
 
       return event;
-    }
+    },
   });
 }

@@ -1,37 +1,32 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import { LinkContainer } from 'react-router-bootstrap';
-
 import { Alert, Button } from 'react-bootstrap';
-
 import routes from '../constants/routes.json';
-
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  events: Array<Airing>,
-  alertType: string,
-  alertTxt: string,
-  loaded: boolean
+  events: Array<Airing>;
+  alertType: string;
+  alertTxt: string;
+  loaded: boolean;
 };
-
 export default class Sports extends Component<Props, State> {
-  props: Props;
+  // initialState: State;
 
-  initialState: State;
+  psToken: string | undefined;
 
-  psToken: null;
-
-  constructor() {
-    super();
-
-    this.state = { events: [], alertType: '', alertTxt: '', loaded: false };
-
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      events: [],
+      alertType: '',
+      alertTxt: '',
+      loaded: false,
+    };
     this.refresh = this.refresh.bind(this);
   }
 
@@ -40,7 +35,7 @@ export default class Sports extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     PubSub.unsubscribe(this.psToken);
   }
 
@@ -51,13 +46,12 @@ export default class Sports extends Component<Props, State> {
       events: objRecs,
       alertType: 'info',
       alertTxt: `${objRecs.length} ${label} found`,
-      loaded: true
+      loaded: true,
     });
   };
 
   render() {
     const { events, loaded, alertTxt, alertType } = this.state;
-
     if (!loaded) return <></>; //
 
     if (events.length === 0) {
@@ -81,10 +75,10 @@ export default class Sports extends Component<Props, State> {
           )}
         </div>
         <div className="scrollable-area">
-          {events.map(rec => {
+          {events.map((rec) => {
             return (
               <LinkContainer
-                to={routes.EVENTDETAILS.replace(':id', rec.id)}
+                to={routes.EVENTDETAILS.replace(':id', `${rec.id}`)}
                 key={rec.id}
               >
                 <Button
@@ -102,24 +96,24 @@ export default class Sports extends Component<Props, State> {
     );
   }
 }
-
 export async function eventList() {
   const recType = new RegExp('sports');
-  const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
-
-  const objRecs = [];
-
-  await asyncForEach(recs, async rec => {
+  const recs = await global.RecDb.asyncFind({
+    path: {
+      $regex: recType,
+    },
+  });
+  const objRecs: Array<Airing> = [];
+  await asyncForEach(recs, async (rec) => {
     const airing = await Airing.create(rec);
     objRecs.push(airing);
   });
 
-  const titleSort = (a, b) => {
+  const titleSort = (a: Airing, b: Airing) => {
     if (a.show.sortableTitle > b.show.sortableTitle) return 1;
     return -1;
   };
 
   objRecs.sort((a, b) => titleSort(a, b));
-
   return objRecs;
 }

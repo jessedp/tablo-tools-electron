@@ -1,39 +1,34 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
 import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-
-import type { SearchAlert } from '../constants/app';
+import Button from './ButtonExtended';
+import type { SearchAlert } from '../utils/types';
 import MatchesToBadges from './SearchFilterMatches';
 import * as ActionListActions from '../actions/actionList';
+import Airing from '../utils/Airing';
 
-type State = {};
+type State = Record<string, unknown>;
 type Props = {
-  alert: SearchAlert,
-  loading: boolean,
-  airingList: Array<Airirng>,
-  bulkAddAirings: (airings: Array<Airing>) => void,
-  bulkRemAirings: () => void
+  alert: SearchAlert;
+  loading: boolean;
+  airingList: Array<Airing>;
+  bulkAddAirings: (airings: Array<Airing>) => void;
+  bulkRemAirings: (airings: Array<Airing>) => void;
 };
 
 class SearchResultAlerts extends Component<Props, State> {
-  props: Props;
-
   render() {
     const {
       alert,
       loading,
       airingList,
       bulkAddAirings,
-      bulkRemAirings
+      bulkRemAirings,
     } = this.props;
-
     if (loading || !alert || !alert.matches) return '';
-
     return (
       <Row>
         <Col>
@@ -47,7 +42,7 @@ class SearchResultAlerts extends Component<Props, State> {
 
             <div className="d-inline-block float-right">
               <MatchesToBadges
-                matches={alert.stats}
+                matches={alert.stats || []}
                 prefix="result_stats"
                 className="bg-secondary"
               />
@@ -76,7 +71,7 @@ class SearchResultAlerts extends Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 

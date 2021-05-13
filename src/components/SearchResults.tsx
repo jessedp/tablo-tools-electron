@@ -1,37 +1,35 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
 import Row from 'react-bootstrap/Row';
-import Spinner from 'react-bootstrap/Spinner';
-
+import Spinner from './SpinnerExtended';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
-
 import type { SearchAlert } from '../utils/types';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';
 import { ON } from '../constants/app';
 
-type Props = {
-  results: Object
+type OwnProps = Record<string, never>;
+type StateProps = {
+  results: Record<string, any>;
 };
+
+type DispatchProps = Record<string, never>;
+
+type SearchResultsProps = OwnProps & StateProps & DispatchProps;
 
 type State = {
-  searchAlert: SearchAlert,
-  airingList: Array<Airing>,
-  view: string,
-  loading: boolean
+  searchAlert: SearchAlert;
+  airingList: Array<Airing>;
+  view: string;
+  loading: boolean;
 };
 
-class SearchResults extends Component<Props, State> {
-  props: Props;
-
+class SearchResults extends Component<SearchResultsProps, State> {
   initialState: State;
 
-  constructor() {
-    super();
-
+  constructor(props: SearchResultsProps) {
+    super(props);
     this.initialState = {
       loading: false,
       airingList: [],
@@ -39,16 +37,15 @@ class SearchResults extends Component<Props, State> {
       searchAlert: {
         type: '',
         text: '',
-        matches: []
-      }
+        matches: [],
+      },
     };
-
-    this.state = this.initialState;
-    // this.delete = this.delete.bind(this);
+    this.state = this.initialState; // this.delete = this.delete.bind(this);
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: SearchResultsProps) {
     const { results } = this.props;
+
     if (prevProps.results !== results) {
       this.refresh();
     }
@@ -60,19 +57,18 @@ class SearchResults extends Component<Props, State> {
       searchAlert: results.searchAlert,
       loading: results.loading,
       airingList: results.airingList,
-      view: results.view
+      view: results.view,
     });
   };
 
   render() {
     const { searchAlert, loading, view } = this.state;
     let { airingList } = this.state;
-
     airingList = ensureAiringArray(airingList);
+    let rows: Array<JSX.Element> = [];
 
-    let rows = [];
     if (!loading) {
-      rows = airingList.map(airing => {
+      rows = airingList.map((airing) => {
         if (view === 'list') {
           return (
             <RecordingSlim
@@ -84,11 +80,13 @@ class SearchResults extends Component<Props, State> {
             />
           );
         }
+
         return (
           <Recording key={`recording-${airing.object_id}`} airing={airing} />
         );
       });
     }
+
     return (
       <div className="scrollable-area">
         <Loading loading={loading} />
@@ -103,14 +101,17 @@ class SearchResults extends Component<Props, State> {
   }
 }
 
-function Loading(prop) {
+function Loading(prop: any) {
   const { loading } = prop;
   if (!loading) return <></>; //
 
   return (
     <div
       className="d-flex justify-content-center"
-      style={{ maxWidth: '400px', marginTop: '75px' }}
+      style={{
+        maxWidth: '400px',
+        marginTop: '75px',
+      }}
     >
       <Spinner animation="border" size="xl" variant="primary" />
     </div>
@@ -119,8 +120,10 @@ function Loading(prop) {
 
 const mapStateToProps = (state: any) => {
   return {
-    results: state.results
+    results: state.results,
   };
 };
 
-export default connect<*, *, *, *, *, *>(mapStateToProps)(SearchResults);
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps)(
+  SearchResults
+);

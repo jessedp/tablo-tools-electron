@@ -1,15 +1,11 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Button from 'react-bootstrap/Button';
-
+import Button from './ButtonExtended';
 import DbStats from './DbStats';
-
 import ComskipDetails from './ComskipDetails';
 import TimeOfDayStats from './TimeOfDayStats';
 import ResolutionChannelStats from './ResolutionChannelStats';
@@ -24,33 +20,34 @@ import RecordingDurationStats from './RecordingDurationStats';
 const Store = require('electron-store');
 
 const store = new Store();
-
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  currentDevice: Object,
-  duration: Array<number>,
-  size: number
+  currentDevice: Record<string, any>;
+  duration: Array<number>;
+  size: number;
 };
-
 export default class Overview extends Component<Props, State> {
-  props: Props;
-
   topRef: any;
 
   showsStatsRef: any;
 
   timeStatsRef: any;
 
-  constructor() {
-    super();
-    const currentDevice = store.get('CurrentDevice');
-    this.state = { currentDevice, duration: [], size: 0 };
+  psToken: string;
 
+  constructor(props: Props) {
+    super(props);
+    const currentDevice = store.get('CurrentDevice');
+    this.state = {
+      currentDevice,
+      duration: [],
+      size: 0,
+    };
+    this.psToken = '';
     this.topRef = React.createRef();
     this.showsStatsRef = React.createRef();
     this.timeStatsRef = React.createRef();
-
-    (this: any).refresh = this.refresh.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -58,39 +55,40 @@ export default class Overview extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     PubSub.unsubscribe(this.psToken);
   }
 
-  psToken = null;
-
   async refresh() {
     const { RecDb } = global;
-
     const recs = await RecDb.asyncFind({});
     const duration = recs.reduce(
-      (a, b) => a + (b.video_details.duration || 0),
+      (a: number, b: Record<string, any>) =>
+        a + (b.video_details.duration || 0),
       0
     );
-    const size = recs.reduce((a, b) => a + (b.video_details.size || 0), 0);
-
-    this.setState({ duration: parseSeconds(duration), size });
+    const size = recs.reduce(
+      (a: number, b: Record<string, any>) => a + (b.video_details.size || 0),
+      0
+    );
+    this.setState({
+      duration: parseSeconds(duration),
+      size,
+    });
   }
 
   render() {
     const { currentDevice, duration, size } = this.state;
-
     if (!currentDevice)
       return <Alert variant="warning">No device selected</Alert>;
-
     return (
       <div className="section">
         <Row className="stats-header justify-content-md-center">
-          <Col md="4" className="text-center" align="center">
+          <Col md="4" className="text-center">
             Recording Time: &nbsp;
             <Duration duration={duration} />
           </Col>
-          <Col md="4" className="text-center" align="center">
+          <Col md="4" className="text-center">
             <ButtonGroup className="ml-2">
               <Button
                 size="xs"
@@ -105,7 +103,7 @@ export default class Overview extends Component<Props, State> {
                 variant="outline-secondary"
                 onClick={() =>
                   this.showsStatsRef.current.scrollIntoView({
-                    block: 'start'
+                    block: 'start',
                   })
                 }
               >
@@ -116,7 +114,7 @@ export default class Overview extends Component<Props, State> {
                 variant="outline-secondary"
                 onClick={() =>
                   this.timeStatsRef.current.scrollIntoView({
-                    block: 'start'
+                    block: 'start',
                   })
                 }
               >
@@ -124,7 +122,7 @@ export default class Overview extends Component<Props, State> {
               </Button>
             </ButtonGroup>
           </Col>
-          <Col md="4" align="center">
+          <Col md="4">
             Recording Size: &nbsp;
             {readableBytes(size)}
           </Col>
@@ -167,7 +165,9 @@ export default class Overview extends Component<Props, State> {
 
             <Col
               md="auto"
-              style={{ minWidth: '600px' }}
+              style={{
+                minWidth: '600px',
+              }}
               ref={this.timeStatsRef}
             >
               <Alert variant="primary" className="p-2 m-0">
@@ -189,7 +189,9 @@ export default class Overview extends Component<Props, State> {
 
             <Col
               md="auto"
-              style={{ minWidth: '600px' }}
+              style={{
+                minWidth: '600px',
+              }}
               ref={this.showsStatsRef}
             >
               <Alert variant="primary" className="p-2 m-0">

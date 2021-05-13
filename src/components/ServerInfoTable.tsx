@@ -1,28 +1,28 @@
-// @flow
 import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PubSub from 'pubsub-js';
 import ServerInfo from 'tablo-api/dist/ServerInfo';
+import { EmptyServerInfo } from '../utils/factories';
 
 const Store = require('electron-store');
 
 const store = new Store();
-
-type Props = {};
+type Props = Record<string, unknown>;
 // TODO: type it
-type State = { serverInfo: ServerInfo };
-
+type State = {
+  serverInfo: ServerInfo;
+};
 export default class ServerInfoTable extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  psToken: null;
-
-  constructor() {
-    super();
-    this.state = { serverInfo: {} };
-
+  constructor(props: Props) {
+    super(props);
+    this.psToken = '';
+    this.state = {
+      serverInfo: EmptyServerInfo(),
+    };
     this.refresh = this.refresh.bind(this);
   }
 
@@ -40,9 +40,13 @@ export default class ServerInfoTable extends Component<Props, State> {
     if (global.CONNECTED) {
       try {
         const serverInfo = await global.Api.getServerInfo();
-        this.setState({ serverInfo });
+        this.setState({
+          serverInfo,
+        });
       } catch (e) {
-        this.setState({ serverInfo: {} });
+        this.setState({
+          serverInfo: EmptyServerInfo(),
+        });
       }
     }
   };
@@ -55,10 +59,9 @@ export default class ServerInfoTable extends Component<Props, State> {
     if (!device) {
       return '';
     }
-    if (!serverInfo) serverInfo = {};
 
+    if (!serverInfo) serverInfo = EmptyServerInfo();
     const { model } = serverInfo;
-
     return (
       <Table striped bordered size="sm" variant="">
         <tbody>
@@ -84,7 +87,7 @@ export default class ServerInfoTable extends Component<Props, State> {
           </tr>
           {serverInfo.model ? (
             <tr>
-              <td colSpan="2">
+              <td colSpan={2}>
                 <div className="mb-1">
                   <b>Model:</b> {model.name} - {model.type} - {model.device}
                 </div>

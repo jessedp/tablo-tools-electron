@@ -7,6 +7,11 @@ import {
   ipcMain,
 } from 'electron';
 
+interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
+  selector?: string;
+  submenu?: DarwinMenuItemConstructorOptions[] | Menu;
+}
+
 const { version } = require('../package.json');
 
 export default class MenuBuilder {
@@ -43,55 +48,40 @@ export default class MenuBuilder {
         {
           label: 'Cut',
           role: 'cut',
-          click: () => {
-            console.log('cut');
-          },
         },
         {
           label: 'Copy',
           role: 'copy',
-          click: () => {
-            console.log('paste');
-          },
         },
         {
           label: 'Paste',
           role: 'paste',
-          click: () => {
-            console.log('copy');
-          },
         },
-      ]).popup(this.mainWindow);
+      ]).popup({ window: this.mainWindow });
     });
   }
 
   setupDevelopmentEnvironment() {
-    this.mainWindow.openDevTools();
-    this.mainWindow.webContents.on('context-menu', (e, props) => {
+    this.mainWindow.webContents.openDevTools();
+    this.mainWindow.webContents.on('context-menu', (_, props) => {
       const { x, y } = props;
 
       Menu.buildFromTemplate([
         {
           label: 'Paste',
           role: 'paste',
-          click: () => {
-            console.log('copy');
-          },
         },
         {
           label: 'Copy',
           role: 'copy',
-          click: () => {
-            console.log('paste');
-          },
         },
         {
           label: 'Inspect element',
           click: () => {
-            this.mainWindow.inspectElement(x, y);
+            this.mainWindow.webContents.inspectElement(x, y);
           },
         },
-      ]).popup(this.mainWindow);
+      ]).popup({ window: this.mainWindow });
     });
   }
 
@@ -253,7 +243,7 @@ export default class MenuBuilder {
   }
 
   buildDefaultTemplate() {
-    const templateDefault = [
+    const templateDefault: MenuItemConstructorOptions[] = [
       {
         label: '&File',
         submenu: [

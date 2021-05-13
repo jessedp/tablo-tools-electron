@@ -1,44 +1,44 @@
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
-
 import Airing from '../utils/Airing';
 
 export type counterStateType = {
-  +counter: number
+  readonly counter: number;
 };
-
 export type actionListType = {
-  +airings: Array<Airing>
+  readonly airings: Array<Airing>;
 };
-
 export type ExportRecordType = {
-  airing: Airing,
-  state: number,
-  progress: Object,
-  startTime: Date,
-  endTime: Date
+  airing: Airing;
+  state: number;
+  progress: Record<string, any>;
+  startTime: Date;
+  endTime: Date;
+  ffmpegLog: Array<string>;
 };
-
 export type FlashRecordType = {
-  message: string,
-  type?: string
+  message: string;
+  type?: string;
 };
-
 export type ExportListStateType = {
-  exportList: Array<ExportRecordType>,
-  airing: Airing,
-  airings: Array<Airing>,
-  updateAiring: Airing
+  exportList: Array<ExportRecordType>;
+  airing?: Airing;
+  airings: Array<Airing>;
+  updateAiring?: Airing;
 };
 
 export type Action = {
-  +type: string
+  readonly type: string;
+  view: string;
+  results: Array<Airing>;
+  message: string;
+
+  exportRecord: ExportRecordType;
+  airing: Airing;
+  airings: Array<Airing>;
 };
 
-export type GetExportList = () => exportListType;
+// export type GetExportList = () => exportListType;
 export type GetActionList = () => actionListType;
-
 export type GetState = () => counterStateType;
-
 export type Dispatch = ReduxDispatch<Action>;
-
 export type Store = ReduxStore<GetState, Action>;

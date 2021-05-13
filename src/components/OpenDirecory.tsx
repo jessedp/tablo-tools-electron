@@ -1,14 +1,13 @@
-// @flow
 import React from 'react';
 import * as fsPath from 'path';
-
-import { Button } from 'react-bootstrap';
+import Button from './ButtonExtended';
 
 // import { shell } from 'electron';
-
 const { remote } = require('electron');
 
-type Props = { path: string };
+type Props = {
+  path: string;
+};
 export default function OpenDirectory(prop: Props) {
   const { path } = prop;
 

@@ -1,12 +1,10 @@
-// @flow
 import React, { Component } from 'react';
 import axios from 'axios';
 import Store from 'electron-store';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
+import Button from './ButtonExtended';
 import Card from 'react-bootstrap/Card';
 import ReactMarkdown from 'react-markdown';
-
 import compareVersions from 'compare-versions';
 import { version } from '../../package.json';
 import RelativeDate from './RelativeDate';
@@ -19,27 +17,29 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 type Props = {};
-type State = { show: boolean, releases: [] };
-
+type State = {
+  show: boolean;
+  releases: Array<Record<string, any>>;
+};
 export default class VersionInfo extends Component<Props, State> {
-  props: Props;
+  // props: Props;
 
-  constructor() {
-    super();
-    this.state = { show: false, releases: [] };
-
-    (this: any).handleClose = this.handleClose.bind(this);
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      show: false,
+      releases: [],
+    };
+    (this as any).handleClose = this.handleClose.bind(this);
   }
 
   async componentDidMount() {
     const store = new Store();
     let lastVersion = store.get('LastVersion');
     if (!lastVersion) lastVersion = '0.0.0';
-
     const match = lastVersion.match(/[\d.]*/);
     const relLastVersion = match ? match[0] : '0.0.0';
     const relNewVersion = app.getVersion().match(/[\d.]*/)[0];
-
     const beta = !!app.getVersion().match(/[a-zA-Z]/);
 
     if (
@@ -52,7 +52,10 @@ export default class VersionInfo extends Component<Props, State> {
         releases = await axios.get(
           'https://api.github.com/repos/jessedp/tablo-tools-electron/releases'
         );
-        this.setState({ show: true, releases: releases.data });
+        this.setState({
+          show: true,
+          releases: releases.data,
+        });
       } catch (e) {
         console.error('Problem loading releases from GH:', e);
       }
@@ -62,12 +65,13 @@ export default class VersionInfo extends Component<Props, State> {
   handleClose() {
     const store = new Store();
     store.set('LastVersion', app.getVersion());
-    this.setState({ show: false });
+    this.setState({
+      show: false,
+    });
   }
 
   render() {
     const { show, releases } = this.state;
-
     if (!releases) return <></>; //
 
     return (
@@ -87,7 +91,7 @@ export default class VersionInfo extends Component<Props, State> {
         </Modal.Header>
         <Modal.Body>
           <h5 className="text-warning">Here&apos;s what&apos;s new!</h5>
-          {releases.map(release => (
+          {releases.map((release) => (
             <Release data={release} key={release.id} />
           ))}
         </Modal.Body>
@@ -104,11 +108,11 @@ export default class VersionInfo extends Component<Props, State> {
   }
 }
 
-function Release(prop) {
+function Release(prop: any) {
   const { data } = prop;
-
   const config = getConfig();
   let notifyBeta = false;
+
   if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
     notifyBeta = config.notifyBeta;
   }

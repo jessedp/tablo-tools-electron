@@ -1,28 +1,29 @@
-// @flow
 import React, { Component } from 'react';
-import Button from 'react-bootstrap/Button';
 
 import Modal from 'react-bootstrap/Modal';
-
 import { Player } from 'video-react';
 import HLSSource from './HLSSource';
-
 // import MyPlayer from './MyPlayer';
 import Airing from '../utils/Airing';
+import Button from './ButtonExtended';
 
-type Props = { airing: Airing };
-type State = { opened: boolean, url: string };
-
+type Props = {
+  airing: Airing;
+};
+type State = {
+  opened: boolean;
+  url: string;
+};
 export default class TabloVideoPlayer extends Component<Props, State> {
-  props: Props;
+  // props: Props;
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
       opened: false,
-      url: ''
+      url: '',
     };
-    (this: any).toggle = this.toggle.bind(this);
+    (this as any).toggle = this.toggle.bind(this);
   }
 
   toggle = async () => {
@@ -32,9 +33,13 @@ export default class TabloVideoPlayer extends Component<Props, State> {
 
     if (!opened) {
       const watch = await airing.watch();
-      url = watch.playlist_url;
+      if (watch) url = watch.playlist_url;
     }
-    this.setState({ opened: !opened, url });
+
+    this.setState({
+      opened: !opened,
+      url,
+    });
   };
 
   render() {
@@ -67,7 +72,7 @@ export default class TabloVideoPlayer extends Component<Props, State> {
               <div>Loading...</div>
             ) : (
               <Player fluid width={300} height={240}>
-                <HLSSource isVideoChild src={url} video={{}} type="" />
+                <HLSSource src={url} video={{}} type="" />
               </Player>
             )}
           </Modal.Body>

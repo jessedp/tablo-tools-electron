@@ -1,61 +1,69 @@
-// @flow
 import React, { Component } from 'react';
-
 import PubSub from 'pubsub-js';
-
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import routes from '../constants/routes.json';
 
+import routes from '../constants/routes.json';
 import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
-
 import { throttleActions } from '../utils/utils';
 import RecordingMini from './RecordingMini';
+import Button from './ButtonExtended';
 import { ON } from '../constants/app';
 
-type Props = {
-  actionList: Array<Airing>,
-  airing?: Airing | null,
-  label?: string,
-  button?: any | null,
-  history: any,
-  remAiring: Airing => void,
-  bulkRemAirings: (Array<Airing>) => void
+interface Props extends PropsFromRedux {
+  // actionList: Array<Airing>;
+  airing?: Airing | null;
+  label?: JSX.Element | string;
+  button?: any | null;
+  history: any;
+  // remAiring: (arg0: Airing) => void;
+  // bulkRemAirings: (arg0: Array<Airing>) => void;
+}
+type State = {
+  show: boolean;
+  working: boolean;
+  deletedCount: number;
 };
-type State = { show: boolean, working: boolean, deletedCount: number };
 
-class ConfirmDelete extends Component<Props, State> {
-  props: Props;
-
+class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   shouldCancel: boolean;
 
-  static defaultProps = { label: '' };
+  static defaultProps = {
+    label: <></>,
+  };
 
-  constructor() {
-    super();
-    this.state = { show: false, working: false, deletedCount: 0 };
+  constructor(props: Props & RouteComponentProps) {
+    super(props);
+    this.state = {
+      show: false,
+      working: false,
+      deletedCount: 0,
+    };
     this.shouldCancel = false;
-    (this: any).handleShow = this.handleShow.bind(this);
-    (this: any).handleClose = this.handleClose.bind(this);
-    (this: any).handleDelete = this.handleDelete.bind(this);
-    (this: any).updateCount = this.updateCount.bind(this);
+    (this as any).handleShow = this.handleShow.bind(this);
+    (this as any).handleClose = this.handleClose.bind(this);
+    (this as any).handleDelete = this.handleDelete.bind(this);
+    (this as any).updateCount = this.updateCount.bind(this);
   }
 
   handleClose() {
     this.shouldCancel = true;
-    this.setState({ show: false });
+    this.setState({
+      show: false,
+    });
   }
 
   handleShow = () => {
-    this.setState({ show: true });
+    this.setState({
+      show: true,
+    });
   };
 
   handleDelete = async () => {
@@ -64,35 +72,37 @@ class ConfirmDelete extends Component<Props, State> {
       bulkRemAirings,
       remAiring,
       actionList,
-      airing
+      airing,
     } = this.props;
-
-    await this.setState({ working: true, deletedCount: 0 });
+    await this.setState({
+      working: true,
+      deletedCount: 0,
+    });
 
     if (airing) {
       remAiring(airing);
       await airing.delete();
       this.updateCount(1);
     } else {
-      const list = [];
-      actionList.forEach(item => {
+      const list: (() => void)[] = []; // Function[]
+      actionList.forEach((item: Airing) => {
         list.push(() => {
           if (this.shouldCancel === false) {
             return item.delete();
           }
+          return () => {};
         });
       });
-
       await throttleActions(list, 4, this.updateCount)
         .then(async () => {
           bulkRemAirings(actionList);
           // let ConfirmDelete display success for 1 sec
           setTimeout(() => {
-            history.push(routes.ALL);
+            history.push(routes.SEARCH);
           }, 1000);
           return false;
         })
-        .catch(result => {
+        .catch((result) => {
           console.log('deleteAll failed', result);
           return false;
         });
@@ -103,22 +113,23 @@ class ConfirmDelete extends Component<Props, State> {
 
   updateCount = (count: number) => {
     const { deletedCount } = this.state;
-    this.setState({ deletedCount: deletedCount + count });
+    this.setState({
+      deletedCount: deletedCount + count,
+    });
   };
 
   render() {
     const { show, working, deletedCount } = this.state;
     let { label } = this.props;
     const { actionList, airing, button } = this.props;
-
     let size = 'xs';
+
     if (label) {
       label = <span className="pl-1">{label}</span>;
       size = 'sm';
     }
 
     let containsProtected = false;
-
     let airingList;
 
     if (airing) {
@@ -127,18 +138,19 @@ class ConfirmDelete extends Component<Props, State> {
       airingList = actionList;
     }
 
-    airingList.forEach(item => {
+    airingList.forEach((item: Airing) => {
       if (item.userInfo.protected) containsProtected = true;
     });
+    let protectedAlert = <></>;
 
-    let protectedAlert = '';
     if (containsProtected) {
       protectedAlert = (
         <Alert variant="warning">You are deleting a PROTECTED recording!</Alert>
       );
     }
 
-    let buttonEl = '';
+    let buttonEl = <></>;
+
     if (button) {
       buttonEl = (
         <div
@@ -167,7 +179,7 @@ class ConfirmDelete extends Component<Props, State> {
     }
 
     return (
-      <span id={Math.floor(Math.random() * 1000000)}>
+      <span id={`${Math.floor(Math.random() * 1000000)}`}>
         {buttonEl}
         <Modal
           size="xl"
@@ -179,31 +191,36 @@ class ConfirmDelete extends Component<Props, State> {
         >
           <Modal.Header closeButton>
             <Modal.Title>
-              Delete{' '}
+              Delete
               <Badge variant="danger" className="pl-2 ml-1 pr-2 mr-1">
                 {airingList.length}
-              </Badge>{' '}
+              </Badge>
               Recordings?
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {working ? (
-              <Progress total={airingList.length} deletedCount={deletedCount} />
-            ) : (
-              <>
-                {protectedAlert}
+            {
+              working ? (
+                <Progress
+                  total={airingList.length}
+                  deletedCount={deletedCount}
+                />
+              ) : (
+                <>
+                  {protectedAlert}
 
-                <br />
-                {airingList.map(item => (
-                  <RecordingMini
-                    withShow={ON}
-                    airing={item}
-                    doDelete={() => {}}
-                    key={`cfd-mini-${item.object_id}`}
-                  />
-                ))}
-              </> //
-            )}
+                  <br />
+                  {airingList.map((item: Airing) => (
+                    <RecordingMini
+                      withShow={ON}
+                      airing={item}
+                      doDelete={() => {}}
+                      key={`cfd-mini-${item.object_id}`}
+                    />
+                  ))}
+                </>
+              ) //
+            }
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleClose}>
@@ -218,14 +235,10 @@ class ConfirmDelete extends Component<Props, State> {
     );
   }
 }
-ConfirmDelete.defaultProps = {
-  airing: null,
-  label: '',
-  button: null
-};
 
-function Progress(props: { deletedCount: number, total: number }) {
+function Progress(props: { deletedCount: number; total: number }) {
   const { deletedCount, total } = props;
+
   if (deletedCount === total) {
     return (
       <div className="text-center">
@@ -235,6 +248,7 @@ function Progress(props: { deletedCount: number, total: number }) {
       </div>
     );
   }
+
   return (
     <div className="text-center">
       <h2>
@@ -247,17 +261,17 @@ function Progress(props: { deletedCount: number, total: number }) {
   );
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators({ ...ActionListActions }, dispatch);
 };
 
 const mapStateToProps = (state: any) => {
   return {
-    actionList: state.actionList
+    actionList: state.actionList,
   };
 };
 
-export default connect<*, *, *, *, *, *>(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(ConfirmDelete));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(withRouter(ConfirmDelete));

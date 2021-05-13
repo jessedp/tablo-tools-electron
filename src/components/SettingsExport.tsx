@@ -1,32 +1,37 @@
-// @flow
 import React, { Component } from 'react';
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import { Row, Col, Alert } from 'react-bootstrap';
 import * as FlashActions from '../actions/flash';
 import type { FlashRecordType } from '../reducers/types';
-
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import getConfig, { setConfigItem } from '../utils/config';
 import {
   DUPE_INC,
   DUPE_OVERWRITE,
   DUPE_SKIP,
-  DUPE_ADDID
+  DUPE_ADDID,
 } from '../constants/app';
 
-type Props = { sendFlash: (message: FlashRecordType) => void };
+type OwnProps = Record<string, never>;
+type StateProps = Record<string, never>;
 
-type State = { actionOnDuplicate: string };
+type DispatchProps = {
+  sendFlash: (message: FlashRecordType) => void;
+};
 
-class SettingsExport extends Component<Props, State> {
-  props: Props;
+type SettingsExportProps = OwnProps & StateProps & DispatchProps;
 
-  constructor() {
-    super();
-    this.state = { actionOnDuplicate: getConfig().actionOnDuplicate };
+type State = {
+  actionOnDuplicate: string;
+};
+
+class SettingsExport extends Component<SettingsExportProps, State> {
+  constructor(props: SettingsExportProps) {
+    super(props);
+    this.state = {
+      actionOnDuplicate: getConfig().actionOnDuplicate,
+    };
   }
 
   setConfigAndState = (obj: any) => {
@@ -34,32 +39,39 @@ class SettingsExport extends Component<Props, State> {
     setConfigItem(obj);
     this.setState(obj);
     sendFlash({
-      message: `Default set to ${obj.actionOnDuplicate.toLowerCase()}`
+      message: `Default set to ${obj.actionOnDuplicate.toLowerCase()}`,
     });
   };
 
   toggleInc = () => {
-    this.setConfigAndState({ actionOnDuplicate: DUPE_INC });
+    this.setConfigAndState({
+      actionOnDuplicate: DUPE_INC,
+    });
   };
 
   toggleOverwrite = () => {
-    this.setConfigAndState({ actionOnDuplicate: DUPE_OVERWRITE });
+    this.setConfigAndState({
+      actionOnDuplicate: DUPE_OVERWRITE,
+    });
   };
 
   toggleSkip = () => {
-    this.setConfigAndState({ actionOnDuplicate: DUPE_SKIP });
+    this.setConfigAndState({
+      actionOnDuplicate: DUPE_SKIP,
+    });
   };
 
   toggleAddId = () => {
-    this.setConfigAndState({ actionOnDuplicate: DUPE_ADDID });
+    this.setConfigAndState({
+      actionOnDuplicate: DUPE_ADDID,
+    });
   };
 
   render() {
     const { actionOnDuplicate } = this.state;
-
     return (
       <div>
-        <Alert size="sm" variant="light" className="p-1 pl-3">
+        <Alert variant="light" className="p-1 pl-3">
           What should be done if a file already exists?
         </Alert>
         <Row className="mt-3">
@@ -124,11 +136,11 @@ class SettingsExport extends Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(FlashActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   null,
   mapDispatchToProps
 )(SettingsExport);

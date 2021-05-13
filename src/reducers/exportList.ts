@@ -1,85 +1,124 @@
-// @flow
 import {
   ADD_EXPORT,
   REM_EXPORT,
   UPDATE_EXPORT,
   BULK_ADD_EXPORTS,
-  BULK_REM_EXPORTS
-} from '../actions/exportList';
-
+  BULK_REM_EXPORTS,
+} from '../actions/types';
+import Airing from '../utils/Airing';
+import { ExportRecord } from '../utils/factories';
 import type { Action, ExportRecordType, ExportListStateType } from './types';
 
 const initialState: ExportListStateType = {
-  airing: null,
   airings: [],
   exportList: [],
-  updateAiring: null
 };
 
 export default function manageExportList(
   state: ExportListStateType = initialState,
   action: Action
 ) {
-  const { record: exportRecord, airings } = action;
-  let airing;
+  const { exportRecord, airings } = action;
+  let airing: Airing;
+
   // let progress;
   if (exportRecord) {
-    airing = exportRecord.airing;
-    // progress = exportRecord.progress;
+    airing = exportRecord.airing; // progress = exportRecord.progress;
   }
 
   const { exportList } = state;
+
   switch (action.type) {
     case ADD_EXPORT:
-      if (!exportList.find(rec => rec.airing.object_id === airing.object_id)) {
+      if (
+        !exportList.find((rec) => rec.airing.object_id === airing.object_id)
+      ) {
         const t = {
           ...state,
-          ...{ exportList: [...exportList, exportRecord] }
+          ...{
+            exportList: [...exportList, exportRecord],
+          },
         };
         return t;
       }
+
       // TODO: this might should just be return state
-      return { ...state, ...{ exportList } };
+      return {
+        ...state,
+        ...{
+          exportList,
+        },
+      };
 
     case REM_EXPORT: {
-      const newList = ([...exportList].filter(
-        rec => rec.airing.object_id !== airing.object_id
-      ): Array<ExportRecordType>);
-      return { ...state, ...{ newList } };
+      const newList = [...exportList].filter(
+        (rec) => rec.airing.object_id !== airing.object_id
+      ) as Array<ExportRecordType>;
+      return {
+        ...state,
+        ...{
+          newList,
+        },
+      };
     }
 
     case UPDATE_EXPORT: {
       const index = exportList.findIndex(
-        rec => rec.airing.object_id === exportRecord.airing.object_id
+        (rec) => rec.airing.object_id === exportRecord.airing.object_id
       );
+
       if (index !== -1) {
         // force a new object
         exportList[index] = { ...{}, ...exportRecord };
         return {
           ...state,
-          ...{ exportList }
+          ...{
+            exportList,
+          },
         };
       }
+
       console.warn('No Record to Update!', exportRecord);
       return state;
     }
 
     case BULK_ADD_EXPORTS:
-      airings.forEach(item => {
-        if (!exportList.find(rec => rec.airing.object_id === item.object_id)) {
-          exportList.push(item);
+      airings.forEach((item: Airing) => {
+        if (
+          !exportList.find(
+            (rec: ExportRecordType) => rec.airing.object_id === item.object_id
+          )
+        ) {
+          exportList.push(ExportRecord(item));
         }
       });
-
-      return { ...state, ...{ exportList } };
+      return {
+        ...state,
+        ...{
+          exportList,
+        },
+      };
 
     case BULK_REM_EXPORTS: {
-      if (!airings) return { ...state, ...{ exportList: [] } };
-      const newList = ([...exportList].filter(
-        rec => !airings.find(item => rec.airing.object_id === item.object_id)
-      ): Array<ExportRecordType>);
-
-      return { ...state, ...{ exportList: newList } };
+      if (!airings)
+        return {
+          ...state,
+          ...{
+            exportList: [],
+          },
+        };
+      const newList = [...exportList].filter(
+        (rec) =>
+          !airings.find(
+            (item: Airing) => rec.airing.object_id === item.object_id
+          )
+      ) as Array<ExportRecordType>;
+      return {
+        ...state,
+        ...{
+          exportList: newList,
+        },
+      };
     }
 
     default:

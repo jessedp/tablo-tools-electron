@@ -1,45 +1,67 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Store from 'electron-store';
-import { withRouter } from 'react-router-dom';
-
-import Dropdown from 'react-bootstrap/Dropdown';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import Dropdown from './ExtendedDropdown';
 import { checkConnection, setCurrentDevice } from '../utils/Tablo';
 import routes from '../constants/routes.json';
 
 const store = new Store();
+type Props = {
+  history: any;
+};
+type State = {
+  pingInd: boolean;
+};
 
-type PingProps = { history: any };
-type PingState = { pingInd: boolean };
+class PingStatus extends Component<Props & RouteComponentProps, State> {
+  timer: NodeJS.Timer | null;
 
-class PingStatus extends Component<PingProps, PingState> {
-  timer: IntervalID;
+  devListToken: string;
 
-  devListToken: null;
+  devToken: string;
 
-  devToken: null;
+  constructor(props: Props & RouteComponentProps) {
+    super(props);
 
-  constructor() {
-    super();
-    this.state = { pingInd: false };
+    this.state = {
+      pingInd: false,
+    };
+    this.timer = null;
+    this.devListToken = '';
+    this.devToken = '';
   }
 
   async componentDidMount() {
     const checkConn = async () => {
-      const test = checkConnection();
-      //  console.log('conn: ', test);
-      this.setState({ pingInd: test });
+      checkConnection()
+        .then((resp) => {
+          this.setState({
+            pingInd: !!resp,
+          });
+          return !!resp;
+        })
+        .catch((_: any) => {
+          this.setState({
+            pingInd: false,
+          });
+        });
+      // const test = await checkConnection();
+      // //  console.log('conn: ', test);
+      // this.setState({
+      //   pingInd: test,
+      // });
     };
+
     // this.devListToken = PubSub.subscribe('DEVLIST_CHANGE', this.updateDevices);
     this.devToken = PubSub.subscribe('DEVICE_CHANGE', this.checkConn);
     checkConn();
-    this.timer = setInterval(await checkConn, 5000);
+    this.timer = setInterval(checkConn, 5000);
     this.changeDevice = this.changeDevice.bind(this);
   }
 
   componentWillUnmount() {
-    clearInterval(this.timer);
+    if (this.timer) clearInterval(this.timer);
     PubSub.unsubscribe(this.devToken);
     PubSub.unsubscribe(this.devListToken);
   }
@@ -47,13 +69,17 @@ class PingStatus extends Component<PingProps, PingState> {
   checkConn = async () => {
     const test = await checkConnection();
     //  console.log('conn: ', test);
-    this.setState({ pingInd: test });
+    this.setState({
+      pingInd: !!test,
+    });
   };
 
-  changeDevice = (serverId: {}) => {
+  changeDevice = (serverId: string | null) => {
+    if (!serverId) return;
+
     const { history } = this.props;
     const device = global.discoveredDevices.filter(
-      item => item.serverid === serverId
+      (item) => item.server_id === serverId
     );
     setCurrentDevice(device[0]);
     history.push(routes.HOME);
@@ -62,15 +88,17 @@ class PingStatus extends Component<PingProps, PingState> {
   render() {
     const { pingInd } = this.state;
     const { device } = global.Api;
-
     if (!device) return <></>; //
-    const currentDevice = store.get('CurrentDevice');
 
+    const currentDevice = store.get('CurrentDevice');
     let pingStatus = 'text-danger';
+
     if (pingInd) {
       pingStatus = 'text-success';
     }
+
     const { discoveredDevices } = global;
+
     if (!device && discoveredDevices.length === 1) {
       return (
         <span title={device.private_ip}>
@@ -81,6 +109,7 @@ class PingStatus extends Component<PingProps, PingState> {
         </span>
       );
     }
+
     return (
       <>
         <Dropdown>
@@ -89,7 +118,7 @@ class PingStatus extends Component<PingProps, PingState> {
             <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {discoveredDevices.map(dev => {
+            {discoveredDevices.map((dev) => {
               const key = `ping-status-${dev.serverid}`;
               return (
                 <Dropdown.Item
@@ -107,4 +136,5 @@ class PingStatus extends Component<PingProps, PingState> {
     );
   }
 }
+
 export default withRouter(PingStatus);

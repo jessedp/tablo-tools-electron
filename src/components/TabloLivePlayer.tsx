@@ -1,36 +1,37 @@
-// @flow
 import React, { Component } from 'react';
-import Button from 'react-bootstrap/Button';
-
 import Modal from 'react-bootstrap/Modal';
+
+import Button from './ButtonExtended';
 import MyPlayerLive from './MyPlayerLive';
 import Channel from '../utils/Channel';
 
-type Props = { channel: Channel };
-type State = { opened: boolean };
-
+type Props = {
+  channel: Channel;
+};
+type State = {
+  opened: boolean;
+};
 export default class TabloLivePlayer extends Component<Props, State> {
-  props: Props;
+  // props: Props;
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
-      opened: false
+      opened: false,
     };
-    (this: any).toggle = this.toggle.bind(this);
+    (this as any).toggle = this.toggle.bind(this);
   }
 
   toggle() {
     const { opened } = this.state;
     this.setState({
-      opened: !opened
+      opened: !opened,
     });
   }
 
   render() {
     const { channel } = this.props;
     const { opened } = this.state;
-
     return (
       <>
         <Button

@@ -1,51 +1,46 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import * as ActionListActions from '../actions/actionList';
-import { ProgramData, YES } from '../constants/app';
+import { YES } from '../constants/app';
+import { ProgramData } from '../constants/types_airing';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import Airing from '../utils/Airing';
 
-type Props = {
-  showCheckbox: number,
-  checked: number,
-  rec: ProgramData,
-  search: string => Promise<void>,
-  bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void
+type OwnProps = {
+  showCheckbox: number;
+  rec: ProgramData;
+  // search: (arg0: string) => Promise<void>;
 };
 
+type StateProps = {
+  checked: number;
+};
+
+type DispatchProps = {
+  bulkAddAirings: (arg0: Array<Airing>) => void;
+  bulkRemAirings: (arg0: Array<Airing>) => void;
+};
+
+type Props = OwnProps & StateProps & DispatchProps;
 class ProgramCover extends Component<Props> {
-  props: Props;
-
-  constructor() {
-    super();
-
-    this.search = this.search.bind(this);
+  constructor(props: Props) {
+    super(props);
     this.toggle = this.toggle.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
     const { checked } = this.props;
+
     if (prevProps.checked !== checked) {
       this.render();
     }
   }
 
-  search = () => {
-    const { rec, search } = this.props;
-    const { airing, count } = rec;
-    if (count > 1) {
-      search(airing.program_path);
-    }
-  };
-
   toggle = () => {
-    const { bulkAddAirings, bulkRemAirings, rec } = this.props;
-    const { airings, checked } = rec;
-    console.log(airings);
+    const { bulkAddAirings, bulkRemAirings, rec, checked } = this.props;
+    const { airings } = rec;
+
     if (checked === CHECKBOX_ON) {
       bulkRemAirings(airings);
     } else {
@@ -97,21 +92,20 @@ class ProgramCover extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state: any, ownProps: OwnProps) => {
   const { actionList } = state;
   const { rec } = ownProps;
   const { airings } = rec;
-
   return {
-    checked: airings.length === actionList.length ? CHECKBOX_ON : CHECKBOX_OFF
+    checked: airings.length === actionList.length ? CHECKBOX_ON : CHECKBOX_OFF,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(ProgramCover);

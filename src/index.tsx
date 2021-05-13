@@ -1,51 +1,75 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
-import { AppContainer as ReactHotAppContainer } from 'react-hot-loader';
 
 import PubSub from 'pubsub-js';
 import Root from './containers/Root';
-import { configureStore, history } from './store/configureStore';
+
+// import { configureStore, history } from './store/configureStore';
+// import { Store } from './store';
+import { history, configuredStore } from './store';
 import './app.global.css';
 import { setupApi } from './utils/Tablo';
 import { setupDb } from './utils/db';
 import { loadTemplates } from './utils/namingTpl';
 
+const store = configuredStore();
+declare global {
+  namespace NodeJS {
+    interface Global {
+      document: Document;
+      window: Window;
+      navigator: Navigator;
+
+      discoveredDevices: Array<any>;
+      CONNECTED: boolean;
+      EXPORTING: boolean;
+
+      RecDb: any;
+      ShowDb: any;
+      ChannelDb: any;
+      SearchDb: any;
+      NamingDb: any;
+      ExportLogDb: any;
+      Templates: any;
+      Api: any;
+    }
+  }
+}
+
 require('./sentry');
 
-const store = configureStore();
-
-const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;
+// const store = configureStore();
 
 const run = new Promise((resolve, reject) => {
-  setupApi(false)
+  setupApi()
     .then(() => {
-      setupDb(false)
+      setupDb()
         .then(() => {
           loadTemplates();
           PubSub.subscribe('DEVICE_CHANGE', setupDb);
           resolve('done');
           return 'why';
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
       return 'why';
     })
-    .catch(e => {
+    .catch((e) => {
       reject(e);
     });
 });
 
-run
-  .then(() => {
-    return render(
-      <AppContainer>
-        <Root store={store} history={history} />
-      </AppContainer>,
-      document.getElementById('root')
-    );
-  })
-  .catch(e => {
-    console.error(e);
-    throw e;
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  run
+    .then(() => {
+      return render(
+        <Root store={store} history={history} />,
+        document.getElementById('root')
+      );
+    })
+    .catch((e) => {
+      console.error(e);
+      throw e;
+    });
+});

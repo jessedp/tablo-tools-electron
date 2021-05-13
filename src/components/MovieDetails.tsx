@@ -1,70 +1,70 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 
-import { Button } from 'react-bootstrap';
 import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
-
 import routes from '../constants/routes.json';
-
 import { getTabloImageUrl, readableDuration } from '../utils/utils';
+import Button from './ButtonExtended';
 import TabloImage from './TabloImage';
-
 import AwardsModal from './AwardsModal';
 import AiringDetailsModal from './AiringDetailsModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import VideoExportModal from './VideoExportModal';
 
-type Props = {
-  selectedCount: number,
-  addAiring: Airing => void,
-  remAiring: Airing => void,
-  match: any
+type OwnProps = {
+  match: any;
+  selectedCount: number;
+  addAiring: (arg0: Airing) => void;
+  remAiring: (arg0: Airing) => void;
 };
+
+type StateProps = {
+  selectedCount: number;
+};
+
+type DispatchProps = {
+  addAiring: (arg0: Airing) => void;
+  remAiring: (arg0: Airing) => void;
+};
+
+type Props = OwnProps & StateProps & DispatchProps;
 
 type State = {
-  movie: Airing | null
+  movie: Airing | null;
 };
 
-class MovieDetails extends Component<Props, State> {
-  props: Props;
-
+class MovieDetails extends Component<Props & RouteComponentProps, State> {
   initialState: State;
 
-  constructor() {
-    super();
-
+  constructor(props: Props & RouteComponentProps) {
+    super(props);
     this.initialState = {
-      movie: null
+      movie: null,
     };
-
     this.state = this.initialState;
-
-    (this: any).refresh = this.refresh.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
     // eslint-disable-next-line
     const id = parseInt(this.props.match.params.id, 10);
     const rec = await global.RecDb.asyncFindOne({
-      object_id: id
+      object_id: id,
     });
-
     const movie = await Airing.create(rec);
-
     this.refresh(movie);
   }
 
   componentDidUpdate(prevProps: Props) {
     const { selectedCount } = this.props;
+
     if (prevProps.selectedCount !== selectedCount) {
       this.refresh();
     }
@@ -72,9 +72,8 @@ class MovieDetails extends Component<Props, State> {
 
   async refresh(movie: Airing | null = null) {
     if (!movie) return;
-
     this.setState({
-      movie
+      movie,
     });
   }
 
@@ -82,11 +81,9 @@ class MovieDetails extends Component<Props, State> {
     const { movie } = this.state;
     const { selectedCount } = this.props;
     const { addAiring, remAiring } = this.props;
-
-    if (!movie) return <></>; //
+    if (!movie) return <></>;
 
     const { show } = movie;
-
     return (
       <div className="section overflow-hidden">
         <img
@@ -99,8 +96,7 @@ class MovieDetails extends Component<Props, State> {
             width: '100%',
             height: 'auto',
             opacity: '0.25',
-            zIndex: '-1'
-            // maxHeight: '90vh'
+            zIndex: -1, // maxHeight: '90vh'
           }}
         />
 
@@ -167,7 +163,12 @@ class MovieDetails extends Component<Props, State> {
                 </div>
               </Row>
 
-              <div className="p-3" style={{ maxWidth: '80vw' }}>
+              <div
+                className="p-3"
+                style={{
+                  maxWidth: '80vw',
+                }}
+              >
                 <Row>
                   <Col>
                     <b>Released:</b>
@@ -200,26 +201,25 @@ class MovieDetails extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state: any, ownProps: Props) => {
   const { actionList } = state;
   //  const { show } = ownProps;
   // eslint-disable-next-line
   const id = parseInt(ownProps.match.params.id, 10);
-
   const selectedCount = actionList.reduce(
-    (a, b) => a + (b.object_id === id || 0),
+    (a: number, b: Airing) => a + (b.object_id === id ? 1 : 0),
     0
   );
   return {
-    selectedCount
+    selectedCount,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(withRouter(MovieDetails));

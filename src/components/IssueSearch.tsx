@@ -1,37 +1,47 @@
-// @flow
 import { ipcRenderer, shell } from 'electron';
 import React, { Component } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
+
 import { InputGroup, Form, Row, Col } from 'react-bootstrap';
+import Button from './ButtonExtended';
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  show: boolean,
-  searchTerm: string
+  show: boolean;
+  searchTerm: string;
 };
-
 export default class IssueSearch extends Component<Props, State> {
-  props: Props;
-
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
       show: false,
-      searchTerm: ''
+      searchTerm: '',
     };
-
-    (this: any).handleClose = this.handleClose.bind(this);
-    (this: any).setSearchTerm = this.setSearchTerm.bind(this);
-    (this: any).searchAll = this.searchAll.bind(this);
-    (this: any).searchOpen = this.searchOpen.bind(this);
+    (this as any).handleClose = this.handleClose.bind(this);
+    (this as any).setSearchTerm = this.setSearchTerm.bind(this);
+    (this as any).searchAll = this.searchAll.bind(this);
+    (this as any).searchOpen = this.searchOpen.bind(this);
   }
 
   componentDidMount() {
     ipcRenderer.on('search-issues', () => {
-      this.setState({ show: true });
+      this.setState({
+        show: true,
+      });
     });
   }
+
+  handleClose() {
+    this.setState({
+      show: false,
+    });
+  }
+
+  setSearchTerm = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      searchTerm: event.currentTarget.value,
+    });
+  };
 
   searchOpen() {
     const { searchTerm } = this.state;
@@ -49,20 +59,10 @@ export default class IssueSearch extends Component<Props, State> {
     shell.openExternal(url);
   }
 
-  handleClose() {
-    this.setState({ show: false });
-  }
-
-  setSearchTerm = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ searchTerm: event.currentTarget.value });
-  };
-
   render() {
     const { show, searchTerm } = this.state;
-
     return (
       <Modal
-        size=""
         show={show}
         onHide={this.handleClose}
         animation={false}

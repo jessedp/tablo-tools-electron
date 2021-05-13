@@ -1,39 +1,35 @@
-// @flow
 import React, { Component } from 'react';
 import { ipcRenderer, shell } from 'electron';
-
 import Modal from 'react-bootstrap/Modal';
-
 import ReactMarkdown from 'react-markdown';
-
 import { format } from 'date-fns';
 import axios from 'axios';
 
-import { Button } from 'react-bootstrap';
 // import { configs } from 'eslint-plugin-prettier';
 import compareVersions from 'compare-versions';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
+import Button from './ButtonExtended';
+
 const { remote } = require('electron');
 
 const { app } = remote;
-
-type Props = {};
+type Props = Record<string, unknown>;
 type State = {
-  show: boolean,
-  updateAvailable: boolean,
-  record?: Object
+  show: boolean;
+  updateAvailable: boolean;
+  record?: Record<string, any>;
 };
 
 class VersionStatus extends Component<Props, State> {
-  props: Props;
+  // props: Props;
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
       show: false,
-      updateAvailable: false
+      updateAvailable: false,
     };
   }
 
@@ -45,16 +41,29 @@ class VersionStatus extends Component<Props, State> {
       setInterval(this.checkUpdate, 1000 * 60 * 60);
       setTimeout(this.checkUpdate, 1000);
     }
-    this.checkUpdate();
 
+    this.checkUpdate();
     ipcRenderer.on('update-reply', () => {
       this.checkUpdate();
     });
   }
 
+  show = () => {
+    this.setState({
+      show: true,
+    });
+  };
+
+  close = () => {
+    this.setState({
+      show: false,
+    });
+  };
+
   async checkUpdate() {
     const appVersion = app.getVersion();
-    let data = {};
+    let data: Array<Record<string, any>>;
+
     try {
       const resp = await axios.get(
         'https://api.github.com/repos/jessedp/tablo-tools-electron/releases'
@@ -65,37 +74,33 @@ class VersionStatus extends Component<Props, State> {
       return;
     }
 
-    let notify;
-    data.forEach(rec => {
+    let notify: Record<string, any> = {};
+    data.forEach((rec: Record<string, any>) => {
       if (compareVersions.compare(appVersion, rec.tag_name, '<')) {
         if (rec.prerelease && getConfig().notifyBeta) {
           if (!notify) notify = rec;
         }
+
         if (!rec.prerelease && !notify) notify = rec;
       }
     });
 
     if (notify && this) {
-      this.setState({ updateAvailable: true, record: notify });
+      this.setState({
+        updateAvailable: true,
+        record: notify,
+      });
     }
   }
 
-  show = () => {
-    this.setState({ show: true });
-  };
-
-  close = () => {
-    this.setState({ show: false });
-  };
-
   render() {
     const { show, record, updateAvailable } = this.state;
-
     if (!record || !updateAvailable) return <></>; //
 
     let color = 'text-warning ';
     let type = 'NEW Release ';
     let isRelease = true;
+
     if (record.tag_name.match(/[-]/)) {
       type = 'Pre-release ';
       color = 'text-secondary';
@@ -109,7 +114,6 @@ class VersionStatus extends Component<Props, State> {
       'ccc M/d/yy @ h:m:s a'
     );
     const title = `${record.tag_name} available as of ${releaseDate}`;
-
     return (
       <>
         <div className="pt-1">
@@ -123,7 +127,12 @@ class VersionStatus extends Component<Props, State> {
             title={title}
             size="xs"
           >
-            <span className={color} style={{ fontSize: '14px' }}>
+            <span
+              className={color}
+              style={{
+                fontSize: '14px',
+              }}
+            >
               <span className="fa fa-exclamation-circle" />
             </span>
           </Button>

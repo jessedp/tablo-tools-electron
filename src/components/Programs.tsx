@@ -1,38 +1,35 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import { LinkContainer } from 'react-router-bootstrap';
 import { Button } from 'react-bootstrap';
 import Alert from 'react-bootstrap/Alert';
 import routes from '../constants/routes.json';
-
 import Airing from '../utils/Airing';
 import { asyncForEach } from '../utils/utils';
 import ProgramCover from './ProgramCover';
-import { ProgramData, YES } from '../constants/app';
+import { YES } from '../constants/app';
+import { ProgramData } from '../constants/types_airing';
 // import ProgramEpisodeList from './ProgramEpisodeList';
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  airings: Array<any>,
-  alertType: string,
-  alertTxt: string,
-  loaded: boolean
+  airings: ProgramData[];
+  alertType: string;
+  alertTxt: string;
+  loaded: boolean;
 };
-
 export default class Programs extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  initialState: State;
-
-  psToken: null;
-
-  constructor() {
-    super();
-
-    this.state = { airings: [], alertType: '', alertTxt: '', loaded: false };
-
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      airings: [],
+      alertType: '',
+      alertTxt: '',
+      loaded: false,
+    };
+    this.psToken = '';
     this.refresh = this.refresh.bind(this);
   }
 
@@ -41,7 +38,7 @@ export default class Programs extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     PubSub.unsubscribe(this.psToken);
   }
 
@@ -51,13 +48,12 @@ export default class Programs extends Component<Props, State> {
       airings: recs,
       alertType: 'info',
       alertTxt: `${recs.length} manual recordings found`,
-      loaded: true
+      loaded: true,
     });
   };
 
   render() {
     const { airings, loaded, alertTxt, alertType } = this.state;
-
     if (!loaded) return <></>; //
 
     if (airings.length === 0) {
@@ -76,7 +72,7 @@ export default class Programs extends Component<Props, State> {
         </div>
 
         <div className="scrollable-area">
-          {airings.map(rec => {
+          {airings.map((rec) => {
             const key = `program-${rec.airing.id}`;
             return (
               <LinkContainer
@@ -94,37 +90,41 @@ export default class Programs extends Component<Props, State> {
     );
   }
 }
-
-export async function programList(progPath: string = '') {
+export async function programList(progPath = '') {
   let recs = [];
+
   if (progPath) {
-    recs = await global.RecDb.asyncFind({ program_path: progPath });
+    recs = await global.RecDb.asyncFind({
+      program_path: progPath,
+    });
   } else {
     const recType = new RegExp('program');
-    recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
+    recs = await global.RecDb.asyncFind({
+      path: {
+        $regex: recType,
+      },
+    });
   }
 
-  const objs: any = {};
-
-  const newRecs = [];
-
-  await await asyncForEach(recs, async rec => {
+  const objs: Record<string, ProgramData> = {};
+  const newRecs: Airing[] = [];
+  await await asyncForEach(recs, async (rec) => {
     const airing = await Airing.create(rec);
     newRecs.push(airing);
   });
-
   newRecs.sort((a, b) =>
     a.airingDetails.datetime > b.airingDetails.datetime ? 1 : -1
   );
-
-  newRecs.forEach(rec => {
+  newRecs.forEach((rec) => {
     const path = rec.program_path.trim();
 
     if (Object.prototype.hasOwnProperty.call(objs, path)) {
       objs[path].count += 1;
+
       if (!rec.userInfo.watched) {
         objs[rec.program_path].unwatched += 1;
       }
+
       objs[rec.program_path].airings.push(rec);
     } else {
       const airings = [rec];
@@ -133,41 +133,35 @@ export async function programList(progPath: string = '') {
         airing: rec,
         airings,
         count: 1,
-        unwatched: rec.userInfo.watched ? 0 : 1
+        unwatched: rec.userInfo.watched ? 0 : 1,
       };
     }
   });
-  const objRecs: ProgramData = Object.keys(objs).map(id => objs[id]);
+  const objRecs: ProgramData[] = Object.keys(objs).map((id) => objs[id]);
 
-  const titleSort = (a, b) => {
+  const titleSort = (a: ProgramData, b: ProgramData) => {
     if (a.airing.title > b.airing.title) return 1;
     return -1;
   };
 
   objRecs.sort((a, b) => titleSort(a, b));
+
   if (progPath) {
-    return objRecs[0];
+    return [objRecs[0]];
   }
 
   return objRecs;
-}
-
-// export async function programsByProgramList(path: string) {
+} // export async function programsByProgramList(path: string) {
 //   const recs = await global.RecDb.asyncFind({ program_path: { $eq: path } });
-
 //   const objRecs = [];
-
 //   await asyncForEach(recs, async rec => {
 //     const airing = await Airing.create(rec);
 //     objRecs.push(airing);
 //   });
-
 //   const titleSort = (a, b) => {
 //     if (a.datetime > b.datetime) return 1;
 //     return -1;
 //   };
-
 //   objRecs.sort((a, b) => titleSort(a, b));
-
 //   return objRecs;
 // }

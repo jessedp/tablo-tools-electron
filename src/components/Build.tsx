@@ -1,79 +1,84 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
+
 import Spinner from 'react-bootstrap/Spinner';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
-
 import Airing from '../utils/Airing';
-import RelativeDate from './RelativeDate';
+
+import BuildTitle from './BuildTitle';
+
 import { writeToFile } from '../utils/utils';
 import getConfig from '../utils/config';
 import Show from '../utils/Show';
 import Channel from '../utils/Channel';
 
-type Props = { showDbTable: (show: boolean) => void, view?: string };
-type State = {
-  loading: number,
-  status: Array<Object>,
-  airingInc: number,
-  airingMax: number,
-  recCount: number
+type Props = {
+  showDbTable: (show: boolean) => void;
+  view?: string;
 };
-
+type State = {
+  loading: number;
+  status: Array<string>;
+  airingInc: number;
+  airingMax: number;
+  recCount: number;
+};
 const STATE_NONE = 0;
 const STATE_LOADING = 1;
 const STATE_FINISH = 2;
 const STATE_ERROR = 3;
-
 export default class Build extends Component<Props, State> {
-  props: Props;
-
   building: boolean;
 
-  psToken: null;
+  psToken: string;
 
-  static defaultProps = { view: 'progress' };
+  static defaultProps = {
+    view: 'progress',
+  };
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
       loading: STATE_NONE,
       status: [],
       airingInc: 0,
       airingMax: 1,
-      recCount: 0
+      recCount: 0,
     };
+    this.psToken = '';
     this.building = false;
     this.build = this.build.bind(this);
     this.refresh = this.refresh.bind(this);
   }
 
-  async componentDidMount(): * {
+  async componentDidMount() {
     const { Api } = global;
     let created = recDbCreated();
+
     // TODO: some const export?
     if (!created) {
       let i = 0;
+
       const autoBuild = async () => {
         created = recDbCreated();
+
         if (!Api.device && !created) {
           if (i > 0) return;
           i += 1;
-          setTimeout(await autoBuild, 5000);
+          setTimeout(autoBuild, 5000);
         }
+
         if (Api.device && !created) this.build();
       };
+
       autoBuild();
     }
+
     this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
@@ -84,22 +89,26 @@ export default class Build extends Component<Props, State> {
 
   refresh = async () => {
     const total = await recDbStats();
-    await this.setState({ recCount: total });
+    await this.setState({
+      recCount: total,
+    });
   };
 
   build = async () => {
     const { Api } = global;
     const { showDbTable } = this.props;
-
     if (!Api.device) return;
+
     if (this.building) {
       console.log('trying to double build');
       return;
     }
+
     if (!global.CONNECTED) {
       console.log('Not connected, not bulding...');
       return;
     }
+
     if (global.EXPORTING) {
       console.log('Exporting, not bulding...');
       return;
@@ -107,45 +116,60 @@ export default class Build extends Component<Props, State> {
 
     this.building = true;
     console.time('Building');
-
     showDbTable(false);
-
-    this.setState({ loading: STATE_LOADING, status: [] });
+    this.setState({
+      loading: STATE_LOADING,
+      status: [],
+    });
 
     try {
       console.log('start');
       const total = await Api.getRecordingsCount();
       console.log('total', total);
-      this.setState({ airingMax: total });
-
-      const recs = await Api.getRecordings(true, val => {
-        this.setState({ airingInc: val });
+      this.setState({
+        airingMax: total,
       });
-
+      const recs = await Api.getRecordings(true, (val: number) => {
+        this.setState({
+          airingInc: val,
+        });
+      });
       // TODO: maybe put this elsewhere later
-      recs.forEach(rec => {
+      recs.forEach((rec: Record<string, any>) => {
         writeToFile(`airing-${rec.object_id}.json`, rec);
       });
-
       console.log(`retrieved ${recs.length} recordings`);
       const { status } = this.state;
       status.push(`retrieved ${recs.length} recordings`);
-
       const { RecDb } = global;
       let cnt = 0;
-      cnt = await RecDb.asyncRemove({}, { multi: true });
-      await global.ShowDb.asyncRemove({}, { multi: true });
-      await global.ChannelDb.asyncRemove({}, { multi: true });
-
+      cnt = await RecDb.asyncRemove(
+        {},
+        {
+          multi: true,
+        }
+      );
+      await global.ShowDb.asyncRemove(
+        {},
+        {
+          multi: true,
+        }
+      );
+      await global.ChannelDb.asyncRemove(
+        {},
+        {
+          multi: true,
+        }
+      );
       console.log(`${cnt} old records removed`);
       cnt = await RecDb.asyncInsert(recs);
-      console.log(`${cnt.length} records added`);
-      status.push(`${cnt.length} recordings found.`);
-
-      const showPaths = [];
-      recs.forEach(rec => {
+      console.log(`${cnt} records added`);
+      status.push(`${cnt} recordings found.`);
+      const showPaths: string[] = [];
+      recs.forEach((rec: Record<string, any>) => {
         const airing = new Airing(rec);
         writeToFile(`${airing.type}-airing-${airing.id}.json`, rec);
+
         try {
           if (airing.typePath) showPaths.push(airing.typePath);
         } catch (e) {
@@ -157,37 +181,37 @@ export default class Build extends Component<Props, State> {
 
       /** init shows from recordings for now to "seed" the db */
       const shows = await Api.batch([...new Set(showPaths)]);
+
       if (getConfig().enableExportData) {
-        shows.forEach(rec => {
+        shows.forEach((rec: Record<string, any>) => {
           const show = new Show(rec);
           writeToFile(`show-${show.object_id}.json`, rec);
         });
       }
 
       cnt = await global.ShowDb.asyncInsert(shows);
-      console.log(`${cnt.length} SHOW records added`);
+      console.log(`${cnt} SHOW records added`);
 
       /** Init all the channels b/c we have no choice. This also isn't much */
       const channelPaths = await Api.get('/guide/channels');
-
       const channels = await Api.batch([...new Set(channelPaths)]);
+
       if (getConfig().enableExportData) {
-        channels.forEach(rec => {
+        channels.forEach((rec: Record<string, any>) => {
           const channel = new Channel(rec);
           writeToFile(`channel-${channel.object_id}.json`, rec);
         });
       }
 
       cnt = await global.ChannelDb.asyncInsert(channels);
-      console.log(`${cnt.length} CHANNEL records added`);
+      console.log(`${cnt} CHANNEL records added`);
 
       /** Finish up... */
       this.building = false;
       await this.setState({
         loading: STATE_FINISH,
-        status
+        status,
       });
-
       localStorage.setItem(dbCreatedKey(), new Date().toISOString());
       PubSub.publish('DB_CHANGE', true);
       console.timeEnd('Building');
@@ -196,13 +220,15 @@ export default class Build extends Component<Props, State> {
       console.timeEnd('Building');
       this.building = false;
       let err = 'Unknown error (network?), e object disappeared';
+
       // e "disappeared"? sentry #1c
       if (e) {
         err = e.toString();
       }
+
       await this.setState({
         loading: STATE_ERROR,
-        status: [err]
+        status: [err],
       });
     }
 
@@ -213,7 +239,7 @@ export default class Build extends Component<Props, State> {
     const { loading, status, airingMax, airingInc } = this.state;
 
     if (loading === STATE_NONE) {
-      return '';
+      return <></>;
     }
 
     let progressVariant = 'info';
@@ -222,6 +248,7 @@ export default class Build extends Component<Props, State> {
       const pct = Math.round((airingInc / airingMax) * 100);
       // console.log('loading pct', pct);
       const airingPct = `${pct}%`;
+
       if (pct < 25) {
         progressVariant = 'danger';
       } else if (pct < 50) {
@@ -256,11 +283,13 @@ export default class Build extends Component<Props, State> {
         </Container>
       );
     }
+
     if (loading === STATE_FINISH) {
       setTimeout(() => {
-        this.setState({ loading: STATE_NONE });
+        this.setState({
+          loading: STATE_NONE,
+        });
       }, 3000);
-
       const txt = status.pop();
       return (
         <Container>
@@ -273,9 +302,10 @@ export default class Build extends Component<Props, State> {
 
     if (loading === STATE_ERROR) {
       setTimeout(() => {
-        this.setState({ loading: STATE_NONE });
+        this.setState({
+          loading: STATE_NONE,
+        });
       }, 5000);
-
       return (
         <Container>
           <Alert className="fade m-2" variant="danger">
@@ -286,19 +316,21 @@ export default class Build extends Component<Props, State> {
         </Container>
       );
     }
+    return <></>;
   }
 
   loadingSpinner() {
     const { loading, airingMax, airingInc } = this.state;
 
     if (loading === STATE_NONE) {
-      return '';
+      return <></>;
     }
 
     let progressVariant = 'badge-danger';
 
     if (loading === STATE_LOADING) {
       const pct = Math.round((airingInc / airingMax) * 100);
+
       // console.log('loading pct', pct);
       // const airingPct = `${pct}%`;
       if (pct < 25) {
@@ -310,8 +342,8 @@ export default class Build extends Component<Props, State> {
       } else {
         progressVariant = 'badge-success';
       }
-      const cubeClass = `sk-folding-cube ${progressVariant}`;
 
+      const cubeClass = `sk-folding-cube ${progressVariant}`;
       return (
         <div className={cubeClass}>
           <div className="sk-cube1 sk-cube" />
@@ -321,29 +353,28 @@ export default class Build extends Component<Props, State> {
         </div>
       );
     }
+
     if (loading === STATE_FINISH) {
       return <></>;
     }
+    return <></>;
   }
 
   render() {
     const { loading, recCount } = this.state;
-    const { showDbTable, view } = this.props;
+    const { view } = this.props;
 
     if (view === 'spinner') {
       return <>{this.loadingSpinner()}</>;
     }
+
     // progress
     return (
       <Container>
         <Row>
           <Col className="d-flex align-items-center">
             {loading !== STATE_LOADING ? (
-              <BuildTitle
-                recCount={recCount}
-                showDbTable={showDbTable}
-                build={this.build}
-              />
+              <BuildTitle recCount={recCount} build={this.build} />
             ) : (
               ''
             )}
@@ -353,30 +384,4 @@ export default class Build extends Component<Props, State> {
       </Container>
     );
   }
-}
-
-function BuildTitle(prop) {
-  const { build, recCount } = prop;
-
-  if (recCount) {
-    return (
-      <>
-        <span>
-          Last checked: <RelativeDate date={recDbCreated()} />
-        </span>
-        <Button onClick={build} className="ml-auto mr-2" size="sm">
-          Reload
-        </Button>
-      </>
-    );
-  }
-
-  return (
-    <>
-      Please load your recordings first.
-      <Button onClick={build} className="ml-auto mr-2" size="sm">
-        Load
-      </Button>
-    </>
-  );
 }

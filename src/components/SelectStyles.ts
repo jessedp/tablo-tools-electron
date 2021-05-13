@@ -1,10 +1,7 @@
 export default function SelectStyles(height: string, width?: number) {
   return {
-    container: base => ({
-      ...base,
-      flex: 1
-    }),
-    control: (provided, state) => ({
+    container: (base: Record<string, any>) => ({ ...base, flex: 1 }),
+    control: (provided: Record<string, any>, state: Record<string, any>) => ({
       ...provided,
       height,
       minHeight: height,
@@ -15,46 +12,42 @@ export default function SelectStyles(height: string, width?: number) {
       borderColor: '#9e9e9e',
       overflowX: 'hidden',
       overflowY: 'hidden',
-      boxShadow: state.isFocused ? null : null,
+      boxShadow: state.isFocused ? '' : '',
       borderRadius: '1px',
       color: '#CCC',
-      fontSize: 12
-      // margin: 0,
+      fontSize: 12, // margin: 0,
       // padding: '1px'
     }),
-    valueContainer: provided => ({
+    valueContainer: (provided: Record<string, any>) => ({
       ...provided,
       height,
-      padding: '0 3px'
+      padding: '0 3px',
     }),
-    menu: provided => ({
+    menu: (provided: Record<string, any>) => ({
       ...provided,
       minWidth: width || 50,
       width: '100%',
       maxWidth: 500,
-      zIndex: '99999'
+      zIndex: 99999,
     }),
-    option: (provided, state) => ({
+    option: (provided: Record<string, any>, state: Record<string, any>) => ({
       ...provided,
       fontSize: '12px',
       color: '#3E3F3A',
       borderBottom: '1px dotted #8E8C84',
       backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor,
-      overflowX: 'hidden'
+      overflowX: 'hidden',
     }),
-    input: provided => ({
-      ...provided,
-      margin: '0px'
-    }),
+    input: (provided: Record<string, any>) => ({ ...provided, margin: '0px' }),
     singleValue: () => ({
-      color: 'hsl(0, 0%, 50%)'
+      color: 'hsl(0, 0%, 50%)',
     }),
     indicatorSeparator: () => ({
-      display: 'none'
+      display: 'none',
     }),
-    indicatorsContainer: provided => ({
+    indicatorsContainer: (provided: Record<string, any>) => ({
       ...provided,
-      height
-    })
+      height,
+    }),
   };
 }

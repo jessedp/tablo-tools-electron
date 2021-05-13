@@ -16,6 +16,14 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 
+const { ipcMain } = require('electron');
+
+ipcMain.on('get-path-main', (event: any, arg: any) => {
+  console.log('EVENT', event);
+  console.log('ARG', arg);
+  event.reply('get-path-main', app.getPath(arg));
+});
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -73,7 +81,11 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
-      nodeIntegration: true,
+      // nodeIntegration: true,
+      nodeIntegration: false,
+      enableRemoteModule: false,
+      contextIsolation: true,
+      sandbox: true,
     },
   });
 

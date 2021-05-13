@@ -1,10 +1,14 @@
-// @flow
 const isPlainObject = require('is-plain-object');
 
-export default function filter(value: any, fn: Function) {
+function isCollection(value: Array<any> | Record<string, any>) {
+  return Array.isArray(value) || isPlainObject(value);
+}
+
+export default function filter(value: any, fn: (...args: Array<any>) => any) {
   if (Array.isArray(value)) {
     return filterArray(value, fn);
   }
+
   if (isPlainObject(value)) {
     return filterObject(value, fn);
   }
@@ -12,12 +16,14 @@ export default function filter(value: any, fn: Function) {
   return value;
 }
 
-function filterObject(obj, fn) {
-  const newObj = {};
-  // let key;
-  let value;
+function filterObject(
+  obj: Record<string, any>,
+  fn: (...args: Array<any>) => any
+) {
+  const newObj: Record<string, any> = {};
 
-  Object.keys(obj).forEach(key => {
+  let value;
+  Object.keys(obj).forEach((key) => {
     value = filter(obj[key], fn);
 
     if (fn.call(obj, value, key, obj)) {
@@ -28,13 +34,14 @@ function filterObject(obj, fn) {
       newObj[key] = value;
     }
   });
-
   return newObj;
 }
 
-function filterArray(arrayToFilter, fn) {
-  const filtered = [];
-
+function filterArray(
+  arrayToFilter: Array<any>,
+  fn: (...args: Array<any>) => any
+) {
+  const filtered: Array<any> = [];
   arrayToFilter.forEach((value: any, index: any, array: any) => {
     let newValue = filter(value, fn);
 
@@ -46,10 +53,5 @@ function filterArray(arrayToFilter, fn) {
       filtered.push(newValue);
     }
   });
-
   return filtered;
-}
-
-function isCollection(value) {
-  return Array.isArray(value) || isPlainObject(value);
 }

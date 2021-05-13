@@ -1,44 +1,40 @@
-// @flow
-
 import { ExportRecordType } from '../reducers/types';
 
-export const ADD_EXPORT = 'ADD_EXPORT';
-export const REM_EXPORT = 'REM_EXPORT';
-export const UPDATE_EXPORT = 'UPDATE_EXPORT';
-export const BULK_ADD_EXPORTS = 'BULK_ADD_EXPORTS';
-export const BULK_REM_EXPORTS = 'BULK_REM_EXPORTS';
+import {
+  ADD_EXPORT,
+  REM_EXPORT,
+  UPDATE_EXPORT,
+  BULK_ADD_EXPORTS,
+  BULK_REM_EXPORTS,
+} from './types';
 
 export function addExportRecord(record: ExportRecordType) {
   return {
     type: ADD_EXPORT,
-    record
+    record,
   };
 }
-
 export function remExportRecord(record: ExportRecordType) {
   return {
     type: REM_EXPORT,
-    record
+    record,
   };
 }
-
 export function updateExportRecord(record: ExportRecordType) {
   return {
     type: UPDATE_EXPORT,
-    record
+    record,
   };
 }
-
-export function bulkAddExportRecord(record: ExportRecordType) {
+export function bulkAddExportRecord(record: ExportRecordType[]) {
   return {
     type: BULK_ADD_EXPORTS,
-    record
+    record,
   };
 }
-
-export function bulkRemExportRecord(record: ExportRecordType) {
+export function bulkRemExportRecord(record: ExportRecordType[]) {
   return {
     type: BULK_REM_EXPORTS,
-    record
+    record,
   };
 }

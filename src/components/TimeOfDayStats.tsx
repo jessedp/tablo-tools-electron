@@ -1,38 +1,34 @@
-// @flow
 import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
-import { ResponsiveCalendar } from '@nivo/calendar';
+import { CalendarDatum, ResponsiveCalendar } from '@nivo/calendar';
 import Col from 'react-bootstrap/Col';
 import MediumBar from './MediumBar';
 
-type Props = {};
-
+type Props = Record<string, any>;
 type State = {
-  recTotal: number,
-  dayData: Array<{}>,
-  hourData: Array<{}>,
-  dateData: Array<{}>,
-  firstDate: Date,
-  lastDate: Date
+  recTotal: number;
+  dayData: Array<Record<string, any>>;
+  hourData: Array<Record<string, any>>;
+  dateData: Array<CalendarDatum>;
+  firstDate: Date;
+  lastDate: Date;
 };
-
 export default class TimeOfDayStats extends Component<Props, State> {
-  props: Props;
-
-  psToken: null;
+  psToken: string;
 
   constructor(props: Props) {
     super(props);
+    this.psToken = '';
     this.state = {
       recTotal: 0,
       dayData: [],
       hourData: [],
       dateData: [],
       firstDate: new Date(),
-      lastDate: new Date()
+      lastDate: new Date(),
     };
-    (this: any).refresh = this.refresh.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -40,45 +36,40 @@ export default class TimeOfDayStats extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     PubSub.unsubscribe(this.psToken);
   }
 
   async refresh() {
     const { RecDb } = global;
     const recTotal = await RecDb.asyncCount({});
-
     const recs = await RecDb.asyncFind({});
-    const dayCounts = {};
-    const hourCounts = {};
-    const dateCounts = {};
+    const dayCounts: Record<string, any> = {};
+    const hourCounts: Record<string, any> = {};
+    const dateCounts: Record<string, any> = {};
     let firstDate = new Date();
     let lastDate = new Date('1980-01-01');
-    recs.forEach(rec => {
+    recs.forEach((rec: Record<string, any>) => {
       const recDate = new Date(rec.airing_details.datetime);
       firstDate = recDate < firstDate ? recDate : firstDate;
       lastDate = recDate > lastDate ? recDate : lastDate;
       const hour = recDate.getHours();
       const day = recDate.getDay();
-
       const date = recDate.toISOString().split('T')[0];
-
       dayCounts[day] = dayCounts[day] ? dayCounts[day] + 1 : 1;
       hourCounts[hour] = hourCounts[hour] ? hourCounts[hour] + 1 : 1;
       dateCounts[date] = dateCounts[date] ? dateCounts[date] + 1 : 1;
     });
-
-    const dayNames = {
+    const dayNames: Record<string, any> = {
       '0': 'Sun',
       '1': 'Mon',
       '2': 'Tue',
       '3': 'Wed',
       '4': 'Thu',
       '5': 'Fri',
-      '6': 'Sat'
+      '6': 'Sat',
     };
-
-    const hourNames = {
+    const hourNames: Record<string, any> = {
       '0': '12am',
       '1': '1am',
       '2': '2am',
@@ -102,31 +93,38 @@ export default class TimeOfDayStats extends Component<Props, State> {
       '20': '8pm',
       '21': '9pm',
       '22': '10pm',
-      '23': '11pm'
+      '23': '11pm',
     };
-
-    const dayData = [];
-    Object.keys(dayCounts).forEach(key => {
-      dayData.push({ day: dayNames[key], recordings: dayCounts[key] });
+    const dayData: Array<Record<string, any>> = [];
+    Object.keys(dayCounts).forEach((key) => {
+      dayData.push({
+        day: dayNames[key],
+        recordings: dayCounts[key],
+      });
     });
-
-    const hourData = [];
-    Object.keys(hourCounts).forEach(key => {
-      hourData.push({ hour: hourNames[key], recordings: hourCounts[key] });
+    const hourData: Array<Record<string, any>> = [];
+    Object.keys(hourCounts).forEach((key) => {
+      hourData.push({
+        hour: hourNames[key],
+        recordings: hourCounts[key],
+      });
     });
-
-    const dateData = [];
-    Object.keys(dateCounts).forEach(key => {
-      dateData.push({ day: key, value: dateCounts[key] });
+    // CalendarDatum
+    // const dateData: Array<Record<string, any>> = [];
+    const dateData: Array<CalendarDatum> = [];
+    Object.keys(dateCounts).forEach((key) => {
+      dateData.push({
+        day: key,
+        value: dateCounts[key],
+      });
     });
-
     this.setState({
       recTotal,
       dayData,
       hourData,
       dateData,
       lastDate,
-      firstDate
+      firstDate,
     });
   }
 
@@ -137,16 +135,14 @@ export default class TimeOfDayStats extends Component<Props, State> {
       hourData,
       dateData,
       lastDate,
-      firstDate
+      firstDate,
     } = this.state;
-
     if (!recTotal)
       return (
         <Alert variant="light" className="p-2 m-0">
           No recordings loaded yet.
         </Alert>
       );
-
     return (
       <>
         <Col md="2">
@@ -170,14 +166,23 @@ export default class TimeOfDayStats extends Component<Props, State> {
         </Col>
         <Col>
           <div className="stats-header">by month</div>
-          <div style={{ height: '250px' }}>
+          <div
+            style={{
+              height: '250px',
+            }}
+          >
             <ResponsiveCalendar
               data={dateData}
               from={firstDate}
               to={lastDate}
               emptyColor="#eeeeee"
               colors={['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']}
-              margin={{ top: 20, right: 40, bottom: 10, left: 40 }}
+              margin={{
+                top: 20,
+                right: 40,
+                bottom: 10,
+                left: 40,
+              }}
               yearSpacing={40}
               monthBorderColor="#ffffff"
               dayBorderWidth={2}
@@ -191,8 +196,8 @@ export default class TimeOfDayStats extends Component<Props, State> {
                   itemWidth: 42,
                   itemHeight: 36,
                   itemsSpacing: 14,
-                  itemDirection: 'right-to-left'
-                }
+                  itemDirection: 'right-to-left',
+                },
               ]}
             />
           </div>

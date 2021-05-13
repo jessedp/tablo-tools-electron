@@ -1,44 +1,37 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-
 import routes from '../constants/routes.json';
-
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
-import { asyncForEach } from '../utils/utils';
 
-type Props = {};
+import Button from './ButtonExtended';
+import { showList } from '../utils/dbHelpers';
+
+type Props = Record<string, never>;
 type State = {
-  shows: Array<Show>,
-  alertType: string,
-  alertTxt: string,
-  loaded: boolean
+  shows: Array<Show>;
+  alertType: string;
+  alertTxt: string;
+  loaded: boolean;
 };
-
 export default class Shows extends Component<Props, State> {
-  props: Props;
-
   initialState: State;
 
-  psToken: null;
+  psToken: string;
 
-  constructor() {
-    super();
-
+  constructor(props: Props) {
+    super(props);
     this.initialState = {
       shows: [],
       alertType: '',
       alertTxt: '',
-      loaded: false
+      loaded: false,
     };
-
+    this.psToken = '';
     this.state = this.initialState;
-
     this.refresh = this.refresh.bind(this);
   }
 
@@ -57,13 +50,12 @@ export default class Shows extends Component<Props, State> {
       shows: objRecs,
       alertType: 'info',
       alertTxt: `${objRecs.length} shows found`,
-      loaded: true
+      loaded: true,
     });
   };
 
   render() {
     const { shows, loaded, alertType, alertTxt } = this.state;
-
     if (!loaded) return <></>; //
 
     if (shows.length === 0) {
@@ -81,11 +73,11 @@ export default class Shows extends Component<Props, State> {
           <Alert variant={alertType}>{alertTxt}</Alert>
         </div>
         <div className="scrollable-area">
-          {shows.map(show => {
+          {shows.map((show) => {
             if (show.series) {
               return (
                 <LinkContainer
-                  to={routes.SHOWDETAILS.replace(':id', show.id)}
+                  to={routes.SHOWDETAILS.replace(':id', show.id.toString())}
                   key={show.id}
                 >
                   <Button
@@ -97,31 +89,11 @@ export default class Shows extends Component<Props, State> {
                 </LinkContainer>
               );
             }
+
             return <></>; //
           })}
         </div>
       </div>
     );
   }
-}
-
-export async function showList() {
-  const recType = new RegExp('series');
-  const recs = await global.ShowDb.asyncFind({ path: { $regex: recType } });
-
-  const objRecs = [];
-
-  await asyncForEach(recs, async rec => {
-    const show = new Show(rec);
-    objRecs.push(show);
-  });
-
-  const titleSort = (a, b) => {
-    if (a.sortableTitle > b.sortableTitle) return 1;
-    return -1;
-  };
-
-  objRecs.sort((a, b) => titleSort(a, b));
-
-  return objRecs;
 }

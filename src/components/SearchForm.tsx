@@ -1,97 +1,110 @@
-// @flow
 import React, { Component } from 'react';
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
-
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import PubSub from 'pubsub-js';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
-import Button from 'react-bootstrap/Button';
+
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
-
 import ReactPaginate from 'react-paginate';
-import Select, { components } from 'react-select';
 
 import {
   asyncForEach,
   escapeRegExp,
   readableBytes,
   readableDuration,
-  throttleActions
+  throttleActions,
 } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
-import { showList } from './Shows';
-import TabloImage from './TabloImage';
-import type { SearchAlert } from '../utils/types';
+import { showList } from '../utils/dbHelpers';
+
+import type { QryStep, SearchAlert } from '../utils/types';
 import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
-import SelectStyles from './SelectStyles';
+
 import SavedSearchEdit from './SavedSearchEdit';
 import * as SearchActions from '../actions/search';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
-import MatchesToBadges from './SearchFilterMatches';
+import {
+  CleanFilter,
+  ComskipFilter,
+  PerPageFilter,
+  SavedSearchFilter,
+  SeasonFilter,
+  ShowFilter,
+  SortFilter,
+  StateFilter,
+  TypeFilter,
+  ViewFilter,
+  WatchedFilter,
+  SORT_DURATION_ASC,
+  SORT_DURATION_DSC,
+  SORT_REC_ASC,
+  SORT_REC_DSC,
+  SORT_SIZE_ASC,
+  SORT_SIZE_DSC,
+  Option,
+  Season,
+} from './SearchFilters';
 
-type Props = {
-  sendResults: Object => void
+import Button from './ButtonExtended';
+
+type OwnProps = Record<string, any>;
+type StateProps = Record<string, any>;
+
+type DispatchProps = {
+  sendResults: (arg0: Record<string, any>) => void;
 };
 
-type Season = {
-  num: number,
-  count: number
-};
+type SearchFormProps = OwnProps & StateProps & DispatchProps;
 
 export type SearchState = {
-  emptySearch: boolean,
-  skip: number,
-  limit: number,
-  view: string,
-  searchValue: string,
-  typeFilter: string,
-  stateFilter: string,
-  watchedFilter: string,
-  showFilter: string,
-  seasonFilter: string,
-  comskipFilter: string,
-  cleanFilter: string,
-  savedSearchFilter: string,
-  sortFilter: number,
-  percent: number,
-  percentLocation: number,
-  recordCount: number,
-  searchAlert: SearchAlert,
-  airingList: Array<Airing>,
-  actionList: Array<Airing>,
-  seasonList: Array<Season>
+  emptySearch: boolean;
+  skip: number;
+  limit: number;
+  view: string;
+  searchValue: string;
+  typeFilter: string;
+  stateFilter: string;
+  watchedFilter: string;
+  showFilter: string;
+  seasonFilter: string;
+  comskipFilter: string;
+  cleanFilter: string;
+  savedSearchFilter: string;
+  sortFilter: number;
+  percent: number;
+  percentLocation: number;
+  recordCount: number;
+  searchAlert: SearchAlert;
+  airingList: Array<Airing>;
+  actionList: Array<Airing>;
+  seasonList: Array<Season>;
 };
 
-const SORT_REC_ASC = 1;
-const SORT_REC_DSC = 2;
-const SORT_SIZE_ASC = 3;
-const SORT_SIZE_DSC = 4;
-const SORT_DURATION_ASC = 5;
-const SORT_DURATION_DSC = 6;
-
-class SearchForm extends Component<Props, SearchState> {
-  props: Props;
-
+class SearchForm extends Component<
+  SearchFormProps & RouteComponentProps,
+  SearchState
+> {
   initialState: SearchState;
 
   showsList: Array<Show>;
 
-  savedSearchList: Array<Object>; // TODO: savedSearchList type
+  savedSearchList: Array<Record<string, any>>; // TODO: savedSearchList type
 
-  psToken: null;
+  psToken: string;
 
-  constructor() {
-    super();
+  percentDragTimeout: NodeJS.Timeout | null | undefined = null;
 
+  percentDragSearchTimeout: NodeJS.Timeout | null | undefined = null;
+
+  constructor(props: SearchFormProps & RouteComponentProps) {
+    super(props);
     this.initialState = {
       emptySearch: true,
       skip: 0,
@@ -113,15 +126,14 @@ class SearchForm extends Component<Props, SearchState> {
       searchAlert: EMPTY_SEARCHALERT,
       airingList: [],
       actionList: [],
-      seasonList: []
+      seasonList: [],
     };
+    this.psToken = '';
 
     const storedState = JSON.parse(localStorage.getItem('SearchState') || '{}');
-
     // v0.1.11 - broken when added in v0.1.10
     if (Number.isNaN(parseInt(storedState.limit, 10)))
       storedState.limit = this.initialState.limit;
-
     // added v0.10...
     if (storedState.alert && typeof storedState.alert.matches === 'string')
       storedState.alert.matches = [];
@@ -130,17 +142,14 @@ class SearchForm extends Component<Props, SearchState> {
       typeof storedState.searchAlert.matches === 'string'
     )
       storedState.searchAlert.matches = [];
-
     const initialStateCopy = { ...this.initialState };
     // TODO: fix react-paginate to take initial page
     storedState.skip = 0;
     this.state = Object.assign(initialStateCopy, storedState);
     this.showsList = [];
     this.savedSearchList = [];
-
     this.search = this.search.bind(this);
     this.resetSearch = this.resetSearch.bind(this);
-
     this.stateChange = this.stateChange.bind(this);
     this.typeChange = this.typeChange.bind(this);
     this.watchedChange = this.watchedChange.bind(this);
@@ -153,15 +162,12 @@ class SearchForm extends Component<Props, SearchState> {
     this.showSelected = this.showSelected.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchKeyPressed = this.searchKeyPressed.bind(this);
-
     this.percentDrag = this.percentDrag.bind(this);
-
-    (this: any).sortChange = this.sortChange.bind(this);
-
-    (this: any).handlePageClick = this.handlePageClick.bind(this);
-    (this: any).updatePerPage = this.updatePerPage.bind(this);
-    (this: any).changeView = this.changeView.bind(this);
-    (this: any).refresh = this.refresh.bind(this);
+    (this as any).sortChange = this.sortChange.bind(this);
+    (this as any).handlePageClick = this.handlePageClick.bind(this);
+    (this as any).updatePerPage = this.updatePerPage.bind(this);
+    (this as any).changeView = this.changeView.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -169,8 +175,9 @@ class SearchForm extends Component<Props, SearchState> {
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
     this.savedSearchList = await global.SearchDb.asyncFind({});
-
-    await this.setState({ actionList });
+    await this.setState({
+      actionList,
+    });
     this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
@@ -181,108 +188,105 @@ class SearchForm extends Component<Props, SearchState> {
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
-  percentDragTimeout: ?TimeoutID = null;
-
-  percentDragSearchTimeout: ?TimeoutID = null;
-
-  setStateStore(...args: Array<Object>) {
-    const values = args[0];
-    // console.log(values);
-    this.setState(values);
-    const cleanState = this.state;
-
-    localStorage.setItem('SearchState', JSON.stringify(cleanState));
-  }
-
   async handlePageClick(data: { selected: number }) {
     const { limit } = this.state;
     // this.setState( {skip: 0 });
     const { selected } = data;
     const offset = Math.ceil(selected * limit);
+    this.setState(
+      {
+        skip: offset,
+      },
+      () => {
+        this.search();
+      }
+    );
+  }
 
-    this.setState({ skip: offset }, () => {
-      this.search();
-    });
+  setStateStore() {
+    const cleanState = this.state;
+    localStorage.setItem('SearchState', JSON.stringify(cleanState));
   }
 
   updatePerPage = async (event: Option) => {
-    await this.setState({ limit: parseInt(event.value, 10) });
+    await this.setState({
+      limit: parseInt(event.value, 10),
+    });
     this.search();
   };
 
   changeView = async (event: Option) => {
-    await this.setState({ view: event.value });
+    await this.setState({
+      view: event.value,
+    });
     this.search();
   };
-
-  async refresh() {
-    this.showsList = await showList();
-    this.savedSearchList = await global.SearchDb.asyncFind({});
-
-    this.search();
-  }
 
   showSelected = async () => {
     const { sendResults } = this.props;
     const { view, actionList } = this.state;
     let { searchAlert } = this.state;
     console.log('showSelected');
-
     const len = actionList.length;
     if (len === 0) return;
-
     await sendResults({
       loading: true,
       airingList: [],
-      searchAlert: this.initialState.searchAlert
+      searchAlert: this.initialState.searchAlert,
     });
 
-    const timeSort = (a, b) => {
+    const timeSort = (a: Airing, b: Airing) => {
       if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
       return -1;
     };
 
     const stats = [];
     actionList.sort((a, b) => timeSort(a, b));
-
     const size = readableBytes(
-      actionList.reduce((a, b) => a + (b.videoDetails.size || 0), 0)
+      actionList.reduce(
+        (a: number, b: Airing) => a + (b.videoDetails.size || 0),
+        0
+      )
     );
-    stats.push({ text: size });
+    stats.push({
+      text: size,
+    });
     const duration = readableDuration(
-      actionList.reduce((a, b) => a + (b.videoDetails.duration || 0), 0)
+      actionList.reduce(
+        (a: number, b: Airing) => a + (b.videoDetails.duration || 0),
+        0
+      )
     );
-    stats.push({ text: duration });
-
+    stats.push({
+      text: duration,
+    });
     searchAlert = {
       type: 'light',
       text: `${len} selected recordings`,
       matches: [],
-      stats
+      stats,
     };
-
-    this.setState({ searchAlert });
-
+    this.setState({
+      searchAlert,
+    });
     sendResults({
       loading: false,
       view,
       airingList: actionList,
       searchAlert,
-      actionList
+      actionList,
     });
-
     const cleanState = { ...this.state };
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   };
 
-  deleteAll = async (countCallback: Function) => {
+  deleteAll = async (countCallback: (...args: Array<any>) => any) => {
     let { actionList } = this.state;
     actionList = ensureAiringArray(actionList);
-    const list = [];
-    actionList.forEach(item => {
+    const list: Array<() => void> = [];
+    actionList.forEach((item) => {
       list.push(() => item.delete());
     });
-
     await throttleActions(list, 4, countCallback)
       .then(async () => {
         // let ConfirmDelete display success for 1 sec
@@ -291,7 +295,7 @@ class SearchForm extends Component<Props, SearchState> {
         }, 1000);
         return false;
       })
-      .catch(result => {
+      .catch((result) => {
         console.log('deleteAll failed', result);
         return false;
       });
@@ -304,79 +308,105 @@ class SearchForm extends Component<Props, SearchState> {
     newState.sortFilter = sortFilter;
     newState.limit = limit;
     newState.view = view;
-    await this.setStateStore(newState);
+    await this.setState(newState);
+    this.setStateStore();
     this.refresh();
   };
 
   stateChange = async (event: Option) => {
-    await this.setState({ stateFilter: event.value });
+    await this.setState({
+      stateFilter: event.value,
+    });
     this.search();
   };
 
   typeChange = async (event: Option) => {
-    await this.setState({ typeFilter: event.value });
+    await this.setState({
+      typeFilter: event.value,
+    });
     this.search();
   };
 
   watchedChange = async (event: Option) => {
-    await this.setState({ watchedFilter: event.value });
+    await this.setState({
+      watchedFilter: event.value,
+    });
     this.search();
   };
 
   comskipChange = async (event: Option) => {
-    await this.setState({ comskipFilter: event.value });
+    await this.setState({
+      comskipFilter: event.value,
+    });
     this.search();
   };
 
   sortChange = async (event: Option) => {
-    await this.setState({ sortFilter: parseInt(event.value, 10) });
+    await this.setState({
+      sortFilter: parseInt(event.value, 10),
+    });
     this.search();
   };
 
   cleanChange = async (event: Option) => {
-    await this.setState({ cleanFilter: event.value });
+    await this.setState({
+      cleanFilter: event.value,
+    });
     this.search();
   };
 
   showChange = async (event: Option) => {
-    await this.setState({ showFilter: event.value });
-    const list = [];
+    await this.setState({
+      showFilter: event.value,
+    });
+    const list: Array<{ num: number; count: number }> = [];
+
     if (event.value !== '' && event.value !== 'all') {
       // load seasons for show
-      const query = { series_path: event.value };
-      const seasons = {};
-
+      const query = {
+        series_path: event.value,
+      };
+      const seasons: Record<number, number> = {};
       const recs = await global.RecDb.asyncFind(query);
-      await asyncForEach(recs, async rec => {
+      await asyncForEach(recs, async (rec) => {
         const airing = await Airing.create(rec);
         const num = airing.episode.season_number;
         if (seasons[num]) seasons[num] += 1;
         else seasons[num] = 1;
       });
-      Object.keys(seasons).forEach(key => {
-        list.push({ num: parseInt(key, 10), count: seasons[key] });
+      Object.keys(seasons).forEach((key: string) => {
+        list.push({
+          num: parseInt(key, 10),
+          count: seasons[parseInt(key, 10)],
+        });
       });
     }
 
-    await this.setState({ seasonList: list });
+    await this.setState({
+      seasonList: list,
+    });
     this.search();
   };
 
   seasonChange = async (event: Option) => {
-    await this.setState({ seasonFilter: event.value });
+    await this.setState({
+      seasonFilter: event.value,
+    });
     this.search();
   };
 
-  updateSavedSearch = async (searchId: string = '') => {
+  updateSavedSearch = async (searchId = '') => {
     const { savedSearchFilter } = this.state;
-
     this.savedSearchList = await global.SearchDb.asyncFind({});
 
     if (!searchId) {
       await this.resetSearch();
     }
 
-    const rec = await global.SearchDb.asyncFindOne({ _id: searchId });
+    const rec = await global.SearchDb.asyncFindOne({
+      _id: searchId,
+    });
+
     if (!rec) {
       console.log(searchId, rec);
       console.warn('Unable to find Saved Seach', searchId);
@@ -385,7 +415,6 @@ class SearchForm extends Component<Props, SearchState> {
 
     if (searchId !== savedSearchFilter) {
       rec.state.savedSearchFilter = searchId;
-
       const initialStateCopy = { ...this.initialState };
       const newState = Object.assign(initialStateCopy, rec.state);
       await this.setState(newState);
@@ -399,28 +428,32 @@ class SearchForm extends Component<Props, SearchState> {
     this.updateSavedSearch(event.value);
   };
 
-  savedSearchUpdate = async (searchId: string) => {
+  savedSearchUpdate = async (searchId: string): Promise<void> => {
     this.updateSavedSearch(searchId);
   };
 
-  searchChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  // searchChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  searchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.currentTarget.value && event.currentTarget.value !== '') return;
-    this.setState({ searchValue: event.currentTarget.value });
+    this.setState({
+      searchValue: event.currentTarget.value,
+    });
   };
 
-  searchKeyPressed = async (
-    event: SyntheticKeyboardEvent<HTMLInputElement>
-  ) => {
+  searchKeyPressed = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       await this.search();
     }
   };
 
-  percentDrag = (event: SyntheticDragEvent<HTMLInputElement>) => {
+  // React.ChangeEvent<HTMLInputElement>
+  // percentDrag = (event: React.DragEvent<HTMLInputElement>) => {
+  percentDrag = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event) return;
-
-    this.setStateStore({ percent: event.currentTarget.value });
-
+    this.setState({
+      percent: parseInt(event.currentTarget.value, 10),
+    });
+    this.setStateStore();
     const slider = event.currentTarget;
 
     if (this.percentDragSearchTimeout) {
@@ -430,10 +463,11 @@ class SearchForm extends Component<Props, SearchState> {
     if (this.percentDragTimeout) {
       clearTimeout(this.percentDragTimeout);
     }
-    const sliderPos = parseInt(slider.value, 10) / parseInt(slider.max, 10);
 
+    const sliderPos = parseInt(slider.value, 10) / parseInt(slider.max, 10);
     // blah, figure out the math of this :/
     let xShim = 0;
+
     if (sliderPos < 0.25) {
       xShim = 7;
     } else if (sliderPos < 0.5) {
@@ -447,11 +481,13 @@ class SearchForm extends Component<Props, SearchState> {
     }
 
     const xPos = Math.round(slider.clientWidth * sliderPos) + xShim;
-
     this.percentDragTimeout = setTimeout(async () => {
-      if (xPos) await this.setStateStore({ percentLoc: xPos });
+      if (xPos)
+        await this.setState({
+          percentLocation: xPos,
+        });
+      this.setStateStore();
     }, 10);
-
     this.percentDragSearchTimeout = setTimeout(async () => {
       this.search();
     }, 1000);
@@ -459,7 +495,6 @@ class SearchForm extends Component<Props, SearchState> {
 
   search = async () => {
     const { sendResults } = this.props;
-
     const {
       skip,
       limit,
@@ -473,58 +508,77 @@ class SearchForm extends Component<Props, SearchState> {
       cleanFilter,
       showFilter,
       seasonFilter,
-      sortFilter
+      sortFilter,
     } = this.state;
+    const query: Record<string, any> = {};
 
-    const query = {};
-    const steps = [];
+    const steps: QryStep[] = [];
 
     if (searchValue.trim()) {
       const re = new RegExp(escapeRegExp(searchValue), 'i');
       // query['airing_details.show_title'] =  { $regex: re };
       query.$or = [
-        { 'airing_details.show_title': { $regex: re } },
-        { 'episode.title': { $regex: re } },
-        { 'episode.description': { $regex: re } },
-        { 'event.title': { $regex: re } },
-        { 'event.description': { $regex: re } }
+        {
+          'airing_details.show_title': {
+            $regex: re,
+          },
+        },
+        {
+          'episode.title': {
+            $regex: re,
+          },
+        },
+        {
+          'episode.description': {
+            $regex: re,
+          },
+        },
+        {
+          'event.title': {
+            $regex: re,
+          },
+        },
+        {
+          'event.description': {
+            $regex: re,
+          },
+        },
       ];
 
       steps.push({
         type: 'search',
         value: searchValue,
-        text: `title or description contains "${searchValue}"`
+        text: `title or description contains "${searchValue}"`,
       });
     }
 
     if (typeFilter !== 'any') {
       const typeRe = new RegExp(typeFilter, 'i');
-      query.path = { $regex: typeRe };
-
+      query.path = {
+        $regex: typeRe,
+      };
       steps.push({
         type: 'type',
         value: typeFilter,
-        text: `is: ${typeFilter}`
+        text: `is: ${typeFilter}`,
       });
     }
 
     if (stateFilter !== 'any') {
       query['video_details.state'] = stateFilter;
-
       steps.push({
         type: 'state',
         value: stateFilter,
-        text: `${stateFilter}`
+        text: `${stateFilter}`,
       });
     }
 
     if (cleanFilter !== 'any') {
       query['video_details.clean'] = cleanFilter !== 'dirty';
-
       steps.push({
         type: 'clean',
         value: cleanFilter,
-        text: `is ${cleanFilter}`
+        text: `is ${cleanFilter}`,
       });
     }
 
@@ -533,37 +587,39 @@ class SearchForm extends Component<Props, SearchState> {
       steps.push({
         type: 'watched',
         value: stateFilter,
-        text: `${watchedFilter === 'yes' ? 'watched' : 'not watched'}`
+        text: `${watchedFilter === 'yes' ? 'watched' : 'not watched'}`,
       });
     }
 
     if (comskipFilter !== 'all') {
       let text = 'comskip is not ready';
+
       if (comskipFilter === 'ready') {
         query['video_details.comskip.state'] = 'ready';
         text = 'comskip is ready';
       } else if (comskipFilter === 'failed') {
-        query['video_details.comskip.state'] = { $ne: 'ready' };
+        query['video_details.comskip.state'] = {
+          $ne: 'ready',
+        };
       } else {
         query['video_details.comskip.error'] = comskipFilter;
         text = `comskip failed b/c ${comskipFilter}`;
       }
+
       steps.push({
         type: 'comskip',
         value: stateFilter,
-        text
+        text,
       });
     }
 
     if (showFilter !== '' && showFilter !== 'all') {
-      let show = this.showsList.find(item => item.path === showFilter);
-      if (!show) show = { title: 'Unknown' };
+      const show = this.showsList.find((item) => item.path === showFilter);
       query.series_path = showFilter;
-
       steps.push({
         type: 'show',
         value: showFilter,
-        text: `show is ${show.title}`
+        text: `show is ${show ? show.title : 'Unknown'}`,
       });
 
       if (seasonFilter !== '' && seasonFilter !== 'all') {
@@ -572,38 +628,74 @@ class SearchForm extends Component<Props, SearchState> {
         steps.push({
           type: 'season',
           value: seasonFilter,
-          text: `season #${seasonFilter}`
+          text: `season #${seasonFilter}`,
         });
       }
     }
 
     const emptySearch = Object.keys(query).length === 0;
-
     const count = await global.RecDb.asyncCount(query);
     const projection = [];
 
     switch (sortFilter) {
       case SORT_DURATION_ASC:
-        projection.push(['sort', { 'video_details.duration': 1 }]);
+        projection.push([
+          'sort',
+          {
+            'video_details.duration': 1,
+          },
+        ]);
         break;
+
       case SORT_DURATION_DSC:
-        projection.push(['sort', { 'video_details.duration': -1 }]);
+        projection.push([
+          'sort',
+          {
+            'video_details.duration': -1,
+          },
+        ]);
         break;
+
       case SORT_SIZE_ASC:
-        projection.push(['sort', { 'video_details.size': 1 }]);
+        projection.push([
+          'sort',
+          {
+            'video_details.size': 1,
+          },
+        ]);
         break;
+
       case SORT_SIZE_DSC:
-        projection.push(['sort', { 'video_details.size': -1 }]);
+        projection.push([
+          'sort',
+          {
+            'video_details.size': -1,
+          },
+        ]);
         break;
+
       case SORT_REC_ASC:
-        projection.push(['sort', { 'airing_details.datetime': 1 }]);
+        projection.push([
+          'sort',
+          {
+            'airing_details.datetime': 1,
+          },
+        ]);
         break;
+
       case SORT_REC_DSC:
       default:
-        projection.push(['sort', { 'airing_details.datetime': -1 }]);
+        projection.push([
+          'sort',
+          {
+            'airing_details.datetime': -1,
+          },
+        ]);
     }
-    let newLimit = parseInt(limit, 10);
+
+    let newLimit = limit;
     newLimit = Number.isNaN(limit) ? this.initialState.limit : limit;
+
     if (newLimit !== -1) {
       projection.push(['skip', skip]);
       projection.push(['limit', limit]);
@@ -614,35 +706,39 @@ class SearchForm extends Component<Props, SearchState> {
     if (percent < 100) {
       const pct = percent / 100;
       recs = recs.filter(
-        rec => rec.airing_details.duration * pct >= rec.video_details.duration
+        (rec: Record<string, any>) =>
+          rec.airing_details.duration * pct >= rec.video_details.duration
       );
       steps.push({
         type: 'complete',
         value: percent,
-        text: `${percent}% or less complete`
+        text: `${percent}% or less complete`,
       });
     }
 
-    const airingList = [];
+    const airingList: Airing[] = [];
     let description;
-
     let updateState;
     let alert: SearchAlert;
+
     if (!recs || recs.length === 0) {
       description = `No records found`;
-      alert = { type: 'warning', text: description, matches: steps };
+      alert = {
+        type: 'warning',
+        text: description,
+        matches: steps,
+      };
       updateState = {
         searchAlert: alert,
         airingList,
-        recordCount: 0
+        recordCount: 0,
       };
     } else {
       sendResults({
         loading: true,
-        searchAlert: this.initialState.searchAlert
+        searchAlert: this.initialState.searchAlert,
       });
-
-      await asyncForEach(recs, async doc => {
+      await asyncForEach(recs, async (doc) => {
         try {
           const airing = await Airing.create(doc);
           airingList.push(airing);
@@ -652,8 +748,8 @@ class SearchForm extends Component<Props, SearchState> {
           throw e;
         }
       });
-
       let end = 0;
+
       if (limit === -1) {
         end = count;
       } else {
@@ -662,28 +758,38 @@ class SearchForm extends Component<Props, SearchState> {
         if (count > skip && count < end) end = count;
       }
 
-      const stats = [];
+      const stats: Array<Record<string, any>> = [];
       const size = readableBytes(
-        recs.reduce((a, b) => a + (b.video_details.size || 0), 0)
+        recs.reduce(
+          (a: number, b: Record<string, any>) =>
+            a + (b.video_details.size || 0),
+          0
+        )
       );
-      stats.push({ text: size });
+      stats.push({
+        text: size,
+      });
       const duration = readableDuration(
-        recs.reduce((a, b) => a + (b.video_details.duration || 0), 0)
+        recs.reduce(
+          (a: number, b: Record<string, any>) =>
+            a + (b.video_details.duration || 0),
+          0
+        )
       );
-      stats.push({ text: duration });
-
-      description = `${skip + 1} - ${parseInt(end, 10)} of ${count} recordings`;
+      stats.push({
+        text: duration,
+      });
+      description = `${skip + 1} - ${end} of ${count} recordings`;
       alert = {
         type: 'light',
         text: description,
         matches: steps,
-        stats
+        stats,
       };
-
       updateState = {
         searchAlert: alert,
         recordCount: count,
-        airingList
+        airingList,
       };
     }
 
@@ -691,11 +797,23 @@ class SearchForm extends Component<Props, SearchState> {
       view,
       loading: false,
       searchAlert: alert,
-      airingList
+      airingList,
     });
     updateState.airingList = airingList;
-    this.setStateStore({ ...updateState, ...{ emptySearch } });
+    await this.setState({
+      ...updateState,
+      ...{
+        emptySearch,
+      },
+    });
+    this.setStateStore();
   };
+
+  async refresh(): Promise<void> {
+    this.showsList = await showList();
+    this.savedSearchList = await global.SearchDb.asyncFind({});
+    this.search();
+  }
 
   render() {
     const {
@@ -714,15 +832,11 @@ class SearchForm extends Component<Props, SearchState> {
       percent,
       recordCount,
       limit,
-      view
+      view,
     } = this.state;
-
     let { percentLocation } = this.state;
-
     const pctLabel = `${percent}%`;
-
     if (!percentLocation) percentLocation = 0;
-
     return (
       <>
         <Row>
@@ -765,7 +879,6 @@ class SearchForm extends Component<Props, SearchState> {
             <InputGroup
               className="mb-3"
               size="sm"
-              value={searchValue}
               onKeyPress={this.searchKeyPressed}
               onChange={this.searchChange}
             >
@@ -822,8 +935,9 @@ class SearchForm extends Component<Props, SearchState> {
               {savedSearchFilter !== '' ? (
                 <Col md="auto" className="p-0 align-bottom">
                   <SavedSearchEdit
-                    updateValue={this.savedSearchUpdate}
                     searchId={savedSearchFilter}
+                    updateValue={this.savedSearchUpdate}
+                    resetValue={this.refresh}
                     onClose={this.refresh}
                   />
                 </Col>
@@ -836,17 +950,14 @@ class SearchForm extends Component<Props, SearchState> {
           <Col md="3">
             <label
               className="smaller justify-content-center mb-3"
-              style={{ width: '95%' }}
+              style={{
+                width: '95%',
+              }}
               id="pctLabel"
               htmlFor="customRange"
             >
               Percent Complete
-              <Badge
-                className="ml-2 p-1"
-                size="md"
-                variant="light"
-                onClick={this.search}
-              >
+              <Badge className="ml-2 p-1" variant="light" onClick={this.search}>
                 {percent}%
               </Badge>
               <input
@@ -867,27 +978,28 @@ class SearchForm extends Component<Props, SearchState> {
 
         <Row className="">
           <Col md="9">
-            {recordCount >= limit && limit !== -1 ? (
-              <ReactPaginate
-                previousLabel={
-                  <span className="fa fa-arrow-left" title="previous page" />
-                }
-                nextLabel={
-                  <span className="fa fa-arrow-right" title="next page" />
-                }
-                breakLabel="..."
-                breakClassName="break-me"
-                pageCount={Math.ceil(recordCount / limit)}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={parseInt(limit, 10)}
-                onPageChange={this.handlePageClick}
-                containerClassName="pagination"
-                subContainerClassName="pages pagination"
-                activeClassName="active-page"
-              />
-            ) : (
-              <></> //
-            )}
+            {
+              recordCount >= limit && limit !== -1 ? (
+                <ReactPaginate
+                  previousLabel={
+                    <span className="fa fa-arrow-left" title="previous page" />
+                  }
+                  nextLabel={
+                    <span className="fa fa-arrow-right" title="next page" />
+                  }
+                  breakLabel="..."
+                  breakClassName="break-me"
+                  pageCount={Math.ceil(recordCount / limit)}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={limit}
+                  onPageChange={this.handlePageClick}
+                  containerClassName="pagination"
+                  activeClassName="active-page"
+                />
+              ) : (
+                <></>
+              ) //
+            }
           </Col>
           <Col md="3" className="">
             <div className="d-flex flex-row-reverse mr-3">
@@ -904,552 +1016,12 @@ class SearchForm extends Component<Props, SearchState> {
   }
 }
 
-type filterProps = {
-  value: string,
-  onChange: Function,
-  // eslint-disable-next-line react/no-unused-prop-types
-  shows?: Array<Show>,
-  // eslint-disable-next-line react/no-unused-prop-types
-  seasons?: Array<Season>,
-  // eslint-disable-next-line react/no-unused-prop-types
-  searches?: Array<Object>
-};
-
-function StateFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: 'any', label: 'any' },
-    { value: 'finished', label: 'finished' },
-    { value: 'recording', label: 'recording' },
-    { value: 'failed', label: 'failed' }
-  ];
-
-  return (
-    <FilterSelect
-      name="stateFilter"
-      placeholder="state"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-StateFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function TypeFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: 'any', label: 'any' },
-    { value: 'episode', label: 'episode' },
-    { value: 'movie', label: 'movie' },
-    { value: 'sports', label: 'sports' },
-    { value: 'programs', label: 'programs' }
-  ];
-
-  return (
-    <FilterSelect
-      name="typeFilter"
-      placeholder="type"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-TypeFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function WatchedFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: 'all', label: 'all' },
-    { value: 'yes', label: 'yes' },
-    { value: 'no', label: 'no' }
-  ];
-
-  return (
-    <FilterSelect
-      name="watchedFilter"
-      placeholder="watched"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-WatchedFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function ShowFilter(props: filterProps) {
-  const { value, onChange, shows } = props;
-
-  const options = [];
-  options.push({ value: '', label: 'all' });
-  if (shows && shows.length > 0) {
-    shows.forEach(item =>
-      options.push({
-        value: item.path,
-        label: (
-          <>
-            <TabloImage imageId={item.thumbnail} className="menu-image-small" />
-            <span className="pl-1 pr-1">{item.title} </span>
-            <Badge variant="secondary" pill>
-              {item.showCounts.airing_count}
-            </Badge>
-          </>
-        ) //
-      })
-    );
-  }
-
-  return (
-    <FilterSelect
-      name="showFilter"
-      placeholder="show"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-ShowFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function SeasonFilter(props: filterProps) {
-  const { value, onChange, seasons } = props;
-  const options = [];
-  options.push({ value: 'all', label: 'all' });
-  if (seasons && seasons.length > 0) {
-    seasons.forEach(item =>
-      options.push({
-        value: `${item.num}`,
-        label: (
-          <>
-            <span className="pr-1">Season #{item.num}</span>
-            <Badge variant="secondary" pill>
-              {item.count}
-            </Badge>
-          </>
-        ) //
-      })
-    );
-  }
-
-  return (
-    <FilterSelect
-      name="showFilter"
-      placeholder="season"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-SeasonFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function ComskipFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: 'all', label: 'all' },
-    { value: 'ready', label: 'ready' },
-    { value: 'failed', label: 'failed' }
-  ];
-  const types = [];
-  // TODO: when this was async it belew up
-  global.RecDb.find({}, (err, recs) => {
-    recs.forEach(rec => {
-      const cs = rec.video_details.comskip;
-      // TODO: missing comskip?
-      if (cs && cs.error) {
-        if (!types.includes(cs.error)) {
-          types.push(cs.error);
-          options.push({ value: cs.error, label: cs.error });
-        }
-      }
-    });
-  });
-
-  return (
-    <FilterSelect
-      name="comskipFilter"
-      placeholder="comskip"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-ComskipFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function CleanFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: 'any', label: 'any' },
-    { value: 'clean', label: 'clean' },
-    { value: 'dirty', label: 'dirty' }
-  ];
-
-  return (
-    <FilterSelect
-      name="cleanFilter"
-      placeholder="clean"
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
-  );
-}
-CleanFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function SavedSearchFilter(props: filterProps) {
-  const { value, onChange, searches } = props;
-
-  const options = [];
-  if (searches && searches.length > 0) {
-    searches.forEach(item =>
-      options.push({
-        // eslint-disable-next-line no-underscore-dangle
-        value: item._id,
-        label: (
-          <span className="pl-1">
-            {item.name}
-            <MatchesToBadges
-              matches={item.state.searchAlert.matches}
-              prefix="select-list"
-              className="badge-sm"
-            />
-          </span>
-        )
-      })
-    );
-  } else {
-    options.push({
-      value: -1,
-      label: '... once you save one!'
-    });
-  }
-
-  return (
-    <Select
-      options={options}
-      placeholder="use a saved search..."
-      name="savedSearchFilter"
-      onChange={onChange}
-      styles={SelectStyles('30px', 250)}
-      value={options.filter(option => option.value === value)}
-    />
-  );
-}
-SavedSearchFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function SortFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    {
-      value: SORT_REC_ASC,
-      label: (
-        <span>
-          date
-          <span className="fa fa-chevron-up pl-2 muted" />
-        </span>
-      )
-    },
-    {
-      value: SORT_REC_DSC,
-      label: (
-        <span>
-          date
-          <span className="fa fa-chevron-down pl-2 muted" />
-        </span>
-      )
-    },
-    {
-      value: SORT_SIZE_ASC,
-      label: (
-        <span>
-          size
-          <span className="fa fa-chevron-up pl-2 muted" />
-        </span>
-      )
-    },
-    {
-      value: SORT_SIZE_DSC,
-      label: (
-        <span>
-          size
-          <span className="fa fa-chevron-down pl-2 muted" />
-        </span>
-      )
-    },
-    {
-      value: SORT_DURATION_ASC,
-      label: (
-        <span>
-          duration
-          <span className="fa fa-chevron-up pl-2 muted" />
-        </span>
-      )
-    },
-    {
-      value: SORT_DURATION_DSC,
-      label: (
-        <span>
-          duration
-          <span className="fa fa-chevron-down pl-2 muted" />
-        </span>
-      )
-    }
-  ];
-
-  const height = '24px';
-  const customStyles = {
-    container: base => ({
-      ...base,
-      flex: 1,
-      fontSize: '10px'
-    }),
-    control: provided => ({
-      ...provided,
-      height,
-      minHeight: height,
-      minWidth: 55,
-      width: '100%',
-      maxWidth: 600,
-      background: '#fff',
-      border: 0,
-      marginLeft: '5px'
-    }),
-    valueContainer: provided => ({
-      ...provided,
-      height,
-      paddingLeft: '10px'
-    }),
-    menu: provided => ({
-      ...provided,
-      minWidth: 75,
-      width: '100%',
-      maxWidth: 500,
-      zIndex: '99999'
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      fontSize: '12px',
-      borderBottom: '1px solid #CCC',
-      padding: '10px 0 10px 5px',
-      color: '#3E3F3A',
-      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor
-    }),
-    indicatorSeparator: base => ({ ...base, display: 'none' }),
-    dropdownIndicator: base => ({ ...base, display: 'none' })
-  };
-
-  return (
-    <div>
-      <div className="input-group input-group-sm" title="Sort...">
-        <div>
-          <Select
-            options={options}
-            name="sort"
-            onChange={onChange}
-            placeholder="sort by..."
-            styles={customStyles}
-            value={options.filter(option => `${option.value}` === `${value}`)}
-            components={{ DropdownIndicator }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-SortFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-function ViewFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    {
-      value: 'grid',
-      label: (
-        <div title="grid">
-          <span className="fa fa-th pl-2 muted" />
-        </div>
-      )
-    },
-    {
-      value: 'list',
-      label: (
-        <div title="list">
-          <span className="fa fa-list pl-2 muted" />
-        </div>
-      )
-    }
-  ];
-
-  const height = '24px';
-  const customStyles = {
-    container: base => ({
-      ...base,
-      flex: 1,
-      fontSize: '10px'
-    }),
-    control: provided => ({
-      ...provided,
-      height,
-      minHeight: height,
-      minWidth: 20,
-      width: '100%',
-      maxWidth: 30,
-      background: '#fff',
-      border: 0,
-      marginLeft: '5px'
-    }),
-    valueContainer: provided => ({
-      ...provided,
-      height,
-      paddingLeft: '10px'
-    }),
-    menu: provided => ({
-      ...provided,
-      minWidth: 40,
-      width: '100%',
-      maxWidth: 500,
-      zIndex: '99999'
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      fontSize: '12px',
-      borderBottom: '1px solid #CCC',
-      padding: '10px 0 10px 5px',
-      color: '#3E3F3A',
-      backgroundColor: state.isSelected ? '#DBD8CC' : provided.backgroundColor
-    }),
-    indicatorSeparator: base => ({ ...base, display: 'none' }),
-    dropdownIndicator: base => ({ ...base, display: 'none' })
-  };
-
-  return (
-    <div>
-      <div className="input-group input-group-sm" title="View">
-        <div>
-          <Select
-            options={options}
-            name="view"
-            onChange={onChange}
-            placeholder="view..."
-            styles={customStyles}
-            value={options.filter(option => `${option.value}` === `${value}`)}
-            components={{ DropdownIndicator }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-ViewFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-const DropdownIndicator = props => {
-  // eslint-disable-next-line react/prop-types
-  const { selectProps } = props;
-  // eslint-disable-next-line react/prop-types
-  const { menuIsOpen } = selectProps;
-  return (
-    components.DropdownIndicator && (
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      <components.DropdownIndicator {...props}>
-        {menuIsOpen ? (
-          <span className="fa fa-chevron-up" />
-        ) : (
-          <span className="fa fa-chevron-down" />
-        )}
-      </components.DropdownIndicator>
-    )
-  );
-};
-
-function PerPageFilter(props: filterProps) {
-  const { value, onChange } = props;
-
-  const options = [
-    { value: '-1', label: 'all' },
-    { value: '10', label: '10' },
-    { value: '50', label: '50' },
-    { value: '100', label: '100' }
-  ];
-  const height = '24px';
-
-  return (
-    <div>
-      <div className="input-group input-group-sm">
-        <div>
-          <Select
-            options={options}
-            name="per page"
-            onChange={onChange}
-            placeholder="per page"
-            styles={SelectStyles(height, 75)}
-            value={options.filter(option => `${option.value}` === `${value}`)}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-PerPageFilter.defaultProps = { shows: [], seasons: [], searches: [] };
-
-type Option = {
-  value: string,
-  label: any
-};
-
-type fullFilterProps = {
-  name: string,
-  placeholder: string,
-  options: Array<Option>,
-  onChange: Function,
-  value: string
-};
-
-function FilterSelect(props: fullFilterProps) {
-  const { name, placeholder, options, onChange, value } = props;
-
-  const height = '30px';
-  let maxLen = 0;
-  options.forEach(item => {
-    const len = item.label.length * 15;
-    if (len > maxLen) maxLen = len;
-  });
-  // TODO: cheeeeating.
-  if (name === 'showFilter') maxLen = 300;
-
-  return (
-    <div>
-      <div className="input-group input-group-sm">
-        <div className="input-group-prepend ">
-          <span className="input-group-text">{placeholder}</span>
-        </div>
-        <div>
-          <Select
-            options={options}
-            placeholder={placeholder}
-            name={name}
-            onChange={onChange}
-            styles={SelectStyles(height, maxLen)}
-            value={options.filter(option => option.value === value)}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(SearchActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+// export default connect<any, any>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   null,
   mapDispatchToProps
 )(withRouter(SearchForm));

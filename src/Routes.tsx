@@ -26,7 +26,7 @@ export default () => {
   const history = useHistory();
 
   useEffect(() => {
-    return history.listen(location => {
+    return history.listen((location) => {
       localStorage.setItem('lastPath', location.pathname);
     });
   }, [history]);
@@ -61,7 +61,7 @@ export default () => {
             routes.GENSETTINGS,
             routes.FILENAMETPLs,
             routes.ADVSETTINGS,
-            routes.EXPSETTINGS
+            routes.EXPSETTINGS,
           ]}
           component={SettingsPage}
         />

@@ -1,33 +1,46 @@
-// @flow
 import React, { Component } from 'react';
-
 import PubSub from 'pubsub-js';
 
-// import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
-// import { withRouter } from 'react-router-dom';
-
-// import { format } from 'date-fns';
-
-import { Row, Col, Spinner, Table, Alert } from 'react-bootstrap';
+import { Row, Col, Table, Alert } from 'react-bootstrap';
+import Spinner from './SpinnerExtended';
 import Channel from '../utils/Channel';
 import TabloLivePlayer from './TabloLivePlayer';
 
-type Props = {};
+function Loading() {
+  return (
+    <div
+      className="d-flex justify-content-center"
+      style={{
+        maxWidth: '400px',
+        marginTop: '75px',
+      }}
+    >
+      <Spinner
+        animation="border"
+        size="md"
+        variant="primary"
+        className="mr-2"
+      />
+      <span className="pt-2">
+        Channels will show up once the db finshes reloading...
+      </span>
+    </div>
+  );
+}
+
+type Props = Record<string, never>;
 type State = {
-  channelList: Array<Channel>
+  channelList: Array<Channel>;
 };
-
 class LiveTvPage extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  psToken: null;
-
-  constructor() {
-    super();
-
-    this.state = { channelList: [] };
-
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      channelList: [],
+    };
+    this.psToken = '';
     // (this: any).watch = this.watch.bind(this);
     // (this: any).refresh = this.refresh.bind(this);
   }
@@ -42,22 +55,18 @@ class LiveTvPage extends Component<Props, State> {
   }
 
   refresh = async () => {
-    // const { Api } = global;
-
-    // const start = new Date().toISOString(); // 2020-06-09T23:00Z
-    const recs = await global.ChannelDb.asyncFind({});
-
+    const recs: Record<string, any>[] = await global.ChannelDb.asyncFind({});
     // TODO: use Channel objects (redux)
-    const channelList = recs.map(rec => new Channel(rec));
-
+    const channelList = recs.map((rec) => new Channel(rec));
     // channelList.sort((a, b) => channelSort(a, b));
-    channelList.sort((a, b) => {
+    channelList.sort((a: Channel, b: Channel) => {
       return (
         a.channel.major - b.channel.major || a.channel.minor - b.channel.minor
       );
     });
-
-    this.setState({ channelList });
+    this.setState({
+      channelList,
+    });
   };
 
   render() {
@@ -83,7 +92,7 @@ class LiveTvPage extends Component<Props, State> {
             <Col md="6">
               <Table striped>
                 <tbody>
-                  {channelList.map(rec => {
+                  {channelList.map((rec) => {
                     return (
                       <tr key={`${rec.channel.major}-${rec.channel.minor}`}>
                         <td>
@@ -113,38 +122,4 @@ class LiveTvPage extends Component<Props, State> {
   }
 }
 
-function Loading() {
-  return (
-    <div
-      className="d-flex justify-content-center"
-      style={{ maxWidth: '400px', marginTop: '75px' }}
-    >
-      <Spinner
-        animation="border"
-        size="md"
-        variant="primary"
-        className="mr-2"
-      />
-      <span className="pt-2">
-        Channels will show up once the db finshes reloading...
-      </span>
-    </div>
-  );
-}
-
-export default LiveTvPage;
-
-// const mapDispatchToProps = dispatch => {
-//   return bindActionCreators(SearchActions, dispatch);
-// };
-
-// const mapStateToProps = (state: any) => {
-//   return {
-//     actionList: state.actionList
-//   };
-// };
-
-// export default connect<*, *, *, *, *, *>(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(withRouter(ActionList));
+export default LiveTvPage; // const mapDispatchToProps = dispatch => {

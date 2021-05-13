@@ -1,67 +1,71 @@
-// @flow
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import fs from 'fs';
-
 import PubSub from 'pubsub-js';
 
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-
 import { format } from 'date-fns';
-
 import VideoExport from './VideoExport';
-
-import ExportRecordType from '../reducers/types';
+import { ExportRecordType } from '../reducers/types';
 import * as ExportListActions from '../actions/exportList';
 import * as ActionListActions from '../actions/actionList';
 import { EXP_WORKING } from '../constants/app';
-
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
-// import getConfig from '../utils/config';
+import Button from './ButtonExtended';
+import Modal from './ModalExtended';
+import getConfig from '../utils/config';
 
-type Props = {
-  airing: Airing,
-  exportList: Array<ExportRecordType>,
-  label?: string,
-  exportState: number,
+interface Props extends PropsFromRedux {
+  //   history: any;
+  // }
 
-  toggleDOF: () => void,
-  deleteOnFinish: number,
+  // // import getConfig from '../utils/config';
+  // type OwnProps = {
+  airing: Airing;
+  label?: string; // FIXME: input or type
+  exportState: number;
+  toggleDOF: () => void;
+  deleteOnFinish: number;
+  atOnce: number;
+  atOnceChange: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+  cancelProcess: () => void;
+  processVideo: () => void;
+}
 
-  atOnce: number,
-  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
+// type StateProps = {
+//   exportList: Array<ExportRecordType>;
+// };
 
-  cancelProcess: () => void,
-  processVideo: () => void,
+// type DispatchProps = {
+//   addExportRecord: (record: ExportRecordType) => void;
+//   bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
+//   remAiring: (arg0: Airing) => void;
+// };
 
-  addExportRecord: (record: ExportRecordType) => void,
-  bulkRemExportRecord: (Array<ExportRecordType>) => void,
-  remAiring: Airing => void
+// type Props = OwnProps & StateProps & DispatchProps;
+
+type State = {
+  opened: boolean;
 };
 
-type State = { opened: boolean };
-
 class VideoExportModal extends Component<Props, State> {
-  props: Props;
+  static defaultProps: Record<string, any>;
 
-  static defaultProps: Object;
-
-  constructor() {
-    super();
-    this.state = { opened: false };
-
-    (this: any).show = this.show.bind(this);
-    (this: any).close = this.close.bind(this);
+  constructor(props: Props) {
+    super(props);
+    // this.props = props;
+    this.state = {
+      opened: false,
+    };
+    (this as any).show = this.show.bind(this);
+    (this as any).close = this.close.bind(this);
   }
 
   close = async () => {
@@ -69,23 +73,27 @@ class VideoExportModal extends Component<Props, State> {
       exportList,
       deleteOnFinish,
       remAiring,
-      bulkRemExportRecord
+      bulkRemExportRecord,
     } = this.props;
     bulkRemExportRecord([]);
+
     if (deleteOnFinish === CHECKBOX_ON) {
       remAiring(exportList[0].airing);
       PubSub.publish('DB_CHANGE', '');
     }
-    this.setState({ opened: false });
+
+    this.setState({
+      opened: false,
+    });
   };
 
   show() {
     const { airing, bulkRemExportRecord, addExportRecord } = this.props;
     bulkRemExportRecord([]);
-
     addExportRecord(ExportRecord(airing));
-
-    this.setState({ opened: true });
+    this.setState({
+      opened: true,
+    });
   }
 
   render() {
@@ -98,23 +106,24 @@ class VideoExportModal extends Component<Props, State> {
       deleteOnFinish,
       toggleDOF,
       cancelProcess,
-      processVideo
+      processVideo,
     } = this.props;
-    let { label } = this.props;
-
+    const { label } = this.props;
     const { opened } = this.state;
-
     let size = 'xs';
+    let prettyLabel = <></>;
+
     if (label) {
-      label = <span className="pl-1">{label}</span>;
+      prettyLabel = <span className="pl-1">{label}</span>;
       size = 'sm';
     }
+
     if (!exportList) {
       console.log('missing exportList!');
       return <></>; //
     }
-    const airingList = exportList.map(rec => rec.airing);
 
+    const airingList = exportList.map((rec: ExportRecordType) => rec.airing);
     let variant = 'outline-secondary';
     let title = 'Export Video';
 
@@ -129,7 +138,7 @@ class VideoExportModal extends Component<Props, State> {
       <>
         <Button variant={variant} size={size} onClick={this.show} title={title}>
           <span className="fa fa-download" />
-          {label}
+          {prettyLabel}
         </Button>
         <Modal
           size="1000"
@@ -143,10 +152,11 @@ class VideoExportModal extends Component<Props, State> {
             <Modal.Title>Export</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {airingList.map(expAiring => {
+            {airingList.map((expAiring: Airing) => {
               return (
                 <RecordingExport
                   airing={expAiring}
+                  actionOnDuplicate={getConfig().actionOnDuplicate}
                   key={`RecordingExport-${expAiring.object_id}`}
                 />
               );
@@ -169,12 +179,15 @@ class VideoExportModal extends Component<Props, State> {
     );
   }
 }
-VideoExportModal.defaultProps = { label: '' };
+
+VideoExportModal.defaultProps = {
+  label: '',
+};
 
 /**
  * @return {string}
  */
-function ExportButton(prop) {
+function ExportButton(prop: any) {
   const {
     state,
     cancel,
@@ -183,7 +196,7 @@ function ExportButton(prop) {
     atOnce,
     atOnceChange,
     deleteOnFinish,
-    toggleDOF
+    toggleDOF,
   } = prop;
 
   if (state === EXP_WORKING) {
@@ -201,7 +214,6 @@ function ExportButton(prop) {
   //     </Button>
   //   );
   // }
-
   // if state === EXP_WAITING || EXP_CANCEL
   return (
     <Row>
@@ -246,21 +258,26 @@ function ExportButton(prop) {
   );
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
   const { exportList } = state;
   return {
-    exportList: exportList.exportList
+    exportList: exportList.exportList,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(
     { ...ExportListActions, ...ActionListActions },
     dispatch
   );
 };
 
-export default connect<*, *, *, *, *, *>(
-  mapStateToProps,
-  mapDispatchToProps
-)(VideoExport(VideoExportModal));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(VideoExport(VideoExportModal));
+
+// export default connect<StateProps, DispatchProps, OwnProps>(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(VideoExport(VideoExportModal));

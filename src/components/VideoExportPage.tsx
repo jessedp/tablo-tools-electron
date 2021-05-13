@@ -1,70 +1,69 @@
-// @flow
 import React, { Component } from 'react';
+
 import { connect } from 'react-redux';
 import { Prompt, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
-
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../actions/exportList';
-
 import VideoExport from './VideoExport';
-import ExportRecordType from '../reducers/types';
+import { ExportRecordType } from '../reducers/types';
 import {
   EXP_WORKING,
   DUPE_SKIP,
   DUPE_INC,
   DUPE_OVERWRITE,
-  DUPE_ADDID
+  DUPE_ADDID,
 } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
+import Button from './ButtonExtended';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
 
 type Props = {
-  actionList: Array<Airing>,
-  exportList: Array<ExportRecordType>,
-  exportState: number,
-
-  atOnce: number,
-  atOnceChange: (event: SyntheticEvent<HTMLInputElement>) => void,
-
-  actionOnDuplicate: string,
-  setActionOnDuplicate: (action: string) => void,
-
-  deleteOnFinished: number,
-  toggleDOF: () => void,
-
-  cancelProcess: () => void,
-  processVideo: () => void,
-
-  addExportRecord: (record: ExportRecordType) => void,
-  bulkRemExportRecord: (Array<ExportRecordType>) => void
+  actionList: Array<Airing>;
+  exportList: Array<ExportRecordType>;
+  exportState: number;
+  atOnce: number;
+  atOnceChange: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+  actionOnDuplicate: string;
+  setActionOnDuplicate: (action: string) => void;
+  deleteOnFinished: number;
+  toggleDOF: () => void;
+  cancelProcess: () => void;
+  processVideo: () => void;
+  addExportRecord: (record: ExportRecordType) => void;
+  bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
+};
+type State = {
+  loaded: boolean;
 };
 
-type State = { loaded: boolean };
-
 class VideoExportPage extends Component<Props, State> {
-  props: Props;
+  // props: Props;
 
-  constructor() {
-    super();
-    this.state = { loaded: false };
+  constructor(props: Props) {
+    super(props);
+    // this.props = props;
+    this.state = {
+      loaded: false,
+    };
   }
 
   componentDidMount() {
     const { actionList, addExportRecord } = this.props;
-    actionList.forEach(rec => {
+    actionList.forEach((rec) => {
       addExportRecord(ExportRecord(rec));
     });
-    this.setState({ loaded: true });
+    this.setState({
+      loaded: true,
+    });
   }
 
   componentWillUnmount() {
@@ -84,23 +83,21 @@ class VideoExportPage extends Component<Props, State> {
       actionOnDuplicate,
       setActionOnDuplicate,
       cancelProcess,
-      processVideo
+      processVideo,
     } = this.props;
-
     if (!loaded) return <></>; //
 
     if (exportList.length === 0) {
       return <Redirect to={routes.SEARCH} />;
     }
 
-    const timeSort = (a, b) => {
+    const timeSort = (a: ExportRecordType, b: ExportRecordType) => {
       if (a.airing.airingDetails.datetime < b.airing.airingDetails.datetime)
         return 1;
       return -1;
     };
 
     exportList.sort((a, b) => timeSort(a, b));
-
     return (
       <>
         <Prompt
@@ -118,7 +115,7 @@ class VideoExportPage extends Component<Props, State> {
           actionOnDuplicate={actionOnDuplicate}
           setActionOnDuplicate={setActionOnDuplicate}
         />
-        {exportList.map(rec => {
+        {exportList.map((rec) => {
           return (
             <RecordingExport
               airing={rec.airing}
@@ -131,11 +128,11 @@ class VideoExportPage extends Component<Props, State> {
     );
   }
 }
-
 /**
  * @return {string}
  */
-function ExportActions(prop) {
+
+function ExportActions(prop: Record<string, any>) {
   const {
     state,
     cancel,
@@ -145,7 +142,7 @@ function ExportActions(prop) {
     deleteOnFinish,
     toggleDOF,
     actionOnDuplicate,
-    setActionOnDuplicate
+    setActionOnDuplicate,
   } = prop;
 
   if (state === EXP_WORKING) {
@@ -233,19 +230,19 @@ function ExportActions(prop) {
   );
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
   const { exportList } = state;
   return {
     actionList: state.actionList,
-    exportList: exportList.exportList
+    exportList: exportList.exportList,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ExportListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<any, any>(
   mapStateToProps,
   mapDispatchToProps
 )(VideoExport(VideoExportPage));

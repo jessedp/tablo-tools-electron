@@ -1,30 +1,29 @@
-// @flow
 import { shell } from 'electron';
 import React, { useState } from 'react';
-
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import { Alert } from 'react-bootstrap';
 
+import { Alert } from 'react-bootstrap';
 import ReactJson from 'react-json-view';
 import { ON } from '../constants/app';
 import RecordingOverview from './RecordingOverview';
 import Airing from '../utils/Airing';
 import RecordingMini from './RecordingMini';
+import Button from './ButtonExtended';
 
-type Props = { airing: Airing };
-
+type Props = {
+  airing: Airing;
+};
 export default function AiringDetailsModal(props: Props) {
   const { airing } = props;
   const [show, setShow] = useState(false);
-  const [details, setExportDetails] = useState([]);
+  const [details, setExportDetails] = useState('');
   const [watchUrl, setWatchUrl] = useState('');
 
   const loadExportDetails = async () => {
     const info = airing.getExportDetails();
     setExportDetails(info);
     const url = await airing.watch();
-    setWatchUrl(url.playlist_url);
+    if (url) setWatchUrl(url.playlist_url);
   };
 
   if (!show) {
@@ -45,7 +44,8 @@ export default function AiringDetailsModal(props: Props) {
   }
 
   const host = global.Api.device.private_ip;
-  const selectJson = (node: Object) => {
+
+  const selectJson = (node: Record<string, any>) => {
     if (node.name.includes('path')) {
       const url = `http://${host}:8885/${node.value}`;
       shell.openExternal(url);
@@ -53,20 +53,23 @@ export default function AiringDetailsModal(props: Props) {
   };
 
   const directoryUrl = `http://${host}:18080/pvr/${airing.id}/`;
+
   const openDirectory = () => {
     shell.openExternal(directoryUrl);
   };
 
   // eslint-disable-next-line no-underscore-dangle
   delete airing.data._id;
-
   return (
     <Modal show={show} scrollable onHide={() => setShow(false)} size="lg">
       <Modal.Header closeButton>
         <Alert
           variant="secondary"
           className="mb-0 md-col-7"
-          style={{ width: '100%', fontSize: '18px' }}
+          style={{
+            width: '100%',
+            fontSize: '18px',
+          }}
         >
           {airing.showTitle}
         </Alert>
@@ -89,7 +92,7 @@ export default function AiringDetailsModal(props: Props) {
           <span className="fa fa-globe pr-2" />
           {directoryUrl}
         </Button>
-        <Alert size="sm" variant="dark" className="p-1 pl-2">
+        <Alert size={12} variant="dark" className="p-1 pl-2">
           JSON data
           <span className="pl-2 smaller">
             (click any <i>path</i> to open it in the browser)
@@ -104,7 +107,7 @@ export default function AiringDetailsModal(props: Props) {
         />
         {details ? (
           <>
-            <Alert size="sm" variant="dark" className="mt-2 p-1 pl-2">
+            <Alert size={12} variant="dark" className="mt-2 p-1 pl-2">
               Exported file info
             </Alert>
             <pre className="ffmpeg-details">{details}</pre>

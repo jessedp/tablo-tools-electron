@@ -1,13 +1,9 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import * as ActionListActions from '../actions/actionList';
-
 import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
@@ -19,32 +15,39 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringDetailsModal from './AiringDetailsModal';
 import ConfirmDelete from './ConfirmDelete';
 
-type Props = {
-  doDelete: () => void,
-  airing: Airing,
-  checked: number,
-  addAiring: Airing => void,
-  remAiring: Airing => void,
-  withShow?: number,
-  withSelect?: number,
-  withActions?: number
+type OwnProps = {
+  doDelete: () => void;
+  airing: Airing;
+
+  withShow?: number;
+  withSelect?: number;
+  withActions?: number;
 };
 
-class RecordingSlim extends Component<Props> {
-  props: Props;
+type StateProps = {
+  checked: number;
+};
 
-  static defaultProps: {};
+type DispatchProps = {
+  addAiring: (arg0: Airing) => void;
+  remAiring: (arg0: Airing) => void;
+};
+
+type Props = OwnProps & StateProps & DispatchProps;
+
+class RecordingSlim extends Component<Props> {
+  static defaultProps: Record<string, any>;
 
   constructor(props: Props) {
-    super();
-    this.props = props;
-
+    super(props);
+    // this.props = props;
     this.deleteAiring = this.deleteAiring.bind(this);
     this.toggleSelection = this.toggleSelection.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
     const { checked } = this.props;
+
     if (prevProps.checked !== checked) {
       this.render();
     }
@@ -64,11 +67,10 @@ class RecordingSlim extends Component<Props> {
 
   render() {
     const { airing, checked, withShow, withSelect, withActions } = this.props;
-
     // const classes = `border pb-1 mb-2 pt-1`;
+    let showCol = <></>;
+    let chkCol = <></>;
 
-    let showCol = '';
-    let chkCol = '';
     if (withShow === ON) {
       showCol = (
         <div className="d-inline-block align-top mr-2 ">
@@ -89,7 +91,10 @@ class RecordingSlim extends Component<Props> {
       <>
         <Row
           className="border-bottom mb-1 pb-1 pr-2"
-          style={{ width: '100%', maxHeight: '55px' }}
+          style={{
+            width: '100%',
+            maxHeight: '55px',
+          }}
         >
           <Col md="8">
             {showCol}
@@ -101,7 +106,9 @@ class RecordingSlim extends Component<Props> {
                 {chkCol}
                 <div
                   className="smaller text-secondary align-top d-inline-block pt-1"
-                  style={{ width: '110px' }}
+                  style={{
+                    width: '110px',
+                  }}
                 >
                   <span className="fa fa-clock pr-2 " />
                   <span>
@@ -132,27 +139,30 @@ class RecordingSlim extends Component<Props> {
     );
   }
 }
+
 RecordingSlim.defaultProps = {
   withShow: OFF,
   withSelect: OFF,
-  withActions: ON
+  withActions: ON,
 };
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state: any, ownProps: OwnProps) => {
   const { actionList } = state;
   const { airing } = ownProps;
   return {
-    checked: actionList.find(item => item.object_id === airing.object_id)
+    checked: actionList.find(
+      (item: Airing) => item.object_id === airing.object_id
+    )
       ? CHECKBOX_ON
-      : CHECKBOX_OFF
+      : CHECKBOX_OFF,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(RecordingSlim);

@@ -1,26 +1,29 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Alert from 'react-bootstrap/Alert';
 import MediumPie from './MediumPie';
 import { comskipAvailable } from '../utils/Tablo';
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  skipStats: Object,
-  skipErrors: Object,
-  showsData: Array<Object>,
-  recCount: number
+  skipStats: Record<string, any>;
+  skipErrors: Record<string, any>;
+  showsData: Array<Record<string, any>>;
+  recCount: number;
 };
-
 export default class ComskipDetails extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  constructor() {
-    super();
-    this.state = { skipStats: {}, skipErrors: {}, recCount: 0, showsData: [] };
-
-    (this: any).refresh = this.refresh.bind(this);
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      skipStats: {},
+      skipErrors: {},
+      recCount: 0,
+      showsData: [],
+    };
+    this.psToken = '';
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -29,30 +32,32 @@ export default class ComskipDetails extends Component<Props, State> {
       this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     if (this.psToken !== null) PubSub.unsubscribe(this.psToken);
   }
 
-  psToken = null;
-
   async refresh() {
     if (!comskipAvailable()) return;
-
     // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
     const recs = await global.RecDb.asyncFind({});
-
-    const skipStats = { ready: 0, none: 0, error: 0, unk: 0 };
-    const skipErrors = {};
-
-    const shows = {};
-    recs.forEach(rec => {
+    const skipStats = {
+      ready: 0,
+      none: 0,
+      error: 0,
+      unk: 0,
+    };
+    const skipErrors: Record<string, any> = {};
+    const shows: Record<string, any> = {};
+    recs.forEach((rec: Record<string, any>) => {
       const cs = rec.video_details.comskip;
+
       // fixes Sentry-2Y, hopefully exposes real problem.
       if (cs) {
         const title = rec.airing_details.show_title;
         let { state } = cs;
         if (!state) state = 'unk';
-        skipStats[state] = skipStats[state] ? skipStats[state] + 1 : 1;
+        const skipKey = state as keyof typeof skipStats;
+        skipStats[skipKey] = skipStats[skipKey] ? skipStats[skipKey] + 1 : 1;
         if (cs.state === 'ready')
           shows[title] = shows[title] ? shows[title] + 1 : 1;
 
@@ -65,42 +70,57 @@ export default class ComskipDetails extends Component<Props, State> {
         }
       }
     });
-
-    const showsData = [];
-    Object.keys(shows).forEach(key => {
-      showsData.push({ id: key, label: key, value: shows[key] });
+    const showsData: Array<Record<string, any>> = [];
+    Object.keys(shows).forEach((key) => {
+      showsData.push({
+        id: key,
+        label: key,
+        value: shows[key],
+      });
     });
-
     await this.setState({
       recCount: recs.length,
       skipStats,
       skipErrors,
-      showsData
+      showsData,
     });
   }
 
   render() {
     const { recCount, skipStats, skipErrors, showsData } = this.state;
-
     if (!skipStats) return <></>;
-
     if (!recCount)
       return (
         <Alert variant="light" className="p-2 m-0">
           No recordings loaded yet.
         </Alert>
       );
-    const data = [];
-    Object.keys(skipErrors).forEach(key => {
-      data.push({ id: key, label: key, value: skipErrors[key] });
+    const data: Array<Record<string, any>> = [];
+
+    Object.keys(skipErrors).forEach((key) => {
+      data.push({
+        id: key,
+        label: key,
+        value: skipErrors[key],
+      });
     });
-
     const topStats = [
-      { id: 'ready', label: 'ready', value: skipStats.ready },
-      { id: 'errors', label: 'errors', value: skipStats.error },
-      { id: 'unknown', label: 'unknown', value: skipStats.none }
+      {
+        id: 'ready',
+        label: 'ready',
+        value: skipStats.ready,
+      },
+      {
+        id: 'errors',
+        label: 'errors',
+        value: skipStats.error,
+      },
+      {
+        id: 'unknown',
+        label: 'unknown',
+        value: skipStats.none,
+      },
     ];
-
     return (
       <>
         <div className="stats-header">by status</div>

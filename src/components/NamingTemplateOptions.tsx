@@ -1,35 +1,30 @@
-// @flow
 import React, { useState, useEffect } from 'react';
-
 import Select from 'react-select';
-import { InputGroup, Button } from 'react-bootstrap';
-
+import { InputGroup } from 'react-bootstrap';
 import {
   getTemplate,
   getTemplates,
-  isCurrentTemplate
+  isCurrentTemplate,
 } from '../utils/namingTpl';
 import { NamingTemplateType } from '../constants/app';
-
 import SelectStyles from './SelectStyles';
+import Button from './ButtonExtended';
+
+import { EmptyNamingTemplate } from '../utils/factories';
 
 type PropType = {
-  type: string,
-  slug: string,
-  updateTemplate: (template: NamingTemplateType) => void,
-  setDefaultTemplate: (template: NamingTemplateType) => void
+  type: string;
+  slug: string;
+  updateTemplate: (template: NamingTemplateType) => void;
+  setDefaultTemplate: (template: NamingTemplateType) => void;
 };
-
 export default function NamingTemplateOptions(props: PropType) {
   const { type, slug, updateTemplate, setDefaultTemplate } = props;
+  const initOptions: NamingTemplateType[] = [];
+  const initSelected: NamingTemplateType = EmptyNamingTemplate();
 
-  const [options, setOptions] = useState([]);
-  const [selected, setSelected] = useState({});
-
-  useEffect(() => {
-    loadTemplateOptions(type);
-    loadTemplate(type, slug);
-  }, [type, slug]);
+  const [options, setOptions] = useState(initOptions);
+  const [selected, setSelected] = useState(initSelected);
 
   const loadTemplate = async (airingType: string, tplSlug: string) => {
     setSelected(await getTemplate(airingType, tplSlug));
@@ -39,15 +34,20 @@ export default function NamingTemplateOptions(props: PropType) {
     setOptions(await getTemplates(airingType));
   };
 
-  const select = (option: { label: any, value: NamingTemplateType }) => {
+  const select = (option: { label: any; value: NamingTemplateType }) => {
     setSelected(option.value);
     updateTemplate(option.value);
   };
 
+  useEffect(() => {
+    loadTemplateOptions(type);
+    loadTemplate(type, slug);
+  }, [type, slug]);
+
   if (!selected) return <> </>; //
 
-  const prettyOpts = [];
-  options.forEach(item =>
+  const prettyOpts: { value: NamingTemplateType; label: JSX.Element }[] = [];
+  options.forEach((item) =>
     prettyOpts.push({
       value: item,
       label: (
@@ -58,10 +58,9 @@ export default function NamingTemplateOptions(props: PropType) {
             <span className="pl-1 pr-1">{item.label} </span>
           )}
         </span>
-      ) //
+      ), //
     })
   );
-
   return (
     <div>
       <div className="d-inline-block ">
@@ -70,7 +69,7 @@ export default function NamingTemplateOptions(props: PropType) {
             options={prettyOpts}
             onChange={select}
             styles={SelectStyles('30px', 200)}
-            value={options.filter(option => option.slug === selected.slug)}
+            value={options.filter((option) => option.slug === selected.slug)}
           />
         </InputGroup>
       </div>
@@ -92,5 +91,4 @@ export default function NamingTemplateOptions(props: PropType) {
       )}
     </div>
   );
-}
-// NamingTemplateOptions.defaultProps = { slug: '' };
+} // NamingTemplateOptions.defaultProps = { slug: '' };

@@ -1,36 +1,32 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import { LinkContainer } from 'react-router-bootstrap';
 import { Alert, Button } from 'react-bootstrap';
-
 import routes from '../constants/routes.json';
-
 import Airing from '../utils/Airing';
-import { asyncForEach } from '../utils/utils';
 import ShowCover from './ShowCover';
+import { movieList } from '../utils/dbHelpers';
 
-type Props = {};
+type Props = Record<string, never>;
+
 type State = {
-  movies: Array<Airing>,
-  alertType: string,
-  alertTxt: string,
-  loaded: boolean
+  movies: Array<Airing>;
+  alertType: string;
+  alertTxt: string;
+  loaded: boolean;
 };
-
 export default class Movies extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  initialState: State;
-
-  psToken: null;
-
-  constructor() {
-    super();
-
-    this.state = { movies: [], alertType: '', alertTxt: '', loaded: false };
-
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      movies: [],
+      alertType: '',
+      alertTxt: '',
+      loaded: false,
+    };
+    this.psToken = '';
     this.refresh = this.refresh.bind(this);
   }
 
@@ -39,7 +35,7 @@ export default class Movies extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount() {
     PubSub.unsubscribe(this.psToken);
   }
 
@@ -50,13 +46,12 @@ export default class Movies extends Component<Props, State> {
       movies: objRecs,
       alertType: 'info',
       alertTxt: `${objRecs.length} ${label} found`,
-      loaded: true
+      loaded: true,
     });
   };
 
   render() {
     const { movies, loaded, alertTxt, alertType } = this.state;
-
     if (!loaded) return <></>; //
 
     if (movies.length === 0) {
@@ -80,10 +75,10 @@ export default class Movies extends Component<Props, State> {
           )}
         </div>
         <div className="scrollable-area">
-          {movies.map(rec => {
+          {movies.map((rec) => {
             return (
               <LinkContainer
-                to={routes.MOVIEDETAILS.replace(':id', rec.id)}
+                to={routes.MOVIEDETAILS.replace(':id', rec.id.toString())}
                 key={rec.id}
               >
                 <Button
@@ -100,25 +95,4 @@ export default class Movies extends Component<Props, State> {
       </div>
     );
   }
-}
-
-export async function movieList() {
-  const recType = new RegExp('movie');
-  const recs = await global.RecDb.asyncFind({ path: { $regex: recType } });
-
-  const objRecs = [];
-
-  await asyncForEach(recs, async rec => {
-    const airing = await Airing.create(rec);
-    objRecs.push(airing);
-  });
-
-  const titleSort = (a, b) => {
-    if (a.show.sortableTitle > b.show.sortableTitle) return 1;
-    return -1;
-  };
-
-  objRecs.sort((a, b) => titleSort(a, b));
-
-  return objRecs;
 }

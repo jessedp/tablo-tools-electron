@@ -1,18 +1,14 @@
-// @flow
 import React, { Component } from 'react';
 import Airing from '../utils/Airing';
 
-type Props = { airing: Airing };
-
+type Props = {
+  airing: Airing;
+};
 export default class AiringStatus extends Component<Props> {
-  props: Props;
-
   isGoodRecording = () => {
     const { airing } = this.props;
     const { videoDetails } = airing;
-
     if (this.isComskipGood()) return true;
-
     return (
       airing.videoDetails.state === 'finished' &&
       videoDetails.clean &&
@@ -24,14 +20,12 @@ export default class AiringStatus extends Component<Props> {
     const { airing } = this.props;
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
-
     return comskip && comskip.state === 'ready';
   };
 
-  airingState() {
+  airingState = () => {
     const { airing } = this.props;
     const { videoDetails } = airing;
-
     if (this.isComskipGood()) return '';
 
     switch (videoDetails.state) {
@@ -39,26 +33,35 @@ export default class AiringStatus extends Component<Props> {
         return (
           <i
             className="fa fa-video p-1"
-            style={{ color: 'red' }}
+            style={{
+              color: 'red',
+            }}
             title="failed"
           />
         );
+
       case 'recording':
         return (
           <i
             className="fa fa-video p-1"
-            style={{ color: 'goldenrod' }}
+            style={{
+              color: 'goldenrod',
+            }}
             title="recording in progress"
           />
         );
+
       case 'finished':
         return (
           <i
             className="fa fa-video p-1"
-            style={{ color: 'forestgreen' }}
+            style={{
+              color: 'forestgreen',
+            }}
             title="finished"
           />
         );
+
       default:
         return (
           <i
@@ -67,25 +70,28 @@ export default class AiringStatus extends Component<Props> {
           />
         );
     }
-  }
+  };
 
-  watched() {
+  watched = () => {
     const { airing } = this.props;
     const { userInfo } = airing;
+
     if (userInfo.watched) {
       return (
         <i
           className="fa fa-eye p-1"
-          style={{ color: 'forestgreen' }}
+          style={{
+            color: 'forestgreen',
+          }}
           title="watched"
         />
       );
     }
 
     return <i className="fa fa-eye p-1" title="unwatched" />;
-  }
+  };
 
-  recording() {
+  recording = () => {
     const { airing } = this.props;
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
@@ -98,7 +104,9 @@ export default class AiringStatus extends Component<Props> {
       return (
         <i
           className="fa fa-medkit p-1"
-          style={{ color: 'forestgreen' }}
+          style={{
+            color: 'forestgreen',
+          }}
           title="clean recording"
         />
       );
@@ -107,30 +115,32 @@ export default class AiringStatus extends Component<Props> {
     return (
       <i
         className="fa fa-medkit p-1"
-        style={{ color: 'maroon' }}
+        style={{
+          color: 'maroon',
+        }}
         title="dirty recording"
       />
     );
-  }
+  };
 
   cleanPercent = () => {
     const { airing } = this.props;
     const { airingDetails } = airing;
     const { videoDetails } = airing;
-
     return Math.ceil((videoDetails.duration / airingDetails.duration) * 100);
   };
 
-  clean() {
+  clean = () => {
     if (this.isComskipGood()) return '';
-
     const pct = this.cleanPercent();
 
     if (pct >= 100) {
       return (
         <i
           className="fa fa-thermometer-full p-1"
-          style={{ color: 'forestgreen' }}
+          style={{
+            color: 'forestgreen',
+          }}
           title={`clean recording (${pct}%)`}
         />
       );
@@ -140,57 +150,64 @@ export default class AiringStatus extends Component<Props> {
       return (
         <i
           className="fa fa-thermometer-three-quarters p-1"
-          style={{ color: 'yellowgreen' }}
+          style={{
+            color: 'yellowgreen',
+          }}
           title={`${pct}% recorded`}
         />
       );
     }
+
     if (pct >= 50)
       return (
         <i
           className="fa fa-thermometer-half p-1"
-          style={{ color: 'goldenrod' }}
+          style={{
+            color: 'goldenrod',
+          }}
           title={`${pct}% recorded`}
         />
       );
-
     if (pct >= 25)
       return (
         <i
           className="fa fa-thermometer-quarter p-1"
-          style={{ color: 'orange' }}
+          style={{
+            color: 'orange',
+          }}
           title={`${pct}% recorded`}
         />
       );
-
     return (
       <i
         className="fa fa-thermometer-empty p-1"
-        style={{ color: 'maroon' }}
+        style={{
+          color: 'maroon',
+        }}
         title={`${pct}% recorded`}
       />
     );
-  }
+  };
 
   good = () => {
     let msg = 'Recording successful';
     if (this.isComskipGood()) msg = 'Commercial Skip ready';
-
     return (
       <i
         className="fa fa-check-circle p-1"
-        style={{ color: 'forestgreen' }}
+        style={{
+          color: 'forestgreen',
+        }}
         title={msg}
       />
     );
   };
 
-  comskip() {
+  comskip = () => {
     const { airing } = this.props;
     const { videoDetails } = airing;
     const { comskip } = videoDetails;
-
-    if (!comskip) return;
+    if (!comskip) return <></>;
 
     if (comskip.state === 'ready') {
       return this.good();
@@ -198,18 +215,19 @@ export default class AiringStatus extends Component<Props> {
 
     let error = 'no comskip data';
     if (comskip) error = comskip.error;
-
     const title = `Commercial Skip unavailable (${error})`;
     return (
       <i
         className="fa fa-times-circle p-1"
-        style={{ color: 'red' }}
+        style={{
+          color: 'red',
+        }}
         title={title}
       />
     );
-  }
+  };
 
-  uploading() {
+  uploading = () => {
     const { airing } = this.props;
     const { videoDetails } = airing;
 
@@ -217,14 +235,17 @@ export default class AiringStatus extends Component<Props> {
       return (
         <i
           className="fa fa-fast-forward p-1"
-          style={{ color: 'goldenrod' }}
+          style={{
+            color: 'goldenrod',
+          }}
           title="Uploading..."
         />
       );
     }
-  }
+    return <></>;
+  };
 
-  protected() {
+  protected = () => {
     const { airing } = this.props;
     const { userInfo } = airing;
 
@@ -232,12 +253,15 @@ export default class AiringStatus extends Component<Props> {
       return (
         <i
           className="fa fa-lock p-1"
-          style={{ color: 'grey' }}
+          style={{
+            color: 'grey',
+          }}
           title="Protected"
         />
       );
     }
-  }
+    return <></>;
+  };
 
   render() {
     const { airing } = this.props;
@@ -246,9 +270,10 @@ export default class AiringStatus extends Component<Props> {
     if (videoDetails.state === 'recording') {
       return this.airingState();
     }
-    if (this.isComskipGood() || this.isGoodRecording())
-      return <>{this.good()}</>; //
 
+    if (this.isComskipGood() || this.isGoodRecording())
+      return <>{this.good()}</>;
+    //
     return (
       <div>
         {this.clean()}

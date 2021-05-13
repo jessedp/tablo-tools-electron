@@ -1,11 +1,11 @@
-// @flow
 import type { FlashRecordType } from '../reducers/types';
-
-export const SEND_FLASH = 'SEND_FLASH';
+import { SEND_FLASH } from './types';
 
 export function sendFlash(message: FlashRecordType) {
   return {
     type: SEND_FLASH,
-    message
+    message,
   };
 }
+
+export function noDefault() {}

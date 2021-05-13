@@ -1,31 +1,30 @@
-// @flow
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-
+import Button from './ButtonExtended';
 import { NamingTemplateType } from '../constants/app';
 import Airing from '../utils/Airing';
 import TemplateEditor from './TemplateEditor';
 import { buildTemplateVars } from '../utils/namingTpl';
 import NamingTemplateOptions from './NamingTemplateOptions';
 
-type Props = { airing: Airing, updateTemplate: NamingTemplateType => void };
-
+type Props = {
+  airing: Airing;
+  updateTemplate: (arg0: NamingTemplateType) => void;
+};
 export default function FilenameEditor(props: Props) {
   const { airing, updateTemplate } = props;
-
   const [show, setShow] = useState(false);
-  const [workingAiring: Airing, setWorkingAiring] = useState(new Airing());
+  const [workingAiring, setWorkingAiring] = useState(new Airing({}, false));
   const [workingTemplate, setTemplate] = useState({ ...airing.template });
-
-  useEffect(() => {
-    copyAiring();
-  }, []);
 
   const copyAiring = async () => {
     const newAiring = await Airing.create(airing.data);
     setWorkingAiring(newAiring);
   };
+
+  useEffect(() => {
+    copyAiring();
+  }, []);
 
   workingAiring.template = { ...workingTemplate };
 
@@ -45,7 +44,6 @@ export default function FilenameEditor(props: Props) {
 
   const templateVars = buildTemplateVars(workingAiring);
   // const updateTemplate = (t)=>{console.log(t)}
-
   return (
     <Modal
       show={show}
@@ -70,9 +68,9 @@ export default function FilenameEditor(props: Props) {
 
         <TemplateEditor
           template={workingAiring.template}
-          record={templateVars[0]}
-          shortcuts={templateVars[1]}
-          updateValue={template => {
+          record={templateVars.full}
+          shortcuts={templateVars.shortcuts}
+          updateValue={(template) => {
             workingAiring.template.template = template;
             setTemplate({ ...workingAiring.template });
           }}

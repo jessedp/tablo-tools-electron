@@ -1,42 +1,41 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import path from 'path';
-import * as Sentry from '@sentry/electron';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import * as FlashActions from '../actions/flash';
 import type { FlashRecordType } from '../reducers/types';
-
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
 import getConfig, { ConfigType, setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
 import Directory from './Directory';
+import SentryToggle from '../utils/sentryToggle';
 
-type Props = { sendFlash: (message: FlashRecordType) => void };
+type OwnProps = Record<string, never>;
+type StateProps = Record<string, never>;
+
+type DispatchProps = {
+  sendFlash: (message: FlashRecordType) => void;
+};
+
+type SettingsGeneralProps = OwnProps & StateProps & DispatchProps;
 
 const { app, dialog } = require('electron').remote;
 
-class SettingsGeneral extends Component<Props, ConfigType> {
-  props: Props;
-
-  constructor() {
-    super();
-
+class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
+  constructor(props: SettingsGeneralProps) {
+    super(props);
     const storedState = getConfig();
-
     this.state = storedState;
-
     this.setEpisodePath = this.setEpisodePath.bind(this);
     this.setMoviePath = this.setMoviePath.bind(this);
     this.setEventPath = this.setEventPath.bind(this);
     this.setProgramPath = this.setProgramPath.bind(this);
     this.setPathDialog = this.setPathDialog.bind(this);
-
     this.toggleIpOverride = this.toggleIpOverride.bind(this);
     this.toggleAutoRebuild = this.toggleAutoRebuild.bind(this);
     this.toggleAutoUpdate = this.toggleAutoUpdate.bind(this);
@@ -45,7 +44,6 @@ class SettingsGeneral extends Component<Props, ConfigType> {
     this.toggleErrorReport = this.toggleErrorReport.bind(this);
     this.setTestDeviceIp = this.setTestDeviceIp.bind(this);
     this.saveTestDeviceIp = this.saveTestDeviceIp.bind(this);
-
     this.toggleEnableDebug = this.toggleEnableDebug.bind(this);
     this.toggleDataExport = this.toggleDataExport.bind(this);
   }
@@ -53,45 +51,49 @@ class SettingsGeneral extends Component<Props, ConfigType> {
   setPathDialog = (field: string) => {
     const file = dialog.showOpenDialogSync({
       defaultPath: field,
-      properties: ['openDirectory']
+      properties: ['openDirectory'],
     });
-    if (file) {
-      const fields = {};
 
+    if (file) {
+      const fields: Record<string, any> = {};
       // eslint-disable-next-line prefer-destructuring
       fields[field] = file[0];
-
       let type = '';
+
       switch (field) {
         case 'exportDataPath':
           type = 'Export Data';
           break;
+
         case 'episodePath':
           type = 'Episodes';
           break;
+
         case 'moviePath':
           type = 'Movies';
           break;
+
         case 'eventPath':
           type = 'Sports';
           break;
+
         case 'programPath':
         default:
           type = 'Sports';
       }
-      const message = `${type} exports will appear in ${file[0]}`;
-      const item = {};
 
+      const message = `${type} exports will appear in ${file[0]}`;
+      const item: Record<string, any> = {};
       // eslint-disable-next-line prefer-destructuring
       item[field] = file[0];
-      this.saveConfigItem(item, { message });
+      this.saveConfigItem(item, {
+        message,
+      });
     }
   };
 
-  /** This does the real work... */ saveConfigItem = (
-    item: Object,
-    message: FlashRecordType
-  ) => {
+  /** This does the real work... */
+  saveConfigItem = (item: any, message: FlashRecordType) => {
     const { sendFlash } = this.props;
 
     this.setState(item);
@@ -103,13 +105,28 @@ class SettingsGeneral extends Component<Props, ConfigType> {
     const { autoRebuild } = this.state;
     const message = `Auto-rebuild ${!autoRebuild ? 'enabled' : 'disabled'}`;
     const type = !autoRebuild ? 'success' : 'warning';
-    this.saveConfigItem({ autoRebuild: !autoRebuild }, { message, type });
+    this.saveConfigItem(
+      {
+        autoRebuild: !autoRebuild,
+      },
+      {
+        message,
+        type,
+      }
+    );
   };
 
   setAutoRebuildMinutes = (minutes: number | null) => {
     if (!minutes) return;
     const message = `DB Rebuild will happen every ${minutes} minutes`;
-    this.saveConfigItem({ autoRebuildMinutes: minutes }, { message });
+    this.saveConfigItem(
+      {
+        autoRebuildMinutes: minutes,
+      },
+      {
+        message,
+      }
+    );
   };
 
   toggleAutoUpdate = () => {
@@ -118,8 +135,15 @@ class SettingsGeneral extends Component<Props, ConfigType> {
       !autoUpdate ? 'enabled' : 'disabled'
     }`;
     const type = !autoUpdate ? 'success' : 'warning';
-
-    this.saveConfigItem({ autoUpdate: !autoUpdate }, { message, type });
+    this.saveConfigItem(
+      {
+        autoUpdate: !autoUpdate,
+      },
+      {
+        message,
+        type,
+      }
+    );
   };
 
   toggleNotifyBeta = () => {
@@ -128,77 +152,105 @@ class SettingsGeneral extends Component<Props, ConfigType> {
       !notifyBeta ? '' : 'no longer'
     } be shown`;
     const type = !notifyBeta ? 'success' : 'warning';
-    this.saveConfigItem({ notifyBeta: !notifyBeta }, { message, type });
+    this.saveConfigItem(
+      {
+        notifyBeta: !notifyBeta,
+      },
+      {
+        message,
+        type,
+      }
+    );
   };
 
   toggleErrorReport = () => {
     const { allowErrorReport } = this.state;
-    this.setState();
-
+    // this.setState();
     const message = `Error Reporting is now ${
       !allowErrorReport ? 'enabled' : 'disabled'
     }`;
     const type = !allowErrorReport ? 'success' : 'warning';
 
-    if (Sentry.getCurrentHub().getClient()) {
-      Sentry.getCurrentHub()
-        .getClient()
-        .getOptions().enabled = !allowErrorReport;
-    } else {
-      console.error('Unable to set Sentry reporting value');
-    }
+    SentryToggle(!allowErrorReport);
 
     this.saveConfigItem(
-      { allowErrorReport: !allowErrorReport },
-      { message, type }
+      {
+        allowErrorReport: !allowErrorReport,
+      },
+      {
+        message,
+        type,
+      }
     );
   };
 
-  setEpisodePath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ episodePath: event.currentTarget.value });
+  setEpisodePath = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      episodePath: event.currentTarget.value,
+    });
   };
 
-  setMoviePath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ moviePath: event.currentTarget.value });
+  setMoviePath = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      moviePath: event.currentTarget.value,
+    });
   };
 
-  setEventPath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ eventPath: event.currentTarget.value });
+  setEventPath = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      eventPath: event.currentTarget.value,
+    });
   };
 
-  setProgramPath = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ programPath: event.currentTarget.value });
+  setProgramPath = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      programPath: event.currentTarget.value,
+    });
   };
 
   toggleIpOverride = () => {
     const { enableTestDevice } = this.state;
-
     const message = `Test Device ${!enableTestDevice ? 'enabled' : 'disabled'}`;
     const type = !enableTestDevice ? 'success' : 'warning';
     this.saveConfigItem(
-      { enableTestDevice: !enableTestDevice },
-      { message, type }
+      {
+        enableTestDevice: !enableTestDevice,
+      },
+      {
+        message,
+        type,
+      }
     );
   };
 
   saveTestDeviceIp = () => {
     const { sendFlash } = this.props;
     const { testDeviceIp } = this.state;
+
     if (!isValidIp(testDeviceIp)) {
       sendFlash({
         type: 'danger',
-        message: `Invalid IP Address: ${testDeviceIp}`
+        message: `Invalid IP Address: ${testDeviceIp}`,
       });
       return;
     }
 
     const message = `${testDeviceIp} set as Test Device!`;
-    this.saveConfigItem({ testDeviceIp }, { message });
+    this.saveConfigItem(
+      {
+        testDeviceIp,
+      },
+      {
+        message,
+      }
+    );
     discover();
   };
 
-  setTestDeviceIp = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ testDeviceIp: event.currentTarget.value });
+  setTestDeviceIp = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      testDeviceIp: event.currentTarget.value,
+    });
   };
 
   toggleDataExport = () => {
@@ -206,8 +258,13 @@ class SettingsGeneral extends Component<Props, ConfigType> {
     const message = `Data Export ${!enableExportData ? 'enabled' : 'disabled'}`;
     const type = !enableExportData ? 'success' : 'warning';
     this.saveConfigItem(
-      { enableExportData: !enableExportData },
-      { message, type }
+      {
+        enableExportData: !enableExportData,
+      },
+      {
+        message,
+        type,
+      }
     );
   };
 
@@ -215,7 +272,15 @@ class SettingsGeneral extends Component<Props, ConfigType> {
     const { enableDebug } = this.state;
     const message = `Debug logging ${!enableDebug ? 'enabled' : 'disabled'}`;
     const type = !enableDebug ? 'success' : 'warning';
-    this.saveConfigItem({ enableDebug: !enableDebug }, { message, type });
+    this.saveConfigItem(
+      {
+        enableDebug: !enableDebug,
+      },
+      {
+        message,
+        type,
+      }
+    );
   };
 
   render() {
@@ -228,13 +293,12 @@ class SettingsGeneral extends Component<Props, ConfigType> {
       episodePath,
       moviePath,
       eventPath,
-      programPath
+      programPath,
     } = this.state;
-
     let logsPath = app.getPath('logs');
-
     const test = new RegExp(`${app.name}`, 'g');
     const mat = logsPath.match(test);
+
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
         logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
@@ -337,11 +401,11 @@ class SettingsGeneral extends Component<Props, ConfigType> {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(FlashActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<StateProps, DispatchProps, OwnProps>(
   null,
   mapDispatchToProps
 )(SettingsGeneral);

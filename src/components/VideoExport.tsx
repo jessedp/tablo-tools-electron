@@ -1,21 +1,17 @@
-// @flow
 import React, { Component } from 'react';
-
-import ExportRecordType from '../reducers/types';
-
+import { ExportRecordType } from '../reducers/types';
 import {
   EXP_WAITING,
   EXP_WORKING,
   EXP_DONE,
   EXP_CANCEL,
   EXP_FAIL,
-  ExportLogRecordType
+  ExportLogRecordType,
 } from '../constants/app';
-
 import {
   throttleActions,
   timeStrToSeconds,
-  readableDuration
+  readableDuration,
 } from '../utils/utils';
 import Airing from '../utils/Airing';
 import { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
@@ -23,146 +19,151 @@ import getConfig from '../utils/config';
 import { ExportLogRecord } from '../utils/factories';
 
 type Props = {
-  airingList: Array<Airing>,
-  exportList: Array<ExportRecordType>,
-
-  addExportRecord: (record: ExportRecordType) => void,
-  updateExportRecord: (record: ExportRecordType) => void,
-  bulkRemExportRecord: (Array<ExportRecordType>) => void
+  airing: Airing;
+  // airingList: Array<Airing>;
+  exportList: Array<ExportRecordType>;
+  // addExportRecord: (record: ExportRecordType) => void;
+  updateExportRecord: (record: ExportRecordType) => void;
+  // bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
 };
-
 type State = {
-  exportState: number,
-  atOnce: number,
-  deleteOnFinish: number,
-  actionOnDuplicate: string
+  exportState: number;
+  atOnce: number;
+  deleteOnFinish: number;
+  actionOnDuplicate: string;
 };
 
 const VideoExport = (WrappedComponent: any) => {
   // $FlowFixMe wtf typing
-  return class extends Component<Props, State> {
-    props: Props;
+  return class WVideoExportComp extends Component<Props, State> {
+    // props: Props;
 
-    static defaultProps: {};
+    // static defaultProps: {};
 
     shouldCancel: boolean;
 
-    logRecord: ExportLogRecordType;
+    logRecord: ExportLogRecordType | undefined;
 
-    timings: Object;
+    timings: Record<string, any>;
 
-    constructor() {
-      super();
+    constructor(props: Props) {
+      super(props);
       this.state = {
         exportState: EXP_WAITING,
         atOnce: 1,
         deleteOnFinish: CHECKBOX_OFF,
-        actionOnDuplicate: getConfig().actionOnDuplicate
+        actionOnDuplicate: getConfig().actionOnDuplicate,
       };
-
       this.shouldCancel = false;
       this.timings = {};
-
-      (this: any).processVideo = this.processVideo.bind(this);
-      (this: any).cancelProcess = this.cancelProcess.bind(this);
+      // this.logRecord = ExportLogRecord();
+      (this as any).processVideo = this.processVideo.bind(this);
+      (this as any).cancelProcess = this.cancelProcess.bind(this);
     }
 
     componentWillUnmount() {
       this.cancelProcess(false);
     }
 
-    atOnceChange = async (event: SyntheticEvent<HTMLInputElement>) => {
-      await this.setState({ atOnce: parseInt(event.currentTarget.value, 10) });
+    atOnceChange = async (event: React.SyntheticEvent<HTMLInputElement>) => {
+      await this.setState({
+        atOnce: parseInt(event.currentTarget.value, 10),
+      });
     };
 
     processVideo = async () => {
       const { exportList } = this.props;
       const { atOnce, actionOnDuplicate } = this.state;
-
       global.EXPORTING = true;
-
       // if (exportState === EXP_DONE) return;
-      await this.setState({ exportState: EXP_WORKING });
-
-      const actions = [];
-
-      exportList.forEach(rec => {
+      await this.setState({
+        exportState: EXP_WORKING,
+      });
+      const actions: Array<Function> = [];
+      exportList.forEach((rec) => {
         actions.push(() => {
           if (this.shouldCancel === false)
             return rec.airing.processVideo(
               actionOnDuplicate,
               this.updateProgress
             );
+          return () => undefined;
         });
       });
-
-      await throttleActions(actions, atOnce).then(results => {
+      await throttleActions(actions, atOnce).then((results) => {
         return results;
       });
 
       if (this.shouldCancel) {
-        this.setState({ exportState: EXP_CANCEL });
+        this.setState({
+          exportState: EXP_CANCEL,
+        });
       } else {
-        this.setState({ exportState: EXP_DONE });
+        this.setState({
+          exportState: EXP_DONE,
+        });
       }
+
       global.EXPORTING = false;
     };
 
-    updateProgress = (airingId: number, progress: Object) => {
+    updateProgress = (airingId: number, progress: Record<string, any>) => {
       const { atOnce, deleteOnFinish, actionOnDuplicate } = this.state;
       const { exportList, updateExportRecord } = this.props;
-      const record: ExportRecordType = exportList.find(
-        rec => rec.airing.object_id === airingId
+      const record: ExportRecordType | undefined = exportList.find(
+        (rec) => rec.airing.object_id === airingId
       );
       if (!record || record.state === EXP_DONE) return;
-
       const { airing } = record;
 
       if (!this.logRecord) {
         this.logRecord = ExportLogRecord(airing);
-        this.logRecord.deleteOnFinish = deleteOnFinish;
+        this.logRecord.deleteOnFinish = Boolean(deleteOnFinish);
         this.logRecord.atOnce = atOnce;
         this.logRecord.dupeAction = actionOnDuplicate;
       }
 
       if (!this.timings[airing.id]) {
-        this.timings[airing.id] = { start: Date.now(), duration: 0 };
+        this.timings[airing.id] = {
+          start: Date.now(),
+          duration: 0,
+        };
       }
-      const timing = this.timings[airing.id];
 
+      const timing = this.timings[airing.id];
       let dumpLog = false;
+
       if (progress.finished) {
         if (deleteOnFinish === CHECKBOX_ON) {
           const status = airing.isExportValid();
+
           if (status.valid) {
             airing.delete();
           }
         }
+
         record.state = EXP_DONE;
         record.progress = {
           exportInc: 1000,
           exportLabel: 'Complete',
-          log: progress.log
+          log: progress.log,
         };
-
         this.logRecord.status = EXP_DONE;
         dumpLog = true;
       } else if (progress.cancelled) {
         record.state = EXP_CANCEL;
         record.progress = {
           exportInc: 0,
-          exportLabel: 'Cancelled'
+          exportLabel: 'Cancelled',
         };
-
         this.logRecord.status = EXP_CANCEL;
         dumpLog = true;
       } else if (progress.failed) {
         record.state = EXP_FAIL;
         record.progress = {
           exportInc: 0,
-          exportLabel: 'Failed'
+          exportLabel: 'Failed',
         };
-
         this.logRecord.status = EXP_FAIL;
         dumpLog = true;
       } else {
@@ -172,58 +173,61 @@ const VideoExport = (WrappedComponent: any) => {
             parseInt(airing.videoDetails.duration, 10)) *
             100
         );
-
         const label = `${progress.timemark} / ${readableDuration(
           airing.videoDetails.duration
         )}`;
-
         record.state = EXP_WORKING;
         record.progress = {
           exportInc: pct,
-          exportLabel: label
+          exportLabel: label,
         };
       }
 
       if (dumpLog) {
         this.logRecord.ffmpegLog = progress.log;
-        this.logRecord.endTime = new Date().toLocaleString();
+        // FIXME : ExportLogRecord types
+        // this.logRecord.endTime = new Date().toLocaleString();
+        this.logRecord.endTime = new Date();
         global.ExportLogDb.asyncInsert(this.logRecord);
-        this.logRecord = null;
+        // this.logRecord = {};
       }
 
       timing.duration = Date.now() - timing.start;
       record.progress = { ...record.progress, ...timing };
       this.timings[airing.id] = timing;
-
       updateExportRecord(record);
     };
 
-    cancelProcess = async (updateState: boolean = true) => {
+    cancelProcess = async (updateState = true) => {
       const { exportList } = this.props;
-
       this.shouldCancel = true;
 
       if (exportList) {
-        exportList.forEach(rec => {
+        exportList.forEach((rec) => {
           if (rec.state === EXP_WORKING) {
             rec.airing.cancelVideoProcess();
           }
         });
       }
 
-      if (updateState) this.setState({ exportState: EXP_CANCEL });
+      if (updateState)
+        this.setState({
+          exportState: EXP_CANCEL,
+        });
     };
 
     toggleDOF = () => {
       const { deleteOnFinish } = this.state;
       this.setState({
         deleteOnFinish:
-          deleteOnFinish === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF
+          deleteOnFinish === CHECKBOX_OFF ? CHECKBOX_ON : CHECKBOX_OFF,
       });
     };
 
-    setActionOnDuplicate = (event: SyntheticEvent<HTMLInputElement>) => {
-      this.setState({ actionOnDuplicate: event.currentTarget.value });
+    setActionOnDuplicate = (event: React.SyntheticEvent<HTMLInputElement>) => {
+      this.setState({
+        actionOnDuplicate: event.currentTarget.value,
+      });
     };
 
     render() {
@@ -231,8 +235,9 @@ const VideoExport = (WrappedComponent: any) => {
         exportState,
         actionOnDuplicate,
         deleteOnFinish,
-        atOnce
+        atOnce,
       } = this.state;
+
       /* eslint-disable react/jsx-props-no-spreading */
       // $FlowFixMe
       return (

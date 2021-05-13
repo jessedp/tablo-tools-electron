@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import { Player } from 'video-react';
 import Alert from 'react-bootstrap/Alert';
@@ -6,23 +5,29 @@ import Spinner from 'react-bootstrap/Spinner';
 import HLSSource from './HLSSource';
 import Channel from '../utils/Channel';
 
-type Props = { channel: Channel };
-type State = { url: string, error: string };
-
+type Props = {
+  channel: Channel;
+};
+type State = {
+  url: string;
+  error: string;
+};
 export default class MyPlayerLive extends Component<Props, State> {
-  props: Props;
-
-  constructor() {
-    super();
-    this.state = { url: '', error: '' };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      url: '',
+      error: '',
+    };
   }
 
   async componentDidMount() {
     const { channel } = this.props;
-
     const watchPath = `${channel.path}/watch`;
     let data: any = null; // ugh
+
     let error = '';
+
     try {
       data = await global.Api.post(watchPath);
     } catch (e) {
@@ -31,6 +36,7 @@ export default class MyPlayerLive extends Component<Props, State> {
     }
 
     let url = '';
+
     if (!error) {
       // TODO: better local/forward rewrites (probably elsewhere)
       if (global.Api.device.private_ip === '127.0.0.1') {
@@ -42,13 +48,18 @@ export default class MyPlayerLive extends Component<Props, State> {
         url = data.playlist_url;
       }
     }
-    await this.setState({ url, error });
+
+    await this.setState({
+      url,
+      error,
+    });
   }
 
   render() {
     const { channel } = this.props;
     const { url, error } = this.state;
     console.debug('MyLivePlayer - url', url);
+
     if (!url) {
       return (
         <div>
@@ -57,6 +68,7 @@ export default class MyPlayerLive extends Component<Props, State> {
         </div>
       );
     }
+
     if (error) {
       return (
         <Alert variant="danger">
@@ -64,9 +76,10 @@ export default class MyPlayerLive extends Component<Props, State> {
         </Alert>
       );
     }
+
     return (
       <Player fluid width={300} height={240}>
-        <HLSSource isVideoChild src={url} video={{}} type="" />
+        <HLSSource src={url} video={{}} type="" />
       </Player>
     );
   }

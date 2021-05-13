@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import { shell } from 'electron';
 import os from 'os';
@@ -7,39 +6,33 @@ import path from 'path';
 import archiver from 'archiver';
 import axios from 'axios';
 
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-
 import Alert from 'react-bootstrap/Alert';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
+import Button from './ButtonExtended';
 
-type Props = {};
+type Props = Record<string, never>;
 type State = {
-  state: number,
-  enableServerInfo: boolean,
-  enableRecordings: boolean,
-  serverInfoStatus: any,
-  recordingStatus: any,
-  fileFullPath: string
+  state: number;
+  enableServerInfo: boolean;
+  enableRecordings: boolean;
+  serverInfoStatus: any;
+  recordingStatus: any;
+  fileFullPath: string;
 };
-
 const STATE_WAITING = 0;
 const STATE_WORKING = 1;
 const STATE_COMPLETE = 2;
 const STATE_ERROR = 3;
-
 export default class ExportData extends Component<Props, State> {
-  props: Props;
-
   shouldCancel: boolean;
 
-  constructor() {
-    super();
-
+  constructor(props: Props) {
+    super(props);
     this.shouldCancel = false;
     this.state = {
       state: STATE_WAITING,
@@ -47,30 +40,35 @@ export default class ExportData extends Component<Props, State> {
       enableRecordings: true,
       serverInfoStatus: '',
       recordingStatus: '',
-      fileFullPath: ''
+      fileFullPath: '',
     };
-
-    (this: any).startExport = this.startExport.bind(this);
-    (this: any).cancelExport = this.cancelExport.bind(this);
-    (this: any).toggleServerInfo = this.toggleServerInfo.bind(this);
-    (this: any).toggleRecordings = this.toggleRecordings.bind(this);
-    (this: any).openExportFile = this.openExportFile.bind(this);
-    (this: any).causeError = this.causeError.bind(this);
+    (this as any).startExport = this.startExport.bind(this);
+    (this as any).cancelExport = this.cancelExport.bind(this);
+    (this as any).toggleServerInfo = this.toggleServerInfo.bind(this);
+    (this as any).toggleRecordings = this.toggleRecordings.bind(this);
+    (this as any).openExportFile = this.openExportFile.bind(this);
+    (this as any).causeError = this.causeError.bind(this);
   }
 
   toggleServerInfo = () => {
     const { enableServerInfo } = this.state;
-    this.setState({ enableServerInfo: !enableServerInfo });
+    this.setState({
+      enableServerInfo: !enableServerInfo,
+    });
   };
 
   toggleRecordings = () => {
     const { enableRecordings } = this.state;
-    this.setState({ enableRecordings: !enableRecordings });
+    this.setState({
+      enableRecordings: !enableRecordings,
+    });
   };
 
   cancelExport = () => {
     this.shouldCancel = true;
-    this.setState({ state: STATE_WAITING });
+    this.setState({
+      state: STATE_WAITING,
+    });
   };
 
   openExportFile = () => {
@@ -79,72 +77,77 @@ export default class ExportData extends Component<Props, State> {
     shell.showItemInFolder(fileFullPath);
   };
 
-  startExport = async (upload: boolean = true) => {
+  startExport = async (upload = true) => {
     const { enableServerInfo, enableRecordings } = this.state;
-
     this.shouldCancel = false;
-
-    this.setState({ state: STATE_WORKING });
-
+    this.setState({
+      state: STATE_WORKING,
+    });
     if (!enableServerInfo && !enableRecordings) return;
 
-    const bail = msg => {
+    const bail = (msg: string) => {
       console.log(msg);
       this.setState({
         state: STATE_ERROR,
         serverInfoStatus: '',
-        recordingStatus: ''
+        recordingStatus: '',
       });
     };
 
     const tmpDir = path.join(os.tmpdir(), 'tablo-tools-export');
     const { Api } = global;
+
     try {
       // $FlowFixMe guessing this means I don't have the proper node version somewhere
-      fs.rmdirSync(tmpDir, { recursive: true });
-      fs.mkdirSync(tmpDir, { recursive: true });
+      fs.rmdirSync(tmpDir, {
+        recursive: true,
+      });
+      fs.mkdirSync(tmpDir, {
+        recursive: true,
+      });
     } catch (e) {
-      return bail(e);
+      bail(e);
     }
+
     // need it for the file name, so...
     const info = await Api.getServerInfo();
     // get rid of personal data
     delete info.public_ip;
     delete info.http;
     delete info.slip;
-
     const filename = `${info.server_id}_Export.zip`;
     const tmpFile = path.join(tmpDir, filename);
-
     // Setup the zip archive
     const output = fs.createWriteStream(tmpFile);
     const archive = archiver('zip', {
-      zlib: { level: 9 } // Sets the compression level.
+      zlib: {
+        level: 9,
+      }, // Sets the compression level.
     });
     archive.pipe(output);
-
     // warnings (ie stat failures and other non-blocking errors)
-    archive.on('warning', err => {
+    archive.on('warning', (err) => {
       if (err.code === 'ENOENT') {
         console.warn('archive', err);
-      } else {
-        return bail(err);
+        return '';
       }
+      return bail(err.toString());
     });
-    archive.on('error', err => {
-      return bail(err);
+
+    archive.on('error', (err) => {
+      return bail(err.toString());
     });
 
     if (enableServerInfo) {
       archive.append(JSON.stringify(info, null, 2), {
-        name: 'server-info.json'
+        name: 'server-info.json',
       });
       this.setState({
         serverInfoStatus: (
           <span>
             <span className="fa fa-check-circle text-success" />
           </span>
-        )
+        ),
       });
     }
 
@@ -154,44 +157,44 @@ export default class ExportData extends Component<Props, State> {
           <span>
             <span className="fa fa-spinner" />
           </span>
-        )
+        ),
       });
       const total = await Api.getRecordingsCount();
       let done = 0;
-      const updateTotal = num => {
-        this.setState({ recordingStatus: `${num} / ${total.length}` });
-      };
-      updateTotal(done);
 
-      const recs = await Api.getRecordings(true, val => {
+      const updateTotal = (num: number | string) => {
+        this.setState({
+          recordingStatus: `${num} / ${total.length}`,
+        });
+      };
+
+      updateTotal(done);
+      const recs = await Api.getRecordings(true, (val: string) => {
         done += 1;
         updateTotal(val);
       });
-
       // TODO: maybe put these files elsewhere later
-      recs.forEach(rec => {
+      recs.forEach((rec: Record<string, any>) => {
         archive.append(JSON.stringify(rec, null, 2), {
-          name: `airings/airing-${rec.object_id}.json`
+          name: `airings/airing-${rec.object_id}.json`,
         });
       });
-
       this.setState({
         recordingStatus: (
           <span>
             <span className="fa fa-check-circle text-success" />
           </span>
-        )
+        ),
       });
     }
 
     // this will trigger out.on('close')
     archive.finalize();
-
     this.setState({
       state: STATE_COMPLETE,
       serverInfoStatus: '',
       recordingStatus: '',
-      fileFullPath: tmpFile
+      fileFullPath: tmpFile,
     });
 
     // listen for all archive data to be written
@@ -202,7 +205,6 @@ export default class ExportData extends Component<Props, State> {
     //     'archiver has been finalized and the output file descriptor has closed.'
     //   );
     // });
-
     if (!upload) {
       return;
     }
@@ -210,53 +212,62 @@ export default class ExportData extends Component<Props, State> {
     /** Now actually upload * */
     const signUrl =
       'https://8xd9zweji2.execute-api.us-east-1.amazonaws.com/TT_PresignedURL';
+    let resp;
 
-    let resp = {};
     try {
       resp = await axios.get(`${signUrl}?name=${filename}`);
     } catch (e) {
-      return bail(`getting signed url: ${e}`);
+      bail(`getting signed url: ${e}`);
+      return;
     }
+
     if (!resp.data) {
-      return bail(`resp missing? ${resp}`);
+      bail(`resp missing? ${resp}`);
+      return;
     }
+
     const { url } = resp.data.url;
     const { fields } = resp.data.url;
-
     const formData = new FormData();
     Object.entries(fields).forEach(([k, v]) => {
-      // $FlowFixMe ugh. maybe later.
-      formData.append(k, v);
+      // FIXME! or test me? forced string may not work...
+      formData.append(k, `${v}`);
     });
-
     const buffer = fs.readFileSync(tmpFile);
     const blob = new Blob([buffer]);
-
     formData.append('file', blob);
-
     axios({
       method: 'post',
       url,
       data: formData,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     })
       .then(() => {
-        setTimeout(() => this.setState({ state: STATE_WAITING }), 3000);
+        setTimeout(
+          () =>
+            this.setState({
+              state: STATE_WAITING,
+            }),
+          3000
+        );
         return this.setState({
           state: STATE_COMPLETE,
           serverInfoStatus: '',
           recordingStatus: '',
-          fileFullPath: tmpFile
+          fileFullPath: tmpFile,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         bail(err.response.data);
       });
   };
 
   causeError = () => {
     // $FlowFixMe not yet. hidden and allows causing an error in prod
-    this.whatWhat();
+    // this.whatWhat();
+    throw new Error('causeError!');
   };
 
   render() {
@@ -266,9 +277,8 @@ export default class ExportData extends Component<Props, State> {
       enableRecordings,
       serverInfoStatus,
       recordingStatus,
-      fileFullPath
+      fileFullPath,
     } = this.state;
-
     return (
       <div className="p-1 mb-3 mt-3">
         <Row>
@@ -351,7 +361,9 @@ export default class ExportData extends Component<Props, State> {
               <InputGroup.Prepend>
                 <Form.Label
                   className="pt-2 bg-light pb-1 pr-1 pl-1 border"
-                  style={{ width: '110px' }}
+                  style={{
+                    width: '110px',
+                  }}
                 >
                   Export file
                 </Form.Label>
@@ -360,12 +372,16 @@ export default class ExportData extends Component<Props, State> {
                 type="text"
                 value={fileFullPath}
                 placeholder="not generated"
-                style={{ width: '350px' }}
+                style={{
+                  width: '350px',
+                }}
                 onChange={() => {}}
               />
               <InputGroup.Append>
                 <Button
-                  style={{ height: '35px' }}
+                  style={{
+                    height: '35px',
+                  }}
                   size="xs"
                   variant="outline-secondary"
                   onClick={this.openExportFile}
@@ -384,8 +400,7 @@ export default class ExportData extends Component<Props, State> {
               variant="light"
               onClick={this.causeError}
             >
-              {' '}
-              &nbsp;{' '}
+              &nbsp;
             </Button>
           </Col>
         </Row>
@@ -394,13 +409,12 @@ export default class ExportData extends Component<Props, State> {
   }
 }
 
-function ExportButton(prop) {
+function ExportButton(prop: Record<string, any>) {
   const { state, buildExport, startExport } = prop;
-  // , cancelExport
 
+  // , cancelExport
   if (state === STATE_WORKING) {
-    return <Spinner animation="grow" variant="info" />;
-    // return (
+    return <Spinner animation="grow" variant="info" />; // return (
     //   <Button
     //     size="sm"
     //     variant="outline-warning"

@@ -1,10 +1,11 @@
-// @flow
-import { SEND_FLASH } from '../actions/flash';
-
+import { SEND_FLASH } from '../actions/types';
 import type { Action, FlashRecordType } from './types';
 
 export function sendFlash(
-  state: FlashRecordType = { message: '', type: 'success' },
+  state: FlashRecordType = {
+    message: '',
+    type: 'success',
+  },
   action: Action
 ) {
   const { message } = action;
@@ -12,9 +13,9 @@ export function sendFlash(
   switch (action.type) {
     case SEND_FLASH:
       return message;
+
     default:
       return state;
   }
 }
-
 export const DONTMAKEHAVEADEFAULT = 'please';

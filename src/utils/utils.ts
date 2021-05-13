@@ -1,6 +1,6 @@
-import os from 'os';
-// const { exec } = require('child_process');
+import * as os from 'os';
 
+// const { exec } = require('child_process');
 // import ffmpeg from 'ffmpeg-static-electron';
 import ffmpeg from 'ffmpeg-static-electron-jdp';
 import getConfig from './config';
@@ -10,8 +10,10 @@ const fs = require('fs');
 export function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-
-export async function asyncForEach(array, callback) {
+export async function asyncForEach(
+  array: Array<any>,
+  callback: (item: any) => Promise<void>
+) {
   const promises = array.map(callback);
   const vals = Promise.all(promises);
   return vals;
@@ -22,15 +24,25 @@ export async function asyncForEach(array, callback) {
    */
 }
 
-export function sortableTitle(titleToSort) {
-  let title = titleToSort.toLowerCase().trimLeft();
+/**
+ * Alters a title string for sorting:
+ * - remove leading articles: a, an, the
+ * - adds *zzz* to any title with leading numbers
+ *
+ * @param {string} titleToSort the title string to munge
+ * @return {string} munged title string
+ */
 
+export function sortableTitle(titleToSort: string) {
+  let title = titleToSort.toLowerCase().trimLeft();
   const articles = ['a', 'an', 'the'];
   const words = title.split(' ', 2);
+
   if (words.length === 1) {
     if (/^\d(.*)/.test(title)) {
       title = `zzz ${title}`;
     }
+
     return title;
   }
 
@@ -47,122 +59,212 @@ export function sortableTitle(titleToSort) {
   return title;
 }
 
-export function ellipse(str: string, length: number, ellipsis: string = '...') {
+/**
+ * Takes a string and potentially adds an ellipsis based on the max length of
+ * the passed string.
+ *
+ * The returned string length is max_len(passed_string)+len(ellipsis)
+ *
+ * @param {string}  str the string the potentially manipulate
+ * @param {number} length the maxiumum length of *str* before appending *ellipsis*
+ * @param {string} [ellipsis="..."] the string to be appended to *str*
+ * @return {string} the potentially ellipsed string
+ */
+export function ellipse(str: string, length: number, ellipsis = '...') {
   if (str.length > length) return `${str.substr(0, length)}${ellipsis}`;
   return str;
 }
 
-export function titleCase(string) {
-  const sentence = string.toLowerCase().split(' ');
+/**
+ * Title cases a string:
+ * * dogs => Dogs
+ * * eiffel tower => Eiffel Tower
+ *
+ * @param {string} title the string the potentially manipulate
+ * @return {string} the title cased string
+ */
+export function titleCase(title: string) {
+  const sentence = title.toLowerCase().split(' ');
+
   for (let i = 0; i < sentence.length; i += 1) {
     sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
   }
-  return sentence;
+
+  return sentence.join(' ');
 }
 
-export function getTabloImageUrl(imageId: number) {
-  const host = global.Api.device.private_ip;
-  const id = parseInt(imageId, 10);
+/**
+ * Takes an Tablo imageId and returns it's url based on the host currently
+ * in use by the API
+ *
+ * @param {string} title the string the potentially manipulate
+ * @return {string} the title cased string
+ */
+export function getTabloImageUrl(imageId: string | number) {
+  const host = (global as any).Api.device.private_ip;
+  let id = 0;
+  if (typeof imageId === 'string') {
+    id = parseInt(imageId, 10);
+  } else {
+    id = imageId;
+  }
   return `http://${host}:8885/images/${id}`;
 }
 
-export function sortObject(obj) {
-  const ordered = {};
-  Object.keys(obj)
-    .sort()
-    .forEach(key => {
-      ordered[key] = obj[key];
-    });
-  return ordered;
-}
-
-export function timeStrToSeconds(str) {
+/**
+ * Takes a number of seconds and returns a relative time string
+ * 310 => 0h5m10s
+ *
+ * reverse of secondsToTimeStr() w/ ':' as separator
+ *
+ * @param {string} time the number of seconds
+ * @return {number} the number of seconds
+ */
+export function timeStrToSeconds(str: string) {
   const arr = str.split(':');
   let retVal =
-    parseFloat(arr[0], 10) * 60 * 60 +
-    parseFloat(arr[1], 10) * 60 +
-    parseFloat(arr[2], 10);
+    parseInt(arr[0], 10) * 60 * 60 +
+    parseInt(arr[1], 10) * 60 +
+    parseInt(arr[2], 10);
   retVal = Math.round(retVal);
   return retVal;
 }
 
-export function secondsToTimeStr(time, seperator?: string) {
+/**
+ * Takes a number of seconds and returns a relative time string
+ * 310 => 0h5m10s
+ *
+ * reverse of timeStrToSeconds w/ ':' as separator
+ *
+ * @param {string} time the number of seconds
+ * @param {string} [separator=""] a separator to use, defaults to
+ * @return {string} the number seconds as a relative time string
+ */
+export function secondsToTimeStr(time: string, seperator = '') {
   const secNum = parseInt(time, 10);
-  const hours = Math.floor(secNum / 3600)
-    .toString()
-    .padStart(2, '0');
-  const minutes = Math.floor((secNum - hours * 3600) / 60)
-    .toString()
-    .padStart(2, '0');
-  const seconds = (secNum - hours * 3600 - minutes * 60)
-    .toString()
-    .padStart(2, '0');
-
-  const sep = seperator || '';
-
-  return `${hours}${sep}${minutes}${sep}${seconds}`;
+  const h = Math.floor(secNum / 3600);
+  const hours = h.toString().padStart(2, '0');
+  const m = Math.floor((secNum - h * 3600) / 60);
+  const minutes = m.toString().padStart(2, '0');
+  const s = secNum - h * 3600 - m * 60;
+  const seconds = s.toString().padStart(2, '0');
+  return `${hours}${seperator}${minutes}${seperator}${seconds}`;
 }
 
-export function readableDuration(duration) {
-  const date = new Date(null);
+/**
+ * Convert a number of seconds into a human readable string
+ * almost an alternate/dupe verison of timeStrToSeconds() w/ the separator
+ *
+ * e.g. 59 (sec) => 00:59 (sec)  , 51 (sec) => 1:01 (1 min, 1 sec),
+ *      2350923 => 5:02:03 (5 hr, 2 min, 3 sec)
+ *
+ * @param {number} duration the number of seconds
+ * @return {string} the number seconds as a relative time string
+ */
+export function readableDuration(duration: number) {
+  const date = new Date(0);
   date.setSeconds(duration);
   const str = date.toISOString().substr(12, 7);
   return str.replace(/^0:/, '');
 }
 
-export function parseSeconds(duration) {
-  let dur = duration;
+/**
+ * Takes a number of seconds and returns an array containing the full periods
+ * of months, days, hours, minutes, and seconds it constitutes
+ *
+ *
+ * @param {string | number} duration the number of seconds
+ * @return {number[]} 5 elements, the full periods of 0 months, 1 days, 2 hours, 3 minutes, and 4 seconds
+ */
+export function parseSeconds(duration: string | number) {
+  let dur;
+  if (typeof duration === 'string') {
+    dur = parseInt(duration, 10);
+  } else {
+    dur = duration;
+  }
+
+  // let dur = duration;
   const min = 60;
   const hour = min * 60;
   const day = hour * 24;
   const month = day * 30;
-  const months = parseInt(dur / month, 10);
+  const months = Math.round(dur / month);
   dur -= months * month;
-  const days = parseInt(dur / day, 10);
+  const days = Math.round(dur / day);
   dur -= days * day;
-  const hours = parseInt(dur / hour, 10);
+  const hours = Math.round(dur / hour);
   dur -= hours * hour;
-  const minutes = parseInt(dur / min, 10);
+  const minutes = Math.round(dur / min);
   dur -= minutes * min;
-
   // console.log(minutes,)
-
   return [months, days, hours, minutes, dur];
 }
 
-export function readableBytes(bytes) {
+/**
+ * Takes a number of bytes and returns a more human-readable version
+ *
+ * @param {number} bytes the bytes to interpret
+ * @return {string} human readable string
+ */
+export function readableBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  const size = (bytes / 1024 ** i).toFixed(2) * 1;
+  // const size = (bytes / 1024 ** i).toFixed(2) * 1;
+  const size = (bytes / 1024 ** i).toFixed(2);
   return `${size} ${sizes[i]}`;
 }
 
-export function boolStr(val) {
+/**
+ * Return "yes" if val === boolean true, "no" otherwise
+ *
+ * @param {any} val a value to check
+ * @return {string} the title cased string
+ */
+export function boolStr(val: boolean | number | string) {
   if (val === true) return 'yes';
   return 'no';
 }
 
-export function isValidIp(addr) {
+/**
+ * Validates an IP address, irrespective of private/public/etc
+ *
+ * @param {string} addr an IP address
+ * @return {boolean} the result
+ */
+export function isValidIp(addr: string): boolean {
   const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   return regex.test(addr);
 }
 
-export function writeToFile(name, data) {
+export function writeToFile(
+  name: string,
+  data: string | unknown | Record<string, unknown>
+) {
   const config = getConfig();
   if (!config) return;
+
   if (!Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
     return;
   }
-  if (!config.enableExportData) return;
 
+  if (!config.enableExportData) return;
   const path = config.exportDataPath;
+
   try {
-    fs.mkdirSync(config.exportDataPath, { recursive: true }, err => {
-      console.error(err);
-    });
+    fs.mkdirSync(
+      config.exportDataPath,
+      {
+        recursive: true,
+      },
+      (err: Error) => {
+        console.error(err);
+      }
+    );
   } catch (e) {
     console.log(e);
   }
+
   let outData = data;
   if (typeof data === 'object') outData = JSON.stringify(data);
   const outFile = `${path}${name}`;
@@ -182,9 +284,9 @@ export function writeToFile(name, data) {
  * @returns A Promise that resolves to the full list of values when everything is done.
  */
 export function throttleActions(
-  listOfCallableActions,
-  limit,
-  progressCallback?: Function
+  listOfCallableActions: Array<Function>,
+  limit: number,
+  progressCallback?: (...args: Array<any>) => any
 ) {
   // We'll need to store which is the next promise in the list.
   let i = 0;
@@ -194,14 +296,15 @@ export function throttleActions(
   // (mostly) single-threaded, so only one completion handler will call at a
   // given time. Because we return doNextAction, the Promise chain continues as
   // long as there's an action left in the list.
-  function doNextAction() {
+  // TODO: this type definition is cheating!
+  function doNextAction(): Promise<void> | undefined {
     if (i < listOfCallableActions.length) {
       // Save the current value of i, so we can put the result in the right place
       const actionIndex = i;
       const nextAction = listOfCallableActions[actionIndex];
       i += 1;
       return Promise.resolve(nextAction())
-        .then(result => {
+        .then((result) => {
           // Save results to the correct array index.
           resultArray[actionIndex] = result;
           if (progressCallback) progressCallback(1);
@@ -210,32 +313,31 @@ export function throttleActions(
         })
         .then(doNextAction);
     }
+    return undefined;
   }
 
   // Now start up the original <limit> number of promises.
   // i advances in calls to doNextAction.
   const listOfPromises = [];
+
   while (i < limit && i < listOfCallableActions.length) {
     listOfPromises.push(doNextAction());
   }
+
   return Promise.all(listOfPromises).then(() => resultArray);
 }
-
-export function findFfmpegPath(debug: boolean = false, log: any) {
+export function findFfmpegPath(debug = false, log?: any) {
   const ffmpegPath = ffmpeg.path;
-  if (debug) log.info('ffmpegPath', ffmpegPath);
-
+  if (debug && log) log.info('ffmpegPath', ffmpegPath);
   // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-  const resourcePath = `${process.resourcesPath}`;
-
+  const resourcePath = `${(process as any).resourcesPath}`;
   // TODO - figure out why I did this...
   const psuedoProdPath = resourcePath.replace(
     '/electron/dist/resources',
     '/ffmpeg-static-electron-jdp/bin'
   );
-  if (debug) log.info('resourcePath', resourcePath);
-  if (debug) log.info('prodPath', psuedoProdPath);
-
+  if (debug && log) log.info('resourcePath', resourcePath);
+  if (debug && log) log.info('prodPath', psuedoProdPath);
   let ffmpegPathReal = ffmpegPath;
 
   /** In dev, the prod path gets returned, so "fix" that * */
@@ -256,9 +358,10 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
     }
   }
 
-  if (debug) log.info('after "app" replacements for dev', ffmpegPathReal);
+  if (debug && log)
+    log.info('after "app" replacements for dev', ffmpegPathReal);
+  if (debug && log) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
 
-  if (debug) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
   // In true prod (not yarn build/start), ffmpeg is built into resources dir
   // this will likely fall on it's face with "yarn start"
   if (process.env.NODE_ENV === 'production') {
@@ -269,16 +372,18 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
         /^[/|\\]bin/,
         psuedoProdPath
       );
+
       if (fs.existsSync(testStartPath)) {
-        if (debug)
+        if (debug && log)
           log.info(
             'START replacing ffmpegPathReal for prodPath',
             psuedoProdPath
           );
         ffmpegPathReal = testStartPath;
-        if (debug) log.info('START replaced prodPath for prod', ffmpegPathReal);
+        if (debug && log)
+          log.info('START replaced prodPath for prod', ffmpegPathReal);
       } else {
-        if (debug)
+        if (debug && log)
           log.info(
             'PROD replacing ffmpegPathReal for prodPath',
             psuedoProdPath
@@ -287,7 +392,8 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
           /[/|\\]resources/,
           `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
         );
-        if (debug) log.info('PROD replaced prodPath for prod', ffmpegPathReal);
+        if (debug && log)
+          log.info('PROD replaced prodPath for prod', ffmpegPathReal);
       }
     }
   } else if (os.platform() === 'win32') {
@@ -298,7 +404,6 @@ export function findFfmpegPath(debug: boolean = false, log: any) {
     );
   }
 
-  if (debug) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
-
+  if (debug && log) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
   return ffmpegPathReal;
 }

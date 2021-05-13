@@ -1,65 +1,47 @@
 // @flow
-import { TabloImage, ShowCounts } from './types';
+import { ShowCounts } from './types';
 
-import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
+import { EVENT, MOVIE, SERIES } from '../constants/app';
 
 export default class Show {
   // eslint-disable-next-line camelcase
-  object_id: number;
+  object_id!: number;
 
-  path: string;
+  path!: string;
 
-  showCounts: ShowCounts;
+  // TODO: Series, Movie,  type
+  series!: Record<string, any>;
 
-  // eslint-disable-next-line camelcase
-  show_counts: ShowCounts;
+  movie!: Record<string, any>;
 
-  // eslint-disable-next-line camelcase
-  thumbnail_image: TabloImage;
+  sport!: Record<string, any>;
 
-  // eslint-disable-next-line camelcase
-  background_image: TabloImage;
+  showCounts!: ShowCounts;
 
   // eslint-disable-next-line camelcase
-  cover_image: TabloImage;
-
-  plot: string;
-
-  /** TODO: make these proper types :/ */
-  episode: Object;
-
-  series: Object;
+  show_counts?: ShowCounts;
 
   // eslint-disable-next-line camelcase
-  series_path: string;
+  user_info?: Record<string, any>;
 
-  movie: Object;
+  userInfo!: Record<string, any>;
 
-  // eslint-disable-next-line camelcase
-  movie_path: string;
+  keep!: { rule: string; count?: number };
 
-  event: Object;
+  guide_path?: string;
 
-  sport: Object;
-
-  // eslint-disable-next-line camelcase
-  sport_path: string;
-
-  // eslint-disable-next-line camelcase
-  program_path: string;
-
-  // eslint-disable-next-line camelcase
-  user_info: Object;
-
-  userInfo: Object;
-
-  constructor(data: Object) {
+  constructor(data: Record<string, any>) {
     Object.assign(this, data);
-    this.showCounts = this.show_counts;
-    delete this.show_counts;
-
-    this.userInfo = this.user_info;
-    delete this.user_info;
+    // always true...
+    if (this.show_counts) {
+      this.showCounts = this.show_counts;
+      delete this.show_counts;
+    }
+    // always true...
+    if (this.user_info) {
+      this.userInfo = this.user_info;
+      delete this.user_info;
+    }
   }
 
   get id() {
@@ -67,13 +49,16 @@ export default class Show {
   }
 
   get description() {
-    if (this.isEpisode) {
-      return `${this.episode.description}`;
+    switch (this.type) {
+      case SERIES:
+        return `${this.series.description}`;
+      case EVENT:
+        return `${this.sport.description}`;
+      case MOVIE:
+        return `${this.movie.plot}`;
+      default:
+        return '';
     }
-    if (this.isEvent) {
-      return `${this.event.description}`;
-    }
-    return '';
   }
 
   get title() {
@@ -92,20 +77,22 @@ export default class Show {
   get sortableTitle() {
     let { title } = this;
     title = title.toLowerCase().trimLeft();
-
     const articles = ['a', 'an', 'the'];
-    const words = title.split(' ', 2);
+    const words = title.split(' ');
+
     if (words.length === 1) {
       if (/^\d(.*)/.test(title)) {
         title = `zzz ${title}`;
       }
+
       return title;
     }
 
     // console.log(words[0].toLowerCase());
     // if (words[0].toLowerCase() in articles){
     if (articles.includes(words[0])) {
-      [, title] = words;
+      words.shift();
+      title = words.join(' ');
     }
 
     if (/^\d(.*)/.test(title)) {
@@ -129,27 +116,16 @@ export default class Show {
     return `unknown : ${this.path}`;
   }
 
-  get typePath() {
-    switch (this.type) {
-      case SERIES:
-        return this.series_path;
-      case MOVIE:
-        return this.movie_path;
-      case EVENT:
-        return this.sport_path;
-      case PROGRAM:
-        return this.program_path;
-      default:
-        throw new Error('unknown airing type!');
-    }
-  }
-
   get isEpisode() {
     return this.type === SERIES;
   }
 
   get isEvent() {
     return this.type === EVENT;
+  }
+
+  get isMovie() {
+    return this.type === MOVIE;
   }
 
   get cover() {
@@ -195,8 +171,6 @@ export default class Show {
           return this.movie.thumbnail_image.image_id;
         case EVENT:
           return this.sport.thumbnail_image.image_id;
-        case PROGRAM:
-          return 0;
         default:
           return 0;
       }

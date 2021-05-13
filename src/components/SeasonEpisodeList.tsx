@@ -1,33 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-import { Button, Badge, Alert } from 'react-bootstrap';
+import { Badge, Alert } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import Show from '../utils/Show';
 import * as ActionListActions from '../actions/actionList';
 import { ON, OFF } from '../constants/app';
+import Button from './ButtonExtended';
 
 type Props = {
   // eslint-disable-next-line react/no-unused-prop-types
-  show: Show,
-  seasonNumber: number,
-  selectedCount: number,
-  airings: Array<Airing>,
-  ref: any,
-  refKey: any,
-  bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void
+  show: Show;
+  seasonNumber: number;
+  selectedCount: number;
+  airings: Array<Airing>;
+  ref: any;
+  refKey: any;
+  bulkAddAirings: (arg0: Array<Airing>) => void;
+  bulkRemAirings: (arg0: Array<Airing>) => void;
 };
-
-type State = {};
+type State = Record<string, unknown>;
 
 class SeasonEpisodeList extends Component<Props, State> {
-  props: Props;
-
   componentDidUpdate(prevProps: Props) {
     const { selectedCount } = this.props;
+
     if (prevProps.selectedCount !== selectedCount) {
       this.render();
     }
@@ -41,9 +39,8 @@ class SeasonEpisodeList extends Component<Props, State> {
       ref,
       refKey,
       bulkAddAirings,
-      bulkRemAirings
+      bulkRemAirings,
     } = this.props;
-
     return (
       <>
         <div className="pt-2" key={refKey} ref={ref}>
@@ -76,7 +73,7 @@ class SeasonEpisodeList extends Component<Props, State> {
             </div>
           </Alert>
         </div>
-        {airings.map(airing => {
+        {airings.map((airing) => {
           return (
             <RecordingSlim
               key={airing.object_id}
@@ -92,25 +89,25 @@ class SeasonEpisodeList extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state: any, ownProps: any) => {
   const { actionList } = state;
   const { show, seasonNumber } = ownProps;
-
   //
   const selectedCount = actionList.reduce(
-    (a, b) =>
+    (a: number, b: Airing) =>
       a +
-      ((b.show.object_id === show.object_id &&
-        parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)) ||
-        0),
+      (b.show.object_id === show.object_id &&
+      parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)
+        ? 1
+        : 0),
     0
   );
   return {
-    selectedCount
+    selectedCount,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 

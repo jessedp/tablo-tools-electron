@@ -1,86 +1,90 @@
-// @flow
 import React, { Component } from 'react';
-import * as Sentry from '@sentry/electron';
-import Store from 'electron-store';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 
+import Store from 'electron-store';
+import Modal from './ModalExtended';
+import Button from './ButtonExtended';
 import getConfig, { setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
+import SentryToggle from '../utils/sentryToggle';
 
-type Props = {};
-type State = { show: boolean, requests: PermissionRequestsType };
+type Props = Record<string, never>;
+
+type State = {
+  show: boolean;
+  requests: PermissionRequestsType;
+};
 
 export type PermissionRequestsType = {
-  allowErrorReport: boolean,
-  allowAutoUpdate: boolean
+  allowErrorReport: boolean;
+  allowAutoUpdate: boolean;
 };
 
 export const defaultPermissionRequests: PermissionRequestsType = {
   allowErrorReport: false,
-  allowAutoUpdate: false
+  allowAutoUpdate: false,
 };
-
 export default class PermissionRequests extends Component<Props, State> {
-  props: Props;
-
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     const store = new Store();
     const requests = Object.assign(
       defaultPermissionRequests,
       store.get('PermissionRequests')
     );
     let show = false;
-    Object.keys(requests).forEach(key => {
+    Object.keys(requests).forEach((key) => {
       if (requests[key] === false) show = true;
     });
-
-    this.state = { show, requests };
-
-    (this: any).handleClose = this.handleClose.bind(this);
-    (this: any).setOption = this.setOption.bind(this);
+    this.state = {
+      show,
+      requests,
+    };
+    (this as any).handleClose = this.handleClose.bind(this);
+    (this as any).setOption = this.setOption.bind(this);
   }
-
-  setOption = (
-    evt: SyntheticEvent<HTMLInputElement>,
-    optionName: string
-  ): void => {
-    const { requests } = this.state;
-    if (optionName === 'allowErrorReport') {
-      requests[optionName] = !requests[optionName];
-      if (Sentry.getCurrentHub().getClient()) {
-        Sentry.getCurrentHub()
-          .getClient()
-          .getOptions().enabled = requests[optionName];
-      } else {
-        console.error('Unable to set Sentry reporting value');
-      }
-      setConfigItem(optionName, !requests[optionName]);
-      this.setState({ requests });
-    }
-    if (optionName === 'allowAutoUpdate') {
-      requests[optionName] = !requests[optionName];
-      setConfigItem(optionName, !requests[optionName]);
-      this.setState({ requests });
-    }
-  };
 
   handleClose() {
     const { requests } = this.state;
     const store = new Store();
-    const markedRequests = {};
-    Object.keys(requests).forEach(key => {
+    const markedRequests: Record<string, any> = {};
+    Object.keys(requests).forEach((key) => {
       markedRequests[key] = true;
     });
     store.set('PermissionRequests', markedRequests);
-    this.setState({ show: false });
+    this.setState({
+      show: false,
+    });
   }
+
+  setOption = (
+    _: React.SyntheticEvent<HTMLInputElement>,
+    optionName: string
+  ): void => {
+    const { requests } = this.state;
+
+    if (optionName === 'allowErrorReport') {
+      requests[optionName] = !requests[optionName];
+
+      SentryToggle(requests[optionName]);
+
+      setConfigItem({ allowErrorReport: !requests[optionName] });
+      this.setState({
+        requests,
+      });
+    }
+
+    if (optionName === 'allowAutoUpdate') {
+      requests[optionName] = !requests[optionName];
+      setConfigItem({ allowAutoUpdate: !requests[optionName] });
+      this.setState({
+        requests,
+      });
+    }
+  };
 
   render() {
     const { show, requests } = this.state;
     const config = getConfig();
-
     return (
       <Modal
         size="md"
@@ -99,14 +103,14 @@ export default class PermissionRequests extends Component<Props, State> {
           <div className="smaller muted mb-3">
             <i>
               We&apos;ll only ask once... You can change them anytime under
-              Settings <span className="fa fa-cogs pl-1 pr-1" />{' '}
+              Settings <span className="fa fa-cogs pl-1 pr-1" />
             </i>
           </div>
 
           {!requests.allowErrorReport ? (
             <div className="mb-2">
               <Checkbox
-                handleChange={evt => this.setOption(evt, 'allowErrorReport')}
+                handleChange={(_: any) => this.setOption(_, 'allowErrorReport')}
                 label="Allow sending Error Reports?"
                 checked={config.allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
               />
@@ -125,7 +129,7 @@ export default class PermissionRequests extends Component<Props, State> {
           {!requests.allowAutoUpdate ? (
             <div className="mb-2">
               <Checkbox
-                handleChange={evt => this.setOption(evt, 'autoUpdate')}
+                handleChange={(_: any) => this.setOption(_, 'autoUpdate')}
                 label="Allow Automatic Updates?"
                 checked={config.autoUpdate ? CHECKBOX_ON : CHECKBOX_OFF}
               />

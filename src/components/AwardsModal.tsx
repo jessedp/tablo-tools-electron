@@ -1,15 +1,13 @@
-// @flow
 import React, { useState } from 'react';
-
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 import { Row, Col, Alert } from 'react-bootstrap';
+import Modal from './ModalExtended';
+import Button from './ButtonExtended';
 
-type Prop = { awards: Array<Object> };
-
+type Prop = {
+  awards: Array<Record<string, any>>;
+};
 export default function AwardsModal(prop: Prop) {
   const [display, setDisplay] = useState(false);
-
   const { awards } = prop;
   const len = awards.length;
   if (len === 0)
@@ -18,8 +16,9 @@ export default function AwardsModal(prop: Prop) {
         <b>Awards:</b>
         <i className="ml-1">None</i>
       </>
-    ); //
+    );
 
+  //
   if (!display) {
     return (
       <>
@@ -45,7 +44,7 @@ export default function AwardsModal(prop: Prop) {
         </Alert>
       </Modal.Header>
       <Modal.Body>
-        {awards.map(rec => {
+        {awards.map((rec) => {
           return (
             <>
               <Row>

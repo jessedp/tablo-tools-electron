@@ -1,29 +1,23 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-
 import { format } from 'date-fns';
-
 import Sticky from 'react-sticky-el';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import { Button } from 'react-bootstrap';
 import * as ActionListActions from '../actions/actionList';
+import Button from './ButtonExtended';
 import Airing from '../utils/Airing';
-
 import routes from '../constants/routes.json';
-
 import {
   asyncForEach,
   getTabloImageUrl,
-  readableDuration
+  readableDuration,
 } from '../utils/utils';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
@@ -32,49 +26,45 @@ import AwardsModal from './AwardsModal';
 
 type Props = {
   // show: Show,
-  selectedCount: number,
-  bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void,
-  match: any
+  selectedCount: number;
+  bulkAddAirings: (arg0: Array<Airing>) => void;
+  bulkRemAirings: (arg0: Array<Airing>) => void;
+  match: any;
 };
+
 type State = {
-  show: Show | null,
-  airings: Array<Airing>,
-  episodes: Object,
-  seasons: Object,
-  selSeason: null,
-  seasonRefs: Object
+  show: Show | null;
+  airings: Array<Airing>;
+  episodes: Record<string, any>;
+  seasons: Record<string, any>;
+  selSeason: null;
+  seasonRefs: Record<string, any>;
 };
 
-class ShowDetails extends Component<Props, State> {
-  props: Props;
-
+class ShowDetails extends Component<RouteComponentProps & Props, State> {
   initialState: State;
 
-  constructor() {
-    super();
-
+  constructor(props: RouteComponentProps & Props) {
+    super(props);
     this.initialState = {
       airings: [],
       episodes: {},
       seasons: {},
       selSeason: null,
       seasonRefs: [],
-      show: null
+      show: null,
     };
-
     this.state = this.initialState;
-
-    (this: any).refresh = this.refresh.bind(this);
-    (this: any).selectSeason = this.selectSeason.bind(this);
-    (this: any).setSeasonRefs = this.setSeasonRefs.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
+    (this as any).selectSeason = this.selectSeason.bind(this);
+    (this as any).setSeasonRefs = this.setSeasonRefs.bind(this);
   }
 
   async componentDidMount() {
     // eslint-disable-next-line
     const id = parseInt(this.props.match.params.id, 10);
     const rec = await global.ShowDb.asyncFindOne({
-      object_id: id
+      object_id: id,
     });
     const show = new Show(rec);
     this.refresh(show);
@@ -82,14 +72,17 @@ class ShowDetails extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const { selectedCount } = this.props;
+
     if (prevProps.selectedCount !== selectedCount) {
       this.refresh();
     }
   }
 
-  setSeasonRefs(refs: Object) {
+  setSeasonRefs(refs: Record<string, any>) {
     console.log('created season refs', refs.length);
-    this.setState({ seasonRefs: refs });
+    this.setState({
+      seasonRefs: refs,
+    });
   }
 
   selectSeason(season: string) {
@@ -100,54 +93,50 @@ class ShowDetails extends Component<Props, State> {
       window.scrollTo(0, 0);
     } else {
       seasonRefs[season].current.scrollIntoView({
-        block: 'start'
+        block: 'start',
       });
     }
   }
 
   async refresh(show: Show | null = null) {
     if (!show) return;
-
     const query = {
-      series_path: show.path
+      series_path: show.path,
     };
-
     const recs = await global.RecDb.asyncFind(query, [
       [
         'sort',
         {
           'episode.season_number': 1,
           'episode.number': 1,
-          'airing_details.datetime': -1
-        }
-      ]
+          'airing_details.datetime': -1,
+        },
+      ],
     ]);
-
-    const airings = [];
-    const seasons = {};
-    const episodes = {};
-    const refs = {};
-
-    await asyncForEach(recs, async rec => {
+    const airings: Array<Airing> = [];
+    const seasons: Record<string, any> = {};
+    const episodes: Record<string, any> = {};
+    const refs: Record<string, any> = {};
+    await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);
       airings.push(airing);
       const seasonNo = airing.episode.season_number;
+
       if (!(seasonNo in seasons)) {
         episodes[seasonNo] = [];
         seasons[seasonNo] = [];
       }
-      episodes[seasonNo].push(airing);
 
+      episodes[seasonNo].push(airing);
       refs[`season-${seasonNo}`] = React.createRef();
       seasons[seasonNo].push(airing.episode.number);
     });
-
     await this.setState({
       show,
       airings,
       episodes,
       seasons,
-      seasonRefs: refs
+      seasonRefs: refs,
     });
   }
 
@@ -155,7 +144,6 @@ class ShowDetails extends Component<Props, State> {
     const { show, airings, episodes, seasons, seasonRefs } = this.state;
     const { selectedCount } = this.props;
     const { bulkAddAirings, bulkRemAirings } = this.props;
-
     if (!show || !show.id) return <></>; //
 
     const airDate = (date: string) => {
@@ -178,8 +166,8 @@ class ShowDetails extends Component<Props, State> {
             width: '100%',
             height: 'auto',
             opacity: '0.25',
-            zIndex: '-1',
-            maxHeight: '91vh'
+            zIndex: -1,
+            maxHeight: '91vh',
           }}
         />
 
@@ -221,7 +209,12 @@ class ShowDetails extends Component<Props, State> {
                 </Col>
               </Row>
 
-              <div className="p-3" style={{ maxWidth: '80vw' }}>
+              <div
+                className="p-3"
+                style={{
+                  maxWidth: '80vw',
+                }}
+              >
                 <Row>
                   <Col>
                     Originally aired
@@ -276,7 +269,7 @@ class ShowDetails extends Component<Props, State> {
               <SeasonList seasons={seasons} selectSeason={this.selectSeason} />
             </Col>
             <Col>
-              {Object.keys(seasons).map(key => {
+              {Object.keys(seasons).map((key) => {
                 const refKey = `season-${key}`;
                 const wrapKey = `seasonwrap-${key}`;
                 return (
@@ -298,19 +291,18 @@ class ShowDetails extends Component<Props, State> {
       </div>
     );
   }
-}
+} // TODO: Convert to class
 
-// TODO: Convert to class
-function SeasonList(prop) {
+function SeasonList(prop: any) {
   // const [active, setActive] = useState(0);
-  const active = false;
-  const setActive = key => key;
+  const active = '';
+
+  const setActive = (key: string) => key;
+
   const { seasons, selectSeason } = prop;
-  const output = [];
-
-  Object.keys(seasons).forEach(key => {
+  const output: Array<JSX.Element> = [];
+  Object.keys(seasons).forEach((key) => {
     const listKey = `season-${key}`;
-
     const isActive = active === key;
     output.push(
       <ListGroup.Item
@@ -327,17 +319,27 @@ function SeasonList(prop) {
       </ListGroup.Item>
     );
   });
-
   return (
-    <div className="mt-2" style={{ width: '120px', cursor: 'pointer' }}>
+    <div
+      className="mt-2"
+      style={{
+        width: '120px',
+        cursor: 'pointer',
+      }}
+    >
       <Sticky
-        stickyStyle={{ zIndex: '10000' }}
+        stickyStyle={{
+          zIndex: 10000,
+        }}
         scrollElement=".scrollable-area"
       >
         <ListGroup
           as="ul"
           className="bg-white"
-          style={{ zIndex: '10000', width: '120px' }}
+          style={{
+            zIndex: 10000,
+            width: '120px',
+          }}
         >
           {output}
         </ListGroup>
@@ -346,26 +348,25 @@ function SeasonList(prop) {
   );
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state: any, ownProps: any) => {
   const { actionList } = state;
   //  const { show } = ownProps;
   // eslint-disable-next-line
   const id = parseInt(ownProps.match.params.id, 10);
-
   const selectedCount = actionList.reduce(
-    (a, b) => a + (b.show.object_id === id || 0),
+    (a: number, b: Airing) => a + (b.object_id === id ? 1 : 0),
     0
   );
   return {
-    selectedCount
+    selectedCount,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
+export default connect<any, any>(
   mapStateToProps,
   mapDispatchToProps
 )(withRouter(ShowDetails));

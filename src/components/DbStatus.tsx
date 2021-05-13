@@ -1,7 +1,5 @@
-// @flow
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { recDbCreated } from '../utils/db';
@@ -10,11 +8,12 @@ import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 import { hasDevice } from '../utils/Tablo';
 
-type DbProps = {};
-type DbState = { dbAge: number };
-
-export default class DbStatus extends Component<DbProps, DbState> {
-  timer: IntervalID;
+type Props = Record<string, never>;
+type State = {
+  dbAge: number;
+};
+export default class DbStatus extends Component<Props, State> {
+  timer: number;
 
   // whether we're using short-poll because the db doesn't exit
   shortTimer: boolean;
@@ -28,15 +27,21 @@ export default class DbStatus extends Component<DbProps, DbState> {
   // TODO: figure out the type.
   buildRef: any;
 
-  psToken: null;
+  psToken: string;
 
-  constructor() {
-    super();
-    this.state = { dbAge: -1 };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      dbAge: -1,
+    };
+    this.timer = 0;
+    this.psToken = '';
     this.buildRef = React.createRef();
     this.shortTimer = true;
     this.emptyPollInterval = 5000; // 1 second
+
     this.rebuildPollInterval = 30000; // 30 seconds
+
     this.autoRebuildInterval = 30; // 30 minutes
 
     this.forceBuild = this.forceBuild.bind(this);
@@ -64,6 +69,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
         clearInterval(this.timer);
         this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
       }
+
       return;
     }
 
@@ -72,13 +78,19 @@ export default class DbStatus extends Component<DbProps, DbState> {
       clearInterval(this.timer);
       this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     }
+    let diff = 0;
+    if (created) {
+      const dbTime = new Date(created).getTime();
+      diff = (Date.now() - dbTime) / 60 / 1000;
+    }
 
-    const dbTime = new Date(created).getTime();
-    const diff = (Date.now() - dbTime) / 60 / 1000;
-    this.setState({ dbAge: diff });
+    this.setState({
+      dbAge: diff,
+    });
 
     const config = getConfig();
     let autoRebuild = true;
+
     if (Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
       autoRebuild = config.autoRebuild;
     }
@@ -96,11 +108,10 @@ export default class DbStatus extends Component<DbProps, DbState> {
 
   render() {
     const { dbAge } = this.state;
-
     if (!hasDevice()) return '';
-
     const created = recDbCreated();
     let color = '';
+
     if (dbAge === -1) {
       color = 'text-danger';
     } else if (dbAge < 31) {
@@ -116,7 +127,7 @@ export default class DbStatus extends Component<DbProps, DbState> {
         className="text-muted"
         style={{
           maxHeight: '16px',
-          width: '140px'
+          width: '140px',
         }}
       >
         <Row>
@@ -124,16 +135,18 @@ export default class DbStatus extends Component<DbProps, DbState> {
             <Build
               view="spinner"
               showDbTable={() => {}}
-              ref={buildRef => (this.buildRef = buildRef)}
+              ref={(buildRef) => (this.buildRef = buildRef)}
             />
           </Col>
           <Col md="auto" className="pl-0 ml-0">
             <div
-              style={{ cursor: 'pointer' }}
+              style={{
+                cursor: 'pointer',
+              }}
               onClick={this.forceBuild}
               onKeyDown={this.forceBuild}
               role="button"
-              tabIndex="0"
+              tabIndex={0}
               className="pl-0 btn btn-xs smaller pr-0"
             >
               <span className={`fa fa-database pr-1 ${color}`} />

@@ -1,52 +1,65 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
-
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-
-import { Button, Badge, Row, Col } from 'react-bootstrap';
+import { Badge, Row, Col } from 'react-bootstrap';
 import * as ActionListActions from '../actions/actionList';
-import { ON, OFF, ProgramData, NO } from '../constants/app';
+import { ON, OFF, NO } from '../constants/app';
+import { ProgramData } from '../constants/types_airing';
 import RecordingSlim from './RecordingSlim';
 import ProgramCover from './ProgramCover';
 import { programList } from './Programs';
 import routes from '../constants/routes.json';
+import Button from './ButtonExtended';
+import Airing from '../utils/Airing';
 
-type Props = {
-  selectedCount: number,
-  bulkAddAirings: (Array<Airing>) => void,
-  bulkRemAirings: (Array<Airing>) => void,
-  match: Object
+type OwnProps = {
+  selectedCount: number; // FIXME: !!! This should be on StateProps
+  // match: Record<string, any>;
 };
 
-type State = { rec: ProgramData | null };
+type StateProps = Record<string, never>;
 
-class ProgramEpisodeList extends Component<Props, State> {
-  props: Props;
+type DispatchProps = {
+  bulkAddAirings: (arg0: Array<Airing>) => void;
+  bulkRemAirings: (arg0: Array<Airing>) => void;
+};
 
-  constructor(props) {
+type Props = OwnProps & StateProps & DispatchProps;
+
+type State = {
+  rec: ProgramData | null;
+};
+
+class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
+  constructor(props: Props & RouteComponentProps) {
     super(props);
-    this.state = { rec: null };
+    this.state = {
+      rec: null,
+    };
   }
 
   componentDidMount = async () => {
     const { match } = this.props;
-
-    const { path } = match.params;
-    const rec = await programList(atob(path));
-    this.refresh(rec);
+    // const { path } = match.params;
+    const path = match?.path;
+    const recs = await programList(atob(path));
+    this.refresh(recs[0]);
   };
 
   componentDidUpdate(prevProps: Props) {
     const { selectedCount } = this.props;
+
     if (prevProps.selectedCount !== selectedCount) {
       this.render();
     }
   }
 
   refresh = (rec: ProgramData) => {
-    this.setState({ rec });
+    this.setState({
+      rec,
+    });
   };
 
   render() {
@@ -67,7 +80,7 @@ class ProgramEpisodeList extends Component<Props, State> {
           <Row className="mt-2 pb-2 border-bottom">
             <Col md="auto">
               <Button variant="light" className="mr-3" onClick={() => {}}>
-                <ProgramCover rec={rec} showCheckbox={NO} search={() => {}} />
+                <ProgramCover rec={rec} showCheckbox={NO} />
               </Button>
             </Col>
             <Col>
@@ -106,7 +119,7 @@ class ProgramEpisodeList extends Component<Props, State> {
           </Row>
         </div>
         <div className="scrollable-area">
-          {airings.map(airing => {
+          {airings.map((airing) => {
             return (
               <RecordingSlim
                 key={airing.object_id}
@@ -121,13 +134,10 @@ class ProgramEpisodeList extends Component<Props, State> {
       </div>
     );
   }
-}
-
-// const mapStateToProps = (state, ownProps) => {
+} // const mapStateToProps = (state, ownProps) => {
 //   const { actionList } = state;
 //   const { rec } = ownProps;
 //   const { airings } = rec;
-
 //   let selectedCount = 0;
 //   if (airings) {
 //     selectedCount = actionList.reduce(
@@ -141,11 +151,11 @@ class ProgramEpisodeList extends Component<Props, State> {
 //   };
 // };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps>(
   null,
   mapDispatchToProps
 )(withRouter(ProgramEpisodeList));

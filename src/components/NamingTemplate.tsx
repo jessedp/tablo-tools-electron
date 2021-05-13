@@ -1,24 +1,17 @@
-// @flow
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import slugify from 'slugify';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
+
 import { InputGroup, Form, Alert } from 'react-bootstrap';
-
 import Handlebars from 'handlebars';
-
 import * as FlashActions from '../actions/flash';
-import type { FlashRecordType } from '../reducers/types';
 
 import TemplateEditor from './TemplateEditor';
 import NamingTemplateOptions from './NamingTemplateOptions';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
-
 import {
   buildTemplateVars,
   getTemplate,
@@ -29,34 +22,40 @@ import {
   isCurrentTemplate,
   isDefaultTemplate,
   fillTemplate,
-  deleteTemplate
+  deleteTemplate,
+  TemplateVarsType,
 } from '../utils/namingTpl';
-
-import type NamingTemplateType from '../constants/app';
+import type { NamingTemplateType } from '../constants/app';
 import { setConfigItem } from '../utils/config';
 import { titleCase, asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
 import DuplicateNames from './DuplicateNames';
 import NamingPreview from './NamingPreview';
+import Button from './ButtonExtended';
+import { EmptyNamingTemplate, EmptyTemplateVars } from '../utils/factories';
 
 const helpers = require('template-helpers')();
+
 const sanitize = require('sanitize-filename');
 
 // Setup our example data
-const exampleData = {};
-exampleData[SERIES] = require('../../test/data/episode.json');
-exampleData[MOVIE] = require('../../test/data/movie.json');
-exampleData[EVENT] = require('../../test/data/event.json');
-exampleData[PROGRAM] = require('../../test/data/program.json');
+const exampleData: Record<string, any> = {};
+exampleData[SERIES] = require('../__tests__/data/episode.json');
+exampleData[MOVIE] = require('../__tests__/data/movie.json');
+exampleData[EVENT] = require('../__tests__/data/event.json');
+exampleData[PROGRAM] = require('../__tests__/data/program.json');
 
 helpers.lPad = (str: string, len: string | number, char: string | number) => {
   if (!str) return '';
-
   let length = 2;
   let filler = '0';
-  if (typeof len === 'string' || typeof len === 'number') {
+
+  if (typeof len === 'string') {
     length = parseInt(len, 10);
+  } else {
+    length = len;
   }
+
   if (typeof char === 'string' || typeof char === 'number') {
     filler = `${char}`;
   }
@@ -66,37 +65,37 @@ helpers.lPad = (str: string, len: string | number, char: string | number) => {
 
 Handlebars.registerHelper(helpers);
 
-type Props = {
-  label: string,
-  type: string,
-  sendFlash: (message: FlashRecordType) => void
-};
+interface Props extends PropsFromRedux {
+  label: string;
+  type: string;
+}
+
 type State = {
-  view: string,
-  error: string,
-  duplicates: any,
-  previews: any,
-  defaultTemplate: NamingTemplateType,
-  template: NamingTemplateType,
-  templateVars: Object
+  view: string;
+  error: string;
+  duplicates: any;
+  previews: any;
+  defaultTemplate: NamingTemplateType;
+  template: NamingTemplateType;
+  templateVars: TemplateVarsType;
 };
 
 class SettingsNaming extends Component<Props, State> {
   // to reset when canceling editing
   originalTemplate: NamingTemplateType;
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.state = {
       view: 'view',
-      templateVars: [],
-      template: {},
+      templateVars: EmptyTemplateVars(),
+      template: EmptyNamingTemplate(),
       error: '',
       duplicates: null,
       previews: null,
-      defaultTemplate: {}
+      defaultTemplate: EmptyNamingTemplate(),
     };
-
+    this.originalTemplate = EmptyNamingTemplate();
     this.setView = this.setView.bind(this);
     this.cancel = this.cancel.bind(this);
     this.delete = this.delete.bind(this);
@@ -115,20 +114,24 @@ class SettingsNaming extends Component<Props, State> {
     const { type } = this.props;
     const template = await getTemplate(type);
     this.originalTemplate = { ...template };
-
     const typeRe = new RegExp(type);
     let recData = await global.RecDb.asyncFindOne({
-      path: { $regex: typeRe }
+      path: {
+        $regex: typeRe,
+      },
     });
+
     if (!recData) {
       recData = exampleData[type];
     }
 
     const airing = await Airing.create(recData, true);
-
     const templateVars = await buildTemplateVars(airing);
-
-    await this.setState({ defaultTemplate: template, template, templateVars });
+    await this.setState({
+      defaultTemplate: template,
+      template,
+      templateVars,
+    });
     await this.checkErrors();
   }
 
@@ -136,18 +139,20 @@ class SettingsNaming extends Component<Props, State> {
     const { type } = this.props;
     const { template } = this.state;
     if (!template) return;
-
     const error = '';
-
-    const files = {};
-
+    const files: Record<string, Airing[]> = {};
     const recType = new RegExp(type);
     const recs = await global.RecDb.asyncFind(
-      { path: { $regex: recType } },
-      { limit: 1000 }
+      {
+        path: {
+          $regex: recType,
+        },
+      },
+      {
+        limit: 1000,
+      }
     );
-
-    await asyncForEach(recs, async rec => {
+    await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);
       const vars = await buildTemplateVars(airing);
       const file = fillTemplate(template, vars);
@@ -161,80 +166,114 @@ class SettingsNaming extends Component<Props, State> {
     const previews = <NamingPreview files={files} />;
     const uniqueNames = files.length;
     let duplicates;
+
     if (uniqueNames !== recs.length) {
       duplicates = <DuplicateNames files={files} total={recs.length} />;
     }
 
-    this.setState({ error, duplicates, previews });
-
-    return false;
+    this.setState({
+      error,
+      duplicates,
+      previews,
+    });
+    // return false;
   };
 
   updateTemplate = (template: NamingTemplateType) => {
     this.originalTemplate = template;
-    this.setState({ template });
+    this.setState({
+      template,
+    });
     this.checkErrors();
   };
 
   setDefaultTemplate = (template: NamingTemplateType) => {
     const { type, sendFlash } = this.props;
-
     let nextTemplate = template;
+
     if (isCurrentTemplate(template)) {
       nextTemplate = getDefaultTemplate(template.type);
     }
+
     switch (type) {
       case SERIES:
-        setConfigItem({ episodeTemplate: nextTemplate.slug });
+        setConfigItem({
+          episodeTemplate: nextTemplate.slug,
+        });
         break;
+
       case MOVIE:
-        setConfigItem({ movieTemplate: nextTemplate.slug });
+        setConfigItem({
+          movieTemplate: nextTemplate.slug,
+        });
         break;
+
       case EVENT:
-        setConfigItem({ eventTemplate: nextTemplate.slug });
+        setConfigItem({
+          eventTemplate: nextTemplate.slug,
+        });
         break;
+
       case PROGRAM:
       default:
-        setConfigItem({ programTemplate: nextTemplate.slug });
+        setConfigItem({
+          programTemplate: nextTemplate.slug,
+        });
     }
 
     sendFlash({
       message: `${titleCase(nextTemplate.type)} will now use ${
         nextTemplate.label
-      }`
+      }`,
     });
-    this.setState({ defaultTemplate: nextTemplate });
+    this.setState({
+      defaultTemplate: nextTemplate,
+    });
   };
 
   setTemplate = (template: NamingTemplateType) => {
     const { type, sendFlash } = this.props;
-
     let nextTemplate = template;
+
     if (isCurrentTemplate(template)) {
       nextTemplate = getDefaultTemplate(template.type);
     }
+
     switch (type) {
       case SERIES:
-        setConfigItem({ episodeTemplate: nextTemplate.slug });
+        setConfigItem({
+          episodeTemplate: nextTemplate.slug,
+        });
         break;
+
       case MOVIE:
-        setConfigItem({ movieTemplate: nextTemplate.slug });
+        setConfigItem({
+          movieTemplate: nextTemplate.slug,
+        });
         break;
+
       case EVENT:
-        setConfigItem({ eventTemplate: nextTemplate.slug });
+        setConfigItem({
+          eventTemplate: nextTemplate.slug,
+        });
         break;
+
       case PROGRAM:
       default:
-        setConfigItem({ programTemplate: nextTemplate.slug });
+        setConfigItem({
+          programTemplate: nextTemplate.slug,
+        });
     }
 
     sendFlash({
       message: `${titleCase(nextTemplate.type)} default set to ${
         nextTemplate.label
-      }`
+      }`,
     });
     this.originalTemplate = nextTemplate;
-    this.setState({ template: nextTemplate });
+    this.setState({
+      template: nextTemplate,
+    });
   };
 
   updatePath = (path: string) => {
@@ -242,72 +281,76 @@ class SettingsNaming extends Component<Props, State> {
     const { template } = this.state;
     this.checkErrors();
     // console.log('updatePath', path, 'template', template);
-
     template.template = path || this.originalTemplate.template;
-    this.setState({ template });
+    this.setState({
+      template,
+    });
   };
 
   setDefaultSlug = () => {
     const { template } = this.state;
+
     if (!template.slug.trim()) {
       this.realUpdateSlug(template.label);
     }
   };
 
-  updateSlug = (event: SyntheticEvent<HTMLInputElement>) => {
+  updateSlug = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.realUpdateSlug(event.currentTarget.value);
   };
 
-  realUpdateSlug(slug: string) {
-    const { template } = this.state;
-
-    template.slug = sanitize(
-      slugify(slug, {
-        lower: true,
-        strict: true
-      })
-    );
-    this.setState({ template, error: '' });
-    this.checkErrors();
-  }
-
-  updateLabel = (event: SyntheticEvent<HTMLInputElement>) => {
+  updateLabel = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { sendFlash } = this.props;
     const { template } = this.state;
     const val = event.currentTarget.value;
+
     if (val.length <= 100) {
       template.label = event.currentTarget.value;
-      this.setState({ template });
+      this.setState({
+        template,
+      });
     } else {
       sendFlash({
         message: 'Label must be <= 100 characters',
-        type: 'warning'
+        type: 'warning',
       });
     }
   };
 
   cancel = () => {
-    this.setState({ template: this.originalTemplate, view: 'view' });
+    this.setState({
+      template: this.originalTemplate,
+      view: 'view',
+    });
   };
 
   new = () => {
     const { type } = this.props;
     const template = newTemplate(type);
-    this.setState({ template, view: 'edit' });
+    this.setState({
+      template,
+      view: 'edit',
+    });
   };
 
   save = async () => {
     const { sendFlash } = this.props;
     const { template } = this.state;
-
     const errors = await upsertTemplate(template);
+
     if (errors) {
-      sendFlash({ type: 'danger', message: errors.toString() });
+      sendFlash({
+        type: 'danger',
+        message: errors.toString(),
+      });
     } else {
-      sendFlash({ type: 'success', message: `saved "${template.label}"` });
+      sendFlash({
+        type: 'success',
+        message: `saved "${template.label}"`,
+      });
       // change the select box!
       this.setState({
-        view: 'view'
+        view: 'view',
       });
     }
   };
@@ -315,19 +358,39 @@ class SettingsNaming extends Component<Props, State> {
   delete = async () => {
     const { type, sendFlash } = this.props;
     const { template } = this.state;
-
     // eslint-disable-next-line no-alert
     if (!window.confirm('Are you sure you wish to delete this temaplte?'))
       return;
-
     await deleteTemplate(template);
-    this.setState({ template: await getTemplate(type) });
-    sendFlash({ type: 'success', message: `Deleted "${template.label}"` });
+    this.setState({
+      template: await getTemplate(type),
+    });
+    sendFlash({
+      type: 'success',
+      message: `Deleted "${template.label}"`,
+    });
   };
 
   setView = (view: string) => {
-    this.setState({ view });
+    this.setState({
+      view,
+    });
   };
+
+  realUpdateSlug(slug: string) {
+    const { template } = this.state;
+    template.slug = sanitize(
+      slugify(slug, {
+        lower: true,
+        strict: true,
+      })
+    );
+    this.setState({
+      template,
+      error: '',
+    });
+    this.checkErrors();
+  }
 
   render() {
     const { label, type } = this.props;
@@ -338,13 +401,11 @@ class SettingsNaming extends Component<Props, State> {
       templateVars,
       error,
       duplicates,
-      previews
+      previews,
     } = this.state;
-
     if (!template || !template.template) return <></>; //
 
     const filledPath = fillTemplate(template, templateVars);
-
     return (
       <div className="mb-3">
         <Row className="pb-0 mb-0">
@@ -467,7 +528,7 @@ class SettingsNaming extends Component<Props, State> {
                     placeholder="the name you'll see in the app"
                     onChange={this.updateLabel}
                     width={30}
-                    size={30}
+                    size="sm"
                     disabled={isDefaultTemplate(template)}
                   />
                   <InputGroup.Append>
@@ -494,7 +555,7 @@ class SettingsNaming extends Component<Props, State> {
                     onChange={this.updateSlug}
                     onFocus={this.setDefaultSlug}
                     width={30}
-                    size={30}
+                    size="sm"
                     className="field-error"
                     disabled={isDefaultTemplate(template)}
                   />
@@ -533,8 +594,8 @@ class SettingsNaming extends Component<Props, State> {
             </Row>
             <TemplateEditor
               template={template}
-              record={templateVars[0]}
-              shortcuts={templateVars[1]}
+              record={templateVars.full}
+              shortcuts={templateVars.shortcuts}
               updateValue={this.updatePath}
             />
           </> //
@@ -546,11 +607,15 @@ class SettingsNaming extends Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(FlashActions, dispatch);
 };
 
-export default connect<*, *, *, *, *, *>(
-  null,
-  mapDispatchToProps
-)(SettingsNaming);
+const connector = connect(null, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+export default connector(SettingsNaming);
+
+// export default connect<any, any, any, any, any, any>(
+//   null,
+//   mapDispatchToProps
+// )(SettingsNaming);

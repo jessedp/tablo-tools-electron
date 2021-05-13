@@ -1,38 +1,29 @@
-// @flow
-
 export default class Channel {
   // eslint-disable-next-line camelcase
-  object_id: number;
+  // eslint-disable-next-line camelcase
+  object_id!: number;
 
-  path: string;
+  path!: string;
 
-  channel: {
-    callSign: string,
-
+  // TODO: split type out???
+  channel!: {
+    callSign: string;
     // eslint-disable-next-line camelcase
-    call_sign: any,
-
+    call_sign: string;
     // eslint-disable-next-line camelcase
-    callSignSrc: string,
-
+    callSignSrc: string;
     // eslint-disable-next-line camelcase
-    call_sign_src: any,
-
-    major: number,
-
-    minor: number,
-
-    network: string,
-
-    resolution: string
+    call_sign_src: string;
+    major: number;
+    minor: number;
+    network: string;
+    resolution: string;
   };
 
-  constructor(data: Object) {
+  constructor(data: Record<string, any>) {
     Object.assign(this, data);
-
     this.channel.callSign = this.channel.call_sign;
     // delete this.channel.call_sign;
-
     this.channel.callSignSrc = this.channel.call_sign_src;
     // delete this.channel.call_sign_src;
   }

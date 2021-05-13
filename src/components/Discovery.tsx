@@ -1,47 +1,41 @@
-// @flow
 import React, { Component } from 'react';
-
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import PubSub from 'pubsub-js';
 import { discover, setCurrentDevice } from '../utils/Tablo';
 import RelativeDate from './RelativeDate';
+import Button from './ButtonExtended';
 
 const Store = require('electron-store');
 
 const store = new Store();
-
-type Props = { showServerInfo: (show: boolean) => void };
-type State = {
-  state: number,
-  currentDevice: Object
+type Props = {
+  showServerInfo: (show: boolean) => void;
 };
-
+type State = {
+  state: number;
+  currentDevice: Record<string, any>;
+};
 const STATE_NONE = 0;
 const STATE_SELECTED = 1;
 const STATE_MULTI = 2;
-
 export default class Discovery extends Component<Props, State> {
-  props: Props;
+  psToken: string;
 
-  psToken: null;
-
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     const device = store.get('CurrentDevice');
     this.state = {
       state: device ? STATE_SELECTED : STATE_NONE,
-      currentDevice: device
+      currentDevice: device,
     };
-
-    (this: any).discover = this.discover.bind(this);
-    (this: any).setDevice = this.setDevice.bind(this);
-    (this: any).refresh = this.refresh.bind(this);
+    this.psToken = '';
+    (this as any).discover = this.discover.bind(this);
+    (this as any).setDevice = this.setDevice.bind(this);
+    (this as any).refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -51,15 +45,28 @@ export default class Discovery extends Component<Props, State> {
     this.psToken = PubSub.subscribe('DEVICE_CHANGE', this.refresh);
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount(): any {
     PubSub.unsubscribe(this.psToken);
   }
+
+  setDevice = (serverId: string) => {
+    const { showServerInfo } = this.props;
+    const device = global.discoveredDevices.filter(
+      (item) => item.serverid === serverId
+    );
+    setCurrentDevice(device[0]);
+    showServerInfo(true);
+    this.setState({
+      state: STATE_SELECTED,
+      currentDevice: device[0],
+    });
+  };
 
   async refresh() {
     const device = store.get('CurrentDevice');
     this.setState({
       state: STATE_SELECTED,
-      currentDevice: device
+      currentDevice: device,
     });
   }
 
@@ -67,34 +74,29 @@ export default class Discovery extends Component<Props, State> {
     const { showServerInfo } = this.props;
     await discover();
     const devices = global.discoveredDevices;
+
     if (devices.length < 1) {
-      this.setState({ state: STATE_NONE });
+      this.setState({
+        state: STATE_NONE,
+      });
       showServerInfo(false);
     } else {
       store.set('Devices', devices);
+
       if (devices.length === 1) {
         this.setDevice(devices[0].serverid);
         showServerInfo(true);
       } else {
         showServerInfo(false);
-        this.setState({ state: STATE_MULTI });
+        this.setState({
+          state: STATE_MULTI,
+        });
       }
     }
   }
 
-  setDevice = (serverId: string) => {
-    const { showServerInfo } = this.props;
-    const device = global.discoveredDevices.filter(
-      item => item.serverid === serverId
-    );
-    setCurrentDevice(device[0]);
-    showServerInfo(true);
-    this.setState({ state: STATE_SELECTED, currentDevice: device[0] });
-  };
-
   render() {
     const { state, currentDevice } = this.state;
-
     return (
       <Container>
         <Row>
@@ -112,7 +114,7 @@ export default class Discovery extends Component<Props, State> {
   }
 }
 
-function DiscoveryStatus(prop) {
+function DiscoveryStatus(prop: Record<string, any>) {
   const { state, setDevice } = prop;
 
   if (state === STATE_NONE) {
@@ -152,14 +154,15 @@ function DiscoveryStatus(prop) {
       </div>
     );
   }
+
   // if (state === STATE_SELECTED)
   return <></>;
 }
 
-function DiscoveryTitle(prop) {
+function DiscoveryTitle(prop: Record<string, any>) {
   const { device, localDiscover, state } = prop;
-
   let checked;
+
   if (global.CONNECTED) {
     if (state === STATE_MULTI) return <></>;
     checked = new Date(device.inserted);
@@ -172,6 +175,7 @@ function DiscoveryTitle(prop) {
       </>
     );
   }
+
   return (
     <>
       <span>None yet, click Discover</span>

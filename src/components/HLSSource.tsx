@@ -1,16 +1,16 @@
-// @flow
 import React, { Component } from 'react';
 import Hls from 'hls.js';
 
-type Props = { src: string, video: Object, type: string };
-
+type Props = {
+  src: string;
+  video: Record<string, any>;
+  type: string;
+};
 export default class HLSSource extends Component<Props> {
-  props: Props;
-
   hls: any;
 
-  constructor() {
-    super();
+  constructor(props: Props) {
+    super(props);
     this.hls = new Hls();
   }
 
@@ -19,6 +19,7 @@ export default class HLSSource extends Component<Props> {
     // `video` is the property insert from `Video` component
     // `video` is the html5 video element
     const { src, video } = this.props;
+
     // load hls video source base on hls.js
     if (Hls.isSupported()) {
       this.hls.loadSource(src);

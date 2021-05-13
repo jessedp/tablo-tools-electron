@@ -1,17 +1,28 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
+import Button from './ButtonExtended';
 
-export default function Directory(prop) {
+type Props = {
+  label: string;
+  value: string;
+  onClick: () => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled: boolean;
+};
+export default function Directory(prop: Props) {
   const { label, value, onClick, onChange, disabled } = prop;
-
   return (
     <div className="d-flex flex-row">
       <div>
         <InputGroup size="sm">
           <InputGroup.Prepend>
-            <InputGroup.Text title={label} style={{ width: '110px' }}>
+            <InputGroup.Text
+              title={label}
+              style={{
+                width: '110px',
+              }}
+            >
               {label}
             </InputGroup.Text>
           </InputGroup.Prepend>
@@ -19,7 +30,9 @@ export default function Directory(prop) {
             type="text"
             value={value}
             placeholder={`Enter ${label}`}
-            style={{ width: '350px' }}
+            style={{
+              width: '350px',
+            }}
             onChange={onChange}
             disabled={disabled}
           />

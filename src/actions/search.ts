@@ -1,17 +1,14 @@
-// @flow
-export const SEARCH = 'SEARCH';
-export const SEND_RESULTS = 'SEND_RESULTS';
+import { SEARCH, SEND_RESULTS } from './types';
 
 export function changeView(view: string) {
   return {
     type: SEARCH,
-    view
+    view,
   };
 }
-
-export function sendResults(results: Object) {
+export function sendResults(results: Record<string, any>) {
   return {
     type: SEND_RESULTS,
-    results
+    results,
   };
 }

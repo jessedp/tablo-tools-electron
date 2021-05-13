@@ -1,16 +1,13 @@
-// @flow
 import fs from 'fs';
 import { execSync } from 'child_process';
 import * as fsPath from 'path';
 import log from 'electron-log';
-
 import {
   asyncForEach,
   readableDuration,
   findFfmpegPath,
-  timeStrToSeconds
+  timeStrToSeconds,
 } from './utils';
-
 import Show from './Show';
 import getConfig from './config';
 import {
@@ -23,110 +20,121 @@ import {
   DUPE_ADDID,
   DUPE_OVERWRITE,
   DUPE_SKIP,
-  DUPE_INC
+  DUPE_INC,
 } from '../constants/app';
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const sanitize = require('sanitize-filename');
-// const ffmpeg = require('ffmpeg-static');
 
+// const ffmpeg = require('ffmpeg-static');
 const FfmpegCommand = require('fluent-ffmpeg');
 
 let outFile = '';
-
 export default class Airing {
-  episode: Object;
+  episode!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  object_id: number;
+  object_id!: number;
 
   // eslint-disable-next-line camelcase
-  airing_details: Object;
+  airing_details?: Record<string, any>;
 
-  airingDetails: Object;
-
-  // eslint-disable-next-line camelcase
-  video_details: Object;
-
-  videoDetails: Object;
+  airingDetails!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  snapshot_image: Object;
+  video_details?: Record<string, any>;
 
-  snapshotImage: Object;
-
-  // eslint-disable-next-line camelcase
-  user_info: Object;
-
-  userInfo: Object;
-
-  show: Show;
-
-  cachedWatch: Object;
-
-  path: string;
-
-  _id: number;
-
-  event: Object;
+  videoDetails!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  movie_airing: Object;
+  snapshot_image?: Record<string, any>;
+
+  snapshotImage!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  program_path: string;
+  user_info?: Record<string, any>;
+
+  userInfo!: Record<string, any>;
+
+  show!: Show;
+
+  cachedWatch?: Record<string, any>;
+
+  path!: string;
+
+  _id!: number;
+
+  event!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  sport_path: string;
+  movie_airing!: Record<string, any>;
 
   // eslint-disable-next-line camelcase
-  movie_path: string;
+  program_path!: string;
 
   // eslint-disable-next-line camelcase
-  event_path: string;
+  sport_path!: string;
 
   // eslint-disable-next-line camelcase
-  series_path: string;
+  movie_path!: string;
+
+  // eslint-disable-next-line camelcase
+  event_path!: string;
+
+  // eslint-disable-next-line camelcase
+  series_path!: string;
 
   cmd: any;
 
-  data: Object;
+  data!: Record<string, any>;
 
-  customTemplate: NamingTemplateType;
+  customTemplate?: NamingTemplateType;
 
-  constructor(data: Object, retainData: boolean = true) {
+  constructor(data: Record<string, any>, retainData = true) {
     Object.assign(this, data);
-    this.airingDetails = this.airing_details;
+    // these are always true
+    if (this.airing_details) {
+      this.airingDetails = this.airing_details;
+    }
     delete this.airing_details;
-    this.videoDetails = this.video_details;
+    if (this.video_details) {
+      this.videoDetails = this.video_details;
+    }
     delete this.video_details;
-    this.snapshotImage = this.snapshot_image;
+    if (this.snapshot_image) {
+      this.snapshotImage = this.snapshot_image;
+    }
     delete this.snapshot_image;
-    this.userInfo = this.user_info;
+    if (this.user_info) {
+      this.userInfo = this.user_info;
+    }
     delete this.user_info;
 
-    this.cachedWatch = null;
-    this.customTemplate = null;
-
+    // this.cachedWatch = null;
+    // this.customTemplate = null;
     if (retainData) this.data = data;
   }
 
   static async find(id: number): Promise<Airing> {
-    return Airing.create(await global.RecDb.asyncFindOne({ object_id: id }));
+    return Airing.create(
+      await global.RecDb.asyncFindOne({
+        object_id: id,
+      })
+    );
   }
 
   static async create(
-    data: Object,
-    retainData: boolean = true
+    data: Record<string, any>,
+    retainData = true
   ): Promise<Airing> {
     if (data) {
       const airing = new Airing(data, retainData);
       const path = airing.typePath;
-      const showData = await global.ShowDb.asyncFindOne({ path });
+      const showData = await global.ShowDb.asyncFindOne({
+        path,
+      });
       airing.show = new Show(showData);
-
       if (retainData) airing.data.show = showData;
-
       return airing;
     }
 
@@ -139,16 +147,16 @@ export default class Airing {
   }
 
   get description() {
-    if (this.isEpisode) {
-      return `${this.episode.description}`;
+    switch (this.type) {
+      case SERIES:
+        return `${this.episode.description}`;
+      case EVENT:
+        return `${this.event.description}`;
+      case MOVIE:
+        return `${this.show.description}`;
+      default:
+        return '';
     }
-    if (this.isEvent) {
-      return `${this.event.description}`;
-    }
-    if (this.isMovie) {
-      return `${this.show.plot}`;
-    }
-    return '';
   }
 
   get datetime() {
@@ -165,22 +173,28 @@ export default class Airing {
 
   get title() {
     let retVal;
+
     switch (this.type) {
       case SERIES:
         retVal = this.episodeTitle;
         break;
+
       case EVENT:
         retVal = this.eventTitle;
         break;
+
       case MOVIE:
         retVal = this.movieTitle;
         break;
+
       case PROGRAM:
         retVal = this.showTitle;
         break;
+
       default:
         retVal = '';
     }
+
     return sanitize(retVal);
   }
 
@@ -196,6 +210,7 @@ export default class Airing {
   get episodeTitle() {
     const { episode, airingDetails } = this;
     let { title } = episode;
+
     if (!title) {
       // This gem brought to you by Buzzr, Celebrity Name Game, and/or
       // maybe TMSIDs that start with "SH"
@@ -204,8 +219,10 @@ export default class Airing {
       } else {
         title = this.episodeNum;
       }
+
       return title;
     }
+
     // yuck - "105" = season 1 + episode 5
     // console.log(episode.number);
     if (
@@ -214,17 +231,24 @@ export default class Airing {
     ) {
       return this.episodeNum;
     }
+
     return title;
   }
 
   get episodeNum() {
-    const { episode } = this;
-    return `s${this.seasonNum}e${episode.number.toString().padStart(2, '0')}`;
+    if (this.isEpisode) {
+      const { episode } = this;
+      return `s${this.seasonNum}e${episode.number.toString().padStart(2, '0')}`;
+    }
+    return 's00e00';
   }
 
   get seasonNum() {
-    const { episode } = this;
-    return episode.season_number.toString().padStart(2, '0');
+    if (this.isEpisode) {
+      const { episode } = this;
+      return episode.season_number.toString().padStart(2, '0');
+    }
+    return '00';
   }
 
   get duration() {
@@ -242,15 +266,19 @@ export default class Airing {
     if (/series/.test(this.path)) {
       return SERIES;
     }
+
     if (/movies/.test(this.path)) {
       return MOVIE;
     }
+
     if (/sports/.test(this.path)) {
       return EVENT;
     }
+
     if (/programs/.test(this.path)) {
       return PROGRAM;
     }
+
     return `unknown : ${this.path}`;
   }
 
@@ -258,12 +286,16 @@ export default class Airing {
     switch (this.type) {
       case SERIES:
         return this.series_path;
+
       case MOVIE:
         return this.movie_path;
+
       case EVENT:
         return this.sport_path;
+
       case PROGRAM:
         return '';
+
       default:
         throw new Error(`unknown airing type! ${this.type}`);
     }
@@ -281,30 +313,42 @@ export default class Airing {
     return this.type === MOVIE;
   }
 
+  /**
+   * Try to get the Show record's background image, then fallback on the individual airing's image
+   * @return {number} an image number to pass to the Tablo server's image url
+   */
   get background() {
-    if (!this.show.background) {
-      return this.image;
-    }
-    return this.show.background;
+    const { show } = this;
+    return (show && show.background) || this.image;
   }
 
+  /**
+   * Try to get the Show record's thumbnail image, then fallback on the individual airing's image
+   * @return {number} an image number to pass to the Tablo server's image url
+   */
   get thumbnail(): number {
-    if (!this.show.thumbnail) {
-      return this.image;
-    }
-    return this.show.thumbnail;
+    const { show } = this;
+    return (show && show.thumbnail) || this.image;
   }
 
-  // Just cycle through most to least specific...
+  /**
+   * Return the Snapshot image, then fall back on the Show record's cover or background, then nothing
+   * @return {number} an image number to pass to the Tablo server's image url
+   */
+
   get image() {
     const { snapshotImage } = this;
+
     if (snapshotImage && snapshotImage.image_id) {
       return snapshotImage.image_id;
     }
+
     const { show } = this;
+
     if (show) {
-      return show.cover;
+      return show.cover || show.background;
     }
+
     return 0;
   }
 
@@ -317,7 +361,7 @@ export default class Airing {
     this.cachedExportFile = '';
   }
 
-  cachedExportFile: string;
+  cachedExportFile!: string;
 
   // TODO: Cache this somehow?
   get exportFile() {
@@ -325,6 +369,7 @@ export default class Airing {
       const vars = buildTemplateVars(this);
       this.cachedExportFile = fillTemplate(this.template, vars);
     }
+
     return this.cachedExportFile;
   }
 
@@ -333,6 +378,7 @@ export default class Airing {
   // TODO: Cache this somehow?
   dedupedExportFile(actionOnDuplicate: string = getConfig().actionOnDuplicate) {
     const { exportFile } = this;
+
     if (
       !fs.existsSync(exportFile) ||
       actionOnDuplicate === DUPE_OVERWRITE ||
@@ -340,6 +386,7 @@ export default class Airing {
     ) {
       return exportFile;
     }
+
     const parsed = fsPath.parse(exportFile);
 
     if (actionOnDuplicate === DUPE_ADDID) {
@@ -349,12 +396,15 @@ export default class Airing {
     if (actionOnDuplicate === DUPE_INC) {
       let cnt = 1;
       let test;
+
       do {
         test = fsPath.join(parsed.dir, `${parsed.name}-${cnt}${parsed.ext}`);
         cnt += 1;
       } while (fs.existsSync(test));
+
       return test;
     }
+
     console.log('DEFAULT', exportFile);
     return exportFile;
   }
@@ -363,12 +413,14 @@ export default class Airing {
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
       let data;
+
       try {
         data = await global.Api.post(watchPath);
       } catch (e) {
         console.warn(`Unable to load ${watchPath}`, e);
         throw new Error(e);
       }
+
       // TODO: better local/forward rewrites (probably elsewhere)
       if (global.Api.device.private_ip === '127.0.0.1') {
         const re = new RegExp(
@@ -376,8 +428,10 @@ export default class Airing {
         );
         data.playlist_url = data.playlist_url.replace(re, '127.0.0.1:8888');
       }
+
       this.cachedWatch = data;
     }
+
     return this.cachedWatch;
   }
 
@@ -388,22 +442,31 @@ export default class Airing {
         if (process.env.NODE_ENV === 'production') {
           global.Api.delete(path);
         }
-        global.RecDb.asyncRemove({ _id });
+
+        global.RecDb.asyncRemove({
+          _id,
+        });
+
         if (this.show && this.show.showCounts) {
           if (this.show.showCounts.airing_count === 1) {
-            global.ShowDb.asyncRemove({ object_id: this.show.id });
+            global.ShowDb.asyncRemove({
+              object_id: this.show.id,
+            });
           } else {
             global.ShowDb.asyncUpdate(
-              { object_id: this.show.id },
+              {
+                object_id: this.show.id,
+              },
               {
                 $set: {
                   'show_counts.airing_count':
-                    this.show.showCounts.airing_count - 1
-                }
+                    this.show.showCounts.airing_count - 1,
+                },
               }
             );
           }
         }
+
         setTimeout(() => resolve(true), 300 + 300 * Math.random());
       } catch (e) {
         console.log('Airing.delete', e);
@@ -414,6 +477,7 @@ export default class Airing {
 
   cancelVideoProcess() {
     const { _id, path } = this;
+
     // this is to be clean while Mac doesn't work
     if (!this.cmd) {
       console.warn('No cmd process exists while canceling!');
@@ -432,54 +496,60 @@ export default class Airing {
   getExportDetails(): string {
     const { exportFile } = this;
     if (!fs.existsSync(exportFile)) return '';
-
     // this is janky becuase it should be using ffprobe, but
     // I don't want to package it, too. So ffmpeg throws an
     // warning in the logs and the last line output is
     const lastLine = 'At least one output file must be specified';
     const firstLine = /^Error: Command failed:(.*)/;
-
     const ffmpeg = findFfmpegPath();
-
     let info;
+
     try {
       info = execSync(`${ffmpeg} -i "${exportFile}"`);
     } catch (e) {
       console.log(e);
       info = e.toString();
     }
-    info = info.toString().trim();
 
+    info = info.toString().trim();
     return info.replace(firstLine, '').replace(lastLine, '');
   }
 
-  isExportValid(): { valid: boolean, reason?: string } {
+  isExportValid(): {
+    valid: boolean;
+    reason?: string;
+  } {
     const { exportFile, videoDetails } = this;
-
     if (!fs.existsSync(exportFile))
-      return { valid: false, reason: 'No exported file found.' };
-
+      return {
+        valid: false,
+        reason: 'No exported file found.',
+      };
     const info = this.getExportDetails();
     // Duration: 01:01:16.16,
     const durRe = /Duration: ([0-9:]*)/;
     const matches = info.match(durRe);
-    if (!matches) return { valid: false, reason: 'No exported file found.' };
-
+    if (!matches)
+      return {
+        valid: false,
+        reason: 'No exported file found.',
+      };
     const realSec = timeStrToSeconds(matches[1]);
     const thisSec = videoDetails.duration;
     const threshold = 20;
     if (realSec + threshold < thisSec)
       return {
         valid: false,
-        reason: `Exported (${realSec}) duration is less than exected (${this.actualDuration}) by more than ${threshold} seconds`
+        reason: `Exported (${realSec}) duration is less than expected (${this.actualDuration}) by more than ${threshold} seconds`,
       };
-
-    return { valid: true };
+    return {
+      valid: true,
+    };
   }
 
   async processVideo(
     actionOnDuplicate: string = getConfig().actionOnDuplicate,
-    progressCallback: Function = null
+    progressCallback: (...args: Array<any>) => any
   ) {
     const debug = getConfig().enableDebug;
     let date = new Date()
@@ -487,64 +557,70 @@ export default class Airing {
       .replace('T', '_')
       .replace(/:/g, '-')
       .replace(/ /g, '_');
-
     date = date.substr(0, date.indexOf('.'));
     log.transports.file.fileName = `${this.object_id}-${sanitize(
       this.showTitle
     )}-${date}.log`;
     log.transports.file.maxSize = 1048576; // 1mb
+
     if (!debug) {
       log.transports.file.level = false;
     }
 
     if (debug) log.info('start processVideo', new Date());
     if (debug) log.info('env', process.env.NODE_ENV);
-
     FfmpegCommand.setFfmpegPath(findFfmpegPath(debug, log));
+    let watchPath: Record<string, any> | undefined;
+    let input = '';
 
-    let watchPath;
-    let input;
     try {
       watchPath = await this.watch();
+      if (!watchPath)
+        throw new Error('watchPath undefined after calling watch()');
+
       input = watchPath.playlist_url;
     } catch (err) {
       log.warn(`An error occurred: ${err}`);
+
       if (typeof progressCallback === 'function') {
-        progressCallback(this.object_id, { failed: true, failedMsg: err });
+        progressCallback(this.object_id, {
+          failed: true,
+          failedMsg: err,
+        });
       }
+
       return;
     }
 
     outFile = this.dedupedExportFile();
     console.log('outFile', outFile);
-
     const outPath = fsPath.dirname(outFile);
-
     if (debug) log.info('exporting to path:', outPath);
     if (debug) log.info('exporting to file:', outFile);
-
-    fs.mkdirSync(outPath, { recursive: true });
-
+    fs.mkdirSync(outPath, {
+      recursive: true,
+    });
     const ffmpegOpts = [
       '-c copy',
-      '-y' // overwrite existing files
+      '-y', // overwrite existing files
     ];
+
     if (process.env.NODE_ENV !== 'production') {
       ffmpegOpts.push('-v 40');
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (outFile !== this.exportFile) {
         if (actionOnDuplicate === DUPE_SKIP) {
           progressCallback(this.object_id, {
             skipped: true,
-            finished: true
+            finished: true,
           });
-          resolve();
+          resolve('dupe skip');
         }
       }
 
-      const ffmpegLog = [];
+      const ffmpegLog: Array<string> = [];
       let record = true;
       this.cmd = new FfmpegCommand();
       this.cmd
@@ -556,35 +632,37 @@ export default class Airing {
           if (typeof progressCallback === 'function') {
             progressCallback(this.object_id, {
               finished: true,
-              log: ffmpegLog
+              log: ffmpegLog,
             });
           }
+
           if (debug) log.info(ffmpegLog.join('\n'));
           if (debug) log.info('end processVideo', new Date());
-
           resolve(ffmpegLog);
         })
-        .on('error', err => {
+        .on('error', (err: any) => {
           const errMsg = `An error occurred: ${err}`;
           log.info(errMsg);
           ffmpegLog.push(errMsg);
+
           if (typeof progressCallback === 'function') {
             if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
               progressCallback(this.object_id, {
                 cancelled: true,
-                finished: false
+                finished: false,
               });
             } else {
               progressCallback(this.object_id, {
                 failed: true,
-                failedMsg: err
+                failedMsg: err,
               });
             }
           }
+
           // reject(err);
           resolve(ffmpegLog);
         })
-        .on('stderr', stderrLine => {
+        .on('stderr', (stderrLine: string) => {
           if (
             !stderrLine.includes('EXT-X-PROGRAM-DATE-TIME') &&
             !stderrLine.includes('hls @') &&
@@ -597,6 +675,7 @@ export default class Airing {
             if (stderrLine.includes('Press [q] to stop, [?] for help')) {
               record = false;
             }
+
             if (
               stderrLine.includes(
                 'No more output streams to write to, finishing.'
@@ -604,19 +683,23 @@ export default class Airing {
             ) {
               record = true;
             }
+
             if (record) ffmpegLog.push(stderrLine);
             if (debug) log.info(`Stderr output: ${stderrLine}`);
           }
         })
-        .on('progress', progress => {
+        .on('progress', (progress: Record<string, any>) => {
           if (typeof progressCallback === 'function') {
             progressCallback(this.object_id, progress);
           }
         });
 
       if (typeof progressCallback === 'function') {
-        progressCallback(this.object_id, { timemark: beginTimemark });
+        progressCallback(this.object_id, {
+          timemark: beginTimemark,
+        });
       }
+
       this.cmd.run();
     });
   }
@@ -624,39 +707,46 @@ export default class Airing {
 
 export function ensureAiringArray(list: Array<any>) {
   if (!list || !Array.isArray(list)) return [];
-
-  const ret = [];
-  asyncForEach(list, async item => {
+  const ret: Array<Airing> = [];
+  asyncForEach(list, async (item) => {
     if (item instanceof Airing && item.airingDetails) ret.push(item);
     ret.push(await Airing.find(item.object_id));
   });
-
   return ret;
 }
 
 export const getEpisodesByShow = async (show: Show): Promise<Array<Airing>> => {
   let recs = [];
+
   switch (show.type) {
     case SERIES:
-      recs = await global.RecDb.asyncFind({ series_path: show.path });
+      recs = await global.RecDb.asyncFind({
+        series_path: show.path,
+      });
       break;
+
     case EVENT:
-      recs = await global.RecDb.asyncFind({ sport_path: show.path });
+      recs = await global.RecDb.asyncFind({
+        sport_path: show.path,
+      });
       break;
+
     case MOVIE:
-      recs = await global.RecDb.asyncFind({ movie_path: show.path });
+      recs = await global.RecDb.asyncFind({
+        movie_path: show.path,
+      });
       break;
+
     case PROGRAM:
     default:
       // manual? would be path files above don't
       return [];
   }
 
-  const airings = [];
-  await asyncForEach(recs, async rec => {
+  const airings: Array<Airing> = [];
+  await asyncForEach(recs, async (rec: Record<string, any>) => {
     const airing = await Airing.create(rec);
     airings.push(airing);
   });
-
   return airings;
 };

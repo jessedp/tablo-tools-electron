@@ -1,11 +1,9 @@
-// @flow
 import React, { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
-
 import ServerInfoTable from './ServerInfoTable';
 import DbStats from './DbStats';
 import Build from './Build';
@@ -14,42 +12,44 @@ import { hasDevice } from '../utils/Tablo';
 
 const { app } = require('electron').remote;
 
-type Props = {};
+type Props = Record<string, any>;
 type State = {
-  showServerInfo: boolean,
-  showDbTable: boolean
+  showServerInfo: boolean;
+  showDbTable: boolean;
 };
-
 export default class Home extends Component<Props, State> {
-  props: Props;
-
-  info: string;
-
-  constructor() {
-    super();
-    this.state = { showDbTable: true, showServerInfo: true };
-
-    (this: any).showDbTable = this.showDbTable.bind(this);
-    (this: any).showServerInfo = this.showServerInfo.bind(this);
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showDbTable: true,
+      showServerInfo: true,
+    };
+    (this as any).showDbTable = this.showDbTable.bind(this);
+    (this as any).showServerInfo = this.showServerInfo.bind(this);
   }
 
   showServerInfo(show: boolean) {
     const { showServerInfo } = this.state;
+
     if (show !== showServerInfo) {
-      this.setState({ showServerInfo: show });
+      this.setState({
+        showServerInfo: show,
+      });
     }
   }
 
   showDbTable(show: boolean) {
     const { showDbTable } = this.state;
+
     if (show !== showDbTable) {
-      this.setState({ showDbTable: show });
+      this.setState({
+        showDbTable: show,
+      });
     }
   }
 
   render() {
     const { showServerInfo, showDbTable } = this.state;
-
     const appVersion = app.getVersion();
 
     if (!hasDevice()) {
