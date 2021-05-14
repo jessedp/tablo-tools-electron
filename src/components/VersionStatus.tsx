@@ -75,10 +75,10 @@ class VersionStatus extends Component<Props, State> {
     data.forEach((rec: Record<string, any>) => {
       if (compareVersions.compare(appVersion, rec.tag_name, '<')) {
         if (rec.prerelease && getConfig().notifyBeta) {
-          if (!notify) notify = rec;
+          if (Object.keys(notify).length === 0) notify = rec;
         }
 
-        if (!rec.prerelease && !notify) notify = rec;
+        if (!rec.prerelease && Object.keys(notify).length === 0) notify = rec;
       }
     });
 
@@ -92,7 +92,9 @@ class VersionStatus extends Component<Props, State> {
 
   render() {
     const { show, record, updateAvailable } = this.state;
-    if (!record || !updateAvailable) return <></>; //
+
+    if (!record || Object.keys(record).length === 0 || !updateAvailable)
+      return <></>; //
 
     let color = 'text-warning ';
     let type = 'NEW Release ';
