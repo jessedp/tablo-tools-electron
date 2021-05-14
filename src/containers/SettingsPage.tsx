@@ -5,10 +5,10 @@ import { LinkContainer } from 'react-router-bootstrap';
 import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 
 import { Container } from 'react-bootstrap';
 import routes from '../constants/routes.json';
-import Button from '../components/ButtonExtended';
 import SettingsGeneral from '../components/SettingsGeneral';
 import SettingsAdvanced from '../components/SettingsAdvanced';
 import SettingsNaming from '../components/SettingsNaming';

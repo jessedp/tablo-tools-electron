@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import path from 'path';
@@ -11,6 +12,7 @@ import type { FlashRecordType } from '../reducers/types';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
 import getConfig, {
+  getPath,
   ConfigType,
   setConfigItem,
   CONFIG_FILE_NAME,
@@ -28,8 +30,6 @@ type DispatchProps = {
 };
 
 type SettingsAdvancedProps = OwnProps & StateProps & DispatchProps;
-
-const { app, dialog } = require('electron').remote;
 
 class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
   constructor(props: SettingsAdvancedProps) {
@@ -50,7 +50,7 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
   }
 
   setPathDialog = (field: string) => {
-    const file = dialog.showOpenDialogSync({
+    const file = ipcRenderer.sendSync('open-dialog', {
       defaultPath: field,
       properties: ['openDirectory'],
     });
@@ -252,13 +252,14 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
       exportDataPath,
       enableDebug,
     } = this.state;
-    let logsPath = app.getPath('logs');
-    const test = new RegExp(`${app.name}`, 'g');
+    let logsPath = getPath('logs');
+    const appName = ipcRenderer.sendSync('get-name');
+    const test = new RegExp(`${appName}`, 'g');
     const mat = logsPath.match(test);
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${path.sep}`, '');
     }
 
     // const openLogs = () => {

@@ -22,7 +22,7 @@ import {
   DUPE_ADDID,
 } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
 

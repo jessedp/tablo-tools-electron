@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import type { SearchAlert } from '../utils/types';
 import MatchesToBadges from './SearchFilterMatches';
 import * as ActionListActions from '../actions/actionList';
@@ -51,14 +51,14 @@ class SearchResultAlerts extends Component<Props, State> {
               <Button
                 variant="outline-secondary"
                 className="mr-1"
-                size="xs"
+                size={'xs' as any}
                 onClick={() => bulkAddAirings(airingList)}
               >
                 <span className="fa fa-plus" /> all
               </Button>
               <Button
                 variant="outline-secondary"
-                size="xs"
+                size={'xs' as any}
                 onClick={() => bulkRemAirings(airingList)}
               >
                 <span className="fa fa-minus" /> all

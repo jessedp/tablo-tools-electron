@@ -4,7 +4,7 @@ import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import DbStats from './DbStats';
 import ComskipDetails from './ComskipDetails';
 import TimeOfDayStats from './TimeOfDayStats';
@@ -91,7 +91,7 @@ export default class Overview extends Component<Props, State> {
           <Col md="4" className="text-center">
             <ButtonGroup className="ml-2">
               <Button
-                size="xs"
+                size={'xs' as any}
                 variant="outline-secondary"
                 onClick={() => this.topRef.current.scrollIntoView()}
               >
@@ -99,7 +99,7 @@ export default class Overview extends Component<Props, State> {
               </Button>
 
               <Button
-                size="xs"
+                size={'xs' as any}
                 variant="outline-secondary"
                 onClick={() =>
                   this.showsStatsRef.current.scrollIntoView({
@@ -110,7 +110,7 @@ export default class Overview extends Component<Props, State> {
                 Show Stats
               </Button>
               <Button
-                size="xs"
+                size={'xs' as any}
                 variant="outline-secondary"
                 onClick={() =>
                   this.timeStatsRef.current.scrollIntoView({

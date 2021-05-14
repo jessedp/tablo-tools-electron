@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import path from 'path';
@@ -9,7 +10,7 @@ import * as FlashActions from '../actions/flash';
 import type { FlashRecordType } from '../reducers/types';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, { ConfigType, setConfigItem } from '../utils/config';
+import getConfig, { getPath, ConfigType, setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
 import Directory from './Directory';
@@ -23,8 +24,6 @@ type DispatchProps = {
 };
 
 type SettingsGeneralProps = OwnProps & StateProps & DispatchProps;
-
-const { app, dialog } = require('electron').remote;
 
 class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
   constructor(props: SettingsGeneralProps) {
@@ -49,7 +48,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
   }
 
   setPathDialog = (field: string) => {
-    const file = dialog.showOpenDialogSync({
+    const file = ipcRenderer.sendSync('open-dialog', {
       defaultPath: field,
       properties: ['openDirectory'],
     });
@@ -295,13 +294,14 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
       eventPath,
       programPath,
     } = this.state;
-    let logsPath = app.getPath('logs');
-    const test = new RegExp(`${app.name}`, 'g');
+    let logsPath = getPath('logs');
+    const appName = ipcRenderer.sendSync('get-name');
+    const test = new RegExp(`${appName}`, 'g');
     const mat = logsPath.match(test);
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${app.name}${path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${path.sep}`, '');
     }
 
     return (

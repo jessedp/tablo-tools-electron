@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Badge, Alert } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+
 import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import Show from '../utils/Show';
 import * as ActionListActions from '../actions/actionList';
 import { ON, OFF } from '../constants/app';
-import Button from './ButtonExtended';
 
 type Props = {
   // eslint-disable-next-line react/no-unused-prop-types
@@ -51,7 +52,7 @@ class SeasonEpisodeList extends Component<Props, State> {
             </Badge>
 
             <Button
-              size="xs"
+              size={'xs' as any}
               className="ml-4 mr-2"
               variant="outline-secondary"
               onClick={() => bulkAddAirings(airings)}
@@ -59,7 +60,7 @@ class SeasonEpisodeList extends Component<Props, State> {
               <span className="fa fa-plus" /> All
             </Button>
             <Button
-              size="xs"
+              size={'xs' as any}
               className="mr-2"
               variant="outline-secondary"
               onClick={() => bulkRemAirings(airings)}

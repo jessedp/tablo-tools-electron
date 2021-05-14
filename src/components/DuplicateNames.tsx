@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 import { Row, Col, Alert } from 'react-bootstrap';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 import Airing from '../utils/Airing';
 import Filename from './Filename';
@@ -23,7 +23,7 @@ export default function DuplicateNames(props: Props) {
       <Button
         variant="warning"
         onClick={() => setShow(true)}
-        size="xs"
+        size={'xs' as any}
         className="ml-2"
       >
         <span className="fas fa-exclamation mr-2 naming-icons" />

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 import { Row, Col, Alert } from 'react-bootstrap';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import RecordingSlim from './RecordingSlim';
 import { ON, OFF } from '../constants/app';
 import Airing from '../utils/Airing';
@@ -19,7 +19,7 @@ const Filename = (prop: PreviewRec) => {
           <Button
             onClick={() => setShow(false)}
             variant="link"
-            size="xs"
+            size={'xs' as any}
             title="Hide airing"
           >
             <span className="fa fa-toggle-on preview-toggle" />
@@ -28,7 +28,7 @@ const Filename = (prop: PreviewRec) => {
           <Button
             onClick={() => setShow(true)}
             variant="link"
-            size="xs"
+            size={'xs' as any}
             title="show airing"
           >
             <span className="fa fa-toggle-off preview-toggle" />
@@ -69,7 +69,7 @@ export default function NamingPreview(props: Props) {
         variant="outline-info"
         onClick={() => setShow(true)}
         className="ml-2"
-        size="xs"
+        size={'xs' as any}
         title="preview"
       >
         <span className="fa fa-search" />

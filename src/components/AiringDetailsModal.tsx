@@ -1,6 +1,7 @@
 import { shell } from 'electron';
 import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 import { Alert } from 'react-bootstrap';
 import ReactJson from 'react-json-view';
@@ -8,7 +9,6 @@ import { ON } from '../constants/app';
 import RecordingOverview from './RecordingOverview';
 import Airing from '../utils/Airing';
 import RecordingMini from './RecordingMini';
-import Button from './ButtonExtended';
 
 type Props = {
   airing: Airing;
@@ -34,7 +34,7 @@ export default function AiringDetailsModal(props: Props) {
           loadExportDetails();
           setShow(true);
         }}
-        size="xs"
+        size={'xs' as any}
         title="Info"
         className=""
       >

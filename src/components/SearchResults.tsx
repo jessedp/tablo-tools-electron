@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Row from 'react-bootstrap/Row';
-import Spinner from './SpinnerExtended';
+import Spinner from 'react-bootstrap/Spinner';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import type { SearchAlert } from '../utils/types';
@@ -113,7 +113,7 @@ function Loading(prop: any) {
         marginTop: '75px',
       }}
     >
-      <Spinner animation="border" size="xl" variant="primary" />
+      <Spinner animation="border" size={'xl' as any} variant="primary" />
     </div>
   );
 }

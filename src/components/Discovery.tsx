@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
+
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+
 import PubSub from 'pubsub-js';
 import { discover, setCurrentDevice } from '../utils/Tablo';
 import RelativeDate from './RelativeDate';
-import Button from './ButtonExtended';
 
 const Store = require('electron-store');
 
@@ -138,7 +139,7 @@ function DiscoveryStatus(prop: Record<string, any>) {
           return (
             <Row className="p-1 pb-2 mb-2 border" key={key}>
               <Col md="2">
-                <Button size="xs" onClick={() => setDevice(serverId)}>
+                <Button size={'xs' as any} onClick={() => setDevice(serverId)}>
                   use
                 </Button>
               </Col>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 type Prop = {
   description: string;
@@ -16,7 +16,7 @@ export default function Description(prop: Prop) {
     return (
       <Button
         variant="link"
-        size="xs"
+        size={'xs' as any}
         onClick={() => setShow(true)}
         className="text-black-50"
         title="Open description"
@@ -28,7 +28,7 @@ export default function Description(prop: Prop) {
     <>
       <Button
         variant="link"
-        size="xs"
+        size={'xs' as any}
         onClick={() => setShow(false)}
         className="pr-2 text-black-50"
         title="Open description"

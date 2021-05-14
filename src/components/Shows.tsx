@@ -7,7 +7,7 @@ import routes from '../constants/routes.json';
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
 
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import { showList } from '../utils/dbHelpers';
 
 type Props = Record<string, never>;

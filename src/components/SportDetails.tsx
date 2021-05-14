@@ -5,12 +5,13 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 
 import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
 import { getTabloImageUrl } from '../utils/utils';
-import Button from './ButtonExtended';
+
 import TabloImage from './TabloImage';
 import AiringDetailsModal from './AiringDetailsModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
@@ -91,7 +92,11 @@ class SportDetails extends Component<RouteComponentProps & Props, State> {
 
         <div>
           <LinkContainer to={routes.SPORTS} key={show.id}>
-            <Button size="xs" variant="outline-secondary" className="mt-1 mb-1">
+            <Button
+              size={'xs' as any}
+              variant="outline-secondary"
+              className="mt-1 mb-1"
+            >
               <span className="fa fa-arrow-left pr-2" />
               back
             </Button>
@@ -124,7 +129,7 @@ class SportDetails extends Component<RouteComponentProps & Props, State> {
                 &nbsp;
                 <VideoExportModal airing={event} />
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   className="ml-3 mr-2"
                   variant="outline-dark"
                   onClick={() => addAiring(event)}
@@ -132,7 +137,7 @@ class SportDetails extends Component<RouteComponentProps & Props, State> {
                   <span className="fa fa-plus" />
                 </Button>
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   className="mr-2"
                   variant="outline-dark"
                   onClick={() => remAiring(event)}

@@ -1,7 +1,7 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 type Props = {
   label: string;
@@ -38,7 +38,7 @@ export default function Directory(prop: Props) {
           />
           <InputGroup.Append>
             <Button
-              size="xs"
+              size={'xs' as any}
               variant="outline-secondary"
               onClick={onClick}
               disabled={disabled}

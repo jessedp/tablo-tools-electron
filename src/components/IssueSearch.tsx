@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 import { InputGroup, Form, Row, Col } from 'react-bootstrap';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 type Props = Record<string, never>;
 type State = {

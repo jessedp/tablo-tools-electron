@@ -13,7 +13,7 @@ import SelectedBox from './SelectedBox';
 import LogoBox from './Logo';
 import ScreenControls from './ScreenControls';
 import VersionStatus from './VersionStatus';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 const { remote } = require('electron');
 

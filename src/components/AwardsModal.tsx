@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Row, Col, Alert } from 'react-bootstrap';
-import Modal from './ModalExtended';
-import Button from './ButtonExtended';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 type Prop = {
   awards: Array<Record<string, any>>;
@@ -27,7 +27,7 @@ export default function AwardsModal(prop: Prop) {
           variant="outline-primary"
           onClick={() => setDisplay(true)}
           className="ml-2"
-          size="xs"
+          size={'xs' as any}
           title="preview"
         >
           {len}

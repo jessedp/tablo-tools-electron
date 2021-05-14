@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -9,8 +10,6 @@ import DbStats from './DbStats';
 import Build from './Build';
 import Discovery from './Discovery';
 import { hasDevice } from '../utils/Tablo';
-
-const { app } = require('electron').remote;
 
 type Props = Record<string, any>;
 type State = {
@@ -50,7 +49,7 @@ export default class Home extends Component<Props, State> {
 
   render() {
     const { showServerInfo, showDbTable } = this.state;
-    const appVersion = app.getVersion();
+    const appVersion = ipcRenderer.sendSync('get-version');
 
     if (!hasDevice()) {
       return (

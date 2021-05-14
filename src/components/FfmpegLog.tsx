@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 // this is essentially a basic stick an array of strings in a modal
 export default function FfmpegLog(props: { log: string[] }) {
@@ -17,7 +17,7 @@ export default function FfmpegLog(props: { log: string[] }) {
   let i = 0;
   return (
     <>
-      <Button size="xs" variant="primary" onClick={handleShow}>
+      <Button size={'xs' as any} variant="primary" onClick={handleShow}>
         <span className="fa fa-info-circle" /> log
       </Button>
 

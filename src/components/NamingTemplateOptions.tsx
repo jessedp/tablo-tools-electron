@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { InputGroup } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import {
   getTemplate,
   getTemplates,
@@ -8,7 +9,6 @@ import {
 } from '../utils/namingTpl';
 import { NamingTemplateType } from '../constants/app';
 import SelectStyles from './SelectStyles';
-import Button from './ButtonExtended';
 
 import { EmptyNamingTemplate } from '../utils/factories';
 
@@ -75,7 +75,7 @@ export default function NamingTemplateOptions(props: PropType) {
       </div>
       {!isCurrentTemplate(selected) ? (
         <Button
-          size="xs"
+          size={'xs' as any}
           variant="outline-success"
           title="Use by default"
           onClick={() => {

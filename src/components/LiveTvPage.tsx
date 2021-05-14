@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 
 import { Row, Col, Table, Alert } from 'react-bootstrap';
-import Spinner from './SpinnerExtended';
+import Spinner from 'react-bootstrap/Spinner';
 import Channel from '../utils/Channel';
 import TabloLivePlayer from './TabloLivePlayer';
 
@@ -17,7 +17,7 @@ function Loading() {
     >
       <Spinner
         animation="border"
-        size="md"
+        size={'md' as any}
         variant="primary"
         className="mr-2"
       />

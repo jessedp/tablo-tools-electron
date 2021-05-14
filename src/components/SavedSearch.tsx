@@ -6,6 +6,9 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+
 import Select from 'react-select';
 import Row from 'react-bootstrap/Row';
 import slugify from 'slugify';
@@ -15,8 +18,6 @@ import type { SearchState } from './SearchForm';
 import MatchesToBadges from './SearchFilterMatches';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import SelectStyles from './SelectStyles';
-import Button from './ButtonExtended';
-import Modal from './ModalExtended';
 
 interface Props extends PropsFromRedux {
   searchState: SearchState;
@@ -242,7 +243,7 @@ class SavedSearch extends Component<Props, State> {
       <>
         <Button
           className="mb-3 pr-2"
-          size="xs"
+          size={'xs' as any}
           variant="primary"
           onClick={this.handleShow}
           title="Save this search"
@@ -251,7 +252,7 @@ class SavedSearch extends Component<Props, State> {
           {searchState.savedSearchFilter ? 'save as' : 'save'}
         </Button>
         <Modal
-          size="md"
+          size={'md' as any}
           show={show}
           onHide={this.handleClose}
           animation={false}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Store from 'electron-store';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import Dropdown from './ExtendedDropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { checkConnection, setCurrentDevice } from '../utils/Tablo';
 import routes from '../constants/routes.json';
 
@@ -113,8 +113,12 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
     return (
       <>
         <Dropdown>
-          <Dropdown.Toggle size="xs" variant="light" id="dropdown-basic">
-            {currentDevice.name}{' '}
+          <Dropdown.Toggle
+            size={'xs' as any}
+            variant="light"
+            id="dropdown-basic"
+          >
+            {currentDevice.name}
             <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
           </Dropdown.Toggle>
           <Dropdown.Menu>

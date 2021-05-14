@@ -11,40 +11,34 @@
     crossorigin="anonymous"
   />
 
-    <script>
-            (() => {
-        if (
-          typeof process !== 'object' ||
-          (typeof process === 'object' && !process.env.START_HOT)
-        ) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = './dist/style.css';
-          // HACK: Writing the script path should be done with webpack
-          document.getElementsByTagName('head')[0].appendChild(link);
-        }
-      })();
-    </script>
-  </head>
+  <script>
+    (() => {
+      if (process?.env?.NODE_ENV !== 'development') {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = './dist/style.css';
+        // HACK: Writing the script path should be done with webpack
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+    })();
+  </script>
+</head>
   <body>
     <div id="root"></div>
     <script>
-      if (typeof process === 'object') {
       const scripts = [];
 
-
       if (process.env.NODE_ENV === 'development') {
-          // Dynamically insert the DLL script in development env in the
-          // renderer process
-          scripts.push('../dll/renderer.dev.dll.js');
-        }
-        if (process.env.START_HOT) {
-          // Dynamically insert the bundled app script in the renderer process
-          const port = process.env.PORT || 1212;
-          scripts.push(`http://localhost:${port}/dist/renderer.dev.js`);
-        } else {
-          scripts.push('./dist/renderer.prod.js');
-        }
+        // Dynamically insert the DLL script in development env in the
+        // renderer process
+        scripts.push('../.erb/dll/renderer.dev.dll.js');
+
+        // Dynamically insert the bundled app script in the renderer process
+        const port = process.env.PORT || 1212;
+        scripts.push(`http://localhost:${port}/dist/renderer.dev.js`);
+      } else {
+        scripts.push('./dist/renderer.prod.js');
+      }
 
       if (scripts.length) {
         document.write(
@@ -53,7 +47,6 @@
             .join('')
         );
       }
-    }
     </script>
   </body>
 </html>

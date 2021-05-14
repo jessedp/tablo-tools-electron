@@ -3,6 +3,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter, Redirect, RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import Airing from '../utils/Airing';
 import {
   readableBytes,
@@ -15,7 +16,6 @@ import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
-import Button from './ButtonExtended';
 
 interface Props extends PropsFromRedux {
   history: any;
@@ -141,7 +141,7 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
           <Col md="1">
             <Button
               variant="outline-secondary"
-              size="xs"
+              size={'xs' as any}
               onClick={() => history.goBack()}
               title="Back"
               className="mt-2"

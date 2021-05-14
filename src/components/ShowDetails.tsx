@@ -9,9 +9,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Button from 'react-bootstrap/Button';
 
 import * as ActionListActions from '../actions/actionList';
-import Button from './ButtonExtended';
+
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
 import {
@@ -173,7 +174,11 @@ class ShowDetails extends Component<RouteComponentProps & Props, State> {
 
         <div>
           <LinkContainer to={routes.SHOWS} key={show.id}>
-            <Button size="xs" variant="outline-secondary" className="mt-1 mb-1">
+            <Button
+              size={'xs' as any}
+              variant="outline-secondary"
+              className="mt-1 mb-1"
+            >
               <span className="fa fa-arrow-left pr-2" />
               back
             </Button>
@@ -238,7 +243,7 @@ class ShowDetails extends Component<RouteComponentProps & Props, State> {
 
               <Row>
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   className="ml-3 mr-2"
                   variant="outline-dark"
                   onClick={() => bulkAddAirings(airings)}
@@ -246,7 +251,7 @@ class ShowDetails extends Component<RouteComponentProps & Props, State> {
                   <span className="fa fa-plus" /> All Episodes
                 </Button>
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   className="mr-2"
                   variant="outline-dark"
                   onClick={() => bulkRemAirings(airings)}

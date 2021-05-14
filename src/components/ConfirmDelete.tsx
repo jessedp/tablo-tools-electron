@@ -8,13 +8,14 @@ import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 
 import routes from '../constants/routes.json';
 import * as ActionListActions from '../actions/actionList';
 import Airing from '../utils/Airing';
 import { throttleActions } from '../utils/utils';
 import RecordingMini from './RecordingMini';
-import Button from './ButtonExtended';
+
 import { ON } from '../constants/app';
 
 interface Props extends PropsFromRedux {
@@ -167,7 +168,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     } else {
       buttonEl = (
         <Button
-          size={size}
+          size={size as any}
           variant="outline-danger"
           onClick={this.handleShow}
           title="Delete"

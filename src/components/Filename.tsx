@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Row, Col, Badge } from 'react-bootstrap';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import RecordingSlim from './RecordingSlim';
 import { ON, OFF } from '../constants/app';
 import Airing from '../utils/Airing';
@@ -33,7 +33,7 @@ export default function Filename(prop: Props) {
           <Button
             onClick={() => setShow(false)}
             variant="link"
-            size="xs"
+            size={'xs' as any}
             title="Hide airings"
           >
             <span className="fa fa-toggle-on preview-toggle" />
@@ -42,7 +42,7 @@ export default function Filename(prop: Props) {
           <Button
             onClick={() => setShow(true)}
             variant="link"
-            size="xs"
+            size={'xs' as any}
             title="show airings"
           >
             <span className="fa fa-toggle-off preview-toggle" />

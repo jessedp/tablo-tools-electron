@@ -5,14 +5,16 @@ import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import ReactMarkdown from 'react-markdown';
 import compareVersions from 'compare-versions';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import { version } from '../../package.json';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
-const { app } = require('electron').remote;
-
+const app = { getVersion: () => '' };
 if (process.env.NODE_ENV !== 'production') {
+  // TODO: should this be calling back to Main instead?
+  // const version = ipcRenderer.sendSync('get-version');
+
   app.getVersion = () => version;
 }
 
@@ -64,6 +66,7 @@ export default class VersionInfo extends Component<Props, State> {
 
   handleClose() {
     const store = new Store();
+    // const appVersion = ipcRenderer.sendSync('get-version');
     store.set('LastVersion', app.getVersion());
     this.setState({
       show: false,

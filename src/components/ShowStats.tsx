@@ -3,7 +3,7 @@ import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import DataTable from 'react-data-table-component';
 import moment from 'moment';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import { asyncForEach, parseSeconds, readableBytes } from '../utils/utils';
 import Duration from './Duration';
 import Airing from '../utils/Airing';
@@ -267,7 +267,7 @@ export default class ShowStats extends Component<Props, State> {
         {show ? (
           <div className="stats-header">
             <Button
-              size="xs"
+              size={'xs' as any}
               onClick={this.clearShow}
               variant="outline-dark"
               ref={this.buttonRef}

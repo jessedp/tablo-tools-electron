@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Badge, Row, Col } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import * as ActionListActions from '../actions/actionList';
 import { ON, OFF, NO } from '../constants/app';
 import { ProgramData } from '../constants/types_airing';
@@ -11,7 +12,7 @@ import RecordingSlim from './RecordingSlim';
 import ProgramCover from './ProgramCover';
 import { programList } from './Programs';
 import routes from '../constants/routes.json';
-import Button from './ButtonExtended';
+
 import Airing from '../utils/Airing';
 
 type OwnProps = {
@@ -72,7 +73,11 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
       <div className="section">
         <div>
           <LinkContainer to={routes.PROGRAMS}>
-            <Button size="xs" variant="outline-secondary" className="mt-1 mb-1">
+            <Button
+              size={'xs' as any}
+              variant="outline-secondary"
+              className="mt-1 mb-1"
+            >
               <span className="fa fa-arrow-left pr-2" />
               back
             </Button>
@@ -94,7 +99,7 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
               <Row>
                 <Col>
                   <Button
-                    size="xs"
+                    size={'xs' as any}
                     className=" mr-2"
                     variant="outline-secondary"
                     onClick={() => bulkAddAirings(airings)}
@@ -102,7 +107,7 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
                     <span className="fa fa-plus" /> All Episodes
                   </Button>
                   <Button
-                    size="xs"
+                    size={'xs' as any}
                     className="mr-2"
                     variant="outline-secondary"
                     onClick={() => bulkRemAirings(airings)}

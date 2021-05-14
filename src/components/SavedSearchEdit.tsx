@@ -9,7 +9,7 @@ import { InputGroup, Form } from 'react-bootstrap';
 import slugify from 'slugify';
 // import type { FlashRecordType } from '../reducers/types';
 import * as FlashActions from '../actions/flash';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 interface Props extends PropsFromRedux {
   searchId: string;
@@ -195,7 +195,7 @@ class SavedSearchEdit extends Component<Props, State> {
       <>
         <Button
           className="mb-3 pr-2"
-          size="xs"
+          size={'xs' as any}
           variant="link"
           onClick={this.handleShow}
         >

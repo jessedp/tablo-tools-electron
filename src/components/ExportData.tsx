@@ -8,12 +8,13 @@ import axios from 'axios';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
+
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import Button from './ButtonExtended';
 
 type Props = Record<string, never>;
 type State = {
@@ -382,7 +383,7 @@ export default class ExportData extends Component<Props, State> {
                   style={{
                     height: '35px',
                   }}
-                  size="xs"
+                  size={'xs' as any}
                   variant="outline-secondary"
                   onClick={this.openExportFile}
                 >
@@ -395,7 +396,7 @@ export default class ExportData extends Component<Props, State> {
               text files if you want to take a look.
             </span>
             <Button
-              size="xs"
+              size={'xs' as any}
               className="ml-5"
               variant="light"
               onClick={this.causeError}

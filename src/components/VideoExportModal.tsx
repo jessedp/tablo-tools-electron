@@ -6,8 +6,11 @@ import PubSub from 'pubsub-js';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
+
 import { format } from 'date-fns';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../reducers/types';
@@ -18,10 +21,8 @@ import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
-import Button from './ButtonExtended';
-import Modal from './ModalExtended';
-import getConfig from '../utils/config';
 
+import getConfig from '../utils/config';
 interface Props extends PropsFromRedux {
   //   history: any;
   // }
@@ -136,12 +137,17 @@ class VideoExportModal extends Component<Props, State> {
 
     return (
       <>
-        <Button variant={variant} size={size} onClick={this.show} title={title}>
+        <Button
+          variant={variant}
+          size={size as any}
+          onClick={this.show}
+          title={title}
+        >
           <span className="fa fa-download" />
           {prettyLabel}
         </Button>
         <Modal
-          size="1000"
+          size={'1000' as any}
           show={opened}
           onHide={this.close}
           animation={false}

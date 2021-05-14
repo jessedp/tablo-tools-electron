@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import MyPlayerLive from './MyPlayerLive';
 import Channel from '../utils/Channel';
 

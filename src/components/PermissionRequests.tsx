@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
 import Store from 'electron-store';
-import Modal from './ModalExtended';
-import Button from './ButtonExtended';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 import getConfig, { setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import SentryToggle from '../utils/sentryToggle';
@@ -87,7 +87,7 @@ export default class PermissionRequests extends Component<Props, State> {
     const config = getConfig();
     return (
       <Modal
-        size="md"
+        size={'md' as any}
         show={show}
         onHide={this.handleClose}
         animation={false}

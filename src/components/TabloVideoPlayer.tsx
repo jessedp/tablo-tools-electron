@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-
+import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Player } from 'video-react';
 import HLSSource from './HLSSource';
 // import MyPlayer from './MyPlayer';
 import Airing from '../utils/Airing';
-import Button from './ButtonExtended';
 
 type Props = {
   airing: Airing;
@@ -50,7 +49,7 @@ export default class TabloVideoPlayer extends Component<Props, State> {
       return (
         <Button
           variant="outline-secondary"
-          size="xs"
+          size={'xs' as any}
           onClick={this.toggle}
           title="Play video"
         >

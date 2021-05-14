@@ -9,6 +9,8 @@ import Badge from 'react-bootstrap/Badge';
 
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
+
 import ReactPaginate from 'react-paginate';
 
 import {
@@ -51,8 +53,6 @@ import {
   Option,
   Season,
 } from './SearchFilters';
-
-import Button from './ButtonExtended';
 
 type OwnProps = Record<string, any>;
 type StateProps = Record<string, any>;
@@ -905,7 +905,7 @@ class SearchForm extends Component<
             <InputGroup size="sm" className="d-inline">
               <Button
                 className="mb-3 mr-1"
-                size="xs"
+                size={'xs' as any}
                 variant="outline-dark"
                 onClick={this.resetSearch}
               >

@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import slugify from 'slugify';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 
 import { InputGroup, Form, Alert } from 'react-bootstrap';
 import Handlebars from 'handlebars';
@@ -31,7 +32,7 @@ import { titleCase, asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
 import DuplicateNames from './DuplicateNames';
 import NamingPreview from './NamingPreview';
-import Button from './ButtonExtended';
+
 import { EmptyNamingTemplate, EmptyTemplateVars } from '../utils/factories';
 
 const helpers = require('template-helpers')();
@@ -419,7 +420,7 @@ class SettingsNaming extends Component<Props, State> {
               {view === 'view' ? (
                 <div className="d-flex">
                   <Button
-                    size="xs"
+                    size={'xs' as any}
                     variant="success"
                     onClick={this.new}
                     className="mr-2 float-right "
@@ -428,7 +429,7 @@ class SettingsNaming extends Component<Props, State> {
                     <span className="fas fa-plus" />
                   </Button>
                   <Button
-                    size="xs"
+                    size={'xs' as any}
                     variant="primary"
                     onClick={() => this.setView('edit')}
                     title="Edit Template"
@@ -438,7 +439,7 @@ class SettingsNaming extends Component<Props, State> {
                   </Button>
                   {!isDefaultTemplate(template) ? (
                     <Button
-                      size="xs"
+                      size={'xs' as any}
                       variant="outline-danger"
                       onClick={this.delete}
                       title="Delete Template"
@@ -463,7 +464,7 @@ class SettingsNaming extends Component<Props, State> {
 
               {view !== 'view' ? (
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   variant="secondary"
                   onClick={this.cancel}
                   title="cancel"
@@ -475,7 +476,7 @@ class SettingsNaming extends Component<Props, State> {
               )}
               {view !== 'view' && getDefaultTemplateSlug() !== template.slug ? (
                 <Button
-                  size="xs"
+                  size={'xs' as any}
                   variant="success"
                   onClick={this.save}
                   className="ml-2"
@@ -614,8 +615,3 @@ const mapDispatchToProps = (dispatch: any) => {
 const connector = connect(null, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 export default connector(SettingsNaming);
-
-// export default connect<any, any, any, any, any, any>(
-//   null,
-//   mapDispatchToProps
-// )(SettingsNaming);

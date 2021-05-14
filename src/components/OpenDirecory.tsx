@@ -1,6 +1,6 @@
 import React from 'react';
 import * as fsPath from 'path';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 
 // import { shell } from 'electron';
 const { remote } = require('electron');
@@ -20,7 +20,7 @@ export default function OpenDirectory(prop: Props) {
       variant="link"
       onClick={() => openDir()}
       title="Open directory"
-      size="xs"
+      size={'xs' as any}
       className="p-0 mr-1"
     >
       <span className="fa fa-folder-open text-dark naming-icons" />

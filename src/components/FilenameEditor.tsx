@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from './ButtonExtended';
+import Button from 'react-bootstrap/Button';
 import { NamingTemplateType } from '../constants/app';
 import Airing from '../utils/Airing';
 import TemplateEditor from './TemplateEditor';
@@ -34,7 +34,7 @@ export default function FilenameEditor(props: Props) {
         variant="link"
         onClick={() => setShow(true)}
         title="Edit filename"
-        size="xs"
+        size={'xs' as any}
         className="ml-2"
       >
         <span className="fas fa-edit mr-1 naming-icons text-black-50" />

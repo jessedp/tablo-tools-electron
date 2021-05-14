@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
 import { ipcRenderer, shell } from 'electron';
+
+import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import axios from 'axios';
 
-// import { configs } from 'eslint-plugin-prettier';
 import compareVersions from 'compare-versions';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
-import Button from './ButtonExtended';
-
-const { remote } = require('electron');
-
-const { app } = remote;
 type Props = Record<string, unknown>;
 type State = {
   show: boolean;
@@ -61,7 +58,7 @@ class VersionStatus extends Component<Props, State> {
   };
 
   async checkUpdate() {
-    const appVersion = app.getVersion();
+    const appVersion = ipcRenderer.sendSync('get-version');
     let data: Array<Record<string, any>>;
 
     try {
@@ -125,7 +122,7 @@ class VersionStatus extends Component<Props, State> {
             onKeyDown={this.show}
             role="button"
             title={title}
-            size="xs"
+            size={'xs' as any}
           >
             <span
               className={color}
