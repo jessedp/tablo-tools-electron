@@ -14,14 +14,31 @@ import path from 'path';
 import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import Store from 'electron-store';
 import MenuBuilder from './menu';
 
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
+
+Store.initRenderer();
 
 ipcMain.on('get-path-main', (event: any, arg: any) => {
-  console.log('EVENT', event);
   console.log('ARG', arg);
-  event.reply('get-path-main', app.getPath(arg));
+  console.log('PATH', app.getPath(arg));
+  event.returnValue = app.getPath(arg);
+});
+
+ipcMain.on('get-version', (event: any) => {
+  event.returnValue = app.getVersion();
+});
+
+ipcMain.on('get-name', (event: any) => {
+  event.returnValue = app.name;
+});
+
+ipcMain.on('open-dialog', (event: any, arg: any) => {
+  const file = dialog.showOpenDialogSync(arg);
+  console.log('OPEN dialog', arg, file);
+  event.returnValue = file;
 });
 
 export default class AppUpdater {
@@ -81,11 +98,11 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
-      // nodeIntegration: true,
-      nodeIntegration: false,
-      enableRemoteModule: false,
-      contextIsolation: true,
-      sandbox: true,
+      nodeIntegration: true,
+      // nodeIntegration: false,
+      // enableRemoteModule: false,
+      // contextIsolation: true,
+      // sandbox: true,
     },
   });
 
