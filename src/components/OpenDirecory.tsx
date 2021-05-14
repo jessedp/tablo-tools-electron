@@ -1,9 +1,6 @@
 import React from 'react';
-import * as fsPath from 'path';
 import Button from 'react-bootstrap/Button';
-
-// import { shell } from 'electron';
-const { remote } = require('electron');
+import { ipcRenderer } from 'electron';
 
 type Props = {
   path: string;
@@ -12,7 +9,8 @@ export default function OpenDirectory(prop: Props) {
   const { path } = prop;
 
   const openDir = async () => {
-    await remote.shell.openPath(fsPath.dirname(path));
+    // await remote.shell.openPath(fsPath.dirname(path));
+    ipcRenderer.send('open-path', path);
   };
 
   return (

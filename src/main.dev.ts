@@ -22,8 +22,6 @@ const { ipcMain, dialog } = require('electron');
 Store.initRenderer();
 
 ipcMain.on('get-path-main', (event: any, arg: any) => {
-  console.log('ARG', arg);
-  console.log('PATH', app.getPath(arg));
   event.returnValue = app.getPath(arg);
 });
 
@@ -37,7 +35,6 @@ ipcMain.on('get-name', (event: any) => {
 
 ipcMain.on('open-dialog', (event: any, arg: any) => {
   const file = dialog.showOpenDialogSync(arg);
-  console.log('OPEN dialog', arg, file);
   event.returnValue = file;
 });
 
@@ -55,6 +52,10 @@ ipcMain.on('set-fullscreen', (event: any, value = false) => {
 ipcMain.on('get-content-bounds', (event: any) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   event.returnValue = win ? win.getContentBounds() : {};
+});
+
+ipcMain.on('open-path', (event: any, arg: string) => {
+  if (arg) shell.openPath(path.dirname(arg));
 });
 
 export default class AppUpdater {
