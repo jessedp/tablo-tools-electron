@@ -9,6 +9,7 @@ import compareVersions from 'compare-versions';
 import getConfig from './config';
 
 const store = new Store();
+console.log('got store?');
 
 export function setCurrentDevice(device: Device, publish = true) {
   global.Api.device = device;

@@ -33,9 +33,12 @@ export function getPath(key: string) {
   if (process.type === 'renderer') {
     // Electron renderer process
     // return electron.remote.app.getPath(key);
-    return ipcRenderer.sendSync('get-path-main', key);
+    const rcvPath = ipcRenderer.sendSync('get-path-main', key);
+    console.log('rend got path ', rcvPath);
+    return rcvPath;
   }
 
+  console.log('getPath in main? for ', key);
   // Electron main process
   return app.getPath(key);
 

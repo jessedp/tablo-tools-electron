@@ -2,14 +2,14 @@ import Store from 'electron-store';
 import PubSub from 'pubsub-js';
 import { formatDistanceToNow } from 'date-fns';
 import { hasDevice } from './Tablo';
+import { getPath } from './config';
 
 const path = require('path');
 
 const { AsyncNedb } = require('nedb-async');
 
-const electron = require('electron');
+const dataDir = getPath('userData');
 
-const dataDir = (electron.app || electron.remote.app).getPath('userData');
 const store = new Store();
 // TODO: check/delete old recordings/shows dbs - have to get at IndexDB
 export async function recDbStats() {
