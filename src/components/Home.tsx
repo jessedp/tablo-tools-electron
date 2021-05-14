@@ -16,6 +16,7 @@ type State = {
   showServerInfo: boolean;
   showDbTable: boolean;
 };
+
 export default class Home extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

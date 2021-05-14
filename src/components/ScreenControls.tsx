@@ -1,20 +1,22 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 
-const { remote, webFrame } = require('electron');
+const { webFrame } = require('electron');
 
 type Props = {
   mouseInRange: boolean;
 };
 type State = {
   isFullscreen: boolean;
+  zoomFactor: number;
 };
 export default class ScreenControls extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const win = remote.getCurrentWindow();
+    // const win = remote.getCurrentWindow();
     this.state = {
-      isFullscreen: win.isFullScreen(),
+      isFullscreen: ipcRenderer.sendSync('is-fullscreen'),
+      zoomFactor: webFrame.getZoomFactor(),
     };
     (this as any).exitFullscreen = this.exitFullscreen.bind(this);
     (this as any).zoomIn = this.zoomIn.bind(this);
@@ -25,32 +27,39 @@ export default class ScreenControls extends Component<Props, State> {
     ipcRenderer.on('enter-full-screen', () => {
       this.setState({
         isFullscreen: true,
+        zoomFactor: webFrame.getZoomFactor(),
       });
     });
     ipcRenderer.on('leave-full-screen', () => {
       this.setState({
         isFullscreen: false,
+        zoomFactor: webFrame.getZoomFactor(),
       });
     });
   }
 
   exitFullscreen = () => {
-    const win = remote.getCurrentWindow();
-    win.setFullScreen(false);
+    // const win = remote.getCurrentWindow();
+    // win.setFullScreen(false);
+    ipcRenderer.invoke('set-fullscreen', false);
   };
 
   zoomIn = () => {
+    // ipcRenderer.invoke('zoom-in');
     webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
+    this.setState({ zoomFactor: webFrame.getZoomFactor() });
   };
 
   zoomOut = () => {
+    // ipcRenderer.invoke('zoom-in');
     webFrame.setZoomLevel(webFrame.getZoomLevel() + 1);
+    this.setState({ zoomFactor: webFrame.getZoomFactor() });
   };
 
   render() {
     const { mouseInRange } = this.props;
-    const { isFullscreen } = this.state;
-    const zoomFactor = webFrame.getZoomFactor();
+    const { isFullscreen, zoomFactor } = this.state;
+    // const zoomFactor = webFrame.getZoomFactor();
 
     if (mouseInRange) {
       return (
@@ -81,7 +90,7 @@ export default class ScreenControls extends Component<Props, State> {
                 <span className="fa fa-minus pl-2 pr-2" />
               </div>
               <span className="fa fa-search pl-2 pr-2" />
-              {zoomFactor * 100}%
+              {Math.round(zoomFactor * 100)}%
               <div
                 className="p-2 zoom-btn"
                 onClick={this.zoomOut}

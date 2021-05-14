@@ -41,6 +41,22 @@ ipcMain.on('open-dialog', (event: any, arg: any) => {
   event.returnValue = file;
 });
 
+/** Full screen stuff */
+ipcMain.on('is-fullscreen', (event: any) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  event.returnValue = win ? win.isFullScreen() : false;
+});
+
+ipcMain.on('set-fullscreen', (event: any, value = false) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.setFullScreen(value);
+});
+
+ipcMain.on('get-content-bounds', (event: any) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  event.returnValue = win ? win.getContentBounds() : {};
+});
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

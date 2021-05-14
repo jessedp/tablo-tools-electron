@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
+import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
 import Row from 'react-bootstrap/Row';
@@ -13,9 +15,6 @@ import SelectedBox from './SelectedBox';
 import LogoBox from './Logo';
 import ScreenControls from './ScreenControls';
 import VersionStatus from './VersionStatus';
-import Button from 'react-bootstrap/Button';
-
-const { remote } = require('electron');
 
 type Props = {
   location: Record<string, any>;
@@ -71,8 +70,9 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
   };
 
   checkYInbounds = (limit = 10) => {
-    const win = remote.getCurrentWindow();
-    const bounds = win.getContentBounds();
+    // const win = remote.getCurrentWindow();
+    // const bounds = win.getContentBounds();
+    const bounds = ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
     return this.lastMousePos.y - bounds.y < limit;
   };
 
