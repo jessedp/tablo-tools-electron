@@ -37,7 +37,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   shouldCancel: boolean;
 
   static defaultProps = {
-    label: <></>,
+    label: '',
   };
 
   constructor(props: Props & RouteComponentProps) {
