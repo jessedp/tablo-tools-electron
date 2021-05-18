@@ -1,6 +1,6 @@
 {
   "name": "tablo-tools",
-  "version": "0.2.4",
+  "version": "0.3.0-beta.3",
   "productName": "tablo-tools",
   "description": "see app/",
   "scripts": {
@@ -310,7 +310,7 @@
     "slugify": "^1.4.2",
     "source-map-support": "^0.5.19",
     "styled-components": "^5.1.0",
-    "tablo-api": "^0.4.3",
+    "tablo-api": "^0.4.9",
     "template-helpers": "^1.0.1",
     "video-react": "^0.14.1"
   },
