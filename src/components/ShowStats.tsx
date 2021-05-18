@@ -4,22 +4,12 @@ import PubSub from 'pubsub-js';
 import DataTable from 'react-data-table-component';
 import moment from 'moment';
 import Button from 'react-bootstrap/Button';
+import { ShowStatRowType } from '../constants/app';
+import { EmptyShowStatRow } from '../utils/factories';
 import { asyncForEach, parseSeconds, readableBytes } from '../utils/utils';
 import Duration from './Duration';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
-// import { any, number } from 'prop-types';
-
-type ShowStatRow = {
-  object_id: number;
-  cover: number;
-  show: any;
-  count: string; // FIXME: BOO! used toLocalString() b/c there's no formatter option in chart library?
-  duration: number;
-  size: number;
-  first: Date;
-  last: Date;
-};
 
 type Props = Record<string, never>;
 
@@ -27,7 +17,7 @@ type State = {
   recTotal: number;
   show: string;
   width: number;
-  data: Array<ShowStatRow>;
+  data: Array<ShowStatRowType>;
 };
 
 export default class ShowStats extends Component<Props, State> {
@@ -52,7 +42,7 @@ export default class ShowStats extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    window.addEventListener('resize', () => this.resize());
+    // window.addEventListener('resize', () => this.resize());
     await this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
@@ -100,8 +90,8 @@ export default class ShowStats extends Component<Props, State> {
     }
 
     const recs = await RecDb.asyncFind({});
-    const data: Array<ShowStatRow> = [];
-    const shows: Record<string, ShowStatRow> = {};
+    const data: Array<ShowStatRowType> = [];
+    const shows: Record<string, ShowStatRowType> = {};
     await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);
       const { title } = airing.show;
@@ -113,7 +103,7 @@ export default class ShowStats extends Component<Props, State> {
         let key: string = title;
         if (show === title) key = airing.title;
         // TODO: FIXME: does not init'ing that
-        // if (!shows[key]) shows[key] = {};
+        if (!(key in shows)) shows[key] = EmptyShowStatRow();
         shows[key].object_id = airing.object_id;
         shows[key].cover = airing.show.cover;
         shows[key].count = shows[key].count
@@ -202,7 +192,7 @@ export default class ShowStats extends Component<Props, State> {
         minWidth: `${titleMinWidth}px`,
         width: `${titleWidth}px`,
         defaultSortField: true,
-        format: (row: ShowStatRow) => (
+        format: (row: ShowStatRowType) => (
           <div>
             <TabloImage imageId={row.cover} className="menu-image-md mr-2" />
             {row.show}
@@ -232,7 +222,7 @@ export default class ShowStats extends Component<Props, State> {
         sortable: true,
         right: true,
         width: '210px',
-        format: (row: ShowStatRow) =>
+        format: (row: ShowStatRowType) =>
           Duration({
             duration: parseSeconds(row.duration),
           }),
@@ -243,7 +233,7 @@ export default class ShowStats extends Component<Props, State> {
         sortable: true,
         right: true,
         width: '80px',
-        format: (row: ShowStatRow) => readableBytes(row.size),
+        format: (row: ShowStatRowType) => readableBytes(row.size),
       },
       {
         name: 'First',
@@ -251,7 +241,8 @@ export default class ShowStats extends Component<Props, State> {
         sortable: true,
         right: true,
         width: '130px',
-        format: (row: ShowStatRow) => moment(row.first).format('M/D/YY h:mm a'),
+        format: (row: ShowStatRowType) =>
+          moment(row.first).format('M/D/YY h:mm a'),
       },
       {
         name: 'Last',
@@ -259,7 +250,8 @@ export default class ShowStats extends Component<Props, State> {
         sortable: true,
         right: true,
         width: '130px',
-        format: (row: ShowStatRow) => moment(row.last).format('M/D/YY h:mm a'),
+        format: (row: ShowStatRowType) =>
+          moment(row.last).format('M/D/YY h:mm a'),
       },
     ];
     return (

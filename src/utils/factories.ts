@@ -5,6 +5,7 @@ import {
   EXP_WAITING,
   ExportLogRecordType,
   NamingTemplateType,
+  ShowStatRowType,
 } from '../constants/app';
 import getConfig from './config';
 import { TemplateVarsType } from './namingTpl';
@@ -85,4 +86,18 @@ export function EmptyTemplateVars() {
     shortcuts: {},
   };
   return tv;
+}
+
+export function EmptyShowStatRow() {
+  const ssr: ShowStatRowType = {
+    count: '0',
+    cover: 0,
+    duration: 0,
+    first: new Date(0),
+    last: new Date(0),
+    object_id: 0,
+    show: null,
+    size: 0,
+  };
+  return ssr;
 }

@@ -72,3 +72,14 @@ export const versionUpdateTestMessage2 = {
       '<p>Fix one for loading Airings where the data is physically missing.</p>',
   },
 };
+
+export type ShowStatRowType = {
+  object_id: number;
+  cover: number;
+  show: any;
+  count: string; // FIXME: BOO! used toLocalString() b/c there's no formatter option in chart library?
+  duration: number;
+  size: number;
+  first: Date;
+  last: Date;
+};
