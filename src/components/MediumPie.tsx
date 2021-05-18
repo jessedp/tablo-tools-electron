@@ -100,7 +100,7 @@ export default function MediumPie(props: Props) {
       <ResponsivePie
         margin={margin}
         data={data}
-        colors={scheme}
+        colors={{ scheme }}
         innerRadius={0.6}
         theme={theme}
         legends={legends}

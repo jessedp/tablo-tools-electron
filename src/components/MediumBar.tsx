@@ -133,7 +133,7 @@ export default function MediumBar(props: Props) {
         onClick={onClick}
         margin={margin}
         padding={0.3}
-        colors={scheme}
+        colors={{ scheme }}
         borderColor={{
           from: 'color',
           modifiers: [['darker', 1.6]],
