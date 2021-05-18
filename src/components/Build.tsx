@@ -142,8 +142,8 @@ export default class Build extends Component<Props, State> {
       const { status } = this.state;
       status.push(`retrieved ${recs.length} recordings`);
       const { RecDb } = global;
-      let cnt = 0;
-      cnt = await RecDb.asyncRemove(
+
+      const recRemoveCnt = await RecDb.asyncRemove(
         {},
         {
           multi: true,
@@ -161,10 +161,11 @@ export default class Build extends Component<Props, State> {
           multi: true,
         }
       );
-      console.log(`${cnt} old records removed`);
-      cnt = await RecDb.asyncInsert(recs);
-      console.log(`${cnt} records added`);
-      status.push(`${cnt} recordings found.`);
+
+      console.log(`${recRemoveCnt} old records removed`);
+      let insertRes = await RecDb.asyncInsert(recs);
+      console.log(`${insertRes.length} records added`);
+      status.push(`${insertRes.length} recordings found.`);
       const showPaths: string[] = [];
       recs.forEach((rec: Record<string, any>) => {
         const airing = new Airing(rec);
@@ -189,8 +190,8 @@ export default class Build extends Component<Props, State> {
         });
       }
 
-      cnt = await global.ShowDb.asyncInsert(shows);
-      console.log(`${cnt} SHOW records added`);
+      insertRes = await global.ShowDb.asyncInsert(shows);
+      console.log(`${insertRes.length} SHOW records added`);
 
       /** Init all the channels b/c we have no choice. This also isn't much */
       const channelPaths = await Api.get('/guide/channels');
@@ -203,8 +204,8 @@ export default class Build extends Component<Props, State> {
         });
       }
 
-      cnt = await global.ChannelDb.asyncInsert(channels);
-      console.log(`${cnt} CHANNEL records added`);
+      insertRes = await global.ChannelDb.asyncInsert(channels);
+      console.log(`${insertRes.length} CHANNEL records added`);
 
       /** Finish up... */
       this.building = false;
