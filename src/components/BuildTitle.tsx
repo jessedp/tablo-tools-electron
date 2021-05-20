@@ -1,7 +1,7 @@
 import React from 'react';
+import Button from 'react-bootstrap/Button';
 import RelativeDate from './RelativeDate';
 import { recDbCreated } from '../utils/db';
-import Button from 'react-bootstrap/Button';
 
 type Props = {
   build: any;

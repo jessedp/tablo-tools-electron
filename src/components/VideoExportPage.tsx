@@ -9,6 +9,7 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../actions/exportList';
@@ -22,7 +23,6 @@ import {
   DUPE_ADDID,
 } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
-import Button from 'react-bootstrap/Button';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
 

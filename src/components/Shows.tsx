@@ -3,11 +3,11 @@ import PubSub from 'pubsub-js';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
 import routes from '../constants/routes.json';
 import Show from '../utils/Show';
 import ShowCover from './ShowCover';
 
-import Button from 'react-bootstrap/Button';
 import { showList } from '../utils/dbHelpers';
 
 type Props = Record<string, never>;

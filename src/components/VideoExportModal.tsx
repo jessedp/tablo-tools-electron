@@ -23,6 +23,7 @@ import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
+
 interface Props extends PropsFromRedux {
   //   history: any;
   // }

@@ -8,8 +8,8 @@ import Col from 'react-bootstrap/Col';
 import { InputGroup, Form } from 'react-bootstrap';
 import slugify from 'slugify';
 // import type { FlashRecordType } from '../reducers/types';
-import * as FlashActions from '../actions/flash';
 import Button from 'react-bootstrap/Button';
+import * as FlashActions from '../actions/flash';
 
 interface Props extends PropsFromRedux {
   searchId: string;
