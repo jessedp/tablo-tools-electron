@@ -9,6 +9,7 @@ import {
 } from '../constants/app';
 import getConfig from './config';
 import { TemplateVarsType } from './namingTpl';
+import { SearchAlert } from './types';
 
 export function ExportRecord(airing: Airing) {
   const record: ExportRecordType = {
@@ -100,4 +101,13 @@ export function EmptyShowStatRow() {
     size: 0,
   };
   return ssr;
+}
+
+export function EmptySearchAlert() {
+  const alert: SearchAlert = {
+    text: '',
+    type: '',
+    matches: [],
+  };
+  return alert;
 }
