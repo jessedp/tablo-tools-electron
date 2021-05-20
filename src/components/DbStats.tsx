@@ -26,8 +26,8 @@ export default class DbStats extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
+    this.refresh();
   }
 
   componentWillUnmount() {
