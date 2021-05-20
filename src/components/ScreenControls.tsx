@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
+import { throttle } from '../utils/utils';
 
 const { webFrame } = require('electron');
 
@@ -25,12 +26,16 @@ export default class ScreenControls extends Component<Props, State> {
 
   async componentDidMount() {
     ipcRenderer.on('enter-full-screen', () => {
-      this.setState({
-        isFullscreen: true,
-        zoomFactor: webFrame.getZoomFactor(),
-      });
+      throttle(() => {
+        // console.log('enter-full-screen rcvd');
+        this.setState({
+          isFullscreen: true,
+          zoomFactor: webFrame.getZoomFactor(),
+        });
+      }, 250);
     });
     ipcRenderer.on('leave-full-screen', () => {
+      // console.log('leave-full-screen rcvd');
       this.setState({
         isFullscreen: false,
         zoomFactor: webFrame.getZoomFactor(),
