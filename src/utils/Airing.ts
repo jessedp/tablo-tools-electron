@@ -87,7 +87,7 @@ export default class Airing {
 
   cmd: any;
 
-  data!: Record<string, any>;
+  data: Record<string, any>;
 
   customTemplate?: NamingTemplateType;
 
@@ -111,9 +111,11 @@ export default class Airing {
     }
     delete this.user_info;
 
-    // this.cachedWatch = null;
-    // this.customTemplate = null;
-    if (retainData) this.data = data;
+    this.data = {};
+    if (retainData) {
+      // Make a copy or else a non-extensible object is thrown in create() when trying to add show
+      this.data = { ...data, ...{} };
+    }
   }
 
   static async find(id: number): Promise<Airing> {
@@ -135,7 +137,8 @@ export default class Airing {
         path,
       });
       airing.show = new Show(showData);
-      if (retainData) airing.data.show = showData;
+      if (retainData)
+        Object.defineProperty(airing.data, 'show', { value: showData });
       return airing;
     }
 
