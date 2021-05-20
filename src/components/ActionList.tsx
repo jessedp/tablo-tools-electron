@@ -11,7 +11,7 @@ import {
   throttleActions,
 } from '../utils/utils';
 import type { SearchAlert } from '../utils/types';
-import * as SearchActions from '../actions/search';
+import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
 import { EMPTY_SEARCHALERT } from '../constants/app';
@@ -52,11 +52,11 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
   }
 
   refresh = async () => {
-    const { sendResults, actionList } = this.props;
+    const { setResults, actionList } = this.props;
     let { searchAlert } = this.state;
     const len = actionList.length;
     if (len === 0) return;
-    await sendResults({
+    await setResults({
       loading: true,
       airingList: [],
       searchAlert: EMPTY_SEARCHALERT,
@@ -96,12 +96,13 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
     this.setState({
       searchAlert,
     });
-    sendResults({
+    const results = actionList.map((airing: Airing) => airing.data);
+    setResults({
       loading: false,
-      airingList: actionList,
+      results,
       searchAlert,
-      view: 'slim',
-      actionList,
+      // view: 'slim',
+      // actionList,
     });
   };
 

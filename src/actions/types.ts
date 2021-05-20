@@ -18,4 +18,5 @@ export const REM_EP_BY_SHOW = 'REM_EP_BY_SHOW';
 export const SEND_FLASH = 'SEND_FLASH';
 
 export const SEARCH = 'SEARCH';
+export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEND_RESULTS = 'SEND_RESULTS';

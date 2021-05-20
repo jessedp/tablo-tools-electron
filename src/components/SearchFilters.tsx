@@ -4,7 +4,7 @@ import Select, { components } from 'react-select';
 import TabloImage from './TabloImage';
 import SelectStyles from './SelectStyles';
 import MatchesToBadges from './SearchFilterMatches';
-
+import { VIEW_GRID, VIEW_LIST } from '../reducers/constants';
 import Show from '../utils/Show';
 
 type FullFilterProps = {
@@ -553,12 +553,11 @@ SortFilter.defaultProps = {
   seasons: [],
   searches: [],
 };
-
 export function ViewFilter(props: FilterProps) {
   const { value, onChange } = props;
   const options = [
     {
-      value: 'grid',
+      value: VIEW_GRID,
       label: (
         <div title="grid">
           <span className="fa fa-th pl-2 muted" />
@@ -566,7 +565,7 @@ export function ViewFilter(props: FilterProps) {
       ),
     },
     {
-      value: 'list',
+      value: VIEW_LIST,
       label: (
         <div title="list">
           <span className="fa fa-list pl-2 muted" />

@@ -2,17 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+
+import { asyncForEach } from '../utils/utils';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import type { SearchAlert } from '../utils/types';
+import type { SearchSliceState } from '../store/search';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';
 import { ON } from '../constants/app';
+import { VIEW_GRID } from '../reducers/constants';
 
 type OwnProps = Record<string, never>;
-type StateProps = {
-  results: Record<string, any>;
-};
+type StateProps = SearchSliceState;
 
 type DispatchProps = Record<string, never>;
 
@@ -20,8 +22,8 @@ type SearchResultsProps = OwnProps & StateProps & DispatchProps;
 
 type State = {
   searchAlert: SearchAlert;
-  airingList: Array<Airing>;
-  view: string;
+  airingList: Airing[];
+  view?: string;
   loading: boolean;
 };
 
@@ -33,7 +35,7 @@ class SearchResults extends Component<SearchResultsProps, State> {
     this.initialState = {
       loading: false,
       airingList: [],
-      view: '',
+      view: VIEW_GRID,
       searchAlert: {
         type: '',
         text: '',
@@ -44,20 +46,41 @@ class SearchResults extends Component<SearchResultsProps, State> {
   }
 
   componentDidUpdate(prevProps: SearchResultsProps) {
-    const { results } = this.props;
-
+    const { results, searchAlert, loading, view } = this.props;
     if (prevProps.results !== results) {
+      this.reload();
+    } else if (
+      prevProps.searchAlert !== searchAlert ||
+      prevProps.loading !== loading ||
+      prevProps.view !== view
+    ) {
       this.refresh();
     }
   }
 
-  refresh = () => {
-    const { results } = this.props;
+  reload = async () => {
+    const { results, searchAlert, loading, view } = this.props;
+    const airingList: Airing[] = [];
+
+    await asyncForEach(results, async (rec) => {
+      const airing = await Airing.create(rec);
+      airingList.push(airing);
+    });
+
     this.setState({
-      searchAlert: results.searchAlert,
-      loading: results.loading,
-      airingList: results.airingList,
-      view: results.view,
+      airingList,
+      searchAlert,
+      loading,
+      view,
+    });
+  };
+
+  refresh = () => {
+    const { searchAlert, loading, view } = this.props;
+    this.setState({
+      searchAlert,
+      loading,
+      view,
     });
   };
 
@@ -87,9 +110,9 @@ class SearchResults extends Component<SearchResultsProps, State> {
       });
     }
 
+    if (loading) return <Loading loading={loading} />;
     return (
       <div className="scrollable-area">
-        <Loading loading={loading} />
         <SearchResultAlerts
           alert={searchAlert}
           loading={loading}
@@ -119,8 +142,12 @@ function Loading(prop: any) {
 }
 
 const mapStateToProps = (state: any) => {
+  // console.log('SearchResult', state);
   return {
-    results: state.results,
+    loading: state.search.loading,
+    view: state.search.view,
+    results: state.search.results,
+    searchAlert: state.search.searchAlert,
   };
 };
 

@@ -13,6 +13,7 @@ import Button from 'react-bootstrap/Button';
 
 import ReactPaginate from 'react-paginate';
 
+import { ViewType, VIEW_GRID } from '../reducers/constants';
 import {
   asyncForEach,
   escapeRegExp,
@@ -29,7 +30,8 @@ import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 
 import SavedSearchEdit from './SavedSearchEdit';
-import * as SearchActions from '../actions/search';
+// import * as SearchActions from '../actions/search';
+import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import {
@@ -58,7 +60,10 @@ type OwnProps = Record<string, any>;
 type StateProps = Record<string, any>;
 
 type DispatchProps = {
-  sendResults: (arg0: Record<string, any>) => void;
+  setLoading: (arg: boolean) => void;
+  setView: (arg: ViewType) => void;
+  setAlert: (arg: SearchAlert) => void;
+  setResults: (arg: SearchActions.SearchSliceState) => void;
 };
 
 type SearchFormProps = OwnProps & StateProps & DispatchProps;
@@ -67,7 +72,7 @@ export type SearchState = {
   emptySearch: boolean;
   skip: number;
   limit: number;
-  view: string;
+  view: ViewType;
   searchValue: string;
   typeFilter: string;
   stateFilter: string;
@@ -82,7 +87,7 @@ export type SearchState = {
   percentLocation: number;
   recordCount: number;
   searchAlert: SearchAlert;
-  airingList: Array<Airing>;
+  airingList: Array<Record<string, any>>;
   actionList: Array<Airing>;
   seasonList: Array<Season>;
 };
@@ -109,7 +114,7 @@ class SearchForm extends Component<
       emptySearch: true,
       skip: 0,
       limit: 50,
-      view: 'grid',
+      view: VIEW_GRID,
       searchValue: '',
       typeFilter: 'any',
       stateFilter: 'any',
@@ -216,23 +221,27 @@ class SearchForm extends Component<
   };
 
   changeView = async (event: Option) => {
+    const { setView } = this.props;
     await this.setState({
-      view: event.value,
+      view: event.value as ViewType,
     });
+    setView(event.value as ViewType);
     this.search();
   };
 
   showSelected = async () => {
-    const { sendResults } = this.props;
+    const { setResults } = this.props;
     const { view, actionList } = this.state;
     let { searchAlert } = this.state;
     console.log('showSelected');
     const len = actionList.length;
     if (len === 0) return;
-    await sendResults({
+
+    setResults({
       loading: true,
-      airingList: [],
+      results: [],
       searchAlert: this.initialState.searchAlert,
+      view,
     });
 
     const timeSort = (a: Airing, b: Airing) => {
@@ -269,13 +278,13 @@ class SearchForm extends Component<
     this.setState({
       searchAlert,
     });
-    sendResults({
-      loading: false,
-      view,
-      airingList: actionList,
-      searchAlert,
-      actionList,
+
+    setResults({
+      loading: true,
+      results: [],
+      searchAlert: this.initialState.searchAlert,
     });
+
     const cleanState = { ...this.state };
     localStorage.setItem('SearchState', JSON.stringify(cleanState));
   };
@@ -494,7 +503,7 @@ class SearchForm extends Component<
   };
 
   search = async () => {
-    const { sendResults } = this.props;
+    const { setLoading, setAlert, setResults } = this.props;
     const {
       skip,
       limit,
@@ -716,7 +725,7 @@ class SearchForm extends Component<
       });
     }
 
-    const airingList: Airing[] = [];
+    const airingList: Record<string, any>[] = [];
     let description;
     let updateState;
     let alert: SearchAlert;
@@ -734,14 +743,12 @@ class SearchForm extends Component<
         recordCount: 0,
       };
     } else {
-      sendResults({
-        loading: true,
-        searchAlert: this.initialState.searchAlert,
-      });
+      setLoading(true);
+      setAlert(this.initialState.searchAlert);
+
       await asyncForEach(recs, async (doc) => {
         try {
-          const airing = await Airing.create(doc);
-          airingList.push(airing);
+          airingList.push(doc);
         } catch (e) {
           console.log('Unable to load Airing data: ', e);
           console.log(doc);
@@ -793,12 +800,12 @@ class SearchForm extends Component<
       };
     }
 
-    sendResults({
-      view,
+    setResults({
       loading: false,
+      results: airingList,
       searchAlert: alert,
-      airingList,
     });
+
     updateState.airingList = airingList;
     await this.setState({
       ...updateState,

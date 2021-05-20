@@ -5,16 +5,16 @@ import { History } from 'history';
 // import counterReducer from './features/counter/counterSlice';
 import manageActionList from './reducers/actionList';
 import manageExportList from './reducers/exportList';
-import { changeView, sendResults } from './reducers/search';
+
 import { sendFlash } from './reducers/flash';
+import searchReducer from './store/search';
 
 export default function createRootReducer(history: History) {
   return combineReducers({
     router: connectRouter(history),
     actionList: manageActionList,
     exportList: manageExportList,
-    view: changeView,
-    results: sendResults,
+    search: searchReducer,
     flash: sendFlash,
   });
 }

@@ -8,12 +8,7 @@ import {
   DUPE_SKIP,
 } from '../constants/app';
 
-// const electron = require('electron');
 const { app, ipcRenderer } = require('electron');
-
-// const { app } = require('electron');
-
-//
 
 export function getPath(key: string) {
   if (!process.versions.electron) {
@@ -24,25 +19,12 @@ export function getPath(key: string) {
     return tmpPath;
   }
 
-  // console.log('PT', process.type);
-  // console.log('PVE', process.versions);
-  // console.log('E', electron);
-  // console.log('EA', electron.app);
-
-  // FIXME: disabled during electron 11 upgrade
   if (process.type === 'renderer') {
-    // Electron renderer process
-    // return electron.remote.app.getPath(key);
     const rcvPath = ipcRenderer.sendSync('get-path-main', key);
-    console.log('rend got path ', rcvPath);
     return rcvPath;
   }
-
-  console.log('getPath in main? for ', key);
   // Electron main process
   return app.getPath(key);
-
-  // return electron.app.getPath(key);
 }
 let cachedConfig: Record<string, any> = {};
 
