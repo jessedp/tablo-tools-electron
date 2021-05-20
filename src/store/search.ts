@@ -45,19 +45,3 @@ const slice = createSlice({
 export const { setLoading, setView, setAlert, setResults } = slice.actions;
 
 export default slice.reducer;
-
-/**
-      searchAlert: results.searchAlert,
-      loading: results.loading,
-      airingList: results.airingList,
-      view: results.view,
-
-=========
-      loading: false,
-      view,
-      airingList: actionList,
-      searchAlert,
-      actionList,
-
-
-*/
