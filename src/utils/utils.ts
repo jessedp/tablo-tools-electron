@@ -434,6 +434,7 @@ export const throttle = <F extends (...args: any[]) => any>(
   let startTime: number = now() - waitFor;
   // console.log('throttle', now, startTime);
   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    // eslint-disable-next-line compat/compat
     new Promise((resolve) => {
       const timeLeft = startTime + waitFor - now();
       if (timeout) {
