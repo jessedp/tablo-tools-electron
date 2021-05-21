@@ -1,64 +1,55 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as ActionListActions from '../store/actionList';
+import React from 'react';
+
+import { useDispatch, useSelector } from 'react-redux';
+
+import { RootState } from 'store';
+import { addShow, remShow } from '../store/actionList';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
-import { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';
+import { SERIES, MOVIE, EVENT, PROGRAM, StdObj } from '../constants/app';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import Airing from '../utils/Airing';
 
 type OwnProps = {
   show: Show;
 };
 
-type StateProps = {
-  checked: number;
-};
+function ShowCover(props: OwnProps) {
+  const { show } = props;
 
-type DispatchProps = {
-  addShow: (arg0: Show) => void;
-  remShow: (arg0: Show) => void;
-};
+  const dispatch = useDispatch();
 
-type ShowCoverProps = OwnProps & StateProps & DispatchProps;
-class ShowCover extends Component<ShowCoverProps> {
-  constructor(props: ShowCoverProps) {
-    super(props);
-    this.toggle = this.toggle.bind(this);
-  }
+  const checked = useSelector((state: RootState) => {
+    // const { show } = props;
+    const recCount = state.actionList.records.reduce(
+      (a: number, b: StdObj) =>
+        a + (b.show.object_id === show.object_id ? 1 : 0),
+      0
+    );
+    return recCount === show.showCounts.airing_count
+      ? CHECKBOX_ON
+      : CHECKBOX_OFF;
+  });
 
-  componentDidUpdate(prevProps: ShowCoverProps) {
-    const { checked } = this.props;
-
-    if (prevProps.checked !== checked) {
-      this.render();
-    }
-  }
-
-  toggle = () => {
-    const { show, addShow, remShow, checked } = this.props;
+  const toggle = () => {
+    // const { show, addShow, remShow, checked } = this.props;
 
     if (checked === CHECKBOX_ON) {
-      addShow(show);
+      dispatch(addShow(show));
     } else {
-      remShow(show);
+      dispatch(remShow(show));
     }
   };
 
-  render() {
-    const { show, checked } = this.props;
-    return (
-      <div className="cover-image">
-        <TabloImage imageId={show.thumbnail} className="" title={show.title} />
-        <BottomLine show={show} />
-        <Badge show={show} />
-        <div className="cover-checkbox">
-          <Checkbox checked={checked} handleChange={this.toggle} />
-        </div>
+  return (
+    <div className="cover-image">
+      <TabloImage imageId={show.thumbnail} className="" title={show.title} />
+      <BottomLine show={show} />
+      <Badge show={show} />
+      <div className="cover-checkbox">
+        <Checkbox checked={checked} handleChange={toggle} />
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 function BottomLine(prop: { show: Show }) {
@@ -137,24 +128,4 @@ function Badge(prop: { show: Show }) {
   );
 }
 
-const mapStateToProps = (state: any, ownProps: any) => {
-  const { actionList } = state;
-  const { show } = ownProps;
-  const recCount = actionList.reduce(
-    (a: number, b: Airing) => a + (b.show.object_id === show.object_id ? 1 : 0),
-    0
-  );
-  return {
-    checked:
-      recCount === show.showCounts.airing_count ? CHECKBOX_ON : CHECKBOX_OFF,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
-};
-
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ShowCover);
+export default ShowCover;
