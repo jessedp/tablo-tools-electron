@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Badge, Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -10,7 +10,7 @@ import Show from '../utils/Show';
 import * as ActionListActions from '../store/actionList';
 import { ON, OFF } from '../constants/app';
 
-type Props = {
+interface Props extends PropsFromRedux {
   // eslint-disable-next-line react/no-unused-prop-types
   show: Show;
   seasonNumber: number;
@@ -18,9 +18,7 @@ type Props = {
   airings: Array<Airing>;
   ref: any;
   refKey: any;
-  bulkAddAirings: (arg0: Array<Airing>) => void;
-  bulkRemAirings: (arg0: Array<Airing>) => void;
-};
+}
 type State = Record<string, unknown>;
 
 class SeasonEpisodeList extends Component<Props, State> {
@@ -55,7 +53,7 @@ class SeasonEpisodeList extends Component<Props, State> {
               size={'xs' as any}
               className="ml-4 mr-2"
               variant="outline-secondary"
-              onClick={() => bulkAddAirings(airings)}
+              onClick={() => bulkAddAirings(airings.map((a) => a.data))}
             >
               <span className="fa fa-plus" /> All
             </Button>
@@ -63,7 +61,7 @@ class SeasonEpisodeList extends Component<Props, State> {
               size={'xs' as any}
               className="mr-2"
               variant="outline-secondary"
-              onClick={() => bulkRemAirings(airings)}
+              onClick={() => bulkRemAirings(airings.map((a) => a.data))}
             >
               <span className="fa fa-minus" /> All
             </Button>
@@ -91,11 +89,10 @@ class SeasonEpisodeList extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: any, ownProps: any) => {
-  const { actionList } = state;
   const { show, seasonNumber } = ownProps;
   //
-  const selectedCount = actionList.reduce(
-    (a: number, b: Airing) =>
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) =>
       a +
       (b.show.object_id === show.object_id &&
       parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)
@@ -112,4 +109,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SeasonEpisodeList);
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(SeasonEpisodeList);

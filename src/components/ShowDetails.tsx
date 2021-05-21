@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -15,6 +15,7 @@ import * as ActionListActions from '../store/actionList';
 
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
+import { StdObj } from '../constants/app';
 import {
   asyncForEach,
   getTabloImageUrl,
@@ -25,13 +26,11 @@ import Show from '../utils/Show';
 import SeasonEpisodeList from './SeasonEpisodeList';
 import AwardsModal from './AwardsModal';
 
-type Props = {
-  // show: Show,
-  selectedCount: number;
-  bulkAddAirings: (arg0: Array<Airing>) => void;
-  bulkRemAirings: (arg0: Array<Airing>) => void;
-  match: any;
-};
+// interface Props extends PropsFromRedux {
+//   // show: Show,
+//   selectedCount: number;
+//   match: any;
+// };
 
 type State = {
   show: Show | null;
@@ -42,10 +41,13 @@ type State = {
   seasonRefs: Record<string, any>;
 };
 
-class ShowDetails extends Component<RouteComponentProps & Props, State> {
+class ShowDetails extends Component<
+  RouteComponentProps & PropsFromRedux,
+  State
+> {
   initialState: State;
 
-  constructor(props: RouteComponentProps & Props) {
+  constructor(props: RouteComponentProps & PropsFromRedux) {
     super(props);
     this.initialState = {
       airings: [],
@@ -246,7 +248,7 @@ class ShowDetails extends Component<RouteComponentProps & Props, State> {
                   size={'xs' as any}
                   className="ml-3 mr-2"
                   variant="outline-dark"
-                  onClick={() => bulkAddAirings(airings)}
+                  onClick={() => bulkAddAirings(airings.map((a) => a.data))}
                 >
                   <span className="fa fa-plus" /> All Episodes
                 </Button>
@@ -254,7 +256,7 @@ class ShowDetails extends Component<RouteComponentProps & Props, State> {
                   size={'xs' as any}
                   className="mr-2"
                   variant="outline-dark"
-                  onClick={() => bulkRemAirings(airings)}
+                  onClick={() => bulkRemAirings(airings.map((a) => a.data))}
                 >
                   <span className="fa fa-minus" /> All Episodes
                 </Button>
@@ -354,12 +356,10 @@ function SeasonList(prop: any) {
 }
 
 const mapStateToProps = (state: any, ownProps: any) => {
-  const { actionList } = state;
-  //  const { show } = ownProps;
   // eslint-disable-next-line
   const id = parseInt(ownProps.match.params.id, 10);
-  const selectedCount = actionList.reduce(
-    (a: number, b: Airing) => a + (b.object_id === id ? 1 : 0),
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) => a + (b.object_id === id ? 1 : 0),
     0
   );
   return {
@@ -371,7 +371,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<any, any>(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(ShowDetails));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(withRouter(ShowDetails));
