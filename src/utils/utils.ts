@@ -14,6 +14,7 @@ export async function asyncForEach(
   array: Array<any>,
   callback: (item: any) => Promise<void>
 ) {
+  if (!array) return [];
   const promises = array.map(callback);
   // eslint-disable-next-line compat/compat
   const vals = Promise.all(promises);
