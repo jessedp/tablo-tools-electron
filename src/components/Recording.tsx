@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import Title from './Title';
 import TabloImage from './TabloImage';
 import ConfirmDelete from './ConfirmDelete';
@@ -15,6 +15,7 @@ import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
 import AiringDetailsModal from './AiringDetailsModal';
 import { getTabloImageUrl } from '../utils/utils';
+import { StdObj } from '../constants/app';
 
 type OwnProps = {
   airing: Airing;
@@ -24,8 +25,8 @@ type StateProps = {
   checked: number;
 };
 type DispatchProps = {
-  addAiring: (arg0: Airing) => void;
-  remAiring: (arg0: Airing) => void;
+  addAiring: (arg0: StdObj) => void;
+  remAiring: (arg0: StdObj) => void;
 };
 
 type Props = OwnProps & StateProps & DispatchProps;
@@ -69,10 +70,10 @@ class Recording extends Component<Props, State> {
     // we get this value before it's set, so the test is backwards
     if (!checked) {
       // await this.setState({ checked: CHECKBOX_ON });
-      addAiring(airing);
+      addAiring(airing.data);
     } else {
       // await this.setState({ checked: CHECKBOX_OFF });
-      remAiring(airing);
+      remAiring(airing.data);
     }
   };
 
@@ -174,12 +175,10 @@ class Recording extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => {
-  const { actionList } = state;
+  const { records } = state.actionList;
   const { airing } = ownProps;
   return {
-    checked: actionList.find(
-      (item: Airing) => item.object_id === airing.object_id
-    )
+    checked: records.find((item: StdObj) => item.object_id === airing.object_id)
       ? CHECKBOX_ON
       : CHECKBOX_OFF,
   };

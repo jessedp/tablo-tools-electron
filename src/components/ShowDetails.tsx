@@ -11,7 +11,7 @@ import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';

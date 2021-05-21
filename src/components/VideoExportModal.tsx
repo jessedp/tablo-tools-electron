@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../reducers/types';
 import * as ExportListActions from '../actions/exportList';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import { EXP_WORKING } from '../constants/app';
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
 import { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';

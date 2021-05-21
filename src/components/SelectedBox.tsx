@@ -5,18 +5,20 @@ import { bindActionCreators } from 'redux';
 import { DropdownButton, ButtonGroup } from 'react-bootstrap';
 import DropdownItem from 'react-bootstrap/DropdownItem';
 import routes from '../constants/routes.json';
-import * as ActionListActions from '../actions/actionList';
-import * as SearchActions from '../actions/search';
-import Airing from '../utils/Airing';
+import * as ActionListActions from '../store/actionList';
+import * as SearchActions from '../store/search';
+
 import { asyncForEach } from '../utils/utils';
 import ConfirmDelete from './ConfirmDelete';
+import { StdObj } from '../constants/app';
 
 type State = Record<string, unknown>;
+
 // interface Props extends PropsFromRedux {
-//   // actionList: Array<Airing>;
-//   // bulkAddAirings: (airings: Array<Airing>) => void;
-//   // bulkRemAirings: () => void;
-//   // history: any;
+//   records: Array<StdObj>;
+//   bulkAddAirings: (airings: Array<StdObj>) => void;
+//   bulkRemAirings: (airings: Array<StdObj>) => void;
+//   history: any;
 // }
 
 class SelectedBox extends Component<
@@ -35,11 +37,11 @@ class SelectedBox extends Component<
   addAll = async () => {
     const { bulkAddAirings } = this.props;
     const recs = await global.RecDb.asyncFind({});
-    const actionList: Array<Airing> = [];
+    const actionList: Array<StdObj> = [];
     await asyncForEach(recs, async (doc) => {
       try {
-        const rec = await Airing.create(doc);
-        actionList.push(rec);
+        // const rec = await Airing.create(doc);
+        actionList.push(doc);
       } catch (e) {
         console.log('Unable to load Airing data: ', e);
         console.log(doc);
@@ -50,11 +52,11 @@ class SelectedBox extends Component<
   };
 
   render() {
-    const { actionList, bulkRemAirings } = this.props;
+    const { records, bulkRemAirings } = this.props;
     const title = (
       <>
         <span className="fa fa-shopping-cart pr-1" />
-        {actionList.length}
+        {records.length}
       </>
     ); //
     const { history } = this.props;
@@ -72,7 +74,7 @@ class SelectedBox extends Component<
           title={title}
           variant="outline-secondary"
         >
-          {actionList.length > 0 ? (
+          {records.length > 0 ? (
             <>
               <DropdownItem onClick={() => history.push(routes.SELECTED)}>
                 <span>
@@ -121,7 +123,7 @@ const mapDispatchToProps = (dispatch: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    actionList: state.actionList,
+    records: state.actionList.records,
   };
 };
 

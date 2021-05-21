@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
 import { getTabloImageUrl, readableDuration } from '../utils/utils';

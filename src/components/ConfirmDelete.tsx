@@ -11,26 +11,24 @@ import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 
 import routes from '../constants/routes.json';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import Airing from '../utils/Airing';
-import { throttleActions } from '../utils/utils';
+import { asyncForEach, throttleActions } from '../utils/utils';
 import RecordingMini from './RecordingMini';
 
-import { ON } from '../constants/app';
+import { ON, StdObj } from '../constants/app';
 
 interface Props extends PropsFromRedux {
-  // actionList: Array<Airing>;
   airing?: Airing | null;
   label?: JSX.Element | string;
   button?: any | null;
   history: any;
-  // remAiring: (arg0: Airing) => void;
-  // bulkRemAirings: (arg0: Array<Airing>) => void;
 }
 type State = {
   show: boolean;
   working: boolean;
   deletedCount: number;
+  airingList: Airing[];
 };
 
 class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
@@ -46,12 +44,25 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
       show: false,
       working: false,
       deletedCount: 0,
+      airingList: [],
     };
     this.shouldCancel = false;
     (this as any).handleShow = this.handleShow.bind(this);
     (this as any).handleClose = this.handleClose.bind(this);
     (this as any).handleDelete = this.handleDelete.bind(this);
     (this as any).updateCount = this.updateCount.bind(this);
+  }
+
+  async componentDidMount() {
+    this.refresh();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { records } = this.props;
+
+    if (prevProps.records !== records) {
+      this.refresh();
+    }
   }
 
   handleClose() {
@@ -68,25 +79,20 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   };
 
   handleDelete = async () => {
-    const {
-      history,
-      bulkRemAirings,
-      remAiring,
-      actionList,
-      airing,
-    } = this.props;
+    const { history, bulkRemAirings, remAiring, records, airing } = this.props;
     await this.setState({
       working: true,
       deletedCount: 0,
     });
 
     if (airing) {
-      remAiring(airing);
+      remAiring(airing.data);
       await airing.delete();
       this.updateCount(1);
     } else {
       const list: (() => void)[] = []; // Function[]
-      actionList.forEach((item: Airing) => {
+      await asyncForEach(records, async (rec: StdObj) => {
+        const item = await Airing.create(rec);
         list.push(() => {
           if (this.shouldCancel === false) {
             return item.delete();
@@ -96,7 +102,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
       });
       await throttleActions(list, 4, this.updateCount)
         .then(async () => {
-          bulkRemAirings(actionList);
+          bulkRemAirings(records);
           // let ConfirmDelete display success for 1 sec
           setTimeout(() => {
             history.push(routes.SEARCH);
@@ -119,10 +125,20 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     });
   };
 
+  async refresh() {
+    const { records } = this.props;
+    const airingList: Airing[] = [];
+    await asyncForEach(records, async (rec) => {
+      const airing = await Airing.create(rec);
+      airingList.push(airing);
+    });
+    this.setState({ airingList });
+  }
+
   render() {
-    const { show, working, deletedCount } = this.state;
+    const { airingList, show, working, deletedCount } = this.state;
     let { label } = this.props;
-    const { actionList, airing, button } = this.props;
+    const { airing, button } = this.props;
     let size = 'xs';
 
     if (label) {
@@ -131,15 +147,15 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     }
 
     let containsProtected = false;
-    let airingList;
+    let airings;
 
     if (airing) {
-      airingList = [airing];
+      airings = [airing];
     } else {
-      airingList = actionList;
+      airings = airingList;
     }
 
-    airingList.forEach((item: Airing) => {
+    airings.forEach((item: Airing) => {
       if (item.userInfo.protected) containsProtected = true;
     });
     let protectedAlert = <></>;
@@ -194,7 +210,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
             <Modal.Title>
               Delete
               <Badge variant="danger" className="pl-2 ml-1 pr-2 mr-1">
-                {airingList.length}
+                {airings.length}
               </Badge>
               Recordings?
             </Modal.Title>
@@ -202,16 +218,13 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
           <Modal.Body>
             {
               working ? (
-                <Progress
-                  total={airingList.length}
-                  deletedCount={deletedCount}
-                />
+                <Progress total={airings.length} deletedCount={deletedCount} />
               ) : (
                 <>
                   {protectedAlert}
 
                   <br />
-                  {airingList.map((item: Airing) => (
+                  {airings.map((item: Airing) => (
                     <RecordingMini
                       withShow={ON}
                       airing={item}
@@ -268,7 +281,7 @@ const mapDispatchToProps = (dispatch: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    actionList: state.actionList,
+    records: state.actionList.records,
   };
 };
 

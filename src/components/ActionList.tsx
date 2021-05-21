@@ -6,6 +6,7 @@ import { Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Airing from '../utils/Airing';
 import {
+  asyncForEach,
   readableBytes,
   readableDuration,
   throttleActions,
@@ -14,7 +15,7 @@ import type { SearchAlert } from '../utils/types';
 import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
-import { EMPTY_SEARCHALERT } from '../constants/app';
+import { EMPTY_SEARCHALERT, StdObj } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
 
 interface Props extends PropsFromRedux {
@@ -24,6 +25,7 @@ interface Props extends PropsFromRedux {
 type State = {
   loaded: boolean;
   searchAlert: SearchAlert;
+  airingList: Airing[];
 };
 
 class ActionList extends Component<Props & RouteComponentProps, State> {
@@ -32,46 +34,41 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
     this.state = {
       loaded: false,
       searchAlert: EMPTY_SEARCHALERT,
+      airingList: [],
     };
     (this as any).deleteAll = this.deleteAll.bind(this);
   }
 
   async componentDidMount() {
     this.refresh();
-    this.setState({
-      loaded: true,
-    });
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { actionList } = this.props;
+    const { records } = this.props;
 
-    if (prevProps.actionList !== actionList) {
+    if (prevProps.records !== records) {
       this.refresh();
     }
   }
 
   refresh = async () => {
-    const { setResults, actionList } = this.props;
+    const { setView, setResults, records } = this.props;
     let { searchAlert } = this.state;
-    const len = actionList.length;
+    const len = records.length;
+
     if (len === 0) return;
+    // Using this to drive SearchResults, don't need Airing's yet
     await setResults({
       loading: true,
       airingList: [],
       searchAlert: EMPTY_SEARCHALERT,
     });
 
-    const timeSort = (a: Airing, b: Airing) => {
-      if (a.airingDetails.datetime < b.airingDetails.datetime) return 1;
-      return -1;
-    };
-
     const stats = [];
-    actionList.sort((a: Airing, b: Airing) => timeSort(a, b));
+
     const size = readableBytes(
-      actionList.reduce(
-        (a: Airing, b: Airing) => a + (b.videoDetails.size || 0),
+      records.reduce(
+        (a: StdObj, b: StdObj) => a + (b.video_details.size || 0),
         0
       )
     );
@@ -79,8 +76,8 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
       text: size,
     });
     const duration = readableDuration(
-      actionList.reduce(
-        (a: Airing, b: Airing) => a + (b.videoDetails.duration || 0),
+      records.reduce(
+        (a: StdObj, b: StdObj) => a + (b.video_details.duration || 0),
         0
       )
     );
@@ -93,24 +90,39 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
       matches: [],
       stats,
     };
-    this.setState({
-      searchAlert,
-    });
-    const results = actionList.map((airing: Airing) => airing.data);
+
+    const timeSort = (a: StdObj, b: StdObj) => {
+      if (a.airing_details.datetime < b.airing_details.datetime) return 1;
+      return -1;
+    };
+    // records.sort((a: StdObj, b: StdObj) => timeSort(a, b));
+    // set the SearchResults - sort at the last second, can't modify the prop. other option is make full copy earlier?
+    setView('list');
     setResults({
       loading: false,
-      results,
+      results: [...records].sort((a: StdObj, b: StdObj) => timeSort(a, b)),
       searchAlert,
-      // view: 'slim',
-      // actionList,
+    });
+
+    // Now create the Airings for the deleteAll, other methods to
+    const airingList: Airing[] = [];
+    await asyncForEach(records, async (rec: StdObj) => {
+      const item = await Airing.create(rec);
+      airingList.push(item);
+    });
+    this.setState({
+      searchAlert,
+      airingList,
+      loaded: true,
     });
   };
 
   deleteAll = async (countCallback: (...args: Array<any>) => any) => {
-    const { history, actionList } = this.props;
-    // actionList = ensureAiringArray(actionList);
+    const { history } = this.props;
+    const { airingList } = this.state;
+
     const list: (() => void)[] = []; // Function[]
-    actionList.forEach((item: Airing) => {
+    airingList.forEach((item: Airing) => {
       list.push(() => item.delete());
     });
     await throttleActions(list, 4, countCallback)
@@ -129,10 +141,10 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
 
   render() {
     const { loaded } = this.state;
-    const { history, actionList } = this.props;
-    if (!loaded) return <></>;
+    const { history, records } = this.props;
+    if (!loaded && records.length > 0) return <></>;
 
-    if (actionList.length === 0) {
+    if (records.length === 0) {
       return <Redirect to={routes.SEARCH} />;
     }
 
@@ -155,7 +167,7 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
           </Col>
         </Row>
         <SearchResults />
-      </> //
+      </>
     );
   }
 }
@@ -166,7 +178,7 @@ const mapDispatchToProps = (dispatch: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    actionList: state.actionList,
+    records: state.actionList.records,
   };
 };
 
@@ -174,8 +186,3 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(ActionList));
-
-// export default connect<any, any, any, any, any, any>(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(withRouter(ActionList));

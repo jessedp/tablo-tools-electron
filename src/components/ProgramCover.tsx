@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import { YES } from '../constants/app';
 import { ProgramData } from '../constants/types_airing';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,24 +7,21 @@ import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import type { SearchAlert } from '../utils/types';
 import MatchesToBadges from './SearchFilterMatches';
-import * as ActionListActions from '../actions/actionList';
-import Airing from '../utils/Airing';
+import * as ActionListActions from '../store/actionList';
 
 type State = Record<string, unknown>;
-type Props = {
+
+interface Props extends PropsFromRedux {
   alert: SearchAlert;
   loading: boolean;
-  airingList: Array<Airing>;
-  bulkAddAirings: (airings: Array<Airing>) => void;
-  bulkRemAirings: (airings: Array<Airing>) => void;
-};
+}
 
 class SearchResultAlerts extends Component<Props, State> {
   render() {
     const {
       alert,
       loading,
-      airingList,
+      results,
       bulkAddAirings,
       bulkRemAirings,
     } = this.props;
@@ -52,14 +49,14 @@ class SearchResultAlerts extends Component<Props, State> {
                 variant="outline-secondary"
                 className="mr-1"
                 size={'xs' as any}
-                onClick={() => bulkAddAirings(airingList)}
+                onClick={() => bulkAddAirings(results)}
               >
                 <span className="fa fa-plus" /> all
               </Button>
               <Button
                 variant="outline-secondary"
                 size={'xs' as any}
-                onClick={() => bulkRemAirings(airingList)}
+                onClick={() => bulkRemAirings(results)}
               >
                 <span className="fa fa-minus" /> all
               </Button>
@@ -71,8 +68,17 @@ class SearchResultAlerts extends Component<Props, State> {
   }
 }
 
+const mapStateToProps = (state: any) => {
+  return {
+    results: state.search.results,
+  };
+};
+
 const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect(null, mapDispatchToProps)(SearchResultAlerts);
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(SearchResultAlerts);

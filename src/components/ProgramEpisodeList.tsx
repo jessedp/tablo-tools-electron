@@ -5,7 +5,7 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Badge, Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import { ON, OFF, NO } from '../constants/app';
 import { ProgramData } from '../constants/types_airing';
 import RecordingSlim from './RecordingSlim';

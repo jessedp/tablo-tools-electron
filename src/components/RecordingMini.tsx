@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import TitleSlim from './TitleSlim';
 import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import { ON, OFF } from '../constants/app';
+import { ON, OFF, StdObj } from '../constants/app';
 
 type OwnProps = {
   doDelete: () => void;
@@ -24,8 +24,8 @@ type StateProps = {
 };
 
 type DispatchProps = {
-  addAiring: (arg0: Airing) => void;
-  remAiring: (arg0: Airing) => void;
+  addAiring: (arg0: StdObj) => void;
+  remAiring: (arg0: StdObj) => void;
 };
 
 type Props = OwnProps & StateProps & DispatchProps;
@@ -55,8 +55,8 @@ class RecordingMini extends Component<Props> {
 
   toggleSelection = async () => {
     const { airing, checked, addAiring, remAiring } = this.props;
-    if (checked === CHECKBOX_ON) remAiring(airing);
-    else addAiring(airing);
+    if (checked === CHECKBOX_ON) remAiring(airing.data);
+    else addAiring(airing.data);
   };
 
   render() {
@@ -120,12 +120,10 @@ RecordingMini.defaultProps = {
 };
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => {
-  const { actionList } = state;
+  const { records } = state.actionList;
   const { airing } = ownProps;
   return {
-    checked: actionList.find(
-      (item: Airing) => item.object_id === airing.object_id
-    )
+    checked: records.find((item: StdObj) => item.object_id === airing.object_id)
       ? CHECKBOX_ON
       : CHECKBOX_OFF,
   };

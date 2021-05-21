@@ -45,8 +45,13 @@ class SearchResults extends Component<SearchResultsProps, State> {
     this.state = this.initialState; // this.delete = this.delete.bind(this);
   }
 
+  async componentDidMount() {
+    this.reload();
+  }
+
   componentDidUpdate(prevProps: SearchResultsProps) {
     const { results, searchAlert, loading, view } = this.props;
+
     if (prevProps.results !== results) {
       this.reload();
     } else if (
@@ -90,34 +95,29 @@ class SearchResults extends Component<SearchResultsProps, State> {
     airingList = ensureAiringArray(airingList);
     let rows: Array<JSX.Element> = [];
 
-    if (!loading) {
-      rows = airingList.map((airing) => {
-        if (view === 'list') {
-          return (
-            <RecordingSlim
-              key={`recording-${airing.object_id}`}
-              airing={airing}
-              withShow={ON}
-              withSelect={ON}
-              withActions={ON}
-            />
-          );
-        }
-
-        return (
-          <Recording key={`recording-${airing.object_id}`} airing={airing} />
-        );
-      });
-    }
-
     if (loading) return <Loading loading={loading} />;
+
+    rows = airingList.map((airing) => {
+      if (view === 'list') {
+        return (
+          <RecordingSlim
+            key={`recording-${airing.object_id}`}
+            airing={airing}
+            withShow={ON}
+            withSelect={ON}
+            withActions={ON}
+          />
+        );
+      }
+
+      return (
+        <Recording key={`recording-${airing.object_id}`} airing={airing} />
+      );
+    });
+
     return (
       <div className="scrollable-area">
-        <SearchResultAlerts
-          alert={searchAlert}
-          loading={loading}
-          airingList={airingList}
-        />
+        <SearchResultAlerts alert={searchAlert} loading={loading} />
         <Row className="m-1 mb-4">{rows}</Row>
       </div>
     );

@@ -176,13 +176,18 @@ class SearchForm extends Component<
   }
 
   async componentDidMount() {
+    const { setView } = this.props;
     // v0.1.12 - make sure we have Airings
+    const { view } = this.state;
+
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
     this.savedSearchList = await global.SearchDb.asyncFind({});
     await this.setState({
       actionList,
     });
+
+    setView(view);
     this.refresh();
     this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }

@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import Show from '../utils/Show';
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import { ON, OFF } from '../constants/app';
 
 type Props = {

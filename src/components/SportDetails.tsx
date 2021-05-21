@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
-import * as ActionListActions from '../actions/actionList';
+import * as ActionListActions from '../store/actionList';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
 import { getTabloImageUrl } from '../utils/utils';
