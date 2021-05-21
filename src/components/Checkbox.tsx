@@ -148,6 +148,6 @@ const StyledCheckbox = styled.span`
     box-shadow: 0 0 0 3px pink;
   }
   ${Icon} {
-    visibility: ${(props) => (props.theme ? 'visible' : 'hidden')};
+    visibility: ${(props) => (props.theme === true ? 'visible' : 'hidden')};
   }
 `;
