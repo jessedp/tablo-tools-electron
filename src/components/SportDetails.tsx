@@ -132,7 +132,7 @@ class SportDetails extends Component<
                   size={'xs' as any}
                   className="ml-3 mr-2"
                   variant="outline-dark"
-                  onClick={() => addAiring(event)}
+                  onClick={() => addAiring(event.data)}
                 >
                   <span className="fa fa-plus" />
                 </Button>
@@ -140,7 +140,7 @@ class SportDetails extends Component<
                   size={'xs' as any}
                   className="mr-2"
                   variant="outline-dark"
-                  onClick={() => remAiring(event)}
+                  onClick={() => remAiring(event.data)}
                 >
                   <span className="fa fa-minus" />
                 </Button>
