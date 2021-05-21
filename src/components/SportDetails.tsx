@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button';
 import * as ActionListActions from '../store/actionList';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
+import { StdObj } from '../constants/app';
 import { getTabloImageUrl } from '../utils/utils';
 
 import TabloImage from './TabloImage';
@@ -17,22 +18,21 @@ import AiringDetailsModal from './AiringDetailsModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import VideoExportModal from './VideoExportModal';
 
-type Props = {
-  selectedCount: number;
-  addAiring: (arg0: Airing) => void;
-  remAiring: (arg0: Airing) => void;
-  match: any;
-};
+// interface Props extends PropsFromRedux {}
+
 type State = {
   event: Airing | null;
 };
 
-class SportDetails extends Component<RouteComponentProps & Props, State> {
+class SportDetails extends Component<
+  RouteComponentProps & PropsFromRedux,
+  State
+> {
   // props: Props;
 
   initialState: State;
 
-  constructor(props: RouteComponentProps & Props) {
+  constructor(props: RouteComponentProps & PropsFromRedux) {
     super(props);
     this.initialState = {
       event: null,
@@ -174,13 +174,11 @@ class SportDetails extends Component<RouteComponentProps & Props, State> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: any) => {
-  const { actionList } = state;
-  //  const { show } = ownProps;
+const mapStateToProps = (state: any, ownProps: Props) => {
   // eslint-disable-next-line
   const id = parseInt(ownProps.match.params.id, 10);
-  const selectedCount = actionList.reduce(
-    (a: number, b: Airing) => a + (b.object_id === id ? 1 : 0),
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) => a + (b.object_id === id ? 1 : 0),
     0
   );
   return {
@@ -192,7 +190,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<any, any>(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(SportDetails));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(withRouter(SportDetails));

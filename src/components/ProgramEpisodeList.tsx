@@ -1,40 +1,29 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Badge, Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import * as ActionListActions from '../store/actionList';
-import { ON, OFF, NO } from '../constants/app';
+import { ON, OFF, NO, StdObj } from '../constants/app';
 import { ProgramData } from '../constants/types_airing';
 import RecordingSlim from './RecordingSlim';
 import ProgramCover from './ProgramCover';
 import { programList } from './Programs';
 import routes from '../constants/routes.json';
 
-import Airing from '../utils/Airing';
-
-type OwnProps = {
-  selectedCount: number; // FIXME: !!! This should be on StateProps
-  // match: Record<string, any>;
-};
-
-type StateProps = Record<string, never>;
-
-type DispatchProps = {
-  bulkAddAirings: (arg0: Array<Airing>) => void;
-  bulkRemAirings: (arg0: Array<Airing>) => void;
-};
-
-type Props = OwnProps & StateProps & DispatchProps;
+// interface Props extends PropsFromRedux {}
 
 type State = {
   rec: ProgramData | null;
 };
 
-class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
-  constructor(props: Props & RouteComponentProps) {
+class ProgramEpisodeList extends Component<
+  PropsFromRedux & RouteComponentProps,
+  State
+> {
+  constructor(props: PropsFromRedux & RouteComponentProps) {
     super(props);
     this.state = {
       rec: null,
@@ -43,8 +32,10 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
 
   componentDidMount = async () => {
     const { match } = this.props;
-    // const { path } = match.params;
-    const path = match?.path;
+
+    // eslint-disable-next-line
+    const path = match?.params?.path;
+    console.log('match|', match);
     const recs = await programList(atob(path));
     this.refresh(recs[0]);
   };
@@ -102,7 +93,7 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
                     size={'xs' as any}
                     className=" mr-2"
                     variant="outline-secondary"
-                    onClick={() => bulkAddAirings(airings)}
+                    onClick={() => bulkAddAirings(airings.map((a) => a.data))}
                   >
                     <span className="fa fa-plus" /> All Episodes
                   </Button>
@@ -110,7 +101,7 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
                     size={'xs' as any}
                     className="mr-2"
                     variant="outline-secondary"
-                    onClick={() => bulkRemAirings(airings)}
+                    onClick={() => bulkRemAirings(airings.map((a) => a.data))}
                   >
                     <span className="fa fa-minus" /> All Episodes
                   </Button>
@@ -139,28 +130,30 @@ class ProgramEpisodeList extends Component<Props & RouteComponentProps, State> {
       </div>
     );
   }
-} // const mapStateToProps = (state, ownProps) => {
-//   const { actionList } = state;
-//   const { rec } = ownProps;
-//   const { airings } = rec;
-//   let selectedCount = 0;
-//   if (airings) {
-//     selectedCount = actionList.reduce(
-//       (a, b) =>
-//         a + (airings.find(obj => obj.object_id === b.object_id) ? 1 : 0),
-//       0
-//     );
-//   }
-//   return {
-//     selectedCount
-//   };
-// };
+}
 
+const mapStateToProps = (state: any) => {
+  // const { rec } = ownProps;
+  // const { airings } = rec;
+  const airings: StdObj[] = [];
+  let selectedCount = 0;
+  if (airings.length > 0) {
+    selectedCount = state.actionList.records.reduce(
+      (a: number, b: StdObj) =>
+        a +
+        (airings.find((obj: StdObj) => obj.object_id === b.object_id) ? 1 : 0),
+      0
+    );
+  }
+  return {
+    selectedCount,
+  };
+};
 const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  null,
-  mapDispatchToProps
-)(withRouter(ProgramEpisodeList));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(withRouter(ProgramEpisodeList));

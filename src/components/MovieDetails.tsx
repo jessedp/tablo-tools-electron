@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -18,33 +18,21 @@ import AwardsModal from './AwardsModal';
 import AiringDetailsModal from './AiringDetailsModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import VideoExportModal from './VideoExportModal';
+import { StdObj } from '../constants/app';
 
-type OwnProps = {
-  match: any;
-  selectedCount: number;
-  addAiring: (arg0: Airing) => void;
-  remAiring: (arg0: Airing) => void;
-};
-
-type StateProps = {
-  selectedCount: number;
-};
-
-type DispatchProps = {
-  addAiring: (arg0: Airing) => void;
-  remAiring: (arg0: Airing) => void;
-};
-
-type Props = OwnProps & StateProps & DispatchProps;
+// interface Props extends PropsFromRedux {}
 
 type State = {
   movie: Airing | null;
 };
 
-class MovieDetails extends Component<Props & RouteComponentProps, State> {
+class MovieDetails extends Component<
+  PropsFromRedux & RouteComponentProps,
+  State
+> {
   initialState: State;
 
-  constructor(props: Props & RouteComponentProps) {
+  constructor(props: PropsFromRedux & RouteComponentProps) {
     super(props);
     this.initialState = {
       movie: null,
@@ -150,7 +138,7 @@ class MovieDetails extends Component<Props & RouteComponentProps, State> {
                   size={'xs' as any}
                   className="ml-3 mr-2"
                   variant="outline-dark"
-                  onClick={() => addAiring(movie)}
+                  onClick={() => addAiring(movie.data)}
                 >
                   <span className="fa fa-plus" />
                 </Button>
@@ -158,7 +146,7 @@ class MovieDetails extends Component<Props & RouteComponentProps, State> {
                   size={'xs' as any}
                   className="mr-2"
                   variant="outline-dark"
-                  onClick={() => remAiring(movie)}
+                  onClick={() => remAiring(movie.data)}
                 >
                   <span className="fa fa-minus" />
                 </Button>
@@ -207,12 +195,10 @@ class MovieDetails extends Component<Props & RouteComponentProps, State> {
 }
 
 const mapStateToProps = (state: any, ownProps: Props) => {
-  const { actionList } = state;
-  //  const { show } = ownProps;
   // eslint-disable-next-line
   const id = parseInt(ownProps.match.params.id, 10);
-  const selectedCount = actionList.reduce(
-    (a: number, b: Airing) => a + (b.object_id === id ? 1 : 0),
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) => a + (b.object_id === id ? 1 : 0),
     0
   );
   return {
@@ -224,7 +210,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ActionListActions, dispatch);
 };
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(MovieDetails));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(withRouter(MovieDetails));
