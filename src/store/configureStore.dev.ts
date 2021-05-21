@@ -7,7 +7,7 @@
 // import { routerMiddleware } from 'connected-react-router';
 // import { createLogger } from 'redux-logger';
 // import createRootReducer from '../rootReducer';
-// // import * as actionListActions from '../actions/actionList';
+// // import * as actionListActions from '../store/actionList';
 // // import * as searchActions from '../actions/search';
 // import type { actionListType } from '../reducers/types';
 
