@@ -2,23 +2,29 @@ import { SearchAlert } from '../utils/types';
 
 export const ON = 1;
 export const OFF = 0;
+
 export const YES = 1;
 export const NO = 0;
+
 export const SERIES = 'episode';
 export const MOVIE = 'movie';
 export const EVENT = 'event';
 export const PROGRAM = 'program';
+
 export const EXP_WAITING = 1;
 export const EXP_WORKING = 2;
 export const EXP_DONE = 3;
 export const EXP_CANCEL = 4;
 export const EXP_FAIL = 5;
 export const EXP_DELETE = 6;
+
 export const DUPE_OVERWRITE = 'OVERWRITE';
 export const DUPE_SKIP = 'SKIP';
 export const DUPE_INC = 'INCREMENT';
 export const DUPE_ADDID = 'ADDID';
+
 export const beginTimemark = '00:00 / 00:00';
+
 export const EMPTY_SEARCHALERT: SearchAlert = {
   type: '',
   text: '',
@@ -32,6 +38,7 @@ export type NamingTemplateType = {
   template: string;
   _id?: string;
 };
+
 export type ExportLogRecordType = {
   server_id: string;
   via: string;
@@ -48,6 +55,7 @@ export type ExportLogRecordType = {
   ffmpegLog: Array<string>;
   airingData: Record<string, any>;
 };
+
 export const versionUpdateTestMessage2 = {
   available: true,
   info: {
@@ -83,3 +91,5 @@ export type ShowStatRowType = {
   first: Date;
   last: Date;
 };
+
+export type StdObj = Record<string, any>;
