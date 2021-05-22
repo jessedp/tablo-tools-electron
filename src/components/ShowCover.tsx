@@ -22,7 +22,7 @@ function ShowCover(props: OwnProps) {
     // const { show } = props;
     const recCount = state.actionList.records.reduce(
       (a: number, b: StdObj) =>
-        a + (b.show.object_id === show.object_id ? 1 : 0),
+        a + (b.show?.object_id === show?.object_id ? 1 : 0),
       0
     );
     return recCount === show.showCounts.airing_count

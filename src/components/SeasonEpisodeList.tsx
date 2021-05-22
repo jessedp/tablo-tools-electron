@@ -94,7 +94,7 @@ const mapStateToProps = (state: any, ownProps: any) => {
   const selectedCount = state.actionList.records.reduce(
     (a: number, b: StdObj) =>
       a +
-      (b.show.object_id === show.object_id &&
+      (b.show?.object_id === show?.object_id &&
       parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)
         ? 1
         : 0),
