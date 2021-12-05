@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { Prompt, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
@@ -12,7 +12,7 @@ import { Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
-import * as ExportListActions from '../actions/exportList';
+import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../reducers/types';
 import {
@@ -21,14 +21,13 @@ import {
   DUPE_INC,
   DUPE_OVERWRITE,
   DUPE_ADDID,
+  StdObj,
 } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
 
-type Props = {
-  actionList: Array<Airing>;
-  exportList: Array<ExportRecordType>;
+interface Props extends PropsFromRedux {
   exportState: number;
   atOnce: number;
   atOnceChange: (event: React.SyntheticEvent<HTMLInputElement>) => void;
@@ -38,9 +37,12 @@ type Props = {
   toggleDOF: () => void;
   cancelProcess: () => void;
   processVideo: () => void;
-  addExportRecord: (record: ExportRecordType) => void;
-  bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
-};
+
+  // addExportRecord: (record: ExportRecordType) => void;
+  // bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
+  // actionList: Array<Airing>;
+  // exportList: Array<ExportRecordType>;
+}
 type State = {
   loaded: boolean;
 };
@@ -58,8 +60,9 @@ class VideoExportPage extends Component<Props, State> {
 
   componentDidMount() {
     const { actionList, addExportRecord } = this.props;
-    actionList.forEach((rec) => {
-      addExportRecord(ExportRecord(rec));
+    actionList.forEach((rec: StdObj) => {
+      const newRec = ExportRecord(rec);
+      addExportRecord(newRec);
     });
     this.setState({
       loaded: true,
@@ -91,13 +94,14 @@ class VideoExportPage extends Component<Props, State> {
       return <Redirect to={routes.SEARCH} />;
     }
 
-    const timeSort = (a: ExportRecordType, b: ExportRecordType) => {
-      if (a.airing.airingDetails.datetime < b.airing.airingDetails.datetime)
-        return 1;
-      return -1;
-    };
+    const sortedExportList = [...exportList].sort(
+      (a: ExportRecordType, b: ExportRecordType) => {
+        if (a.airing.airing_details.datetime < b.airing.airing_details.datetime)
+          return 1;
+        return -1;
+      }
+    );
 
-    exportList.sort((a, b) => timeSort(a, b));
     return (
       <>
         <Prompt
@@ -115,10 +119,10 @@ class VideoExportPage extends Component<Props, State> {
           actionOnDuplicate={actionOnDuplicate}
           setActionOnDuplicate={setActionOnDuplicate}
         />
-        {exportList.map((rec) => {
+        {sortedExportList.map((rec: ExportRecordType) => {
           return (
             <RecordingExport
-              airing={rec.airing}
+              airing={new Airing(rec.airing)}
               key={`RecordingExport-${rec.airing.object_id}`}
               actionOnDuplicate={actionOnDuplicate}
             />
@@ -233,8 +237,8 @@ function ExportActions(prop: Record<string, any>) {
 const mapStateToProps = (state: any) => {
   const { exportList } = state;
   return {
-    actionList: state.actionList,
-    exportList: exportList.exportList,
+    actionList: state.actionList.records,
+    exportList: exportList.records,
   };
 };
 
@@ -242,7 +246,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(ExportListActions, dispatch);
 };
 
-export default connect<any, any>(
-  mapStateToProps,
-  mapDispatchToProps
-)(VideoExport(VideoExportPage));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(VideoExport(VideoExportPage));

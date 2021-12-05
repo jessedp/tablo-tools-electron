@@ -14,7 +14,7 @@ import Form from 'react-bootstrap/Form';
 import { format } from 'date-fns';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../reducers/types';
-import * as ExportListActions from '../actions/exportList';
+import * as ExportListActions from '../store/exportList';
 import * as ActionListActions from '../store/actionList';
 import { EXP_WORKING } from '../constants/app';
 import RecordingExport from './RecordingExport';
@@ -92,7 +92,7 @@ class VideoExportModal extends Component<Props, State> {
   show() {
     const { airing, bulkRemExportRecord, addExportRecord } = this.props;
     bulkRemExportRecord([]);
-    addExportRecord(ExportRecord(airing));
+    addExportRecord(ExportRecord(airing.data));
     this.setState({
       opened: true,
     });
@@ -125,7 +125,14 @@ class VideoExportModal extends Component<Props, State> {
       return <></>; //
     }
 
-    const airingList = exportList.map((rec: ExportRecordType) => rec.airing);
+    // const airingList = exportList.map((rec: ExportRecordType) => rec.airing);
+    let airingList = [];
+
+    if (exportList.length > 0 && exportList[0] !== undefined) {
+      // console.log('exportList', exportList);
+      airingList = exportList.map((rec: ExportRecordType) => rec.airing);
+    }
+
     let variant = 'outline-secondary';
     let title = 'Export Video';
 
@@ -268,7 +275,7 @@ function ExportButton(prop: any) {
 const mapStateToProps = (state: any) => {
   const { exportList } = state;
   return {
-    exportList: exportList.exportList,
+    exportList: exportList.records,
   };
 };
 

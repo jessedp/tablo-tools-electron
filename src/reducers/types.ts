@@ -1,3 +1,4 @@
+import { StdObj } from 'constants/app';
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
 import Airing from '../utils/Airing';
 
@@ -5,11 +6,11 @@ export type ActionListType = {
   readonly airings: Array<Airing>;
 };
 export type ExportRecordType = {
-  airing: Airing;
+  airing: StdObj;
   state: number;
   progress: Record<string, any>;
-  startTime: Date;
-  endTime: Date;
+  startTime: Date | number;
+  endTime: Date | number;
   ffmpegLog: Array<string>;
 };
 export type FlashRecordType = {

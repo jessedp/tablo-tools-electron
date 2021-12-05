@@ -6,20 +6,22 @@ import {
   ExportLogRecordType,
   NamingTemplateType,
   ShowStatRowType,
+  StdObj,
 } from '../constants/app';
 import getConfig from './config';
 import { TemplateVarsType } from './namingTpl';
 import { SearchAlert } from './types';
 
-export function ExportRecord(airing: Airing) {
+export function ExportRecord(airing: StdObj) {
   const record: ExportRecordType = {
-    airing,
+    airing: airing,
     progress: {},
     state: EXP_WAITING,
-    startTime: new Date(),
-    endTime: new Date(),
+    startTime: new Date().getMilliseconds(),
+    endTime: new Date().getMilliseconds(),
     ffmpegLog: [],
   };
+  // console.log('ExportRecord record', airing.data);
   return record;
 }
 export function ExportLogRecord(airing: Airing) {
@@ -29,8 +31,8 @@ export function ExportLogRecord(airing: Airing) {
     server_id: device.serverid,
     via: isWeb ? 'web' : 'cli',
     object_id: airing.id,
-    startTime: new Date(),
-    endTime: new Date(),
+    startTime: new Date().toISOString(),
+    endTime: new Date().toISOString(),
     status: EXP_WAITING,
     atOnce: 1,
     origPath: airing.exportFile,

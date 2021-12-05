@@ -12,6 +12,7 @@ import {
   throttleActions,
   timeStrToSeconds,
   readableDuration,
+  asyncForEach,
 } from '../utils/utils';
 import Airing from '../utils/Airing';
 import { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
@@ -81,13 +82,11 @@ const VideoExport = (WrappedComponent: any) => {
       });
       // TODO: any to function def
       const actions: Array<any> = [];
-      exportList.forEach((rec) => {
+      await asyncForEach(exportList, async (rec) => {
+        const airing = new Airing(rec.airing);
         actions.push(() => {
           if (this.shouldCancel === false)
-            return rec.airing.processVideo(
-              actionOnDuplicate,
-              this.updateProgress
-            );
+            return airing.processVideo(actionOnDuplicate, this.updateProgress);
           return () => undefined;
         });
       });
@@ -108,14 +107,19 @@ const VideoExport = (WrappedComponent: any) => {
       global.EXPORTING = false;
     };
 
-    updateProgress = (airingId: number, progress: Record<string, any>) => {
+    updateProgress = async (
+      airingId: number,
+      progress: Record<string, any>
+    ) => {
       const { atOnce, deleteOnFinish, actionOnDuplicate } = this.state;
       const { exportList, updateExportRecord } = this.props;
-      const record: ExportRecordType | undefined = exportList.find(
+      let record: ExportRecordType | undefined = exportList.find(
         (rec) => rec.airing.object_id === airingId
       );
       if (!record || record.state === EXP_DONE) return;
-      const { airing } = record;
+      record = { ...{}, ...record };
+      const { airing: stdAiring } = record;
+      const airing = new Airing(stdAiring);
 
       if (!this.logRecord) {
         this.logRecord = ExportLogRecord(airing);
@@ -202,11 +206,11 @@ const VideoExport = (WrappedComponent: any) => {
     cancelProcess = async (updateState = true) => {
       const { exportList } = this.props;
       this.shouldCancel = true;
-
       if (exportList) {
         exportList.forEach((rec) => {
           if (rec.state === EXP_WORKING) {
-            rec.airing.cancelVideoProcess();
+            const airing = new Airing(rec.airing);
+            airing.cancelVideoProcess();
           }
         });
       }

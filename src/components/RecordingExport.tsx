@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import * as ExportListActions from '../actions/exportList';
+import * as ExportListActions from '../store/exportList';
 
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
@@ -30,15 +30,29 @@ type DispatchProps = {
 
 type Props = OwnProps & StateProps & DispatchProps;
 
-type State = Record<string, never>;
+type State = {
+  airing: Airing | undefined;
+};
 
 class RecordingExport extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      airing: undefined,
+    };
+  }
   componentDidUpdate(prevProps: Props) {
     const { record } = this.props;
 
     if (prevProps.record !== record) {
       this.render();
     }
+  }
+
+  async componentDidMount() {
+    const { record } = this.props;
+    const { airing } = record;
+    this.setState({ airing: await Airing.create(airing) });
   }
 
   updateTemplate = (template: NamingTemplateType) => {
@@ -50,8 +64,12 @@ class RecordingExport extends Component<Props, State> {
   render() {
     const { record, actionOnDuplicate } = this.props;
     const { exportInc, exportLabel, duration, log } = record.progress;
-    const { airing, state: exportState } = record;
+    const { airing } = this.state;
+    const { state: exportState } = record;
     const classes = `border pb-1 mb-2 pt-1`;
+
+    if (!airing) return <></>;
+
     return (
       <Container className={classes}>
         <Row>
@@ -96,7 +114,7 @@ class RecordingExport extends Component<Props, State> {
 const mapStateToProps = (state: any, ownProps: OwnProps) => {
   const { exportList } = state;
   const { airing } = ownProps;
-  const record = exportList.exportList.find(
+  const record = exportList.records.find(
     (rec: ExportRecordType) => rec.airing.object_id === airing.object_id
   );
   return {
