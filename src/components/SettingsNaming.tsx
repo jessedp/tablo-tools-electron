@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as FlashActions from '../actions/flash';
+import * as FlashActions from '../store/flash';
 // import type { FlashRecordType } from '../reducers/types';
 import { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';
 import NamingTemplate from './NamingTemplate';

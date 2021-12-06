@@ -9,7 +9,7 @@ import { InputGroup, Form } from 'react-bootstrap';
 import slugify from 'slugify';
 // import type { FlashRecordType } from '../reducers/types';
 import Button from 'react-bootstrap/Button';
-import * as FlashActions from '../actions/flash';
+import * as FlashActions from '../store/flash';
 
 interface Props extends PropsFromRedux {
   searchId: string;

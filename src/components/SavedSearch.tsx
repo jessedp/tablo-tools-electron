@@ -13,7 +13,7 @@ import Select from 'react-select';
 import Row from 'react-bootstrap/Row';
 import slugify from 'slugify';
 
-import * as FlashActions from '../actions/flash';
+import * as FlashActions from '../store/flash';
 import type { SearchState } from './SearchForm';
 import MatchesToBadges from './SearchFilterMatches';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';

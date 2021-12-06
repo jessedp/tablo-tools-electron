@@ -8,7 +8,7 @@ import Button from 'react-bootstrap/Button';
 
 import { InputGroup, Form, Alert } from 'react-bootstrap';
 import Handlebars from 'handlebars';
-import * as FlashActions from '../actions/flash';
+import * as FlashActions from '../store/flash';
 
 import TemplateEditor from './TemplateEditor';
 import NamingTemplateOptions from './NamingTemplateOptions';
