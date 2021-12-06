@@ -30,7 +30,6 @@ import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 
 import SavedSearchEdit from './SavedSearchEdit';
-// import * as SearchActions from '../actions/search';
 import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import { EMPTY_SEARCHALERT } from '../constants/app';
