@@ -177,9 +177,7 @@ class SearchForm extends Component<
   async componentDidMount() {
     const { setView } = this.props;
     // v0.1.12 - make sure we have Airings
-    const { view } = this.state;
-
-    let { actionList } = this.state;
+    let { actionList, view } = this.state;
     actionList = await ensureAiringArray(actionList);
     this.savedSearchList = await global.SearchDb.asyncFind({});
     await this.setState({
@@ -198,6 +196,7 @@ class SearchForm extends Component<
   }
 
   async handlePageClick(data: { selected: number }) {
+    const { setLoading } = this.props;
     const { limit } = this.state;
     // this.setState( {skip: 0 });
     const { selected } = data;
@@ -207,6 +206,7 @@ class SearchForm extends Component<
         skip: offset,
       },
       () => {
+        setLoading(true);
         this.search();
       }
     );
@@ -225,10 +225,11 @@ class SearchForm extends Component<
   };
 
   changeView = async (event: Option) => {
-    const { setView } = this.props;
+    const { setLoading, setView } = this.props;
     await this.setState({
       view: event.value as ViewType,
     });
+    setLoading(true);
     setView(event.value as ViewType);
     this.search();
   };
@@ -315,6 +316,7 @@ class SearchForm extends Component<
   };
 
   resetSearch = async () => {
+    const { setLoading } = this.props;
     const { actionList, view, sortFilter, limit } = this.state;
     const newState = { ...this.initialState };
     newState.actionList = actionList;
@@ -323,6 +325,7 @@ class SearchForm extends Component<
     newState.view = view;
     await this.setState(newState);
     this.setStateStore();
+    setLoading(true);
     this.refresh();
   };
 
@@ -454,7 +457,10 @@ class SearchForm extends Component<
   };
 
   searchKeyPressed = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const { setLoading } = this.props;
+
     if (event.key === 'Enter') {
+      setLoading(true);
       await this.search();
     }
   };
@@ -507,11 +513,10 @@ class SearchForm extends Component<
   };
 
   search = async () => {
-    const { setLoading, setAlert, setResults } = this.props;
+    const { setAlert, setResults } = this.props;
     const {
       skip,
       limit,
-      view,
       percent,
       searchValue,
       stateFilter,
@@ -747,7 +752,6 @@ class SearchForm extends Component<
         recordCount: 0,
       };
     } else {
-      setLoading(true);
       setAlert(this.initialState.searchAlert);
 
       await asyncForEach(recs, async (doc) => {

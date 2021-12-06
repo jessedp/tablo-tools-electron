@@ -33,7 +33,7 @@ class SearchResults extends Component<SearchResultsProps, State> {
   constructor(props: SearchResultsProps) {
     super(props);
     this.initialState = {
-      loading: false,
+      loading: true,
       airingList: [],
       view: VIEW_GRID,
       searchAlert: {
