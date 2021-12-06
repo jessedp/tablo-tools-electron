@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ViewType, VIEW_GRID } from '../reducers/constants';
+import { ViewType, VIEW_GRID } from '../constants/app';
 import { SearchAlert } from '../utils/types';
 import { EmptySearchAlert } from '../utils/factories';
 

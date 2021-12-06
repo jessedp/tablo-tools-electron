@@ -11,7 +11,7 @@ import type { SearchSliceState } from '../store/search';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';
 import { ON } from '../constants/app';
-import { VIEW_GRID } from '../reducers/constants';
+import { VIEW_GRID } from '../constants/app';
 
 type OwnProps = Record<string, never>;
 type StateProps = SearchSliceState;

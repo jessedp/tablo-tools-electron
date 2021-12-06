@@ -4,7 +4,7 @@ import Select, { components } from 'react-select';
 import TabloImage from './TabloImage';
 import SelectStyles from './SelectStyles';
 import MatchesToBadges from './SearchFilterMatches';
-import { VIEW_GRID, VIEW_LIST } from '../reducers/constants';
+import { VIEW_GRID, VIEW_LIST } from '../constants/app';
 import Show from '../utils/Show';
 
 type FullFilterProps = {

@@ -13,7 +13,7 @@ import Button from 'react-bootstrap/Button';
 
 import ReactPaginate from 'react-paginate';
 
-import { ViewType, VIEW_GRID } from '../reducers/constants';
+import { ViewType, VIEW_GRID } from '../constants/app';
 import {
   asyncForEach,
   escapeRegExp,

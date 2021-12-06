@@ -43,8 +43,8 @@ export type ExportLogRecordType = {
   server_id: string;
   via: string;
   object_id: number;
-  startTime: Date;
-  endTime: Date;
+  startTime: Date | string;
+  endTime: Date | string;
   status: number;
   atOnce: number;
   origPath: string;
@@ -93,3 +93,9 @@ export type ShowStatRowType = {
 };
 
 export type StdObj = Record<string, any>;
+
+export const VIEW_GRID = 'grid';
+export const VIEW_SELECTED = 'selected';
+export const VIEW_LIST = 'list';
+
+export type ViewType = 'grid' | 'selected' | 'list';
