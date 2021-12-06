@@ -41,18 +41,19 @@ class RecordingExport extends Component<Props, State> {
       airing: undefined,
     };
   }
+
+  async componentDidMount() {
+    const { record } = this.props;
+    const { airing } = record;
+    this.setState({ airing: await Airing.create(airing) });
+  }
+
   componentDidUpdate(prevProps: Props) {
     const { record } = this.props;
 
     if (prevProps.record !== record) {
       this.render();
     }
-  }
-
-  async componentDidMount() {
-    const { record } = this.props;
-    const { airing } = record;
-    this.setState({ airing: await Airing.create(airing) });
   }
 
   updateTemplate = (template: NamingTemplateType) => {

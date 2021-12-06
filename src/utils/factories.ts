@@ -14,7 +14,7 @@ import { SearchAlert } from './types';
 
 export function ExportRecord(airing: StdObj) {
   const record: ExportRecordType = {
-    airing: airing,
+    airing,
     progress: {},
     state: EXP_WAITING,
     startTime: new Date().getMilliseconds(),
