@@ -354,7 +354,7 @@ export function findFfmpegPath(debug = false, log?: any) {
     } else {
       // *nix
       ffmpegPathReal = ffmpegPath.replace(
-        '/app/',
+        '/src/',
         '/node_modules/ffmpeg-static-electron-jdp/'
       );
     }
