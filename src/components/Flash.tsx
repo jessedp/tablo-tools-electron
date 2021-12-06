@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Alert } from 'react-bootstrap';
-import { FlashRecordType } from '../reducers/types';
+import { FlashRecordType } from '../constants/types';
 
 type Props = {
   message: FlashRecordType;

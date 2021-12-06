@@ -14,7 +14,7 @@ import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
-import { ExportRecordType } from '../reducers/types';
+import { ExportRecordType } from '../constants/types';
 import {
   EXP_WORKING,
   DUPE_SKIP,

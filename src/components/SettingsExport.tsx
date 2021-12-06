@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Row, Col, Alert } from 'react-bootstrap';
 import * as FlashActions from '../store/flash';
-import type { FlashRecordType } from '../reducers/types';
+import type { FlashRecordType } from '../constants/types';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import getConfig, { setConfigItem } from '../utils/config';
 import {

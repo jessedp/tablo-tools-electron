@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ExportRecordType } from '../reducers/types';
+import { ExportRecordType } from '../constants/types';
 import {
   EXP_WAITING,
   EXP_WORKING,

@@ -13,7 +13,7 @@ import Form from 'react-bootstrap/Form';
 
 import { format } from 'date-fns';
 import VideoExport from './VideoExport';
-import { ExportRecordType } from '../reducers/types';
+import { ExportRecordType } from '../constants/types';
 import * as ExportListActions from '../store/exportList';
 import * as ActionListActions from '../store/actionList';
 import { EXP_WORKING } from '../constants/app';

@@ -11,7 +11,7 @@ import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import { NamingTemplateType } from '../constants/app';
-import { ExportRecordType } from '../reducers/types';
+import { ExportRecordType } from '../constants/types';
 import ExportProgress from './ExportProgress';
 import FileInfo from './FileInfo';
 
