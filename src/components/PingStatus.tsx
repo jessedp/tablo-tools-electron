@@ -79,7 +79,7 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
 
     const { history } = this.props;
     const device = global.discoveredDevices.filter(
-      (item) => item.server_id === serverId
+      (item) => item.serverid === serverId
     );
     setCurrentDevice(device[0]);
     history.push(routes.HOME);
