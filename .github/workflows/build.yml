@@ -18,11 +18,7 @@ jobs:
         id: skip
         uses: atlwendy/retrieve-commit-messages-from-pr@v2
 
-      - name: Set SHOULD_RUN flag
-        run: echo ::set-env name=SHOULD_RUN::${{ steps.skip.outputs.shouldRun }}
-
       - name: Install Node.js, NPM and Yarn
-        if: env.SHOULD_RUN == 'true'
         uses: actions/setup-node@v1
         with:
           node-version: 16
