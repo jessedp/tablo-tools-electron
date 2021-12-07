@@ -18,8 +18,8 @@
     "coverage": "jest --coverage"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "cross-env NODE_ENV=development eslint --cache"
+    "*.{js,jsx,ts,tsx}1": [
+      "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx --fix"
     ],
     "{*.json,.{babelrc,eslintrc,prettierrc}}": [
       "prettier --ignore-path .eslintignore --parser json --write"
@@ -162,7 +162,7 @@
     "@babel/preset-react": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
     "@babel/register": "^7.12.1",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@sentry/types": "^6.2.5",
     "@sentry/webpack-plugin": "^1.14.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.4.0",
@@ -178,9 +178,9 @@
     "@types/hls.js": "^1.0.0",
     "@types/jest": "^26.0.15",
     "@types/nedb": "^1.8.11",
-    "@types/node": "14.14.10",
+    "@types/node": "16.11.11",
     "@types/pubsub-js": "^1.8.2",
-    "@types/react": "^16.9.44",
+    "@types/react": "^16.9",
     "@types/react-dom": "^16.9.9",
     "@types/react-motion": "^0.0.29",
     "@types/react-paginate": "^6.2.1",
@@ -197,7 +197,7 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-dev-expression": "^0.2.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
-    "browserslist-config-erb": "^0.0.1",
+    "browserslist-config-erb": "^0.0.3",
     "chalk": "^4.1.0",
     "concurrently": "^5.3.0",
     "core-js": "^3.6.5",
@@ -234,7 +234,7 @@
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
     "mini-css-extract-plugin": "^1.3.1",
-    "node-sass": "^5.0.0",
+    "node-sass": "^6.0.1",
     "opencollective-postinstall": "^2.0.3",
     "prettier": "^2.0.5",
     "react-refresh": "^0.9.0",
@@ -351,5 +351,4 @@
       "pre-commit": "lint-staged"
     }
   }
-
 }
