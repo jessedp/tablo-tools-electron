@@ -10,6 +10,11 @@ import DbStats from './DbStats';
 import Build from './Build';
 import Discovery from './Discovery';
 import { hasDevice } from '../utils/Tablo';
+import DbLoadingSpinner from './DbLoadingSpinner';
+import DbStatusTest from './BuildDb';
+import DbLoadingTable from './DbLoadingTable';
+import BuildDb from './BuildDb';
+import BuildTitle from './BuildTitle';
 
 type Props = Record<string, any>;
 type State = {
@@ -95,8 +100,9 @@ export default class Home extends Component<Props, State> {
               <Card.Title className="mb-0">
                 <Alert variant="dark">Recordings</Alert>
               </Card.Title>
-              <Card.Subtitle className="text-muted">
-                <Build showDbTable={this.showDbTable} />
+              <Card.Subtitle className="pl-3 text-muted">
+                <BuildTitle />
+                <DbLoadingTable />
               </Card.Subtitle>
               <Card.Body className="p-1">
                 {showDbTable ? <DbStats /> : ''}

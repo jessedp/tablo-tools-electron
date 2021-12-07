@@ -5,6 +5,7 @@ import IssueSearch from '../components/IssueSearch';
 import PermissionRequests from '../components/PermissionRequests';
 import Flash from '../components/Flash';
 import ErrorContainer from './ErrorContainer';
+import Build from '../components/Build';
 
 type Props = {
   children: ReactNode;
@@ -18,6 +19,7 @@ export default function App(props: Props) {
       <PermissionRequests />
       <VersionInfo />
       <IssueSearch />
+      <Build />
       <div className="top-bar pl-3 pr-3">
         <Navbar />
       </div>

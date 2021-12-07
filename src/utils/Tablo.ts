@@ -11,7 +11,7 @@ import getConfig from './config';
 const store = new Store();
 console.log('got store?');
 
-export function setCurrentDevice(device: Device, publish = true) {
+export async function setCurrentDevice(device: Device, publish = true) {
   global.Api.device = device;
 
   if (device) {
@@ -26,6 +26,12 @@ export function setCurrentDevice(device: Device, publish = true) {
     });
     store.set('CurrentDevice', device);
     if (publish) PubSub.publish('DEVICE_CHANGE', true);
+
+    try {
+      global.Api.device.info = global.Api.get('/settings/info');
+    } catch (e: any) {
+      console.error('Unable to load settings/info', e, global.Api);
+    }
   } else {
     console.warn(
       'sentry config - setCurrentDevice called without device!',
@@ -33,15 +39,6 @@ export function setCurrentDevice(device: Device, publish = true) {
     );
     store.delete('CurrentDevice');
   }
-
-  global.Api.get('/settings/info')
-    .then((info: any) => {
-      global.Api.device.info = info;
-      return 'why';
-    })
-    .catch((e: any) => {
-      console.error('Unable to load settings/info', e);
-    });
 }
 
 export const discover = async () => {
@@ -79,25 +76,6 @@ export const discover = async () => {
   global.discoveredDevices = deviceArray;
   PubSub.publish('DEVLIST_CHANGE', true);
 };
-
-export async function setupApi() {
-  global.Api = new Tablo();
-  global.CONNECTED = false;
-  await discover();
-  // TODO - updating to v0.0.7, remove in some time
-  let currentDevice: Device = store.get('CurrentDevice');
-
-  if (!currentDevice) {
-    // eslint-disable-next-line prefer-destructuring
-    currentDevice = global.discoveredDevices[0];
-    // TODO - updating to v0.0.7, remove in some time
-    store.delete('LastDevice');
-    store.delete('last_device');
-    localStorage.removeItem('LastDbBuild');
-  }
-
-  setCurrentDevice(currentDevice, false);
-}
 
 export async function checkConnection() {
   const device = store.get('CurrentDevice');
@@ -143,7 +121,6 @@ export async function checkConnection() {
 }
 export const hasDevice = () => {
   const device = store.get('CurrentDevice');
-
   if (!device || !device.serverid) {
     console.warn("setupDb() - No device found, can't init db");
     return false;
@@ -164,3 +141,23 @@ export const comskipAvailable = () => {
 
   return false;
 };
+
+export async function setupApi() {
+  console.log('Calling setupApi');
+  global.Api = new Tablo();
+  global.CONNECTED = false;
+  await discover();
+  // TODO - updating to v0.0.7, remove in some time
+  let currentDevice: Device = store.get('CurrentDevice');
+
+  if (!currentDevice) {
+    // eslint-disable-next-line prefer-destructuring
+    currentDevice = global.discoveredDevices[0];
+    // TODO - updating to v0.0.7, remove in some time
+    store.delete('LastDevice');
+    store.delete('last_device');
+    localStorage.removeItem('LastDbBuild');
+  }
+  await checkConnection();
+  setCurrentDevice(currentDevice, false);
+}

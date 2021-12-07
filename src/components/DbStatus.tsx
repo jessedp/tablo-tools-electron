@@ -1,18 +1,42 @@
 import React, { Component } from 'react';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import PubSub from 'pubsub-js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import * as BuildActions from '../store/build';
+import { DbSliceState } from '../store/build';
+
+import {
+  STATE_NONE,
+  STATE_LOADING,
+  STATE_FINISH,
+  STATE_ERROR,
+} from '../constants/app';
+
 import { recDbCreated } from '../utils/db';
 import Build from './Build';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 import { hasDevice } from '../utils/Tablo';
+import DbLoadingSpinner from './DbLoadingSpinner';
 
-type Props = Record<string, never>;
+type OwnProps = Record<string, never>;
+type StateProps = Record<string, any>;
+
+type DispatchProps = {
+  startBuild: () => void;
+  updateProgress: (arg: DbSliceState) => void;
+};
+
+type DbStatusProps = OwnProps & StateProps & DispatchProps;
+
 type State = {
   dbAge: number;
 };
-export default class DbStatus extends Component<Props, State> {
+export class DbStatus extends Component<DbStatusProps, State> {
   timer: number;
 
   // whether we're using short-poll because the db doesn't exit
@@ -29,14 +53,14 @@ export default class DbStatus extends Component<Props, State> {
 
   psToken: string;
 
-  constructor(props: Props) {
+  constructor(props: DbStatusProps) {
     super(props);
     this.state = {
       dbAge: -1,
     };
     this.timer = 0;
     this.psToken = '';
-    this.buildRef = React.createRef();
+    // this.buildRef = React.createRef();
     this.shortTimer = true;
     this.emptyPollInterval = 5000; // 1 second
 
@@ -61,6 +85,7 @@ export default class DbStatus extends Component<Props, State> {
   }
 
   checkAge = async (forceBuild?: boolean) => {
+    const { startBuild } = this.props;
     const created = recDbCreated();
 
     if (!created && !forceBuild) {
@@ -96,7 +121,7 @@ export default class DbStatus extends Component<Props, State> {
     }
 
     if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
-      if (global.CONNECTED) this.buildRef.build();
+      if (global.CONNECTED) startBuild(); // this.buildRef.build();
       clearInterval(this.timer);
       this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     }
@@ -132,11 +157,7 @@ export default class DbStatus extends Component<Props, State> {
       >
         <Row>
           <Col md="2" className="ml-2 pr-0 mr-0 pl-0 btn btn-xs smaller">
-            <Build
-              view="spinner"
-              showDbTable={() => {}}
-              ref={(buildRef) => (this.buildRef = buildRef)}
-            />
+            <DbLoadingSpinner />
           </Col>
           <Col md="auto" className="pl-0 ml-0">
             <div
@@ -159,3 +180,20 @@ export default class DbStatus extends Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: any, ownProps: OwnProps) => {
+  const { build } = state;
+  return {
+    build,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(BuildActions, dispatch);
+};
+
+// export default connect<any, any>(
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(DbStatus);

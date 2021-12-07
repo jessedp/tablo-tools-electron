@@ -99,3 +99,10 @@ export const VIEW_SELECTED = 'selected';
 export const VIEW_LIST = 'list';
 
 export type ViewType = 'grid' | 'selected' | 'list';
+
+// Build states
+export const STATE_WAITING = 0;
+export const STATE_START = 1;
+export const STATE_LOADING = 2;
+export const STATE_FINISH = 3;
+export const STATE_ERROR = 4;

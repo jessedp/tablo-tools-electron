@@ -1,38 +1,47 @@
 import React, { Component } from 'react';
-import PubSub from 'pubsub-js';
-import Container from 'react-bootstrap/Container';
-import Alert from 'react-bootstrap/Alert';
 
-import Spinner from 'react-bootstrap/Spinner';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
-import Airing from '../utils/Airing';
-
-import BuildTitle from './BuildTitle';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import { writeToFile } from '../utils/utils';
 import getConfig from '../utils/config';
+
+import { dbCreatedKey, recDbCreated, recDbStats } from '../utils/db';
+
+import * as BuildActions from '../store/build';
+import { DbSliceState } from '../store/build';
+
+import {
+  STATE_WAITING,
+  STATE_START,
+  STATE_LOADING,
+  STATE_FINISH,
+  STATE_ERROR,
+} from '../constants/app';
+
+import Airing from '../utils/Airing';
 import Show from '../utils/Show';
 import Channel from '../utils/Channel';
 
-type Props = {
-  showDbTable: (show: boolean) => void;
-  view?: string;
+type OwnProps = Record<string, any>;
+
+type StateProps = Record<string, any>;
+
+type DispatchProps = {
+  updateProgress: (arg: DbSliceState) => void;
 };
+
+type BuildProps = OwnProps & StateProps & DispatchProps;
+
 type State = {
   loading: number;
-  status: Array<string>;
+  log: Array<string>;
   airingInc: number;
   airingMax: number;
   recCount: number;
 };
-const STATE_NONE = 0;
-const STATE_LOADING = 1;
-const STATE_FINISH = 2;
-const STATE_ERROR = 3;
-export default class Build extends Component<Props, State> {
+
+class Build extends Component<BuildProps, State> {
   building: boolean;
 
   psToken: string;
@@ -41,11 +50,11 @@ export default class Build extends Component<Props, State> {
     view: 'progress',
   };
 
-  constructor(props: Props) {
+  constructor(props: BuildProps) {
     super(props);
     this.state = {
-      loading: STATE_NONE,
-      status: [],
+      loading: STATE_WAITING,
+      log: [],
       airingInc: 0,
       airingMax: 1,
       recCount: 0,
@@ -53,7 +62,6 @@ export default class Build extends Component<Props, State> {
     this.psToken = '';
     this.building = false;
     this.build = this.build.bind(this);
-    this.refresh = this.refresh.bind(this);
   }
 
   async componentDidMount() {
@@ -78,25 +86,14 @@ export default class Build extends Component<Props, State> {
 
       autoBuild();
     }
-
-    this.refresh();
-    this.psToken = PubSub.subscribe('DB_CHANGE', this.refresh);
   }
-
-  componentWillUnmount() {
-    PubSub.unsubscribe(this.psToken);
-  }
-
-  refresh = async () => {
-    const total = await recDbStats();
-    await this.setState({
-      recCount: total,
-    });
-  };
 
   build = async () => {
     const { Api } = global;
-    const { showDbTable } = this.props;
+    const { updateProgress } = this.props;
+
+    // return;
+    // const { showDbTable } = this.props;
     if (!Api.device) return;
 
     if (this.building) {
@@ -116,10 +113,14 @@ export default class Build extends Component<Props, State> {
 
     this.building = true;
     console.time('Building');
-    showDbTable(false);
+    // showDbTable(false);
     this.setState({
       loading: STATE_LOADING,
-      status: [],
+      log: [],
+    });
+    updateProgress({
+      loading: STATE_LOADING,
+      log: [],
     });
 
     try {
@@ -129,8 +130,15 @@ export default class Build extends Component<Props, State> {
       this.setState({
         airingMax: total,
       });
+      updateProgress({
+        airingMax: total,
+      });
+
       const recs = await Api.getRecordings(true, (val: number) => {
         this.setState({
+          airingInc: val,
+        });
+        updateProgress({
           airingInc: val,
         });
       });
@@ -139,8 +147,8 @@ export default class Build extends Component<Props, State> {
         writeToFile(`airing-${rec.object_id}.json`, rec);
       });
       console.log(`retrieved ${recs.length} recordings`);
-      const { status } = this.state;
-      status.push(`retrieved ${recs.length} recordings`);
+      const { log } = this.state;
+      log.push(`retrieved ${recs.length} recordings`);
       const { RecDb } = global;
 
       const recRemoveCnt = await RecDb.asyncRemove(
@@ -165,7 +173,7 @@ export default class Build extends Component<Props, State> {
       console.log(`${recRemoveCnt} old records removed`);
       let insertRes = await RecDb.asyncInsert(recs);
       console.log(`${insertRes.length} records added`);
-      status.push(`${insertRes.length} recordings found.`);
+      log.push(`${insertRes.length} recordings found.`);
       const showPaths: string[] = [];
       recs.forEach((rec: Record<string, any>) => {
         const airing = new Airing(rec);
@@ -211,7 +219,11 @@ export default class Build extends Component<Props, State> {
       this.building = false;
       await this.setState({
         loading: STATE_FINISH,
-        status,
+        log,
+      });
+      updateProgress({
+        loading: STATE_FINISH,
+        log,
       });
       localStorage.setItem(dbCreatedKey(), new Date().toISOString());
       PubSub.publish('DB_CHANGE', true);
@@ -227,162 +239,42 @@ export default class Build extends Component<Props, State> {
         err = e.toString();
       }
 
-      await this.setState({
+      this.setState({
         loading: STATE_ERROR,
-        status: [err],
+        log: [err],
+      });
+      updateProgress({
+        loading: STATE_ERROR,
+        log: [err],
       });
     }
-
-    showDbTable(true);
   };
 
-  loadingProgress() {
-    const { loading, status, airingMax, airingInc } = this.state;
-
-    if (loading === STATE_NONE) {
-      return <></>;
-    }
-
-    let progressVariant = 'info';
-
-    if (loading === STATE_LOADING) {
-      const pct = Math.round((airingInc / airingMax) * 100);
-      // console.log('loading pct', pct);
-      const airingPct = `${pct}%`;
-
-      if (pct < 25) {
-        progressVariant = 'danger';
-      } else if (pct < 50) {
-        progressVariant = 'warning';
-      } else if (pct < 75) {
-        progressVariant = 'info';
-      } else {
-        progressVariant = 'success';
-      }
-
-      return (
-        <Container>
-          <h6 className="p-3">Finding Recordings...</h6>
-          <ProgressBar
-            animated
-            max={airingMax}
-            now={airingInc}
-            label={airingPct}
-            variant={progressVariant}
-          />
-          {airingInc === airingMax ? (
-            <div>
-              <h6 className="p-3">Finishing up...</h6>
-              <div className="pl-5 pt-1">
-                {' '}
-                <Spinner animation="grow" variant="primary" />
-              </div>
-            </div>
-          ) : (
-            ''
-          )}
-        </Container>
-      );
-    }
-
-    if (loading === STATE_FINISH) {
-      setTimeout(() => {
-        this.setState({
-          loading: STATE_NONE,
-        });
-      }, 3000);
-      const txt = status.pop();
-      return (
-        <Container>
-          <Alert className="fade m-2" variant="success">
-            Done! {txt}
-          </Alert>
-        </Container>
-      );
-    }
-
-    if (loading === STATE_ERROR) {
-      setTimeout(() => {
-        this.setState({
-          loading: STATE_NONE,
-        });
-      }, 5000);
-      return (
-        <Container>
-          <Alert className="fade m-2" variant="danger">
-            <b>Problem building...</b>
-            <br />
-            {status[0]}
-          </Alert>
-        </Container>
-      );
-    }
-    return <></>;
-  }
-
-  loadingSpinner() {
-    const { loading, airingMax, airingInc } = this.state;
-
-    if (loading === STATE_NONE) {
-      return <></>;
-    }
-
-    let progressVariant = 'badge-danger';
-
-    if (loading === STATE_LOADING) {
-      const pct = Math.round((airingInc / airingMax) * 100);
-
-      // console.log('loading pct', pct);
-      // const airingPct = `${pct}%`;
-      if (pct < 25) {
-        progressVariant = 'badge-danger';
-      } else if (pct < 50) {
-        progressVariant = 'badge-warning';
-      } else if (pct < 75) {
-        progressVariant = 'badge-info';
-      } else {
-        progressVariant = 'badge-success';
-      }
-
-      const cubeClass = `sk-folding-cube ${progressVariant}`;
-      return (
-        <div className={cubeClass}>
-          <div className="sk-cube1 sk-cube" />
-          <div className="sk-cube2 sk-cube" />
-          <div className="sk-cube4 sk-cube" />
-          <div className="sk-cube3 sk-cube" />
-        </div>
-      );
-    }
-
-    if (loading === STATE_FINISH) {
-      return <></>;
-    }
-    return <></>;
-  }
-
   render() {
-    const { loading, recCount } = this.state;
-    const { view } = this.props;
-
-    if (view === 'spinner') {
-      return <>{this.loadingSpinner()}</>;
+    const { progress, updateProgress } = this.props;
+    if (progress.loading === STATE_START) {
+      updateProgress({
+        loading: STATE_LOADING,
+      });
+      console.log('starting');
+      this.build();
     }
-
-    // progress
-    return (
-      <Container>
-        <Row>
-          <Col className="d-flex align-items-center">
-            {loading !== STATE_LOADING ? (
-              <BuildTitle recCount={recCount} build={this.build} />
-            ) : (
-              ''
-            )}
-          </Col>
-        </Row>
-        {this.loadingProgress()}
-      </Container>
-    );
+    return <></>;
   }
 }
+
+const mapStateToProps = (state: any, ownProps: OwnProps) => {
+  const { build } = state;
+  return {
+    progress: build,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(BuildActions, dispatch);
+};
+
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Build);
