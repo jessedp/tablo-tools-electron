@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ExportRecordType } from 'reducers/types';
+import { ExportRecordType } from '../constants/types';
 import { current } from 'immer';
 import { StdObj } from '../constants/app';
 
