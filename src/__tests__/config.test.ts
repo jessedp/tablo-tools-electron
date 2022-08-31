@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import getConfig, * as cfg from '../utils/config';
+import getConfig, * as cfg from '../renderer/utils/config.ts';
 
 beforeEach(() => {
   fs.unlinkSync(cfg.CONFIG_FILE_NAME);

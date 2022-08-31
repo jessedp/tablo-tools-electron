@@ -1,4 +1,4 @@
-import Channel from '../utils/Channel';
+import Channel from '../renderer/utils/Channel';
 import * as chBuzzr from './data/channel-BUZZR.json';
 
 let channel: Channel = new Channel(chBuzzr);

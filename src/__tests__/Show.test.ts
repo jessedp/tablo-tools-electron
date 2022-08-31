@@ -1,4 +1,4 @@
-import Show from '../utils/Show';
+import Show from '../renderer/utils/Show';
 import * as seriesData from './data/show-series-SNL.json';
 import * as sportsData from './data/show-sports-NBA.json';
 import * as moviesData from './data/show-movies-Silverado.json';

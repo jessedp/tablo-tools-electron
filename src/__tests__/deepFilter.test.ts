@@ -1,4 +1,4 @@
-import deepFilter from '../utils/deepFilter';
+import deepFilter from '../renderer/utils/deepFilter';
 
 test('basic filter', () => {
   // const given1 = {

@@ -1,4 +1,4 @@
-import * as util from '../utils/utils';
+import * as util from '../renderer/utils/utils';
 
 test('ellipse func', () => {
   expect(util.ellipse('not long enough', 50)).toBe('not long enough');

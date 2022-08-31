@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "CommonJS",
-    "lib": ["dom", "esnext"],
+    "incremental": true,
+    "target": "es2021",
+    "module": "commonjs",
+    "lib": ["dom", "es2021"],
     "declaration": true,
     "declarationMap": true,
-    "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "strict": true,
     "pretty": true,
     "sourceMap": true,
+    "baseUrl": "./src",
     /* TODO: yuck! Nivo, D3 types have issues sometimes */
     "skipLibCheck": true,
     /* Additional Checks */
@@ -23,23 +24,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-
-    /* Override decalarations */
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "@types/*",
-        "src/*",
-      ]
-    }
-
+    "outDir": "release/app/dist"
   },
-  "exclude": [
-    "test",
-    "release",
-    "src/main.prod.js",
-    "src/renderer.prod.js",
-    "src/dist",
-    ".erb/dll"
-  ]
+  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
 }

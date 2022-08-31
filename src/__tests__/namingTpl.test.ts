@@ -1,5 +1,5 @@
-import * as namingTpl from '../utils/namingTpl';
-import getConfig from '../utils/config';
+import * as namingTpl from '../renderer/utils/namingTpl';
+import getConfig from '../renderer/utils/config.ts';
 
 // TODO: Add more PATH replacements
 test('fill basic template using string', () => {

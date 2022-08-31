@@ -1,4 +1,4 @@
-import Airing from '../utils/Airing';
+import Airing from '../renderer/utils/Airing';
 
 import * as seriesData from './data/airing-series-SNL.json';
 import * as sportsData from './data/airing-sports-NBA.json';
@@ -7,10 +7,10 @@ import * as programsData from './data/airing-manual.json';
 
 import * as seriesShowData from './data/show-series-SNL.json';
 
-import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
-import Show from '../utils/Show';
+import { EVENT, MOVIE, PROGRAM, SERIES } from '../renderer/constants/app';
+import Show from '../renderer/utils/Show';
 
-const sanitize = require('sanitize-filename');
+import sanitize from 'sanitize-filename';
 
 let airingSeries = new Airing(seriesData);
 let airingSports = new Airing(sportsData);

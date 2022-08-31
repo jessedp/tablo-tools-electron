@@ -1,20 +1,11 @@
 module.exports = {
   extends: 'erb',
   rules: {
-    /** done solely for checkboxRef in Episode.js * */
-    'no-return-assign': 'off',
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
-    // note you must disable the base rule as it can report incorrect errors
-    'eslint/no-use-before-define': 'off',
-    'no-use-before-define': 'off',
-    // '@typescript-eslint/no-use-before-define': ['error'],
-    '@typescript-eslint/no-use-before-define': ['warn'],
-
-    // Since we do not use prop-types
-    'react/prop-types': 'off',
-    'react/static-property-placement': 'off',
-    'react/require-default-props': 'off',
+    'import/no-unresolved': 'error',
+    // Since React 17 and typescript 4.1 you can safely disable the rule
+    'react/react-in-jsx-scope': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
@@ -28,8 +19,9 @@ module.exports = {
       // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below
       node: {},
       webpack: {
-        config: require.resolve('./.erb/configs/webpack.config.eslint.js'),
+        config: require.resolve('./.erb/configs/webpack.config.eslint.ts'),
       },
+      typescript: {},
     },
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
