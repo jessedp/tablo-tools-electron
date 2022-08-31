@@ -105,6 +105,7 @@ export default function MediumPie(props: Props): JSX.Element {
         innerRadius={0.6}
         theme={theme}
         legends={legends}
+        enableArcLabels={false}
         animate
         isInteractive
         // onMouseEnter={(_data, event) => {

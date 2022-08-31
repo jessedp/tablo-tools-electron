@@ -144,6 +144,7 @@ export default function MediumBar(props: Props): JSX.Element {
           tickPadding: 5,
           tickRotation: 0,
         }}
+        enableLabel={false}
         legends={legends}
         labelSkipWidth={12}
         labelSkipHeight={12}
