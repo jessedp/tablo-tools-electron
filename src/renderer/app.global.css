@@ -8,7 +8,7 @@
 @import 'corner-banners.css';
 @import 'tablo-badges.css';
 @import 'spinner.css';
-@import '~video-react/dist/video-react.css';
+/* @import '~video-react/dist/video-react.css'; */
 
 /* reset sandstone */
 label {

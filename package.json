@@ -250,6 +250,7 @@
     "@nivo/calendar": "^0.79.1",
     "@nivo/core": "^0.79.0",
     "@nivo/pie": "^0.79.1",
+    "@panelist/react-hls-player": "^3.0.8",
     "@popperjs/core": "^2.11.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/electron": "^3.0.7",
@@ -276,7 +277,6 @@
     "fluent-ffmpeg": "^2.1.2",
     "handlebars": "^4.7.7",
     "history": "^4.10.1",
-    "hls.js": "^0.12.4",
     "http-browserify": "^1.7.0",
     "https-browserify": "^1.0.0",
     "jquery": "^3.6.0",
@@ -318,8 +318,7 @@
     "template-helpers": "^1.0.1",
     "text-encoding": "^0.7.0",
     "tls-browserify": "^0.2.2",
-    "util": "^0.12.4",
-    "video-react": "github:jessedp/video-react#r17_dist"
+    "util": "^0.12.4"
   },
   "browserslist": [],
   "prettier": {

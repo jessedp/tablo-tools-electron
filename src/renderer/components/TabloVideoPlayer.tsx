@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { Player } from 'video-react';
-import HLSSource from './HLSSource';
-// import MyPlayer from './MyPlayer';
+import ReactHlsPlayer from '@panelist/react-hls-player';
+
 import Airing from '../utils/Airing';
 
 type Props = {
@@ -22,7 +21,7 @@ export default class TabloVideoPlayer extends Component<Props, State> {
       opened: false,
       url: '',
     };
-    (this as any).toggle = this.toggle.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
 
   toggle = async () => {
@@ -70,9 +69,13 @@ export default class TabloVideoPlayer extends Component<Props, State> {
             {!airing.cachedWatch ? (
               <div>Loading...</div>
             ) : (
-              <Player fluid width={300} height={240}>
-                <HLSSource src={url} video={{}} type="" />
-              </Player>
+              <ReactHlsPlayer
+                src={url}
+                autoPlay
+                controls
+                width="100%"
+                height="auto"
+              />
             )}
           </Modal.Body>
         </Modal>
