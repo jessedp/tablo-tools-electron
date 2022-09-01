@@ -18,10 +18,6 @@ import Store from 'electron-store';
 
 // import * as Sentry from '@sentry/electron';
 
-// these were conditionally required pre-ts
-// import electronDebug from 'electron-debug';
-// import installer from 'electron-devtools-installer';
-// import sourceMapSupport from 'source-map-support';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 
@@ -33,18 +29,6 @@ require('./pre_Tablo');
 require('./pre_db');
 require('./pre_airing');
 require('./pre_templates');
-
-// ipcMain.on('get-path-main', (event: any, arg: any) => {
-//   event.returnValue = app.getPath(arg);
-// });
-
-// ipcMain.on('get-version', (event: any) => {
-//   event.returnValue = app.getVersion();
-// });
-
-// ipcMain.on('get-name', (event: any) => {
-//   event.returnValue = app.name;
-// });
 
 ipcMain.on('open-dialog', (event: any, arg: any) => {
   const file = dialog.showOpenDialogSync(arg);
@@ -80,7 +64,6 @@ ipcMain.on('get-content-bounds', (event: any) => {
 });
 
 ipcMain.on('open-path', (_, arg: string) => {
-  console.log('open-path = ', path.dirname(arg));
   debug('open-path = ', path.dirname(arg));
 
   if (arg) shell.openPath(path.dirname(arg));
@@ -178,7 +161,6 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       mainWindow.webContents.openDevTools();
-      mainWindow.webContents.send('ping', 'hey!!!!!');
       debug('mainWindow opened');
     }
   });

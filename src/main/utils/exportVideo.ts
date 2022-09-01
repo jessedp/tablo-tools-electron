@@ -1,5 +1,6 @@
 import FfmpegCommand from 'fluent-ffmpeg';
-
+import log from 'electron-log';
+import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
 
@@ -98,26 +99,26 @@ export const exportVideo = async (
   actionOnDuplicate: string,
   progressCallback: (...args: Array<any>) => any
 ) => {
-  const debugging = false; // getConfig().enableDebug;
-  // let date = new Date()
-  //   .toISOString()
-  //   .replace('T', '_')
-  //   .replace(/:/g, '-')
-  //   .replace(/ /g, '_');
-  // date = date.substr(0, date.indexOf('.'));
-  // log.transports.file.fileName = `${airing.object_id}-${sanitize(
-  //   airing.showTitle
-  // )}-${date}.log`;
-  // log.transports.file.maxSize = 1048576; // 1mb
+  const userDebug = getConfig().enableDebug;
+  let date = new Date()
+    .toISOString()
+    .replace('T', '_')
+    .replace(/:/g, '-')
+    .replace(/ /g, '_');
+  date = date.slice(0, date.indexOf('.'));
+  log.transports.file.fileName = `${airing.object_id}-${sanitize(
+    airing.showTitle
+  )}-${date}.log`;
+  log.transports.file.maxSize = 1048576; // 1mb
 
-  // if (!debug) {
-  //   log.transports.file.level = false;
-  // }
+  if (!userDebug) {
+    log.transports.file.level = false;
+  }
 
-  // if (debug) log.info('start processVideo', new Date());
-  // if (debug) log.info('env', process.env.NODE_ENV);
-  // FfmpegCommand.setFfmpegPath(findFfmpegPath(debug, log));
-  FfmpegCommand.setFfmpegPath(findFfmpegPath(debugging, null));
+  if (userDebug) log.info('start processVideo', new Date());
+  if (userDebug) log.info('env', process.env.NODE_ENV);
+  // FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
+  FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
   let watchPath: Record<string, any> | undefined;
   let input = '';
 
@@ -128,8 +129,6 @@ export const exportVideo = async (
 
     input = watchPath.playlist_url;
   } catch (err) {
-    // log.warn(`An error occurred: ${err}`);
-
     if (typeof progressCallback === 'function') {
       progressCallback(airing.object_id, {
         failed: true,
@@ -138,7 +137,7 @@ export const exportVideo = async (
     }
 
     debug('Unable to load watch path!', err);
-    // FIXME: not sure what this does...
+
     return new Promise((resolve) => {
       resolve(`${airing.object_id} Unable to load watch path!`);
     });
@@ -147,8 +146,8 @@ export const exportVideo = async (
   const outFile = dedupedExportFile(airing);
 
   const outPath = fsPath.dirname(outFile);
-  // if (debug) log.info('exporting to path:', outPath);
-  // if (debug) log.info('exporting to file:', outFile);
+  if (userDebug) log.info('exporting to path:', outPath);
+  if (userDebug) log.info('exporting to file:', outFile);
   fs.mkdirSync(outPath, {
     recursive: true,
   });
@@ -163,7 +162,7 @@ export const exportVideo = async (
 
   airing.cmd = FfmpegCommand();
   globalThis.exportProcs[airing.object_id] = { cmd: airing.cmd, outFile };
-  // OLDeslint-disable-next-line compat/compat
+
   return new Promise((resolve) => {
     if (outFile !== airing.exportFile) {
       if (actionOnDuplicate === DUPE_SKIP) {
@@ -183,7 +182,7 @@ export const exportVideo = async (
       .output(outFile)
       .addOutputOptions(ffmpegOpts)
       .on('end', () => {
-        // log.info('Finished processing');
+        log.info('Finished processing');
         if (typeof progressCallback === 'function') {
           progressCallback(airing.object_id, {
             finished: true,
@@ -191,13 +190,13 @@ export const exportVideo = async (
           });
         }
 
-        // if (debug) log.info(ffmpegLog.join('\n'));
-        // if (debug) log.info('end processVideo', new Date());
+        if (userDebug) log.info(ffmpegLog.join('\n'));
+        if (userDebug) log.info('end processVideo', new Date());
         resolve(ffmpegLog);
       })
       .on('error', (err: any) => {
         const errMsg = `An error occurred: ${err}`;
-        // log.info(errMsg);
+        log.info(errMsg);
         ffmpegLog.push(errMsg);
 
         if (typeof progressCallback === 'function') {
@@ -240,7 +239,7 @@ export const exportVideo = async (
           }
 
           if (record) ffmpegLog.push(stderrLine);
-          // if (debug) log.info(`Stderr output: ${stderrLine}`);
+          if (userDebug) log.info(`Stderr output: ${stderrLine}`);
         }
       })
       .on('progress', (progress: Record<string, any>) => {
