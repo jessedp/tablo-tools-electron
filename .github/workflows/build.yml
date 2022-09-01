@@ -1,9 +1,7 @@
 name: Build/release
 
-on:
-  push:
-    branches:
-      - NONE
+on: push
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -16,22 +14,23 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Check last commit message
-        id: skip
-        uses: atlwendy/retrieve-commit-messages-from-pr@v2
+      # - name: Check last commit message
+      #   id: skip
+      #   uses: atlwendy/retrieve-commit-messages-from-pr@v2
 
-      - name: Install Node.js, NPM and Yarn
+      - name: Install Node and NPM
         uses: actions/setup-node@v1
         with:
           node-version: 16
+          cache: npm
 
-      - name: Force the yarn install
+      - name: Force the npm install
         if: success()
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 10
           max_attempts: 20
-          command: yarn install
+          command: npm install
 
       - name: Build/release Electron app
         if: success()
