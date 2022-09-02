@@ -121,7 +121,7 @@ export default class PermissionRequests extends Component<Props, State> {
               />
 
               <div className="pl-4 smaller">
-                No personal data is collected - this simply notifies of us
+                No personal data is collected - this simply notifies us of
                 errors before you may post about it or even notice a problem. It
                 does the <i>white screen of death</i> information gathering for
                 you (and more).

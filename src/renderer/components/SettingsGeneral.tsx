@@ -359,7 +359,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
               checked={allowErrorReport ? CHECKBOX_ON : CHECKBOX_OFF}
             />
             <div className="pl-4 smaller">
-              No personal data is collected - this simply notifies of us errors
+              No personal data is collected - this simply notifies us of errors
               before you may post about it or even notice a problem. It does the{' '}
               <i>white screen of death</i> information gathering for you (and
               more).
