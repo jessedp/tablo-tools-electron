@@ -7,11 +7,11 @@ import {
   checkConnection,
   comskipAvailable,
   discover,
-  hasDevice,
   setupApi,
+  setCurrentDevice,
 } from './utils/Tablo';
 
-// const TabloApi = new Tablo();
+import { hasDevice } from './utils/utils';
 
 ipcMain.on('tablo-setup-api', async (event: any) => {
   try {
@@ -43,6 +43,16 @@ ipcMain.on('tablo-discover', async (event: any) => {
   } catch (e) {
     console.error('tablo-discover', e);
     event.returnValue = e;
+  }
+});
+
+ipcMain.on('tablo-setCurrentDevice', async (event: any, device: any) => {
+  try {
+    await setCurrentDevice(device);
+    event.returnValue = true;
+  } catch (e) {
+    console.error('tablo-setCurrentDevice', e);
+    event.returnValue = false;
   }
 });
 

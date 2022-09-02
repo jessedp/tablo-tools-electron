@@ -95,6 +95,8 @@ contextBridge.exposeInMainWorld('Tablo', {
   getRecordingsCount: () => ipcRenderer.sendSync('tablo-getRecordingsCount'),
   getRecordings: (force: boolean, cb?: any) =>
     ipcRenderer.invoke('tablo-getRecordings', force, cb),
+  setCurrentDevice: (device: any) =>
+    ipcRenderer.sendSync('tablo-setCurrentDevice', device),
   getServerInfo: () => ipcRenderer.sendSync('tablo-getServerInfo'),
   batch: (ids: any) => ipcRenderer.sendSync('tablo-batch', ids),
   get: (query: any) => ipcRenderer.sendSync('tablo-get', query),

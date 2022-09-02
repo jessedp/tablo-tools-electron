@@ -1,19 +1,13 @@
-// const net = window.require('net');
 import * as net from 'net';
-// import PubSub from 'pubsub-js';
+
 // import * as Sentry from '@sentry/electron';
 import compareVersions from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
-// import { resolve } from 'path';
+
 import getConfig from './config';
+import { setupDb } from './db';
 
-// const net = window.require('net');
-// import Device from 'tablo-api/dist/Device';
-// const { Tablo } = window.require('tablo-api');
-// const { Tablo } = window.electron;
-
-// const Store = window.require('electron-store');
 const debug = require('debug')('tt:Tablo');
 
 const store = new Store();
@@ -26,7 +20,22 @@ export async function setCurrentDevice(
 ): Promise<void> {
   globalThis.Api.device = device;
 
+  // if (!global.CONNECTED) {
+  //   debug('setCurrentDevice - not connected, exiting...');
+  //   return;
+  // }
+
   if (device) {
+    const currentDevice: any = store.get('CurrentDevice');
+    debug('curdev = ', currentDevice);
+    debug('newdev = ', device);
+
+    if (currentDevice.serverid === device.serverid) {
+      debug(
+        'setCurrentDevice - current and new device are the same, exiting...'
+      );
+      return;
+    }
     // Sentry.configureScope((scope) => {
     //   scope.setUser({
     //     id: device.server_id,
@@ -36,8 +45,9 @@ export async function setCurrentDevice(
     //   scope.setTag('tablo_board', device.board);
     //   scope.setTag('tablo_firmware', device.server_version || 'unknown'); // scope.clear();
     // });
-    // store.set('CurrentDevice', device);
-    if (publish) PubSub.publish('DEVICE_CHANGE', true);
+    store.set('CurrentDevice', device);
+    setupDb();
+    // if (publish) PubSub.publish('DEVICE_CHANGE', true);
 
     try {
       globalThis.Api.device.info = await globalThis.Api.get('/settings/info');
@@ -46,7 +56,7 @@ export async function setCurrentDevice(
         globalThis.Api.device.info
       );
     } catch (e) {
-      console.error('Unable to load settings/info', e, globalThis.Api);
+      debug('Unable to load settings/info', e, globalThis.Api);
     }
   } else {
     console.warn(
@@ -98,10 +108,15 @@ export const discover = async (): Promise<void> => {
 
 export async function checkConnection(): Promise<boolean> {
   const device: any = store.get('CurrentDevice');
+  debug(
+    'checkConnection - starting: %s',
+    device ? 'has device' : 'no device, skipping'
+  );
   if (!device || !device.private_ip) return false;
   const connIp = device.private_ip;
   const client = new net.Socket();
-  client.setTimeout(500);
+  const connTimeoutSec = 500;
+  client.setTimeout(connTimeoutSec);
   let status = false;
   client
     .connect(
@@ -115,17 +130,20 @@ export async function checkConnection(): Promise<boolean> {
       }
     )
     .on('error', (evt: any) => {
-      if (!evt.toString().match(/ECONNREFUSED/)) {
-        console.log('checkConnection error - ', evt);
-      }
+      // if (!evt.toString().match(/ECONNREFUSED/)) {
+      debug('checkConnection -  error - ', evt);
+      //   status = false;
+      // }
 
       status = false;
+      client.end();
     })
     .on('timeout', (evt: any) => {
-      if (evt) {
-        console.log('timeout', evt);
-        status = false;
-      }
+      // if (evt) {
+      debug(`checkConnection - Timeout after ${connTimeoutSec}ms`);
+      status = false;
+      client.end();
+      client.destroy();
     });
   // this is easily grosser and more wronger than it looks
   // OLDeslint-disable-next-line compat/compat
@@ -137,15 +155,6 @@ export async function checkConnection(): Promise<boolean> {
   });
 }
 
-export const hasDevice = () => {
-  const device: any = store.get('CurrentDevice');
-  if (!device || !device.serverid) {
-    debug("hasDevice() - No device found, can't init db");
-    return false;
-  }
-
-  return true;
-};
 export const comskipAvailable = (): boolean => {
   const currentDevice: any = store.get('CurrentDevice');
   debug(
