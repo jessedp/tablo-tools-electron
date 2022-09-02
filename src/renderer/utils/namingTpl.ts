@@ -191,11 +191,16 @@ export function getTemplate(type: string, slug?: string): NamingTemplateType {
 }
 export async function loadTemplates() {
   const defaults = defaultTemplates;
-
+  let all = defaults;
   const recs = await window.Templates.load();
-  console.log('renderer - loaded templates: ', recs);
-  const all = [...defaults, ...recs];
-  console.log('renderer - all: ', all);
+  if (Array.isArray(recs)) {
+    all = [...defaults, ...recs];
+  } else {
+    console.warn('loadTemplates() - recs was not an Array! ', recs);
+  }
+
+  console.log('renderer - loaded templates: ', all);
+
   globalThis.LoadedTemplates = all;
   debug('renderer - loadeded templates');
 }
