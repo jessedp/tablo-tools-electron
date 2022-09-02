@@ -77,10 +77,11 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
     if (!serverId) return;
 
     const { history } = this.props;
-    const device = global.discoveredDevices.filter(
+    const device = window.Tablo.discoveredDevices().filter(
       (item) => item.serverid === serverId
     );
     setCurrentDevice(device[0]);
+    PubSub.publish('DB_CHANGE', true);
     history.push(routes.HOME);
   };
 
@@ -88,9 +89,9 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
     const { pingInd } = this.state;
     // const { device } = globalThis.Api;
     const device = window.Tablo.device();
-    if (!device) return <></>; //
-
     const currentDevice: any = store.get('CurrentDevice');
+    if (!device || !currentDevice) return <></>; //
+
     let pingStatus = 'text-danger';
 
     if (pingInd) {

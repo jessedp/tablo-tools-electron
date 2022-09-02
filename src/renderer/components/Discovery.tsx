@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
 import PubSub from 'pubsub-js';
+import { Spinner } from 'react-bootstrap';
 import { discover, setCurrentDevice } from '../utils/Tablo';
 import RelativeDate from './RelativeDate';
 
@@ -24,6 +25,7 @@ type State = {
 const STATE_NONE = 0;
 const STATE_SELECTED = 1;
 const STATE_MULTI = 2;
+const STATE_WORKING = 3;
 export default class Discovery extends Component<Props, State> {
   psToken: string;
 
@@ -53,15 +55,17 @@ export default class Discovery extends Component<Props, State> {
 
   setDevice = async (serverId: string) => {
     const { showServerInfo } = this.props;
-    const device = global.discoveredDevices.filter(
+    const device = window.Tablo.discoveredDevices().filter(
       (item) => item.serverid === serverId
     );
     await setCurrentDevice(device[0]);
+
     showServerInfo(true);
     this.setState({
       state: STATE_SELECTED,
       currentDevice: device[0],
     });
+    PubSub.publish('DB_CHANGE', true);
   };
 
   async refresh() {
@@ -74,6 +78,10 @@ export default class Discovery extends Component<Props, State> {
 
   async discover() {
     const { showServerInfo } = this.props;
+    this.setState({
+      state: STATE_WORKING,
+    });
+
     await discover();
     const devices = window.Tablo.discoveredDevices();
 
@@ -118,6 +126,10 @@ export default class Discovery extends Component<Props, State> {
 
 function DiscoveryStatus(prop: Record<string, any>) {
   const { state, setDevice } = prop;
+
+  if (state === STATE_WORKING) {
+    return <Spinner animation="grow" variant="success" />;
+  }
 
   if (state === STATE_NONE) {
     return (
@@ -179,7 +191,7 @@ function DiscoveryTitle(prop: Record<string, any>) {
 
   return (
     <>
-      <span>None yet, click Discover</span>
+      <span>No devices found yet, click Discover</span>
       <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
         Discover
       </Button>

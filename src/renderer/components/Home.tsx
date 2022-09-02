@@ -64,10 +64,129 @@ export default class Home extends Component<Props, State> {
             <h4 className="mb-2 pt-1">Welcome to Tablo Tools v{appVersion}</h4>
           </Alert>
           <Row>
-            <Alert variant="danger">
-              Uh-oh! It does not look like you have a network connection. Please
-              check that and re-open this application.
-            </Alert>
+            <Col md="10">
+              <Alert variant="danger" width="100%">
+                <strong>Uh-oh!</strong> No Tablo device could be found!
+              </Alert>
+            </Col>
+            <Col className="ml-5" md="8">
+              <Discovery showServerInfo={this.showServerInfo} />
+            </Col>
+
+            <Col md="8" className="pt-3">
+              <h5>Some possible reasons...</h5>
+
+              <ul style={{ color: 'darkgreen' }}>
+                <li>
+                  <strong>
+                    Only a Tablo{' '}
+                    <a
+                      href="https://www.tablotv.com/tablo-dvrs-how-they-work/"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: 'blue',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      network connected device
+                    </a>
+                  </strong>{' '}
+                  are compatible.
+                  <br />
+                  These network connected devices should work with TabloTools:
+                  <ul>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-dual-lite-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo DUAL LITE OTA DVR
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-dual-128gb-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo DUAL 128GB OTA DVR
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-quad-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo QUAD OTA DVR
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-quad-1tb-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo QUAD 1TB OTA DVR
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>
+                    Unfortuntaley, Tablo{' '}
+                    <a
+                      href="https://www.tablotv.com/tablo-tv-connected-dvrs-how-they-work/"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: 'blue',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      TV connected devices
+                    </a>
+                  </strong>{' '}
+                  can not be accessed using TabloTools. That includes:
+                  <ul>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-dual-hdmi-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo DUAL HDMI OTA DVR
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://www.tablotv.com/products/tablo-quad-hdmi-ota-dvr/"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: 'blue' }}
+                      >
+                        Tablo QUAD HDMI OTA DVR
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>No network connection</strong> - somehow this program
+                  can not currently access any local network or the internet.
+                </li>
+              </ul>
+              <i>
+                * Devices, links, etc. mentioned were current as of September
+                1st, 2022
+              </i>
+            </Col>
           </Row>
         </Container>
       );
