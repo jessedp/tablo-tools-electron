@@ -1,14 +1,23 @@
-// import * as os from 'os';
-// import getConfig from './config';
-
-// const { exec } = require('child_process');
-// import ffmpeg from 'ffmpeg-static-electron';
-import ffmpeg from 'ffmpeg-static-electron-jdp';
-// const { fs, ffmpeg } = window.electron;
-
 import * as fs from 'fs';
 import * as os from 'os';
-// const fs = window.require('fs');
+
+import Store from 'electron-store';
+import Debug from 'debug';
+
+import ffmpeg from 'ffmpeg-static-electron-jdp';
+
+const store = new Store();
+const debug = Debug('tt:utils');
+
+export const hasDevice = () => {
+  const device: any = store.get('CurrentDevice');
+  if (!device || !device.serverid) {
+    debug("hasDevice() - No device found, can't init db");
+    return false;
+  }
+
+  return true;
+};
 
 export function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
