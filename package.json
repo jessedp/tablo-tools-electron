@@ -314,7 +314,7 @@
     "stream-http": "^3.2.0",
     "styled-components": "^5.1.0",
     "supports-color": "^9.2.2",
-    "tablo-api": "^0.4.9",
+    "tablo-api": "^0.4.11",
     "template-helpers": "^1.0.1",
     "text-encoding": "^0.7.0",
     "tls-browserify": "^0.2.2",
