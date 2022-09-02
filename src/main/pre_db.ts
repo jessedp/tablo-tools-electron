@@ -12,6 +12,7 @@ ipcMain.on('db-setup', async (event: any) => {
   try {
     event.returnValue = await setupDb();
   } catch (e) {
+    debug('db-setup failed! ', e);
     event.returnValue = e;
   }
 });
@@ -25,8 +26,9 @@ ipcMain.on(
       // console.log('db-find recs', recs);
       event.returnValue = recs;
     } catch (e) {
+      debug('db-find', e);
       console.error('db-find', e);
-      event.returnValue = {};
+      event.returnValue = [];
     }
   }
 );
@@ -38,8 +40,9 @@ ipcMain.on(
       const recs = await globalThis[dbName].asyncFind(query, params);
       event.returnValue = recs;
     } catch (e) {
+      debug('db-async-find', e);
       console.error('db-async-find', e);
-      event.returnValue = {};
+      event.returnValue = [];
     }
   }
 );
@@ -49,6 +52,7 @@ ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
     const recs = await globalThis[dbName].asyncFindOne(params);
     event.returnValue = recs;
   } catch (e) {
+    debug('db-findOne', e);
     console.error('db-findOne', e);
     event.returnValue = {};
   }
@@ -59,7 +63,8 @@ ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
     const count = await globalThis[dbName].asyncCount(params);
     event.returnValue = count;
   } catch (e) {
-    console.error('db-count', e);
+    debug('db-count', dbName, e);
+    console.error('db-count', dbName, e);
     event.returnValue = 0;
   }
 });
@@ -69,6 +74,7 @@ ipcMain.on('db-insert', async (event: any, dbName: string, query: any) => {
     const count = await globalThis[dbName].asyncInsert(query);
     event.returnValue = count;
   } catch (e) {
+    debug('db-insert', e);
     console.error('db-insert', e);
     event.returnValue = 0;
   }
@@ -89,6 +95,7 @@ ipcMain.on(
       );
       event.returnValue = result;
     } catch (e) {
+      debug('db-remove', e);
       console.error('db-remove', e);
       event.returnValue = false;
     }
@@ -108,6 +115,7 @@ ipcMain.on(
       const recs = await globalThis[dbName].asyncUpdate(query, params);
       event.returnValue = recs;
     } catch (e) {
+      debug('db-update', e);
       console.error('db-update', e);
       event.returnValue = {};
     }
