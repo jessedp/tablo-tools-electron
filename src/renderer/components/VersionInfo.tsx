@@ -4,21 +4,13 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import ReactMarkdown from 'react-markdown';
-import compareVersions from 'compare-versions';
+import { compareVersions } from 'compare-versions';
 import Button from 'react-bootstrap/Button';
-import { version } from '../../../package.json';
+
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
-// const Store = window.require('electron-store');
-
-const app = { getVersion: () => '' };
-if (process.env.NODE_ENV !== 'production') {
-  // TODO: should this be calling back to Main instead?
-  // const version = ipcRenderer.sendSync('get-version');
-
-  app.getVersion = () => version;
-}
+const appVersion = window.ipcRenderer.sendSync('get-version');
 
 type Props = Record<string, never>;
 type State = {
@@ -45,14 +37,14 @@ export default class VersionInfo extends Component<Props, State> {
     const relLastVersion = match ? match[0] : '0.0.0';
 
     let relNewVersion = '0.0.0';
-    const newMatch = app.getVersion().match(/[\d.]*/);
+    const newMatch = appVersion.match(/[\d.]*/);
     if (newMatch) relNewVersion = newMatch[0];
 
-    const beta = !!app.getVersion().match(/[a-zA-Z]/);
+    const beta = !!appVersion.match(/[a-zA-Z]/);
 
     if (
-      (beta && lastVersion !== app.getVersion()) ||
-      compareVersions.compare(relLastVersion, relNewVersion, '<')
+      (beta && lastVersion !== appVersion) ||
+      compareVersions(relLastVersion, relNewVersion, '<')
     ) {
       let releases;
 
@@ -73,7 +65,7 @@ export default class VersionInfo extends Component<Props, State> {
   handleClose() {
     const { store } = window.electron;
     // const appVersion = ipcRenderer.sendSync('get-version');
-    store.set('LastVersion', app.getVersion());
+    store.set('LastVersion', appVersion);
     this.setState({
       show: false,
     });
@@ -95,7 +87,7 @@ export default class VersionInfo extends Component<Props, State> {
         <Modal.Header closeButton>
           <Modal.Title>
             Welcome to Tablo Tools &nbsp;
-            <span className="text-danger">v{app.getVersion()}</span>
+            <span className="text-danger">v{appVersion}</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -126,7 +118,7 @@ function Release(prop: any) {
     notifyBeta = config.notifyBeta;
   }
 
-  const beta = !!app.getVersion().match(/[a-zA-Z]/);
+  const beta = !!appVersion.match(/[a-zA-Z]/);
   if (!beta && !notifyBeta && data.prerelease) return <></>; //
 
   const bg = 'light';

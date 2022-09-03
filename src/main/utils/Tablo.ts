@@ -1,7 +1,7 @@
 import * as net from 'net';
 
 // import * as Sentry from '@sentry/electron';
-import compareVersions from 'compare-versions';
+import { compareVersions } from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
 
@@ -170,10 +170,10 @@ export const comskipAvailable = (): boolean => {
   debug(
     'testVersion: %o , comparison: ',
     testVersion,
-    compareVersions.compare(testVersion, '2.2.26', '>=')
+    compareVersions(testVersion, '2.2.26', '>=')
   );
 
-  if (!compareVersions.compare(testVersion, '2.2.26', '>=')) return false;
+  if (!compareVersions(testVersion, '2.2.26', '>=')) return false;
 
   if (globalThis.Api.device.info === 'undefined') {
   }
