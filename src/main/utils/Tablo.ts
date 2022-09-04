@@ -116,7 +116,7 @@ export async function checkConnection(): Promise<boolean> {
   if (!device || !device.private_ip) return false;
   const connIp = device.private_ip;
   const client = new net.Socket();
-  const connTimeoutSec = 500;
+  const connTimeoutSec = 750;
   client.setTimeout(connTimeoutSec);
   let status = false;
   client
