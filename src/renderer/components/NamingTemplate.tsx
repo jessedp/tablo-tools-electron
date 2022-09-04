@@ -27,6 +27,7 @@ import {
   fillTemplate,
   deleteTemplate,
   TemplateVarsType,
+  loadTemplates,
 } from '../utils/namingTpl';
 import type { NamingTemplateType } from '../constants/app';
 import { setConfigItem } from '../utils/config';
@@ -113,7 +114,12 @@ class SettingsNaming extends Component<Props, State> {
 
   async componentDidMount() {
     const { type } = this.props;
-    const template = await getTemplate(type);
+    // Ugh. These are "lost?" sometimes during errors, reloads, something else too?
+    if (!globalThis.LoadedTemplates) {
+      console.log('reloading templates');
+      await loadTemplates();
+    }
+    const template = getTemplate(type);
     this.originalTemplate = { ...template };
     const typeRe = new RegExp(type);
     let recData = await window.db.asyncFindOne('RecDb', {
