@@ -4,6 +4,7 @@ import Handlebars from 'handlebars';
 import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
+import tplHelpers from 'template-helpers';
 import getConfig from './config';
 import deepFilter from './deepFilter';
 import {
@@ -16,6 +17,9 @@ import {
 
 const debug = Debug('tablo-tools:namingTpl');
 // import sanitize from 'sanitize-filename';
+
+const helpers = tplHelpers();
+Handlebars.registerHelper(helpers);
 
 /** BUILT-INS       */
 export const defaultTemplates: Array<NamingTemplateType> = [
@@ -36,7 +40,7 @@ export const defaultTemplates: Array<NamingTemplateType> = [
     type: EVENT,
     label: 'Tablo Tools',
     slug: 'tablo-tools',
-    template: '{{eventPath}}/{{season}} - {{title}}.{{EXT}}',
+    template: '{{eventPath}}/{{airing_details.show_title}} - {{title}}.{{EXT}}',
   },
   {
     type: PROGRAM,
@@ -161,10 +165,6 @@ export async function deleteTemplate(template: NamingTemplateType) {
 
 /** USER SPECIFIC/RELATED (non system/builtin) */
 export function getTemplates(type = '') {
-  // console.log(
-  //   'renderer - globalThis.LoadedTemplates',
-  //   globalThis.LoadedTemplates
-  // );
   if (type === '') {
     return globalThis.LoadedTemplates;
   }
