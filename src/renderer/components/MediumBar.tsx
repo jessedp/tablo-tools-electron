@@ -127,6 +127,7 @@ export default function MediumBar(props: Props): JSX.Element {
         margin={margin}
         padding={0.3}
         colors={scheme ? { scheme } : undefined}
+        colorBy="indexValue"
         borderColor={{
           from: 'color',
           modifiers: [['darker', 1.6]],
