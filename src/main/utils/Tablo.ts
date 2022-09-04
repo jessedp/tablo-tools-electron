@@ -109,11 +109,11 @@ export const discover = async (): Promise<void> => {
 
 export async function checkConnection(): Promise<boolean> {
   const device: any = store.get('CurrentDevice');
-  debug(
-    'checkConnection - starting: %s',
-    device ? 'has device' : 'no device, skipping'
-  );
-  if (!device || !device.private_ip) return false;
+  if (!device || !device.private_ip) {
+    debug('checkConnection failed - device missing: %o', device);
+    return false;
+  }
+
   const connIp = device.private_ip;
   const client = new net.Socket();
   const connTimeoutSec = 750;
@@ -131,23 +131,17 @@ export async function checkConnection(): Promise<boolean> {
       }
     )
     .on('error', (evt: any) => {
-      // if (!evt.toString().match(/ECONNREFUSED/)) {
       debug('checkConnection -  error - ', evt);
-      //   status = false;
-      // }
-
       status = false;
       client.end();
     })
     .on('timeout', (evt: any) => {
-      // if (evt) {
       debug(`checkConnection - Timeout after ${connTimeoutSec}ms`);
       status = false;
       client.end();
       client.destroy();
     });
-  // this is easily grosser and more wronger than it looks
-  // OLDeslint-disable-next-line compat/compat
+
   return new Promise((resolve) => {
     client.on('close', () => {
       global.CONNECTED = status;
