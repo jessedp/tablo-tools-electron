@@ -30,7 +30,20 @@ export async function setCurrentDevice(
     debug('curdev = ', currentDevice);
     debug('newdev = ', device);
 
+    const loadServerInfo = async () => {
+      try {
+        globalThis.Api.device.info = await globalThis.Api.get('/settings/info');
+        debug(
+          'setCurrentDevice - get Server Info: %O',
+          globalThis.Api.device.info
+        );
+      } catch (e) {
+        debug('Unable to load settings/info', e, globalThis.Api);
+      }
+    };
+
     if (currentDevice.serverid === device.serverid) {
+      if (!currentDevice.info) await loadServerInfo();
       debug(
         'setCurrentDevice - current and new device are the same, exiting...'
       );
@@ -47,17 +60,8 @@ export async function setCurrentDevice(
     // });
     store.set('CurrentDevice', device);
     setupDb();
+    await loadServerInfo();
     // if (publish) PubSub.publish('DEVICE_CHANGE', true);
-
-    try {
-      globalThis.Api.device.info = await globalThis.Api.get('/settings/info');
-      debug(
-        'setCurrentDevice - get Server Info: %O',
-        globalThis.Api.device.info
-      );
-    } catch (e) {
-      debug('Unable to load settings/info', e, globalThis.Api);
-    }
   } else {
     console.warn(
       'sentry config - setCurrentDevice called without device!',
@@ -168,7 +172,7 @@ export const comskipAvailable = (): boolean => {
   if (!currentDevice.server_version) return false;
   const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
   debug(
-    'testVersion: %o , comparison: ',
+    'comskipAvailable: testVersion: %o , comparison: ',
     testVersion,
     compareVersions(testVersion, '2.2.26', '>=')
   );
