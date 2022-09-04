@@ -73,7 +73,6 @@ class Build extends Component<BuildProps, State> {
       let i = 0;
 
       const autoBuild = async () => {
-        return;
         created = recDbCreated();
 
         if (!Api.device && !created) {
