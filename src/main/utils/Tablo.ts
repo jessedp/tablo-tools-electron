@@ -4,6 +4,7 @@ import Debug from 'debug';
 import { compareVersions } from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
+import * as Sentry from '@sentry/electron/main';
 
 import getConfig from './config';
 import { setupDb } from './db';
@@ -19,11 +20,6 @@ export async function setCurrentDevice(
   publish = true
 ): Promise<void> {
   globalThis.Api.device = device;
-
-  // if (!global.CONNECTED) {
-  //   debug('setCurrentDevice - not connected, exiting...');
-  //   return;
-  // }
 
   if (device) {
     const currentDevice: any = store.get('CurrentDevice');
@@ -42,6 +38,16 @@ export async function setCurrentDevice(
       }
     };
 
+    Sentry.configureScope((scope) => {
+      scope.setUser({
+        id: device.serverid,
+        username: device.name,
+      });
+      scope.setTag('tablo_host', device.host || 'unknown');
+      scope.setTag('tablo_board', device.board);
+      scope.setTag('tablo_firmware', device.server_version || 'unknown'); // scope.clear();
+    });
+
     if (currentDevice.serverid === device.serverid) {
       if (!currentDevice.info) await loadServerInfo();
       debug(
@@ -49,15 +55,6 @@ export async function setCurrentDevice(
       );
       return;
     }
-    // Sentry.configureScope((scope) => {
-    //   scope.setUser({
-    //     id: device.server_id,
-    //     username: device.name,
-    //   });
-    //   scope.setTag('tablo_host', device.host || 'unknown');
-    //   scope.setTag('tablo_board', device.board);
-    //   scope.setTag('tablo_firmware', device.server_version || 'unknown'); // scope.clear();
-    // });
     store.set('CurrentDevice', device);
     setupDb();
     await loadServerInfo();
