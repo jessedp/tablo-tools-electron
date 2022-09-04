@@ -10,10 +10,13 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
+import SentryCliPlugin from '@sentry/webpack-plugin';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
+
+const { version } = require('../../package.json');
 
 checkNodeEnv('production');
 deleteSourceMaps();
@@ -119,6 +122,17 @@ const configuration: webpack.Configuration = {
 
     new webpack.DefinePlugin({
       'process.type': '"renderer"',
+    }),
+    new SentryCliPlugin({
+      include: '.',
+      ignoreFile: '.sentrycliignore',
+      configFile: 'sentry.properties',
+      ignore: ['node_modules'],
+      release: version,
+      setCommits: {
+        repo: 'jessedp/tablo-tools-electron',
+        auto: true,
+      },
     }),
   ],
 };
