@@ -19,7 +19,7 @@ import { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import getConfig from '../utils/config';
 import { ExportLogRecord } from '../utils/factories';
 
-const debug = require('debug')('tt:VideoExport-tsx');
+const debug = require('debug')('tablo-tools:VideoExport-tsx');
 
 type Props = {
   airing: Airing;
@@ -90,20 +90,11 @@ const VideoExport = (WrappedComponent: any) => {
       await asyncForEach(exportList, async (rec) => {
         const airing = new Airing(rec.airing);
         actions.push(() => {
-          // if (this.shouldCancel === false) {
           const channel = `export-progress-${airing.object_id}`;
-          console.log('channel', channel);
 
           window.electron.ipcRenderer.on(channel, (message: any) => {
-            console.log('progress', message);
+            // console.log(`${channel}`, message);
             this.updateProgress(airing.object_id, message);
-
-            // this.setState({
-            //   airingInc: message,
-            // });
-            // this.updateProgress({
-            //   airingInc: message,
-            // });
           });
 
           return window.Airing.exportVideo(airing.object_id, actionOnDuplicate);

@@ -3,6 +3,7 @@ import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
+import Debug from 'debug';
 
 import Airing from 'renderer/utils/Airing';
 import { findFfmpegPath } from './utils';
@@ -21,7 +22,7 @@ import {
   DUPE_INC,
 } from '../../renderer/constants/app';
 
-const debug = require('debug')('tt:exportVideo');
+const debug = Debug('tablo-tools:exportVideo');
 
 globalThis.exportProcs = {};
 

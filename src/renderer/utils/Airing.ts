@@ -1,13 +1,8 @@
-// import fs from 'fs';
-
 import { execSync } from 'child_process';
-// import * as fsPath from 'path';
+import Debug from 'debug';
 
 // import log from 'electron-log';
 import sanitize from 'sanitize-filename';
-// import Ffmpeg from 'fluent-ffmpeg';
-// import FfmpegCommand from 'fluent-ffmpeg';
-// import { promisefy } from 'nedb-async/dist/util';
 
 import {
   asyncForEach,
@@ -16,7 +11,7 @@ import {
   timeStrToSeconds,
 } from './utils';
 import Show from './Show';
-// import getConfig from './config';
+
 import {
   EVENT,
   MOVIE,
@@ -31,13 +26,7 @@ import {
 } from '../constants/app';
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
-const debug = require('debug')('tt:Airing');
-// const ffmpeg = require('ffmpeg-static');
-// const FfmpegCommand = window.electron.ipcRenderer.FfmpegCommand;
-// const FfmpegCommand = window.require('fluent-ffmpeg');
-// const Ffmpeg = window.electron.ipcRenderer.Ffmpeg;
-// const { Ffmpeg } = window.require('fluent-ffmpeg');
-// const { fs, FfmpegCommand } = window.electron;
+const debug = Debug('tablo-tools:Airing');
 
 const outFile = '';
 

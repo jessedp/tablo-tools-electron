@@ -1,12 +1,9 @@
 import { ipcMain } from 'electron';
+import Debug from 'debug';
 
-// import Tablo from 'tablo-api';
-// import { checkConnection } from '../renderer/utils/Tablo';
 import { setupDb } from './utils/db';
 
-const debug = require('debug')('tt:db');
-
-// const TabloApi = new Tablo();
+const debug = Debug('tablo-tools:db');
 
 ipcMain.on('db-setup', async (event: any) => {
   try {

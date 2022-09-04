@@ -39,7 +39,7 @@ const slice = createSlice({
     },
 
     updateExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
-      console.log('updateExportRecord', action.payload);
+      // console.log('updateExportRecord', action.payload);
       current(state);
 
       const exportRecord = action.payload;

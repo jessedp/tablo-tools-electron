@@ -1,6 +1,6 @@
 import * as net from 'net';
 
-// import * as Sentry from '@sentry/electron';
+import Debug from 'debug';
 import { compareVersions } from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
@@ -8,10 +8,10 @@ import Store from 'electron-store';
 import getConfig from './config';
 import { setupDb } from './db';
 
-const debug = require('debug')('tt:Tablo');
+const debug = Debug('tablo-tools:Tablo');
 
 const store = new Store();
-// const { store } = window.electron;
+
 console.log('got store?');
 
 export async function setCurrentDevice(

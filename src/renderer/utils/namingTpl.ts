@@ -1,8 +1,8 @@
 import * as fsPath from 'path';
 import { format, parseISO } from 'date-fns';
 import Handlebars from 'handlebars';
+import Debug from 'debug';
 
-// import getConfig from './config';
 import sanitize from 'sanitize-filename';
 import getConfig from './config';
 import deepFilter from './deepFilter';
@@ -14,7 +14,7 @@ import {
   EVENT,
 } from '../constants/app';
 
-const debug = require('debug')('tt:namingTpl');
+const debug = Debug('tablo-tools:namingTpl');
 // import sanitize from 'sanitize-filename';
 
 /** BUILT-INS       */

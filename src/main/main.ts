@@ -15,6 +15,7 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
+import Debug from 'debug';
 
 import { init } from '@sentry/electron/main';
 
@@ -25,7 +26,7 @@ import setupSentry from '../renderer/sentry';
 
 setupSentry(init);
 
-const debug = require('debug')('tt:main');
+const debug = Debug('tablo-tools:main');
 
 require('./pre_app');
 require('./pre_Tablo');
@@ -96,7 +97,7 @@ ipcMain.on('get-recording-progress', async (progress_data) => {
 
 ipcMain.on('export-progress', async (args) => {
   const channel = `export-progress-${args[0]}`;
-  debug(`export-progress - channel: ${channel}`, args);
+  // debug(`export-progress - channel: ${channel}`, args);
   mainWindow?.webContents.send(channel, args[1]);
 });
 

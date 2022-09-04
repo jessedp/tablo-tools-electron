@@ -1,12 +1,10 @@
 import { ipcMain } from 'electron';
 
 import Debug from 'debug';
-// import Tablo from 'tablo-api';
-// import { checkConnection } from '../renderer/utils/Tablo';
 
 import { defaultTemplates } from '../renderer/utils/namingTpl';
 
-const debug = Debug('tt:pre_templates');
+const debug = Debug('tablo-tools:pre_templates');
 
 ipcMain.on('templates-load', async (event: any) => {
   const defaults = defaultTemplates;

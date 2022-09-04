@@ -1,36 +1,16 @@
-// import remote from '@electron/remote';
-
-// import { ipcRenderer } from 'electron';
-
-// import * as os from 'os';
-// const fs = ipcRenderer.fs;
-// const fs = window.electron.ipcRenderer.fs;
-
 import * as path from 'path';
-// const path = remote.require('path');
-
 import * as fs from 'fs';
-
 import * as os from 'os';
+import Debug from 'debug';
+
 import {
   DUPE_ADDID,
   DUPE_INC,
   DUPE_OVERWRITE,
   DUPE_SKIP,
 } from '../../renderer/constants/app';
-// const os = window.require('os');
 
-// const os = remote.require('os');
-// const { os } = window.electron;
-// const electron = window.require('electron');
-// const { ipcRenderer } = electron;
-// const { app } = window.require('electron').remote;
-// const { ipcRenderer } = window;
-// import { app } from 'electron';
-// const { app } = window.require('electron');
-// const { app } = window.require('electron').remote;
-
-const debug = require('debug')('tt:config');
+const debug = Debug('tablo-tools:config');
 
 type GetPathType =
   | 'home'

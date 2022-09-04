@@ -7,7 +7,7 @@ import Debug from 'debug';
 import ffmpeg from 'ffmpeg-static-electron-jdp';
 
 const store = new Store();
-const debug = Debug('tt:utils');
+const debug = Debug('tablo-tools:utils');
 
 export const hasDevice = () => {
   const device: any = store.get('CurrentDevice');

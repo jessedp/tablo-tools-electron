@@ -7,7 +7,7 @@ import Debug from 'debug';
 import { hasDevice } from './utils';
 import { getPath } from './config';
 
-const debug = Debug('tt:db');
+const debug = Debug('tablo-tools:db');
 
 const store = new Store();
 

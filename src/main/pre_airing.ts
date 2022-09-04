@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import Debug from 'debug';
 
 import Airing from '../renderer/utils/Airing';
 
@@ -8,8 +9,7 @@ import {
   exportVideo,
 } from './utils/exportVideo';
 
-const debug = require('debug')('tt:pre_airing');
-// import { RecDb, setupDb } from './utils/db';
+const debug = Debug('tablo-tools:pre_airing');
 
 function getMethods(obj) {
   const res = [];

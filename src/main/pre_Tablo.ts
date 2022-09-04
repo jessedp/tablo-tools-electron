@@ -1,8 +1,6 @@
 import { debug } from 'console';
 import { app, ipcMain } from 'electron';
 
-// import Tablo from 'tablo-api';
-// import { checkConnection } from '../renderer/utils/Tablo';
 import {
   checkConnection,
   comskipAvailable,
