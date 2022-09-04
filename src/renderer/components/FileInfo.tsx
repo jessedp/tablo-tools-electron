@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   EXP_WAITING,
@@ -17,10 +17,6 @@ import RelativeDate from './RelativeDate';
 import FilenameEditor from './FilenameEditor';
 import OpenDirectory from './OpenDirecory';
 
-// import fs from 'fs';
-// const fs = window.require('fs');
-// const { fs } = window.electron;
-
 type FileInfoProps = {
   airing: Airing;
   exportState: number;
@@ -30,13 +26,14 @@ type FileInfoProps = {
 
 export default function FileInfo(props: FileInfoProps) {
   const { airing, actionOnDuplicate, exportState, updateTemplate } = props;
+
+  const [dedupedExportFile, setDedupedExportFile] = useState('');
   const exists = window.fs.existsSync(airing.exportFile);
-  // const dedupedExportFile = airing.dedupedExportFile(actionOnDuplicate);
-  const dedupedExportFile = window.Airing.dedupedExportFile(
-    airing,
-    actionOnDuplicate
-  );
-  console.log('dedupedExportFile', dedupedExportFile);
+  useEffect(() => {
+    const filename = window.Airing.dedupedExportFile(airing, actionOnDuplicate);
+    setDedupedExportFile(filename);
+  }, [airing, actionOnDuplicate]);
+
   if (!exists) {
     if (exportState === EXP_DONE) {
       return (
