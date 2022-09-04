@@ -110,14 +110,19 @@ export default class TimeOfDayStats extends Component<Props, State> {
       });
     });
     // CalendarDatum
-    // const dateData: Array<Record<string, any>> = [];
+
     const dateData: Array<CalendarDatum> = [];
     Object.keys(dateCounts).forEach((key) => {
+      // console.log('dateData.push: ', {
+      //   day: key,
+      //   value: dateCounts[key],
+      // });
       dateData.push({
         day: key,
         value: dateCounts[key],
       });
     });
+
     this.setState({
       recTotal,
       dayData,
@@ -137,6 +142,7 @@ export default class TimeOfDayStats extends Component<Props, State> {
           No recordings loaded yet.
         </Alert>
       );
+
     return (
       <>
         <Col md="2">
@@ -165,6 +171,7 @@ export default class TimeOfDayStats extends Component<Props, State> {
               height: '250px',
             }}
           >
+            {/* FIXME: I'm pretty sure this breaks when a year is missing in the data */}
             <ResponsiveCalendar
               data={dateData}
               from={firstDate}
