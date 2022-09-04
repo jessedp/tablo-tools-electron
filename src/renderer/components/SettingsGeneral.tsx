@@ -173,7 +173,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     }`;
     const type = !allowErrorReport ? 'success' : 'warning';
 
-    SentryToggle(!allowErrorReport);
+    // SentryToggle(!allowErrorReport);
 
     this.saveConfigItem(
       {

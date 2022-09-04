@@ -54,6 +54,7 @@ export default class ExportData extends Component<Props, State> {
     (this as any).toggleRecordings = this.toggleRecordings.bind(this);
     (this as any).openExportFile = this.openExportFile.bind(this);
     (this as any).causeError = this.causeError.bind(this);
+    (this as any).causeError2 = this.causeError2.bind(this);
   }
 
   toggleServerInfo = () => {
@@ -271,9 +272,15 @@ export default class ExportData extends Component<Props, State> {
   };
 
   causeError = () => {
-    // $FlowFixMe not yet. hidden and allows causing an error in prod
-    // this.whatWhat();
-    throw new Error('causeError!');
+    // "hidden" and allows causing an error in prod
+
+    throw new Error('causeError 1!');
+  };
+
+  causeError2 = () => {
+    // "hidden" and allows causing an error in prod
+
+    throw new Error('causeError 2!');
   };
 
   render() {
@@ -403,8 +410,19 @@ export default class ExportData extends Component<Props, State> {
             <Button
               size={'xs' as any}
               className="ml-5"
-              variant="light"
+              variant="white"
               onClick={this.causeError}
+              title="purposefully cause a bogus error in production to test reporting... #1"
+            >
+              &nbsp;
+            </Button>
+
+            <Button
+              size={'xs' as any}
+              className="ml-5"
+              variant="white"
+              onClick={this.causeError2}
+              title="purposefully cause a bogus error in production to test reporting... #2"
             >
               &nbsp;
             </Button>
