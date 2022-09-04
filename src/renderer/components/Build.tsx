@@ -124,26 +124,14 @@ class Build extends Component<BuildProps, State> {
     });
 
     try {
-      console.log('start');
-      // const total = await Api.getRecordingsCount();
-      /// get-recording-progress
+      console.log('start build');
       const total = await window.Tablo.getRecordingsCount();
       console.log('total', total);
-      // this.setState({
-      //   airingMax: total,
-      // });
+
       updateProgress({
         airingMax: total,
       });
 
-      // const recs = await window.Tablo.getRecordings(true,
-      //   this.setState({
-      //     airingInc: val,
-      //   });
-      //   updateProgress({
-      //     airingInc: val,
-      //   });
-      // });
       window.electron.ipcRenderer.on(
         'get-recording-progress',
         (message: any) => {
@@ -159,14 +147,10 @@ class Build extends Component<BuildProps, State> {
 
       const recs = await window.Tablo.getRecordings(true);
 
-      // const recs = await window.electron.ipcRenderer.send(
-      //   'tablo-getRecordings'
-      // );
-
       // TODO: maybe put this elsewhere later
-      // recs.forEach((rec: Record<string, any>) => {
-      //   writeToFile(`airing-${rec.object_id}.json`, rec);
-      // });
+      recs.forEach((rec: Record<string, any>) => {
+        writeToFile(`airing-${rec.object_id}.json`, rec);
+      });
       console.log(`retrieved ${recs.length} recordings`);
       const { log } = this.state;
       log.push(`retrieved ${recs.length} recordings`);
@@ -200,7 +184,7 @@ class Build extends Component<BuildProps, State> {
       const showPaths: string[] = [];
       recs.forEach((rec: Record<string, any>) => {
         const airing = new Airing(rec);
-        // writeToFile(`${airing.type}-airing-${airing.id}.json`, rec);
+        writeToFile(`${airing.type}-airing-${airing.id}.json`, rec);
 
         try {
           if (airing.typePath) showPaths.push(airing.typePath);
@@ -217,7 +201,7 @@ class Build extends Component<BuildProps, State> {
       if (getConfig().enableExportData) {
         shows.forEach((rec: Record<string, any>) => {
           const show = new Show(rec);
-          // writeToFile(`show-${show.object_id}.json`, rec);
+          writeToFile(`show-${show.object_id}.json`, rec);
         });
       }
 
@@ -231,7 +215,7 @@ class Build extends Component<BuildProps, State> {
       if (getConfig().enableExportData) {
         channels.forEach((rec: Record<string, any>) => {
           const channel = new Channel(rec);
-          // writeToFile(`channel-${channel.object_id}.json`, rec);
+          writeToFile(`channel-${channel.object_id}.json`, rec);
         });
       }
 

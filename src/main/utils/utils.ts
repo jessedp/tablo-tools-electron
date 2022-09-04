@@ -28,14 +28,9 @@ export async function asyncForEach(
 ) {
   if (!array) return [];
   const promises = array.map(callback);
-  // OLDeslint-disable-next-line compat/compat
+
   const vals = Promise.all(promises);
   return vals;
-  /**
-  for (let index = 0; index < array.length; index+=1) {
-    await callback(array[index], index, array);
-  }
-   */
 }
 
 /**
@@ -253,16 +248,12 @@ export function isValidIp(addr: string): boolean {
   return regex.test(addr);
 }
 
+// writeToFile;
 export function writeToFile(
   name: string,
   data: string | Record<string, unknown>
 ): void {
-  const config = window.ipcRenderer.sendSync('get-config');
-  if (!config) return;
-
-  if (!Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
-    return;
-  }
+  const { config } = globalThis;
 
   if (!config.enableExportData) return;
   const path = config.exportDataPath;
@@ -272,7 +263,8 @@ export function writeToFile(
       recursive: true,
     });
   } catch (e) {
-    console.log(e);
+    console.error('writeToFile', e);
+    debug('writeToFile', e);
   }
 
   let outData = data;
@@ -453,8 +445,8 @@ export const throttle = <F extends (...args: any[]) => any>(
       if (timeout) {
         clearTimeout(timeout);
       }
-      console.log('throttle - timeLeft', timeLeft);
-      console.log(
+      debug('throttle - timeLeft', timeLeft);
+      debug(
         'startTime + waitFor <= now()',
         startTime,
         waitFor,

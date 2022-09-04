@@ -1,31 +1,18 @@
-// import * as os from 'os';
-// import getConfig from './config';
-
-// const { exec } = require('child_process');
-// import ffmpeg from 'ffmpeg-static-electron';
-// import ffmpeg from 'ffmpeg-static-electron-jdp';
-// const { fs, ffmpeg } = window.electron;
-
-// import * as fs from 'fs';
-// const fs = window.require('fs');
+import getConfig from './config';
 
 export function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
 export async function asyncForEach(
   array: Array<any>,
   callback: (item: any) => Promise<void>
 ) {
   if (!array) return [];
   const promises = array.map(callback);
-  // OLDeslint-disable-next-line compat/compat
+
   const vals = Promise.all(promises);
   return vals;
-  /**
-  for (let index = 0; index < array.length; index+=1) {
-    await callback(array[index], index, array);
-  }
-   */
 }
 
 /**
@@ -249,32 +236,12 @@ export function writeToFile(
   name: string,
   data: string | Record<string, unknown>
 ): void {
-  const config = window.ipcRenderer.sendSync('get-config');
-  if (!config) return;
+  const config = getConfig();
 
-  if (!Object.prototype.hasOwnProperty.call(config, 'enableExportData')) {
+  if (!config.enableExportData) {
     return;
   }
-
-  if (!config.enableExportData) return;
-  const path = config.exportDataPath;
-
-  try {
-    fs.mkdirSync(config.exportDataPath, {
-      recursive: true,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-
-  let outData = data;
-  if (typeof data === 'object') outData = JSON.stringify(data);
-  const outFile = `${path}${name}`;
-  if (typeof outData === 'string') {
-    fs.writeFileSync(outFile, outData);
-  } else {
-    fs.writeFileSync(outFile, JSON.stringify(outData, null, 2));
-  }
+  window.ipcRenderer.send('write-to-file', name, data);
 }
 
 /**
@@ -332,87 +299,6 @@ export function throttleActions(
   // eslint-disableeslint-disable-next-line compat/compat
   return Promise.all(listOfPromises).then(() => resultArray);
 }
-// export function findFfmpegPath(debug = false, log?: any) {
-//   const ffmpegPath = ffmpeg.path;
-//   if (debug && log) log.info('ffmpegPath', ffmpegPath);
-//   // $FlowFixMe  dirty, but flow complains about process.resourcesPath
-//   const resourcePath = `${(process as any).resourcesPath}`;
-//   // TODO - figure out why I did this...
-//   const psuedoProdPath = resourcePath.replace(
-//     '/electron/dist/resources',
-//     '/ffmpeg-static-electron-jdp/bin'
-//   );
-//   if (debug && log) log.info('resourcePath', resourcePath);
-//   if (debug && log) log.info('prodPath', psuedoProdPath);
-//   let ffmpegPathReal = ffmpegPath;
-
-//   /** In dev, the prod path gets returned, so "fix" that * */
-//   if (process.env.NODE_ENV === 'development') {
-//     if (os.platform() === 'win32') {
-//       if (ffmpegPathReal === ffmpegPath) {
-//         ffmpegPathReal = ffmpegPath.replace(
-//           '\\app\\',
-//           '\\node_modules\\ffmpeg-static-electron-jdp\\'
-//         );
-//       }
-//     } else {
-//       // *nix
-//       ffmpegPathReal = ffmpegPath.replace(
-//         '/src/',
-//         '/node_modules/ffmpeg-static-electron-jdp/'
-//       );
-//     }
-//   }
-
-//   if (debug && log)
-//     log.info('after "app" replacements for dev', ffmpegPathReal);
-//   if (debug && log) log.info('prodPath exists', fs.existsSync(psuedoProdPath));
-
-//   // In true prod (not yarn build/start), ffmpeg is built into resources dir
-//   // this will likely fall on it's face with "yarn start"
-//   if (process.env.NODE_ENV === 'production') {
-//     if (os.platform() === 'darwin') {
-//       ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
-//     } else {
-//       const testStartPath = ffmpegPathReal.replace(
-//         /^[/|\\]bin/,
-//         psuedoProdPath
-//       );
-
-//       if (fs.existsSync(testStartPath)) {
-//         if (debug && log)
-//           log.info(
-//             'START replacing ffmpegPathReal for prodPath',
-//             psuedoProdPath
-//           );
-//         ffmpegPathReal = testStartPath;
-//         if (debug && log)
-//           log.info('START replaced prodPath for prod', ffmpegPathReal);
-//       } else {
-//         if (debug && log)
-//           log.info(
-//             'PROD replacing ffmpegPathReal for prodPath',
-//             psuedoProdPath
-//           );
-//         ffmpegPathReal = psuedoProdPath.replace(
-//           /[/|\\]resources/,
-//           `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-//         );
-//         if (debug && log)
-//           log.info('PROD replaced prodPath for prod', ffmpegPathReal);
-//       }
-//     }
-//   } else if (os.platform() === 'win32') {
-//     // otherwise we can hit the node_modules dir
-//     ffmpegPathReal = ffmpegPathReal.replace(
-//       /^\/bin\//,
-//       './node_modules/ffmpeg-static-electron-jdp/bin/'
-//     );
-//   }
-
-//   if (debug && log) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
-//   return ffmpegPathReal;
-// }
 
 export const debounce = <T extends (...args: any[]) => any>(
   callback: T,

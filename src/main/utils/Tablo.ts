@@ -13,8 +13,6 @@ const debug = Debug('tablo-tools:Tablo');
 
 const store = new Store();
 
-console.log('got store?');
-
 export async function setCurrentDevice(
   device: any,
   publish = true

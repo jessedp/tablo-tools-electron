@@ -1,6 +1,7 @@
 import { app, ipcMain } from 'electron';
 
 import getConfig, { setConfig, setConfigItem } from './utils/config';
+import { writeToFile } from './utils/utils';
 
 ipcMain.on('get-path-main', (event: any, arg: any) => {
   event.returnValue = app.getPath(arg);
@@ -36,4 +37,10 @@ ipcMain.on('set-config-item', (event: any, arg: any) => {
   } catch (e) {
     console.error('ERR: set-config-item', e);
   }
+});
+
+ipcMain.on('write-to-file', (event: any, ...args: any) => {
+  writeToFile(args[0], args[1]);
+
+  event.returnValue = true;
 });
