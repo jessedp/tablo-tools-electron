@@ -75,7 +75,6 @@
     "linux": {
       "target": [
         "deb",
-        "rpm",
         "AppImage"
       ],
       "synopsis": "The control over your Tablo you needed",
