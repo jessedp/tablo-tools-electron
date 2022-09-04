@@ -30,6 +30,10 @@ jobs:
 
       - name: Publish releases
         env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_ORG: ${{secrets.SENTRY_ORG}}
+          SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
+
           # These values are used for auto updates signing
           # APPLE_ID: ${{ secrets.APPLE_ID }}
           # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}

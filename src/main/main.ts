@@ -16,14 +16,17 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
 
-// import * as Sentry from '@sentry/electron';
+import { init } from '@sentry/electron/main';
 
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 
+import setupSentry from '../renderer/sentry';
+
+setupSentry(init);
+
 const debug = require('debug')('tt:main');
 
-// require('../renderer/sentry');
 require('./pre_app');
 require('./pre_Tablo');
 require('./pre_db');
@@ -160,8 +163,10 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
-      mainWindow.webContents.openDevTools();
       debug('mainWindow opened');
+      if (process.env.NODE_ENV !== 'production') {
+        mainWindow.webContents.openDevTools();
+      }
     }
   });
 
@@ -182,11 +187,6 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
-  //  mainWindow.webContents.on('new-window', (event, url) => {
-  //    event.preventDefault();
-  //    shell.openExternal(url);
-  //  });
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };

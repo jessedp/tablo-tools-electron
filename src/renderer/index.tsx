@@ -1,33 +1,19 @@
 import React from 'react';
 import { render } from 'react-dom';
-// require('@electron/remote/main').initialize();
-
-// import main from '@electron/remote/main';
-// main.initialize();
 
 import PubSub from 'pubsub-js';
+import { init } from '@sentry/electron/renderer';
 import Root from './containers/Root';
+import setupSentry from './sentry';
 
-// import { configureStore, history } from './store/configureStore';
-// import { Store } from './store';
 import { history, configuredStore } from './store';
 import './app.global.css';
-// import { setupApi } from './utils/Tablo';
-// import { setupDb } from './utils/db';
+
 import { loadTemplates } from './utils/namingTpl';
 
+setupSentry(init);
+
 const store = configuredStore();
-
-window.electron.ipcRenderer.on('ping', (message: any) => {
-  console.log('Ping says: ', message);
-});
-
-// window.electron.ipcRenderer.send('ping');
-// require('electron').ipcRenderer.on('ping', (event, message) => {
-//   console.log(message);
-// });
-
-// BOO, this is in (and ignored) @types/global.d.ts
 
 declare global {
   interface Window {
@@ -82,12 +68,6 @@ declare global {
 //     }
 //   }
 // }
-
-// require('./sentry');
-
-// const store = configureStore();
-
-// OLDeslint-disable-next-line compat/compat
 
 window.Tablo.setup();
 console.log('finsihed Tablo setup');
