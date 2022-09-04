@@ -113,8 +113,9 @@ export default class ShowStats extends Component<Props, State> {
           ? shows[key].duration + duration
           : duration;
         shows[key].size = shows[key].size ? shows[key].size + size : size;
-        if (!shows[key].first) shows[key].first = new Date();
         if (!shows[key].last) shows[key].last = new Date('1985-01-01');
+        if (!shows[key].first) shows[key].first = shows[key].last;
+
         shows[key].first =
           shows[key].first > datetime ? datetime : shows[key].first;
         shows[key].last =

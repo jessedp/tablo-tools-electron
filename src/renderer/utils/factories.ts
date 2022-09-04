@@ -96,7 +96,7 @@ export function EmptyShowStatRow() {
     count: '0',
     cover: 0,
     duration: 0,
-    first: new Date(0),
+    first: new Date(),
     last: new Date(0),
     object_id: 0,
     show: null,
