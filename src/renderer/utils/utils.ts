@@ -105,14 +105,16 @@ export function titleCase(title: string) {
  * @return {string} the title cased string
  */
 export function getTabloImageUrl(imageId: string | number) {
-  // const host = (global as any).Api.device.private_ip;
-  const host = window.Tablo.device().private_ip;
   let id = 0;
   if (typeof imageId === 'string') {
     id = parseInt(imageId, 10);
   } else {
     id = imageId;
   }
+  if (id === 0) {
+    return '';
+  }
+  const host = window.Tablo.device().private_ip;
   return `http://${host}:8885/images/${id}`;
 }
 
