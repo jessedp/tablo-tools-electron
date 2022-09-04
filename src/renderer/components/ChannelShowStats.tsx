@@ -138,7 +138,7 @@ export default class ChannelShowStats extends Component<Props, State> {
           data={showData}
           indexBy="channel"
           keys={showKeys}
-          scheme="set3"
+          scheme="set2"
           layout="horizontal"
           onClick={!network ? this.chartClick : () => undefined}
           back={network ? this.clearNetwork : null}
