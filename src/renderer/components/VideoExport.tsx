@@ -37,12 +37,7 @@ type State = {
 };
 
 const VideoExport = (WrappedComponent: any) => {
-  // $FlowFixMe wtf typing
   return class WrappedVideoExportComp extends Component<Props, State> {
-    // props: Props;
-
-    // static defaultProps: {};
-
     shouldCancel: boolean;
 
     logRecord: ExportLogRecordType | undefined;
@@ -220,14 +215,10 @@ const VideoExport = (WrappedComponent: any) => {
     cancelProcess = async (updateState = true) => {
       const { exportList } = this.props;
       this.shouldCancel = true;
-      console.log('cancelProcess - exportList - ', exportList);
       if (exportList) {
         exportList.forEach((rec) => {
           console.log('cancelProcess - rec - state: ', rec.state, '\n', rec);
-          // if (rec.state === EXP_WORKING) {
-          console.log('cancelProcess - WORKING (FIX) rec - ', rec);
-          // const airing = new Airing(rec.airing);
-          // airing.cancelVideoProcess();
+
           window.Airing.cancelExportVideo(rec.airing);
           // }
         });
@@ -258,7 +249,6 @@ const VideoExport = (WrappedComponent: any) => {
         this.state;
 
       /* eslint-disable react/jsx-props-no-spreading */
-      // $FlowFixMe
       return (
         <WrappedComponent
           {...this.props}

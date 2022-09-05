@@ -103,27 +103,30 @@ export const getExportDetails = (airing: Airing) => {
     return '';
   }
   // this is janky becuase it should be using ffprobe, but
-  // I don't want to package it, too. So ffmpeg throws an
-  // warning in the logs and the last line output is
+  // I don't want to package it, too. So ffmpeg returns with an
+  // error on the shell and the last line of output is
   const lastLine = 'At least one output file must be specified';
   const firstLine = /^Error: Command failed:(.*)/;
   const ffmpeg = findFfmpegPath();
   debug('getExportDetails - findFfmpegPath %s', ffmpeg);
   let info;
 
+  // the non-zero return on the shell causes an error that we then catch...
   try {
     info = execSync(`${ffmpeg} -i "${cachedExportFile}"`);
   } catch (e) {
-    console.error('getExportDetails Error: ', e);
-    debug('getExportDetails Error: ', e);
+    // console.error('getExportDetails Error: ', e);
+    // debug('getExportDetails Error: ', e);
     info = `${e}`;
   }
-
+  // and munge the output
   info = info.toString().trim();
   info = info.replace(firstLine, '').replace(lastLine, '');
   debug('getExportDetails info = ', info);
   return info;
 };
+
+/** take an airing, dupe action, use ffmpeg to export it somewhere   */
 
 export const exportVideo = async (
   airing: Airing,

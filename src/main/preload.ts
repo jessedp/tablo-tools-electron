@@ -111,6 +111,8 @@ contextBridge.exposeInMainWorld('Airing', {
     ipcRenderer.sendSync('airing-dedupedExportFile', airing, actionOnDuplicate),
   cancelExportVideo: (airing: any, actionOnDuplicate: string) =>
     ipcRenderer.invoke('airing-cancelExportVideo', airing, actionOnDuplicate),
+  getExportDetails: (airing: any) =>
+    ipcRenderer.sendSync('airing-getExportDetails', airing),
 });
 
 contextBridge.exposeInMainWorld('Templates', {

@@ -1,5 +1,4 @@
-// import { shell } from 'electron';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
@@ -9,9 +8,6 @@ import { ON } from '../constants/app';
 import RecordingOverview from './RecordingOverview';
 import Airing from '../utils/Airing';
 import RecordingMini from './RecordingMini';
-
-// const { shell } = window.require('electron').remote;
-const { shell } = window.electron;
 
 type Props = {
   airing: Airing;
@@ -23,8 +19,8 @@ export default function AiringDetailsModal(props: Props) {
   const [watchUrl, setWatchUrl] = useState('');
 
   const loadExportDetails = async () => {
-    const info = airing.getExportDetails();
-    setExportDetails(info);
+    const info = await airing.getExportDetails();
+    if (info) setExportDetails(info);
     const url = await airing.watch();
     if (url) setWatchUrl(url.playlist_url);
   };
@@ -113,7 +109,7 @@ export default function AiringDetailsModal(props: Props) {
             <Alert size={12} variant="dark" className="mt-2 p-1 pl-2">
               Exported file info
             </Alert>
-            <pre className="ffmpeg-details">{details}</pre>
+            <pre className="ffmpeg-details">{details.trim()}</pre>
           </> //
         ) : (
           ''
