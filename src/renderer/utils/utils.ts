@@ -183,15 +183,15 @@ export function parseSeconds(duration: string | number) {
   const hour = min * 60;
   const day = hour * 24;
   const month = day * 30;
-  const months = Math.round(dur / month);
+  const months = Math.floor(dur / month);
   dur -= months * month;
-  const days = Math.round(dur / day);
+  const days = Math.floor(dur / day);
   dur -= days * day;
-  const hours = Math.round(dur / hour);
+  const hours = Math.floor(dur / hour);
   dur -= hours * hour;
-  const minutes = Math.round(dur / min);
+  const minutes = Math.floor(dur / min);
   dur -= minutes * min;
-  // console.log(minutes,)
+  console.log('parseSeconds', duration, [months, days, hours, minutes, dur]);
   return [months, days, hours, minutes, dur];
 }
 
