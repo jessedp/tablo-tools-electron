@@ -77,7 +77,6 @@ export default class ShowStats extends Component<Props, State> {
   };
 
   async refresh() {
-    const { RecDb } = global;
     const { show } = this.state;
     let recTotal;
 
