@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import FfmpegCommand from 'fluent-ffmpeg';
 import log from 'electron-log';
 import sanitize from 'sanitize-filename';
@@ -95,11 +96,46 @@ export const dedupedExportFile = (
   return exportFile;
 };
 
+export const getExportDetails = (airing: Airing) => {
+  const { cachedExportFile } = airing;
+  if (!fs.existsSync(cachedExportFile)) {
+    debug(`getExportDetails - missing exportFile : ${cachedExportFile}`);
+    return '';
+  }
+  // this is janky becuase it should be using ffprobe, but
+  // I don't want to package it, too. So ffmpeg throws an
+  // warning in the logs and the last line output is
+  const lastLine = 'At least one output file must be specified';
+  const firstLine = /^Error: Command failed:(.*)/;
+  const ffmpeg = findFfmpegPath();
+  debug('getExportDetails - findFfmpegPath %s', ffmpeg);
+  let info;
+
+  try {
+    info = execSync(`${ffmpeg} -i "${cachedExportFile}"`);
+  } catch (e) {
+    console.error('getExportDetails Error: ', e);
+    debug('getExportDetails Error: ', e);
+    info = `${e}`;
+  }
+
+  info = info.toString().trim();
+  info = info.replace(firstLine, '').replace(lastLine, '');
+  debug('getExportDetails info = ', info);
+  return info;
+};
+
 export const exportVideo = async (
   airing: Airing,
   actionOnDuplicate: string,
   progressCallback: (...args: Array<any>) => any
 ) => {
+  // noop it so we don't spread the typeof check everywhere
+  let progressCb = (...args: Array<any>) => {};
+  if (typeof progressCallback === 'function') {
+    progressCb = progressCallback;
+  }
+
   const userDebug = getConfig().enableDebug;
   let date = new Date()
     .toISOString()
@@ -130,12 +166,10 @@ export const exportVideo = async (
 
     input = watchPath.playlist_url;
   } catch (err) {
-    if (typeof progressCallback === 'function') {
-      progressCallback(airing.object_id, {
-        failed: true,
-        failedMsg: err,
-      });
-    }
+    progressCb(airing.object_id, {
+      failed: true,
+      failedMsg: err,
+    });
 
     debug('Unable to load watch path!', err);
 
@@ -143,15 +177,42 @@ export const exportVideo = async (
       resolve(`${airing.object_id} Unable to load watch path!`);
     });
   }
+  let outFile = '';
+  try {
+    outFile = dedupedExportFile(airing);
+  } catch (err) {
+    progressCb(airing.object_id, {
+      failed: true,
+      failedMsg: err,
+    });
 
-  const outFile = dedupedExportFile(airing);
+    debug('exportVideo - dedupedExportFile failed: ', err);
 
-  const outPath = fsPath.dirname(outFile);
-  if (userDebug) log.info('exporting to path:', outPath);
-  if (userDebug) log.info('exporting to file:', outFile);
-  fs.mkdirSync(outPath, {
-    recursive: true,
-  });
+    return new Promise((resolve) => {
+      resolve(`${airing.object_id} Unable to export file name!`);
+    });
+  }
+
+  try {
+    const outPath = fsPath.dirname(outFile);
+    if (userDebug) log.info('exporting to path:', outPath);
+    if (userDebug) log.info('exporting to file:', outFile);
+    fs.mkdirSync(outPath, {
+      recursive: true,
+    });
+  } catch (err) {
+    progressCb(airing.object_id, {
+      failed: true,
+      failedMsg: err,
+    });
+
+    debug('exportVideo - create output dirs for: %s ', outFile, err);
+
+    return new Promise((resolve) => {
+      resolve(`${airing.object_id} Unable to export file name!`);
+    });
+  }
+
   const ffmpegOpts = [
     '-c copy',
     '-y', // overwrite existing files
@@ -167,7 +228,7 @@ export const exportVideo = async (
   return new Promise((resolve) => {
     if (outFile !== airing.exportFile) {
       if (actionOnDuplicate === DUPE_SKIP) {
-        progressCallback(airing.object_id, {
+        progressCb(airing.object_id, {
           skipped: true,
           finished: true,
         });
@@ -184,12 +245,11 @@ export const exportVideo = async (
       .addOutputOptions(ffmpegOpts)
       .on('end', () => {
         log.info('Finished processing');
-        if (typeof progressCallback === 'function') {
-          progressCallback(airing.object_id, {
-            finished: true,
-            log: ffmpegLog,
-          });
-        }
+
+        progressCb(airing.object_id, {
+          finished: true,
+          log: ffmpegLog,
+        });
 
         if (userDebug) log.info(ffmpegLog.join('\n'));
         if (userDebug) log.info('end processVideo', new Date());
@@ -200,18 +260,16 @@ export const exportVideo = async (
         log.info(errMsg);
         ffmpegLog.push(errMsg);
 
-        if (typeof progressCallback === 'function') {
-          if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
-            progressCallback(airing.object_id, {
-              cancelled: true,
-              finished: false,
-            });
-          } else {
-            progressCallback(airing.object_id, {
-              failed: true,
-              failedMsg: err,
-            });
-          }
+        if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
+          progressCb(airing.object_id, {
+            cancelled: true,
+            finished: false,
+          });
+        } else {
+          progressCb(airing.object_id, {
+            failed: true,
+            failedMsg: err,
+          });
         }
 
         // reject(err);
@@ -244,16 +302,12 @@ export const exportVideo = async (
         }
       })
       .on('progress', (progress: Record<string, any>) => {
-        if (typeof progressCallback === 'function') {
-          progressCallback(airing.object_id, progress);
-        }
+        progressCb(airing.object_id, progress);
       });
 
-    if (typeof progressCallback === 'function') {
-      progressCallback(airing.object_id, {
-        timemark: beginTimemark,
-      });
-    }
+    progressCb(airing.object_id, {
+      timemark: beginTimemark,
+    });
 
     airing.cmd.run();
     // debug('exportVideo - setting auto kill export');
