@@ -350,3 +350,13 @@ export const throttle = <F extends (...args: any[]) => any>(
       }
     });
 };
+
+export const getMethods = (obj: any) => {
+  const res = [];
+  for (const m in obj) {
+    if (typeof obj[m] === 'function') {
+      res.push(m);
+    }
+  }
+  return res;
+};
