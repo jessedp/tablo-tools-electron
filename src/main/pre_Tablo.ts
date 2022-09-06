@@ -75,10 +75,9 @@ ipcMain.on('tablo-checkConnection', async (event: any) => {
 ipcMain.on('tablo-comskipAvailable', async (event: any) => {
   try {
     const avail = comskipAvailable();
-    debug('tablo-comskipAvailable: avail = ', avail);
     event.returnValue = avail;
   } catch (e) {
-    console.error('tablo-comskipAvailable', e);
+    console.error('tablo-comskipAvailable Error: ', e);
     event.returnValue = false;
   }
 });
