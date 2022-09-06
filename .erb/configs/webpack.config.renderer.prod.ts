@@ -126,9 +126,7 @@ const configuration: webpack.Configuration = {
     new SentryCliPlugin({
       include: '.',
       ignoreFile: '.sentrycliignore',
-      // configFile: 'sentry.properties',
-      org: 'jessedp',
-      project: 'tablo-tools-electron',
+      configFile: 'sentry.properties',
       ignore: ['node_modules'],
       release: version,
       setCommits: {

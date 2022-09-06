@@ -24,6 +24,11 @@ jobs:
           node-version: 16
 
       - name: Install dependencies
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_ORG: ${{secrets.SENTRY_ORG}}
+          SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
+
         run: |
           brew install rpm
           npm install
