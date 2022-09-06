@@ -1,7 +1,7 @@
 import * as net from 'net';
 
 import Debug from 'debug';
-import { compareVersions } from 'compare-versions';
+import { compare } from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
 import * as Sentry from '@sentry/electron/main';
@@ -150,12 +150,6 @@ export async function checkConnection(): Promise<boolean> {
 
 export const comskipAvailable = (): boolean => {
   const currentDevice: any = store.get('CurrentDevice');
-  debug(
-    'comskipAvailable: global.CONNECTED = %o    currentDevice = %O   globalThis.Api.device.info = %O',
-    global.CONNECTED,
-    currentDevice,
-    globalThis.Api.device.info
-  );
 
   if (!global.CONNECTED) return false;
   if (!currentDevice.server_version) return false;
@@ -163,10 +157,10 @@ export const comskipAvailable = (): boolean => {
   debug(
     'comskipAvailable: testVersion: %o , comparison: ',
     testVersion,
-    compareVersions(testVersion, '2.2.26', '>=')
+    compare(testVersion, '2.2.26', '>=')
   );
 
-  if (!compareVersions(testVersion, '2.2.26', '>=')) return false;
+  if (!compare(testVersion, '2.2.26', '>=')) return false;
 
   if (globalThis.Api.device.info === 'undefined') {
   }
