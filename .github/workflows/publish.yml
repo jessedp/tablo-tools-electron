@@ -28,7 +28,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_ORG: ${{secrets.SENTRY_ORG}}
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
-
+          DEBUG: 'electron-builder*'
         run: |
           brew install rpm
           npm install
@@ -40,7 +40,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_ORG: ${{secrets.SENTRY_ORG}}
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
-
+          DEBUG: 'electron-builder*'
           # These values are used for auto updates signing
           # APPLE_ID: ${{ secrets.APPLE_ID }}
           # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
