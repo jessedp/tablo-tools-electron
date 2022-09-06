@@ -16,7 +16,13 @@ import Airing from '../utils/Airing';
 import { asyncForEach, throttleActions } from '../utils/utils';
 import RecordingMini from './RecordingMini';
 
-import { ON, StdObj } from '../constants/app';
+import {
+  EXP_DONE,
+  EXP_WAITING,
+  EXP_WORKING,
+  ON,
+  StdObj,
+} from '../constants/app';
 
 interface Props extends PropsFromRedux {
   airing?: Airing | null;
@@ -26,11 +32,35 @@ interface Props extends PropsFromRedux {
 }
 type State = {
   show: boolean;
-  working: boolean;
+  status: number;
   deletedCount: number;
   airingList: Airing[];
 };
 
+function Progress(props: { deletedCount: number; total: number }) {
+  const { deletedCount, total } = props;
+
+  if (deletedCount === total) {
+    return (
+      <div className="text-center">
+        <h2>
+          <Badge variant="success">Deleted {total} recordings!</Badge>
+        </h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center">
+      <h2>
+        <Spinner animation="border" variant="warning" />
+        <Badge variant="warning" className="ml-2">
+          Deleted {deletedCount} / {total}
+        </Badge>
+      </h2>
+    </div>
+  );
+}
 class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   shouldCancel: boolean;
 
@@ -42,7 +72,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     super(props);
     this.state = {
       show: false,
-      working: false,
+      status: EXP_WAITING,
       deletedCount: 0,
       airingList: [],
     };
@@ -81,7 +111,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   handleDelete = async () => {
     const { history, bulkRemAirings, remAiring, records, airing } = this.props;
     await this.setState({
-      working: true,
+      status: EXP_WORKING,
       deletedCount: 0,
     });
 
@@ -116,7 +146,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
           return false;
         });
     }
-
+    this.setState({ status: EXP_DONE });
     PubSub.publish('DB_CHANGE');
   };
 
@@ -138,7 +168,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   }
 
   render() {
-    const { airingList, show, working, deletedCount } = this.state;
+    const { airingList, show, status, deletedCount } = this.state;
     let { label } = this.props;
     const { airing, button } = this.props;
     let size = 'xs';
@@ -218,63 +248,49 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {
-              working ? (
-                <Progress total={airings.length} deletedCount={deletedCount} />
-              ) : (
-                <>
-                  {protectedAlert}
+            {status === EXP_WAITING ? (
+              <>
+                {protectedAlert}
 
-                  <br />
-                  {airings.map((item: Airing) => (
-                    <RecordingMini
-                      withShow={ON}
-                      airing={item}
-                      doDelete={() => undefined}
-                      key={`cfd-mini-${item.object_id}`}
-                    />
-                  ))}
-                </>
-              ) //
-            }
+                <br />
+                {airings.map((item: Airing) => (
+                  <RecordingMini
+                    withShow={ON}
+                    airing={item}
+                    doDelete={() => undefined}
+                    key={`cfd-mini-${item.object_id}`}
+                  />
+                ))}
+              </>
+            ) : (
+              ''
+            )}
+            {status !== EXP_WAITING ? (
+              <Progress total={airings.length} deletedCount={deletedCount} />
+            ) : (
+              ''
+            )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={this.handleClose}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={this.handleDelete}>
-              Yes, delete!
-            </Button>
+            {status === EXP_DONE ? (
+              <Button variant="secondary" onClick={this.handleClose}>
+                Close
+              </Button>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={this.handleClose}>
+                  Cancel
+                </Button>
+                <Button variant="danger" onClick={this.handleDelete}>
+                  Yes, delete!
+                </Button>
+              </>
+            )}
           </Modal.Footer>
         </Modal>
       </span>
     );
   }
-}
-
-function Progress(props: { deletedCount: number; total: number }) {
-  const { deletedCount, total } = props;
-
-  if (deletedCount === total) {
-    return (
-      <div className="text-center">
-        <h2>
-          <Badge variant="success">Deleted {total} recordings!</Badge>
-        </h2>
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-center">
-      <h2>
-        <Spinner animation="border" variant="warning" />
-        <Badge variant="warning" className="ml-2">
-          Deleted {deletedCount} / {total}
-        </Badge>
-      </h2>
-    </div>
-  );
 }
 
 const mapDispatchToProps = (dispatch: any) => {
