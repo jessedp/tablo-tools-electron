@@ -4,7 +4,7 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import ReactMarkdown from 'react-markdown';
-import { compareVersions } from 'compare-versions';
+import { compare } from 'compare-versions';
 import Button from 'react-bootstrap/Button';
 
 import RelativeDate from './RelativeDate';
@@ -44,7 +44,7 @@ export default class VersionInfo extends Component<Props, State> {
 
     if (
       (beta && lastVersion !== appVersion) ||
-      compareVersions(relLastVersion, relNewVersion, '<')
+      compare(relLastVersion, relNewVersion, '<')
     ) {
       let releases;
 

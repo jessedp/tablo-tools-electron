@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import axios from 'axios';
 
-import { compareVersions } from 'compare-versions';
+import { compare } from 'compare-versions';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
@@ -78,7 +78,7 @@ class VersionStatus extends Component<Props, State> {
 
     let notify: Record<string, any> = {};
     data.forEach((rec: Record<string, any>) => {
-      if (compareVersions(appVersion, rec.tag_name, '<')) {
+      if (compare(appVersion, rec.tag_name, '<')) {
         if (rec.prerelease && getConfig().notifyBeta) {
           if (Object.keys(notify).length === 0) notify = rec;
         }
