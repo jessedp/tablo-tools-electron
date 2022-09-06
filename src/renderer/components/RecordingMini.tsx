@@ -95,7 +95,7 @@ class RecordingMini extends Component<Props> {
             {showCol}
             <TitleSlim airing={airing} withShow={ON} />
           </Col>
-          <Col md="4">
+          <Col md="4" className="mr-0 pr-0">
             <div className="">
               <div className="d-flex flex-row-reverse d-block">
                 {chkCol}

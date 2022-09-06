@@ -167,7 +167,7 @@ class ShowDetails extends Component<Props, State> {
             top: 0,
             width: '100%',
             height: 'auto',
-            opacity: '0.25',
+            opacity: '0.15',
             zIndex: -1,
             maxHeight: '91vh',
           }}

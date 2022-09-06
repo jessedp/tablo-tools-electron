@@ -107,7 +107,7 @@ class Recording extends Component<Props, State> {
             top: 0,
             width: '100%',
             height: 'auto',
-            opacity: '0.2',
+            opacity: '0.15',
             zIndex: -1,
             overflow: 'hidden',
             overflowY: 'hidden',

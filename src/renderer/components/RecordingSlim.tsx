@@ -92,7 +92,7 @@ class RecordingSlim extends Component<Props> {
     return (
       <>
         <Row
-          className="border-bottom mb-1 pb-1 pr-2"
+          className="border-bottom mb-1 pb-1 pr-0"
           style={{
             width: '100%',
             maxHeight: '55px',
@@ -102,7 +102,7 @@ class RecordingSlim extends Component<Props> {
             {showCol}
             <TitleSlim airing={airing} withShow={OFF} />
           </Col>
-          <Col md="4">
+          <Col md="4" className="pr-0 mr-0">
             <div className="">
               <div className="d-flex flex-row-reverse d-block">
                 {chkCol}
