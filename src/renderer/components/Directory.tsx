@@ -12,6 +12,7 @@ type Props = {
 };
 export default function Directory(prop: Props) {
   const { label, value, onClick, onChange, disabled } = prop;
+  const exists = window.fs.existsSync(value);
   return (
     <div className="d-flex flex-row">
       <div>
@@ -42,9 +43,21 @@ export default function Directory(prop: Props) {
               variant="outline-secondary"
               onClick={onClick}
               disabled={disabled}
+              title="Select a Directory"
             >
               <span className="fa fa-folder-open" />
             </Button>
+            {exists ? (
+              <span className="smaller text-muted">
+                <span className="fa fa-check-circle pt-2 pl-1 pr-1 text-success" />
+                exists!
+              </span>
+            ) : (
+              <span className="smaller text-muted">
+                <span className="fa fa-exclamation-circle text-danger pt-2 pl-1 pr-1" />
+                does not exist, will be auto-created
+              </span>
+            )}
           </InputGroup.Append>
         </InputGroup>
       </div>
