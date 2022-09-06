@@ -154,16 +154,16 @@ export const comskipAvailable = (): boolean => {
   if (!global.CONNECTED) return false;
   if (!currentDevice.server_version) return false;
   const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
+  const supportedVersion = '2.2.26';
   debug(
-    'comskipAvailable: testVersion: %o , comparison: ',
+    'comskipAvailable - has: %s , needs: %s, comparison: %o',
     testVersion,
-    compare(testVersion, '2.2.26', '>=')
+    supportedVersion,
+    compare(testVersion, supportedVersion, '>=')
   );
 
-  if (!compare(testVersion, '2.2.26', '>=')) return false;
+  if (!compare(testVersion, supportedVersion, '>=')) return false;
 
-  if (globalThis.Api.device.info === 'undefined') {
-  }
   if (
     globalThis.Api.device.info &&
     globalThis.Api.device.info.commercial_skip
