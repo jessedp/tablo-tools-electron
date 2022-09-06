@@ -191,7 +191,7 @@ export function parseSeconds(duration: string | number) {
   dur -= hours * hour;
   const minutes = Math.floor(dur / min);
   dur -= minutes * min;
-  console.log('parseSeconds', duration, [months, days, hours, minutes, dur]);
+
   return [months, days, hours, minutes, dur];
 }
 

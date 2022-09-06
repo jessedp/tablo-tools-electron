@@ -179,39 +179,6 @@ export function readableDuration(duration: number) {
 }
 
 /**
- * Takes a number of seconds and returns an array containing the full periods
- * of months, days, hours, minutes, and seconds it constitutes
- *
- *
- * @param {string | number} duration the number of seconds
- * @return {number[]} 5 elements, the full periods of 0 months, 1 days, 2 hours, 3 minutes, and 4 seconds
- */
-export function parseSeconds(duration: string | number) {
-  let dur;
-  if (typeof duration === 'string') {
-    dur = parseInt(duration, 10);
-  } else {
-    dur = duration;
-  }
-
-  // let dur = duration;
-  const min = 60;
-  const hour = min * 60;
-  const day = hour * 24;
-  const month = day * 30;
-  const months = Math.round(dur / month);
-  dur -= months * month;
-  const days = Math.round(dur / day);
-  dur -= days * day;
-  const hours = Math.round(dur / hour);
-  dur -= hours * hour;
-  const minutes = Math.round(dur / min);
-  dur -= minutes * min;
-  // console.log(minutes,)
-  return [months, days, hours, minutes, dur];
-}
-
-/**
  * Takes a number of bytes and returns a more human-readable version
  *
  * @param {number} bytes the bytes to interpret

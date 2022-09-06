@@ -52,13 +52,6 @@ class Build extends Component<BuildProps, State> {
 
   constructor(props: BuildProps) {
     super(props);
-    this.state = {
-      loading: STATE_WAITING,
-      log: [],
-      airingInc: 0,
-      airingMax: 1,
-      recCount: 0,
-    };
     this.psToken = '';
     this.building = false;
     this.build = this.build.bind(this);
@@ -89,11 +82,8 @@ class Build extends Component<BuildProps, State> {
   }
 
   build = async () => {
-    const { Api } = global;
     const { updateProgress } = this.props;
 
-    // return;
-    // const { showDbTable } = this.props;
     if (!window.Tablo.device()) return;
 
     if (this.building) {
@@ -113,11 +103,7 @@ class Build extends Component<BuildProps, State> {
 
     this.building = true;
     console.time('Building');
-    // showDbTable(false);
-    // this.setState({
-    //   loading: STATE_LOADING,
-    //   log: [],
-    // });
+
     updateProgress({
       loading: STATE_LOADING,
       log: [],
@@ -136,9 +122,7 @@ class Build extends Component<BuildProps, State> {
         'get-recording-progress',
         (message: any) => {
           console.log('progress', message);
-          // this.setState({
-          //   airingInc: message,
-          // });
+
           updateProgress({
             airingInc: message,
           });
@@ -152,7 +136,7 @@ class Build extends Component<BuildProps, State> {
         writeToFile(`airing-${rec.object_id}.json`, rec);
       });
       console.log(`retrieved ${recs.length} recordings`);
-      const { log } = this.state;
+      const log = [];
       log.push(`retrieved ${recs.length} recordings`);
 
       const recRemoveCnt = window.db.asyncRemove(
@@ -224,10 +208,6 @@ class Build extends Component<BuildProps, State> {
 
       /** Finish up... */
       this.building = false;
-      await this.setState({
-        loading: STATE_FINISH,
-        log,
-      });
       updateProgress({
         loading: STATE_FINISH,
         log,
@@ -260,9 +240,9 @@ class Build extends Component<BuildProps, State> {
   render() {
     const { progress, updateProgress } = this.props;
     if (progress.loading === STATE_START) {
-      // updateProgress({
-      //   loading: STATE_LOADING,
-      // });
+      updateProgress({
+        loading: STATE_LOADING,
+      });
       console.log('starting');
       this.build();
     }

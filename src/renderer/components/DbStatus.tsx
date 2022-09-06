@@ -119,14 +119,14 @@ class DbStatus extends Component<DbStatusProps, State> {
       autoRebuild = config.autoRebuild;
     }
 
-    console.log(
-      'checkAge() - autoRebuild =',
-      autoRebuild,
-      'diff (min) =',
-      diff,
-      'this.autoRebuildInterval (min) =',
-      this.autoRebuildInterval
-    );
+    // console.log(
+    //   'checkAge() - autoRebuild =',
+    //   autoRebuild,
+    //   'diff (min) =',
+    //   diff,
+    //   'this.autoRebuildInterval (min) =',
+    //   this.autoRebuildInterval
+    // );
     if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
       if (window.Tablo.CONNECTED()) startBuild();
       clearInterval(this.timer);
