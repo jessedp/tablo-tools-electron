@@ -45,6 +45,13 @@
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
+      "target": {
+        "target": "default",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      },
       "type": "distribution",
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
@@ -74,6 +81,7 @@
     "linux": {
       "target": [
         "deb",
+        "rpm",
         "AppImage"
       ],
       "synopsis": "The control over your Tablo you needed",
