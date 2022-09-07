@@ -4,15 +4,11 @@ on: push
 
 jobs:
   publish:
-    # To enable auto publishing to github, update your electron publisher
-    # config in package.json > "build" and remove the conditional below
-    # if: ${{ github.repository_owner == 'electron-react-boilerplate' }}
-
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout git repo
@@ -28,9 +24,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_ORG: ${{secrets.SENTRY_ORG}}
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
-          DEBUG: 'electron-builder*'
         run: |
-          brew install rpm
           npm install
           npm run postinstall
           npm run build
@@ -41,13 +35,25 @@ jobs:
           SENTRY_ORG: ${{secrets.SENTRY_ORG}}
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
           DEBUG: 'electron-builder*'
+
           # These values are used for auto updates signing
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          # CSC_LINK: ${{ secrets.CSC_LINK }}
+          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # npm exec electron-builder -- --publish always --win --mac --linux
+        shell: bash
         run: |
-          npm exec electron-builder -- --publish always --win --mac --linux
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            npm exec electron-builder -- --publish always --linux
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            npm exec electron-builder -- --publish always --win
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            npm exec electron-builder -- --publish always --mac
+          else
+            echo "$RUNNER_OS not supported"
+            exit 1
+          fi

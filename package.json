@@ -74,14 +74,15 @@
     },
     "win": {
       "target": [
+        "msi",
         "nsis"
       ]
     },
     "linux": {
       "target": [
+        "AppImage",
         "deb",
-        "rpm",
-        "AppImage"
+        "rpm"
       ],
       "synopsis": "The control over your Tablo you needed",
       "category": "AudioVideo;Video;"
