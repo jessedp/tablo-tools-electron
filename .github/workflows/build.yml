@@ -14,26 +14,23 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Check last commit message
-        id: skip
-        uses: atlwendy/retrieve-commit-messages-from-pr@v2
+      # - name: Check last commit message
+      #   id: skip
+      #   uses: atlwendy/retrieve-commit-messages-from-pr@v2
 
-      - name: Set SHOULD_RUN flag
-        run: echo ::set-env name=SHOULD_RUN::${{ steps.skip.outputs.shouldRun }}
-
-      - name: Install Node.js, NPM and Yarn
-        if: env.SHOULD_RUN == 'true'
+      - name: Install Node and NPM
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 16
+          cache: npm
 
-      - name: Force the yarn install
+      - name: Force the npm install
         if: success()
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 10
           max_attempts: 20
-          command: yarn install
+          command: npm install
 
       - name: Build/release Electron app
         if: success()
@@ -44,7 +41,7 @@ jobs:
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
         with:
           max_attempts: 5
-          build_script_name: 'package-ci'
+          build_script_name: 'build'
           #  && electron-builder --publish always
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)

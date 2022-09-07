@@ -1,0 +1,18 @@
+{
+  "name": "tablo-tools",
+  "productName": "tablo-tools",
+  "version": "0.2.4",
+  "description": "Tools to Bulk Delete and Export from your Tablo DVR",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "jessedp",
+    "email": "jessedp+tablo-electron@gmail.com",
+    "url": "https://github.com/jessedp"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js",
+    "postinstall": "yarn electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {}
+}

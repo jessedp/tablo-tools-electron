@@ -1,0 +1,39 @@
+{
+  "object_id": 946945,
+  "path": "/recordings/sports/946945",
+  "sport": {
+    "title": "2016 NBA Finals",
+    "description": "Replay of games from the 2016 series between the Cavaliers and Warriors.",
+    "genres": [
+      "Basketball"
+    ],
+    "background_image": {
+      "image_id": 941950,
+      "has_title": false
+    },
+    "cover_image": {
+      "image_id": 941949,
+      "has_title": false
+    },
+    "thumbnail_image": {
+      "image_id": 941948,
+      "has_title": true
+    },
+    "tms_series_id": "18154447"
+  },
+  "show_counts": {
+    "airing_count": 1,
+    "unwatched_count": 1,
+    "protected_count": 1,
+    "watched_and_protected_count": 0,
+    "failed_count": 0
+  },
+  "user_info": {
+    "up_next": "/recordings/sports/events/946944"
+  },
+  "keep": {
+    "rule": "none",
+    "count": null
+  },
+  "guide_path": null
+}

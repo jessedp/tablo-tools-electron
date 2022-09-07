@@ -1,84 +1,63 @@
 {
   "name": "tablo-tools",
-  "version": "0.2.4",
+  "version": "0.3.0-beta.3",
   "productName": "tablo-tools",
-  "description": "see app/",
+  "description": "see release/app",
+  "main": "./src/main/main.ts",
   "scripts": {
-    "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
-    "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
-    "build-e2e": "cross-env E2E_BUILD=true yarn build",
-    "build-main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js --colors",
-    "build-renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js --colors",
-    "dev": "cross-env START_HOT=1 node -r @babel/register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 yarn start-renderer-dev",
-    "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
-    "flow": "flow",
-    "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
-    "lint": "cross-env NODE_ENV=development eslint --cache --format=pretty .",
-    "lint-one": "cross-env NODE_ENV=development eslint --cache --format=pretty",
-    "lint-fix": "yarn --silent lint --fix; exit 0",
-    "lint-styles": "stylelint --ignore-path .eslintignore '**/*.*(css|scss)' --syntax scss",
-    "lint-styles-fix": "yarn --silent lint-styles --fix; exit 0",
-    "package": "yarn build && electron-builder build --publish never",
-    "package-all": "yarn build && electron-builder build -mwl",
-    "package-ci": "yarn postinstall && yarn build",
-    "package-linux": "yarn build && electron-builder build --linux",
-    "package-mac": "yarn build && electron-builder build --mac",
-    "package-win": "yarn build && electron-builder build --win --x64",
-    "postinstall": "node -r @babel/register internals/scripts/CheckNativeDep.js && yarn flow-typed && electron-builder install-app-deps && yarn build-dll && opencollective-postinstall",
-    "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{js,jsx,json,html,css,less,scss,yml}'",
-    "postlint-styles-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{css,scss}'",
-    "preinstall": "node ./internals/scripts/CheckYarn.js",
-    "prestart": "yarn build",
-    "start": "cross-env NODE_ENV=production electron ./app/main.prod.js",
-    "start-main-dev": "cross-env START_HOT=1 NODE_ENV=development electron -r @babel/register ./app/main.dev.js",
-    "start-renderer-dev": "cross-env NODE_ENV=development webpack-dev-server --config configs/webpack.config.renderer.dev.babel.js",
-    "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 jest",
-    "test-all": "yarn lint && yarn flow && yarn build && yarn test && yarn build-e2e && yarn test-e2e",
-    "test-e2e": "exit 0;",
-    "test-e2e-orig": "node -r @babel/register ./internals/scripts/CheckBuildsExist.js && cross-env NODE_ENV=test testcafe electron:./app ./test/e2e/HomePage.e2e.js",
-    "test-e2e-live": "node -r @babel/register ./internals/scripts/CheckBuildsExist.js && cross-env NODE_ENV=test testcafe --live electron:./app ./test/e2e/HomePage.e2e.js",
-    "test-watch": "yarn test --watch"
+    "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
+    "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
+    "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
+    "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
+    "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
+    "prepare": "husky install",
+    "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
+    "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
+    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
+    "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
+    "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "test": "jest"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
-      "cross-env NODE_ENV=development eslint --cache --format=pretty --fix",
-      "prettier --ignore-path .eslintignore --single-quote --write",
-      "git add"
+    "*.{js,jsx,ts,tsx}": [
+      "cross-env NODE_ENV=development eslint --cache"
     ],
-    "{*.json,.{babelrc,eslintrc,prettierrc,stylelintrc}}": [
-      "prettier --ignore-path .eslintignore --parser json --write",
-      "git add"
+    "*.json,.{eslintrc,prettierrc}": [
+      "prettier --ignore-path .eslintignore --parser json --write"
     ],
     "*.{css,scss}": [
-      "stylelint --ignore-path .eslintignore --syntax scss --fix",
-      "prettier --ignore-path .eslintignore --single-quote --write",
-      "git add"
+      "prettier --ignore-path .eslintignore --single-quote --write"
     ],
     "*.{html,md,yml}": [
-      "prettier --ignore-path .eslintignore --single-quote --write",
-      "git add"
+      "prettier --ignore-path .eslintignore --single-quote --write"
     ]
   },
-  "main": "./app/main.prod.js",
   "build": {
     "productName": "TabloTools",
     "appId": "org.jessedp.TabloTools",
-    "electronUpdaterCompatibility": ">= 2.16",
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}",
     "files": [
-      "dist/",
-      "node_modules/",
-      "app.html",
-      "main.prod.js",
-      "main.prod.js.map",
+      "dist",
+      "node_modules",
       "package.json"
     ],
-    "extraResources": [
-      "node_modules/ffmpeg-static-electron-jdp/*",
-      "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/ffmpeg",
-      "node_modules/ffmpeg-static-electron-jdp/bin/win/x64/*",
-      "node_modules/ffmpeg-static-electron-jdp/index.js",
-      "node_modules/ffmpeg-static-electron-jdp/package.json"
-    ],
+    "afterSign": ".erb/scripts/notarize.js",
+    "mac": {
+      "target": {
+        "target": "default",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      },
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "gatekeeperAssess": false
+    },
     "dmg": {
       "contents": [
         {
@@ -95,25 +74,27 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "msi"
-      ],
-      "icon": "resources/icon.png"
+        "msi",
+        "nsis"
+      ]
     },
     "linux": {
       "target": [
+        "AppImage",
         "deb",
-        "rpm",
-        "AppImage"
+        "rpm"
       ],
       "synopsis": "The control over your Tablo you needed",
-      "icon": "resources/",
       "category": "AudioVideo;Video;"
     },
     "directories": {
-      "buildResources": "resources/icon.png",
-      "output": "release"
+      "app": "release/app",
+      "buildResources": "assets",
+      "output": "release/build"
     },
+    "extraResources": [
+      "./assets/**"
+    ],
     "publish": {
       "provider": "github",
       "owner": "jessedp",
@@ -138,202 +119,241 @@
     "tablo",
     "dvr"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readmerequire",
+  "homepage": "https://jessedp.github.io/tablo-tools-electron/",
   "jest": {
-    "testURL": "http://localhost/",
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-    },
+    "moduleDirectories": [
+      "node_modules",
+      "release/app/node_modules"
+    ],
     "moduleFileExtensions": [
       "js",
       "jsx",
+      "ts",
+      "tsx",
       "json"
     ],
-    "moduleDirectories": [
-      "node_modules",
-      "app/node_modules"
-    ],
-    "transform": {
-      "^.+\\.jsx?$": "babel-jest"
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
     "setupFiles": [
-      "./internals/scripts/CheckBuildsExist.js"
-    ]
+      "./.erb/scripts/check-build-exists.ts"
+    ],
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "url": "http://localhost/"
+    },
+    "testPathIgnorePatterns": [
+      "release/app/dist"
+    ],
+    "transform": {
+      "\\.(ts|tsx|js|jsx)$": "ts-jest"
+    }
   },
   "devDependencies": {
-    "@babel/core": "^7.7.5",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/plugin-proposal-decorators": "^7.7.4",
-    "@babel/plugin-proposal-do-expressions": "^7.7.4",
-    "@babel/plugin-proposal-export-default-from": "^7.7.4",
-    "@babel/plugin-proposal-export-namespace-from": "^7.7.4",
-    "@babel/plugin-proposal-function-bind": "^7.7.4",
-    "@babel/plugin-proposal-function-sent": "^7.7.4",
-    "@babel/plugin-proposal-json-strings": "^7.7.4",
-    "@babel/plugin-proposal-logical-assignment-operators": "^7.7.4",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.7.4",
-    "@babel/plugin-proposal-numeric-separator": "^7.7.4",
-    "@babel/plugin-proposal-optional-chaining": "^7.7.5",
-    "@babel/plugin-proposal-pipeline-operator": "^7.7.4",
-    "@babel/plugin-proposal-throw-expressions": "^7.7.4",
-    "@babel/plugin-syntax-dynamic-import": "^7.7.4",
-    "@babel/plugin-syntax-import-meta": "^7.7.4",
-    "@babel/plugin-transform-react-constant-elements": "^7.7.4",
-    "@babel/plugin-transform-react-inline-elements": "^7.7.4",
-    "@babel/preset-env": "^7.7.6",
-    "@babel/preset-flow": "^7.7.4",
-    "@babel/preset-react": "^7.7.4",
-    "@babel/register": "^7.7.4",
-    "@sentry/webpack-plugin": "^1.12.0",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "^10.0.3",
-    "babel-jest": "^24.9.0",
-    "babel-loader": "^8.0.6",
-    "babel-plugin-dev-expression": "^0.2.2",
-    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
-    "chalk": "^3.0.0",
-    "concurrently": "^5.0.1",
-    "cross-env": "^6.0.3",
-    "cross-spawn": "^7.0.1",
-    "css-loader": "^3.3.2",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.6",
+    "@sentry/cli": "^2.5.2",
+    "@sentry/webpack-plugin": "^1.19.0",
+    "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^12.1.4",
+    "@types/archiver": "^5.1.0",
+    "@types/d3-scale-chromatic": "^2.0.0",
+    "@types/d3-shape": "^2.0.0",
+    "@types/d3-time": "^2.0.0",
+    "@types/date-fns": "^2.6.0",
+    "@types/electron-devtools-installer": "^2.2.2",
+    "@types/enzyme": "^3.10.9",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/fluent-ffmpeg": "^2.1.20",
+    "@types/history": "4.7.9",
+    "@types/hls.js": "^1.0.0",
+    "@types/hoist-non-react-statics": "^3.3.0",
+    "@types/jest": "^27.5.1",
+    "@types/nedb": "^1.8.11",
+    "@types/node": "17.0.33",
+    "@types/pubsub-js": "^1.8.2",
+    "@types/react": "^17.0.2",
+    "@types/react-bootstrap": "^0.32.30",
+    "@types/react-dom": "^17.0.11",
+    "@types/react-motion": "^0.0.32",
+    "@types/react-paginate": "^6.2.1",
+    "@types/react-redux": "^7.1.3",
+    "@types/react-router-bootstrap": "^0.24.5",
+    "@types/react-router-dom": "^5.3.2",
+    "@types/react-sticky-el": "^1.0.3",
+    "@types/react-test-renderer": "^17.0.2",
+    "@types/redux-logger": "^3.0.9",
+    "@types/source-map-support": "^0.5.4",
+    "@types/styled-components": "^5.1.9",
+    "@types/terser-webpack-plugin": "^5.0.4",
+    "@types/webpack-bundle-analyzer": "^4.4.1",
+    "@types/webpack-env": "^1.16.2",
+    "@typescript-eslint/eslint-plugin": "^5.23.0",
+    "@typescript-eslint/parser": "^5.23.0",
+    "browserslist-config-erb": "^0.0.3",
+    "chalk": "^4.1.2",
+    "concurrently": "^7.1.0",
+    "core-js": "^3.22.5",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.7.1",
+    "css-minimizer-webpack-plugin": "^3.4.1",
     "detect-port": "^1.3.0",
-    "electron": "8.5.2",
-    "electron-builder": "^22.5.1",
-    "electron-devtools-installer": "^3.0.0",
-    "electron-rebuild": "^1.10.1",
-    "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.7.0",
-    "enzyme-to-json": "^3.3.4",
-    "eslint": "^6.7.2",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-erb": "^0.1.1",
-    "eslint-config-prettier": "^6.6.0",
-    "eslint-formatter-pretty": "^3.0.0",
-    "eslint-import-resolver-webpack": "^0.12.0",
-    "eslint-plugin-compat": "^3.3.0",
-    "eslint-plugin-flowtype": "^4.5.2",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-jest": "^23.1.1",
-    "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-testcafe": "^0.2.1",
-    "fbjs-scripts": "^1.2.0",
-    "file-loader": "^5.0.2",
-    "flow-bin": "^0.113.0",
-    "flow-runtime": "^0.17.0",
-    "flow-typed": "^2.6.2",
-    "husky": "^3.1.0",
+    "electron": "^20.1.1",
+    "electron-builder": "^23.3.3",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-notarize": "^1.2.1",
+    "electron-rebuild": "^3.2.9",
+    "electronmon": "^2.0.2",
+    "enzyme": "^3.11.0",
+    "enzyme-to-json": "^3.6.2",
+    "eslint": "^8.15.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-erb": "^4.0.3",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-import-resolver-webpack": "^0.13.2",
+    "eslint-plugin-compat": "^4.0.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.2.2",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.1",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^24.9.0",
-    "lint-staged": "^9.5.0",
-    "mini-css-extract-plugin": "^0.8.0",
-    "minimist": "^1.2.5",
-    "node-sass": "^4.13.0",
-    "opencollective-postinstall": "^2.0.2",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "prettier": "^1.19.1",
-    "react-test-renderer": "^16.12.0",
-    "redux-logger": "^3.0.6",
-    "rimraf": "^3.0.0",
-    "sass-loader": "^8.0.0",
-    "sinon": "^7.5.0",
-    "spectron": "^9.0.0",
-    "style-loader": "^1.0.1",
-    "stylelint": "^12.0.0",
-    "stylelint-config-prettier": "^8.0.0",
-    "stylelint-config-standard": "^19.0.0",
-    "terser-webpack-plugin": "^2.3.0",
-    "testcafe": "^1.6.1",
-    "testcafe-browser-provider-electron": "^0.0.13",
-    "testcafe-react-selectors": "^3.3.0",
-    "url-loader": "^3.0.0",
-    "webpack": "^4.41.6",
-    "webpack-bundle-analyzer": "^3.6.0",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.9.0",
-    "webpack-merge": "^4.2.2",
-    "yarn": "^1.21.1"
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
+    "lint-staged": "^12.4.1",
+    "mini-css-extract-plugin": "^2.6.0",
+    "prettier": "^2.6.2",
+    "react-devtools-electron": "^4.7.0",
+    "react-refresh": "^0.13.0",
+    "react-refresh-typescript": "^2.0.3",
+    "react-test-renderer": "^17.0.2",
+    "redux-devtools-extension": "^2.13.9",
+    "rimraf": "^3.0.2",
+    "sass": "^1.51.0",
+    "sass-loader": "^12.6.0",
+    "style-loader": "^3.3.1",
+    "terser-webpack-plugin": "^5.3.1",
+    "ts-jest": "^28.0.2",
+    "ts-loader": "^9.3.0",
+    "ts-node": "^10.7.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.2",
+    "typescript": "^4.6.4",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.72.1",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.9.0",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
-    "@hot-loader/react-dom": "^16.11.0",
-    "@nivo/bar": "^0.61.1",
-    "@nivo/calendar": "^0.61.1",
-    "@nivo/pie": "^0.61.1",
-    "@nivo/sunburst": "^0.61.0",
-    "@popperjs/core": "^2.0.6",
-    "@sentry/electron": "^1.4.0",
+    "@nivo/bar": "^0.79.1",
+    "@nivo/calendar": "^0.79.1",
+    "@nivo/core": "^0.79.0",
+    "@nivo/pie": "^0.79.1",
+    "@panelist/react-hls-player": "^3.0.8",
+    "@popperjs/core": "^2.11.0",
+    "@reduxjs/toolkit": "^1.6.2",
+    "@sentry/electron": "^4.0.0",
     "archiver": "^4.0.1",
-    "axios": "^0.19.0",
+    "axios": "^0.24.0",
     "bootstrap": "^4.3.1",
+    "browserify-zlib": "^0.2.0",
     "byte-data": "^16.0.3",
-    "compare-versions": "^3.6.0",
-    "connected-react-router": "^6.6.1",
-    "core-js": "^3.5.0",
+    "compare-versions": "^5.0.1",
+    "connected-react-router": "^6.9.2",
+    "constants-browserify": "^1.0.0",
+    "crypto-browserify": "^3.12.0",
     "date-fns": "^2.8.1",
-    "devtron": "^1.4.0",
-    "electron-debug": "^3.0.1",
-    "electron-log": "^4.0.0",
-    "electron-logger": "^0.0.3",
-    "electron-store": "^5.1.1",
-    "electron-updater": "^4.2.5",
-    "eslint-plugin-react-hooks": "^2.2.0",
-    "ffmpeg-static-electron-jdp": "^2.0.1",
+    "debug": "^4.3.4",
+    "dgram-browserify": "0.0.13",
+    "electron-debug": "^3.2.0",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-log": "^4.4.8",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^5.2.2",
+    "events": "^3.3.0",
+    "ffmpeg-static-electron-jdp": "^2.0.3",
     "fluent-ffmpeg": "^2.1.2",
-    "handlebars": "^4.7.6",
+    "handlebars": "^4.7.7",
     "history": "^4.10.1",
-    "hls.js": "^0.12.4",
-    "jquery": "^3.4.1",
-    "jsonfile": "^6.0.1",
-    "moment": "^2.24.0",
+    "http-browserify": "^1.7.0",
+    "https-browserify": "^1.0.0",
+    "jquery": "^3.6.0",
+    "jsonfile": "^6.1.0",
+    "moment": "^2.29.1",
     "nedb-async": "git+https://github.com/jessedp/nedb-async.git",
-    "path": "^0.12.7",
+    "net-browserify": "^0.2.4",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
     "popper.js": "^1.16.1",
     "prop-types": "^15.7.2",
     "pubsub-js": "^1.8.0",
-    "react": "^16.12.0",
-    "react-ace": "^9.0.0",
-    "react-bootstrap": "^1.0.1",
+    "react": "^17.0.2",
+    "react-ace": "^9.4.0",
+    "react-bootstrap": "^1.6.1",
     "react-data-table-component": "^6.9.0",
-    "react-dom": "^16.12.0",
-    "react-hot-loader": "^4.12.21",
+    "react-dom": "^17.0.2",
     "react-json-view": "^1.19.1",
-    "react-markdown": "^4.3.1",
-    "react-paginate": "^6.3.2",
+    "react-markdown": "^7.1.1",
+    "react-paginate": "^7.1.2",
     "react-redux": "^7.1.3",
-    "react-router": "^5.1.2",
     "react-router-bootstrap": "^0.25.0",
-    "react-router-dom": "^5.1.2",
-    "react-select": "^3.1.0",
+    "react-router-dom": "^5.3.0",
+    "react-select": "^3.1.1",
     "react-sticky-el": "^1.1.0",
     "react-useanimations": "^1.2.14",
     "redux": "^4.0.4",
+    "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.9",
     "sanitize-filename": "^1.6.3",
     "slugify": "^1.4.2",
-    "source-map-support": "^0.5.16",
+    "source-map-support": "^0.5.19",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
     "styled-components": "^5.1.0",
-    "tablo-api": "^0.4.3",
+    "supports-color": "^9.2.2",
+    "tablo-api": "^0.4.11",
     "template-helpers": "^1.0.1",
-    "video-react": "^0.14.1"
+    "text-encoding": "^0.7.0",
+    "tls-browserify": "^0.2.2",
+    "util": "^0.12.4"
   },
-  "resolutions": {
-    "minimist": "^1.2.5"
+  "browserslist": [],
+  "prettier": {
+    "overrides": [
+      {
+        "files": [
+          ".prettierrc",
+          ".eslintrc"
+        ],
+        "options": {
+          "parser": "json"
+        }
+      }
+    ],
+    "singleQuote": true
   },
-  "devEngines": {
-    "node": ">=7.x",
-    "npm": ">=4.x",
-    "yarn": ">=0.21.3"
-  },
-  "browserslist": [
-    "electron 1.6"
-  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "devEngines": {
+    "node": ">=14.x",
+    "npm": ">=7.x"
+  },
+  "electronmon": {
+    "patterns": [
+      "!**/**",
+      "src/main/*"
+    ],
+    "logLevel": "quiet"
   }
 }

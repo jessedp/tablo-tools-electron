@@ -1,0 +1,203 @@
+{
+  "object_id": 593660,
+  "path": "/recordings/series/593660",
+  "series": {
+    "title": "Saturday Night Live",
+    "genres": [
+      "Comedy"
+    ],
+    "description": "Live from New York for more than four decades, celebrity hosts join an award-winning ensemble cast to perform comedic sketches, satirical news and digital shorts, alongside popular musical acts. Capturing the pop-culture zeitgeist, the show's sketches and segments often go viral the next day. Over the years, cast members have included Jimmy Fallon, Will Ferrell, Tina Fey, Kate McKinnon, Seth Meyers, Eddie Murphy, Bill Murray, Mike Myers, Amy Poehler, Chris Rock, Maya Rudolph, Andy Samberg, Kristen Wiig, and many more, as well as recurring guests such as Alec Baldwin, Melissa McCarthy and Steve Martin. From executive producer Lorne Michaels, \"SNL\" is widely considered an American late-night institution and continues to earn critical praise.",
+    "orig_air_date": "1975-10-11",
+    "episode_runtime": 5580,
+    "series_rating": "tv14",
+    "cast": [
+      "Kenan Thompson",
+      "Kate McKinnon",
+      "Cecily Strong",
+      "Aidy Bryant",
+      "Beck Bennett",
+      "Kyle Mooney",
+      "Colin Jost",
+      "Michael Che",
+      "Pete Davidson",
+      "Mikey Day",
+      "Melissa Villaseñor",
+      "Heidi Gardner",
+      "Chris Redd",
+      "Alex Moffat",
+      "Ego Nwodim",
+      "Bowen Yang",
+      "Chloe Fineman",
+      "Shane Gillis",
+      "Leslie Jones",
+      "Luke Null",
+      "Dana Carvey",
+      "Sasheer Zamata",
+      "Alec Baldwin",
+      "Vanessa Bayer",
+      "Bobby Moynihan",
+      "Taran Killam",
+      "Jay Pharoah",
+      "Jon Rudnitsky",
+      "Mike O'Brien",
+      "Nasim Pedrad",
+      "John Milhiser",
+      "Noël Wells",
+      "Brooks Wheelan",
+      "Seth Meyers",
+      "Tim Robinson",
+      "Fred Armisen",
+      "Bill Hader",
+      "Jason Sudeikis",
+      "Andy Samberg",
+      "Kristen Wiig",
+      "Abby Elliott",
+      "Paul Brittain",
+      "Will Forte",
+      "Jenny Slate",
+      "Darrell Hammond",
+      "Michaela Watkins",
+      "Casey Wilson",
+      "Amy Poehler",
+      "Will Ferrell",
+      "Molly Shannon",
+      "Eddie Murphy"
+    ],
+    "awards": [
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Writing for a Variety, Music or Comedy Program",
+        "year": 1989
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Variety, Music or Comedy Series",
+        "year": 1993
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Writing for a Variety, Music or Comedy Program",
+        "year": 2002
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety, Music or Comedy Series",
+        "year": 2010
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety, Music or Comedy Series",
+        "year": 2011
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Series",
+        "year": 2012
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Series",
+        "year": 2013
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Series",
+        "year": 2014
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Special",
+        "year": 2015
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Variety Special",
+        "year": 2015
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Supporting Actress in a Comedy Series",
+        "year": 2016,
+        "nominee": "Kate McKinnon"
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Series",
+        "year": 2017
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Supporting Actress in a Comedy Series",
+        "year": 2017,
+        "nominee": "Kate McKinnon"
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Variety Sketch Series",
+        "year": 2017
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Supporting Actor in a Comedy Series",
+        "year": 2017,
+        "nominee": "Alec Baldwin"
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Directing for a Variety Series",
+        "year": 2018
+      },
+      {
+        "won": true,
+        "name": "Emmy (Primetime)",
+        "category": "Outstanding Variety Sketch Series",
+        "year": 2018
+      }
+    ],
+    "background_image": {
+      "image_id": 1295066,
+      "has_title": false
+    },
+    "cover_image": {
+      "image_id": 1295065,
+      "has_title": true
+    },
+    "thumbnail_image": {
+      "image_id": 1295064,
+      "has_title": true
+    },
+    "tms_series_id": "183890",
+    "tms_id": "SH000037100000"
+  },
+  "show_counts": {
+    "airing_count": 15,
+    "unwatched_count": 15,
+    "protected_count": 1,
+    "watched_and_protected_count": 0,
+    "failed_count": 0
+  },
+  "user_info": {
+    "up_next": "/recordings/series/episodes/727871"
+  },
+  "keep": {
+    "rule": "none",
+    "count": null
+  },
+  "guide_path": "/guide/series/175756"
+}

@@ -1,0 +1,76 @@
+{
+  "object_id": 1342901,
+  "path": "/recordings/series/episodes/1342901",
+  "series_path": "/recordings/series/593660",
+  "season_path": "/recordings/series/seasons/1143726",
+  "snapshot_image": {
+    "image_id": 1362508,
+    "has_title": false
+  },
+  "airing_details": {
+    "datetime": "2021-02-14T04:29Z",
+    "duration": 5580,
+    "channel_path": "/recordings/channels/634635",
+    "channel": {
+      "object_id": 634635,
+      "path": "/recordings/channels/634635",
+      "channel": {
+        "call_sign": "WXIA-TV",
+        "call_sign_src": "WXIA-TV",
+        "major": 11,
+        "minor": 11,
+        "network": "NBC",
+        "resolution": "hd_1080"
+      }
+    },
+    "show_title": "Saturday Night Live"
+  },
+  "video_details": {
+    "state": "finished",
+    "clean": true,
+    "cloud": false,
+    "uploading": false,
+    "audio": "aac",
+    "size": 7723094016,
+    "duration": 8356,
+    "width": 1920,
+    "height": 1080,
+    "comskip": {
+      "state": "ready",
+      "error": null
+    },
+    "schedule_offsets": {
+      "start": -15,
+      "end": 2764,
+      "deprecated": true
+    },
+    "recorded_offsets": {
+      "start": -15,
+      "end": 2764
+    },
+    "airing_offsets": {
+      "start": 0,
+      "end": 0,
+      "source": "none"
+    },
+    "seek": 15,
+    "error": null,
+    "warnings": []
+  },
+  "user_info": {
+    "position": 0,
+    "watched": false,
+    "protected": false
+  },
+  "episode": {
+    "title": "Regina King; Nathaniel Rateliff",
+    "description": "Host Regina King; Nathaniel Rateliff performs.",
+    "number": 12,
+    "season_number": 46,
+    "orig_air_date": "2021-02-13",
+    "tms_id": "EP000037101285"
+  },
+  "qualifiers": [
+    "cc"
+  ]
+}
