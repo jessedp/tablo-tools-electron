@@ -93,7 +93,11 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "node_modules/ffmpeg-static-electron-jdp/*",
+      "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/{ffmpeg,ffmpeg.exe}",
+      "node_modules/ffmpeg-static-electron-jdp/index.js",
+      "node_modules/ffmpeg-static-electron-jdp/package.json"
     ],
     "publish": {
       "provider": "github",
