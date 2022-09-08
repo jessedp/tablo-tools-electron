@@ -346,41 +346,44 @@ export function findFfmpegPath(debug = false, log?: any) {
   if (process.env.NODE_ENV === 'production') {
     if (os.platform() === 'darwin') {
       ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
-    } else if (process.env.APPIMAGE) {
+    } else {
       /**  ie,
        * /tmp/.mount_TabloTPItQDq/resources/  app.asar/dist/main/   bin/linux/x64/ffmpeg
+       * /opt/TabloTools/resources/  app.asar/dist/main/  bin/linux/x64/ffmpeg
             To:
           /tmp/.mount_TabloTPItQDq/resources/  node_modules/ffmpeg-static-electron-jdp/  bin/linux/x64/ffmpeg
+          /opt/TabloTools/resources/ node_modules/ffmpeg-static-electron-jdp/ bin/linux/x64/ffmpeg
        *
        */
       ffmpegPathReal = ffmpegPathReal.replace(
         'app.asar/dist/main/',
         'node_modules/ffmpeg-static-electron-jdp/'
       );
-    } else {
-      const testStartPath = ffmpegPathReal.replace(
-        /^[/|\\]bin/,
-        psuedoProdPath
-      );
-
-      if (fs.existsSync(testStartPath)) {
-        if (debug && log)
-          log.info(
-            'testStartPath exists, replacing ffmpegPathReal - ',
-            testStartPath
-          );
-        ffmpegPathReal = testStartPath;
-      } else {
-        if (debug && log)
-          log.info('replacing psuedoProdPath "/resources" - ', psuedoProdPath);
-        ffmpegPathReal = psuedoProdPath.replace(
-          /[/|\\]resources/,
-          `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-        );
-        if (debug && log)
-          log.info('replaced psuedoProdPath "/resources" - ', ffmpegPathReal);
-      }
     }
+    // else {
+    //   const testStartPath = ffmpegPathReal.replace(
+    //     /^[/|\\]bin/,
+    //     psuedoProdPath
+    //   );
+
+    //   if (fs.existsSync(testStartPath)) {
+    //     if (debug && log)
+    //       log.info(
+    //         'testStartPath exists, replacing ffmpegPathReal - ',
+    //         testStartPath
+    //       );
+    //     ffmpegPathReal = testStartPath;
+    //   } else {
+    //     if (debug && log)
+    //       log.info('replacing psuedoProdPath "/resources" - ', psuedoProdPath);
+    //     ffmpegPathReal = psuedoProdPath.replace(
+    //       /[/|\\]resources/,
+    //       `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
+    //     );
+    //     if (debug && log)
+    //       log.info('replaced psuedoProdPath "/resources" - ', ffmpegPathReal);
+    //   }
+    // }
   } else if (os.platform() === 'win32') {
     // otherwise we can hit the node_modules dir
     ffmpegPathReal = ffmpegPathReal.replace(
