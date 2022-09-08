@@ -55,8 +55,8 @@ export default class ResolutionChannelStats extends Component<Props, State> {
 
   async refresh() {
     const { selResolution } = this.state;
-    const recTotal = await window.db.asyncCount('RecDb', {});
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recTotal = await window.db.countAsync('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const resCounts: Record<string, any> = {};
     const resMap = {
       hd_1080: 'HD 1080',

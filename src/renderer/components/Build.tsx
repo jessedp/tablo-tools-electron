@@ -139,21 +139,21 @@ class Build extends Component<BuildProps, State> {
       const log = [];
       log.push(`retrieved ${recs.length} recordings`);
 
-      const recRemoveCnt = window.db.asyncRemove(
+      const recRemoveCnt = window.db.removeAsync(
         'RecDb',
         {},
         {
           multi: true,
         }
       );
-      window.db.asyncRemove(
+      window.db.removeAsync(
         'ShowDb',
         {},
         {
           multi: true,
         }
       );
-      window.db.asyncRemove(
+      window.db.removeAsync(
         'ChannelDb',
         {},
         {
@@ -162,7 +162,7 @@ class Build extends Component<BuildProps, State> {
       );
 
       console.log(`${recRemoveCnt} old records removed`);
-      let insertRes = window.db.asyncInsert('RecDb', recs);
+      let insertRes = window.db.insertAsync('RecDb', recs);
       console.log(`${insertRes.length} records added`);
       log.push(`${insertRes.length} recordings found.`);
       const showPaths: string[] = [];
@@ -189,7 +189,7 @@ class Build extends Component<BuildProps, State> {
         });
       }
 
-      insertRes = window.db.asyncInsert('ShowDb', shows);
+      insertRes = window.db.insertAsync('ShowDb', shows);
       console.log(`${insertRes.length} SHOW records added`);
 
       /** Init all the channels b/c we have no choice. This also isn't much */
@@ -203,7 +203,7 @@ class Build extends Component<BuildProps, State> {
         });
       }
 
-      insertRes = window.db.asyncInsert('ChannelDb', channels);
+      insertRes = window.db.insertAsync('ChannelDb', channels);
       console.log(`${insertRes.length} CHANNEL records added`);
 
       /** Finish up... */

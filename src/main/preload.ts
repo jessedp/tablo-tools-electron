@@ -1,7 +1,10 @@
 import { contextBridge, ipcRenderer, shell, webFrame } from 'electron';
+import Debug from 'debug';
 
 import * as fs from 'fs';
 import * as os from 'os';
+
+const debug = Debug('tablo-tools:preload');
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, ...args: any) => ipcRenderer.send(channel, ...args),
@@ -48,30 +51,30 @@ contextBridge.exposeInMainWorld('db', {
 
   find: (db: string, query: any) => ipcRenderer.sendSync('db-find', db, query),
 
-  asyncFind: (db: string, query: any, options: any = {}) =>
+  findAsync: (db: string, query: any, options: any = {}) =>
     ipcRenderer.sendSync('db-async-find', db, query, options),
 
-  asyncFindOne: (db: string, query: any, options: any = {}) =>
+  findOneAsync: (db: string, query: any, options: any = {}) =>
     ipcRenderer.sendSync('db-findOne', db, query, options),
 
-  asyncCount: (db: string, query: any) =>
+  countAsync: (db: string, query: any) =>
     ipcRenderer.sendSync('db-count', db, query),
 
-  asyncInsert: (db: string, query: any) =>
+  insertAsync: (db: string, query: any) =>
     ipcRenderer.sendSync('db-insert', db, query),
 
-  asyncRemove: (db: string, query: any, options?: any) => {
+  removeAsync: (db: string, query: any, options?: any) => {
     console.log(
-      `asyncRemove - db = ${db} , query = ${JSON.stringify(
+      `removeAsync - db = ${db} , query = ${JSON.stringify(
         query
       )} , options = ${JSON.stringify(options)}`
     );
     ipcRenderer.sendSync('db-remove', db, query, options);
   },
 
-  asyncUpdate: (db: string, query: any, options?: any) => {
+  updateAsync: (db: string, query: any, options?: any) => {
     console.log(
-      `asyncUpdate - db = ${db} , query = ${JSON.stringify(
+      `updateAsync - db = ${db} , query = ${JSON.stringify(
         query
       )} , options = ${JSON.stringify(options)}`
     );

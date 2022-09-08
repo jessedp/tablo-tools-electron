@@ -263,6 +263,7 @@
     "@panelist/react-hls-player": "^3.0.8",
     "@popperjs/core": "^2.11.0",
     "@reduxjs/toolkit": "^1.6.2",
+    "@seald-io/nedb": "^3.1.0",
     "@sentry/electron": "^4.0.0",
     "archiver": "^4.0.1",
     "axios": "^0.24.0",

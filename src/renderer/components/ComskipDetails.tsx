@@ -38,9 +38,9 @@ export default class ComskipDetails extends Component<Props, State> {
 
   async refresh() {
     if (!comskipAvailable()) return;
-    // const comskip = await RecDb.asyncCount({ 'video_details.comskip': { $exists: true } });
-    // const recs = await window.db.asyncFind('RecDb', {});
-    const recs = await window.db.asyncFind('RecDb', {});
+    // const comskip = await RecDb.countAsync({ 'video_details.comskip': { $exists: true } });
+    // const recs = await window.db.findAsync('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const skipStats = {
       ready: 0,
       none: 0,

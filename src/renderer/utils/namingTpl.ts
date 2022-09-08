@@ -136,7 +136,7 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   if (template.slug === getDefaultTemplateSlug())
     return 'Cannot save default slug!';
 
-  await global.NamingDb.asyncUpdate(
+  await global.NamingDb.updateAsync(
     {
       // eslint-disable-next-line no-underscore-dangle
       _id: template._id,
@@ -150,7 +150,7 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   return '';
 }
 export async function deleteTemplate(template: NamingTemplateType) {
-  await window.db.asyncRemove('NamingDb', {
+  await window.db.removeAsync('NamingDb', {
     $and: [
       {
         type: template.type,

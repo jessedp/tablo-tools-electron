@@ -202,7 +202,7 @@ const VideoExport = (WrappedComponent: any) => {
         // FIXME : ExportLogRecord types
         // this.logRecord.endTime = new Date().toLocaleString();
         this.logRecord.endTime = new Date();
-        window.db.asyncInsert('ExportLogDb', this.logRecord);
+        window.db.insertAsync('ExportLogDb', this.logRecord);
         // this.logRecord = {};
       }
 

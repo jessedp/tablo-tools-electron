@@ -99,7 +99,7 @@ export default class Sports extends Component<Props, State> {
 }
 export async function eventList() {
   const recType = new RegExp('sports');
-  const recs = await window.db.asyncFind('RecDb', {
+  const recs = await window.db.findAsync('RecDb', {
     path: {
       $regex: recType,
     },

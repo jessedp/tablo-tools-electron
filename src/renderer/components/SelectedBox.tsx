@@ -36,7 +36,7 @@ class SelectedBox extends Component<
 
   addAll = async () => {
     const { bulkAddAirings } = this.props;
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const actionList: Array<StdObj> = [];
     await asyncForEach(recs, async (doc) => {
       try {

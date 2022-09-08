@@ -122,7 +122,7 @@ class SettingsNaming extends Component<Props, State> {
     const template = getTemplate(type);
     this.originalTemplate = { ...template };
     const typeRe = new RegExp(type);
-    let recData = await window.db.asyncFindOne('RecDb', {
+    let recData = await window.db.findOneAsync('RecDb', {
       path: {
         $regex: typeRe,
       },
@@ -149,7 +149,7 @@ class SettingsNaming extends Component<Props, State> {
     const error = '';
     const files: Record<string, Airing[]> = {};
     const recType = new RegExp(type);
-    const recs = await window.db.asyncFind(
+    const recs = await window.db.findAsync(
       'RecDb',
       {
         path: {

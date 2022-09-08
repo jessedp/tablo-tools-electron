@@ -81,14 +81,14 @@ export default class ShowStats extends Component<Props, State> {
     let recTotal;
 
     if (!show) {
-      recTotal = await window.db.asyncCount('RecDb', {});
+      recTotal = await window.db.countAsync('RecDb', {});
     } else {
-      recTotal = await window.db.asyncCount('RecDb', {
+      recTotal = await window.db.countAsync('RecDb', {
         'airing_details.show_title': show,
       });
     }
 
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const data: Array<ShowStatRowType> = [];
     const shows: Record<string, ShowStatRowType> = {};
     await asyncForEach(recs, async (rec) => {

@@ -69,7 +69,7 @@ class SavedSearchEdit extends Component<Props, State> {
 
   refresh = async () => {
     const { searchId } = this.props;
-    const rec = await window.db.asyncFindOne('SearchDb', {
+    const rec = await window.db.findOneAsync('SearchDb', {
       _id: searchId,
     });
     if (rec)
@@ -82,7 +82,7 @@ class SavedSearchEdit extends Component<Props, State> {
   deleteSearch = async () => {
     const { searchId, resetValue, sendFlash } = this.props;
     const { name } = this.state;
-    await window.db.asyncRemove('SearchDb', {
+    await window.db.removeAsync('SearchDb', {
       _id: searchId,
     });
     sendFlash({
@@ -145,7 +145,7 @@ class SavedSearchEdit extends Component<Props, State> {
       return;
     }
 
-    let rec = await window.db.asyncFindOne('SearchDb', {
+    let rec = await window.db.findOneAsync('SearchDb', {
       slug,
     });
 
@@ -160,7 +160,7 @@ class SavedSearchEdit extends Component<Props, State> {
 
     // TODO: this nonsense is because nedb doesn't want to update fields, just docs
     if (!rec) {
-      rec = await window.db.asyncFindOne('SearchDb', {
+      rec = await window.db.findOneAsync('SearchDb', {
         _id: searchId,
       });
     }
@@ -175,10 +175,10 @@ class SavedSearchEdit extends Component<Props, State> {
         updated: new Date().toISOString(),
       },
     };
-    await window.db.asyncRemove('SearchDb', {
+    await window.db.removeAsync('SearchDb', {
       _id: searchId,
     });
-    rec = await global.SearchDb.asyncInsert(rec);
+    rec = await global.SearchDb.insertAsync(rec);
     sendFlash({
       message: 'Updated!',
     });
