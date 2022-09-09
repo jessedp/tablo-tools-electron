@@ -51,10 +51,10 @@ contextBridge.exposeInMainWorld('db', {
 
   find: (db: string, query: any) => ipcRenderer.sendSync('db-find', db, query),
 
-  findAsync: (db: string, query: any, options: any = {}) =>
+  findAsync: (db: string, query: any, options: any = []) =>
     ipcRenderer.sendSync('db-async-find', db, query, options),
 
-  findOneAsync: (db: string, query: any, options: any = {}) =>
+  findOneAsync: (db: string, query: any, options: any = []) =>
     ipcRenderer.sendSync('db-findOne', db, query, options),
 
   countAsync: (db: string, query: any) =>
