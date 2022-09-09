@@ -216,6 +216,19 @@ export const exportVideo = async (
     });
   }
 
+  if (fs.existsSync(outFile)) {
+    if (actionOnDuplicate === DUPE_SKIP) {
+      progressCb(airing.object_id, {
+        skipped: true,
+        finished: true,
+        log: 'Duplicate, skipping based on configuration value',
+      });
+      return new Promise((resolve) => {
+        resolve('dupe skip');
+      });
+    }
+  }
+
   const ffmpegOpts = [
     '-c copy',
     '-y', // overwrite existing files
@@ -229,16 +242,6 @@ export const exportVideo = async (
   globalThis.exportProcs[airing.object_id] = { cmd: airing.cmd, outFile };
 
   return new Promise((resolve) => {
-    if (outFile !== airing.exportFile) {
-      if (actionOnDuplicate === DUPE_SKIP) {
-        progressCb(airing.object_id, {
-          skipped: true,
-          finished: true,
-        });
-        resolve('dupe skip');
-      }
-    }
-
     const ffmpegLog: Array<string> = [];
     let record = true;
 
