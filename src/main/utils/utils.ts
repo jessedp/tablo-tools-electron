@@ -306,7 +306,7 @@ export function findFfmpegPath(debug = false, log?: any) {
 
   let ffmpegPathReal = ffmpegPath;
 
-  /** In dev, the prod path gets returned, so "fix" that * */
+  /** "fix" the incorrect path in dev */
   if (process.env.NODE_ENV === 'development') {
     if (os.platform() === 'win32') {
       if (ffmpegPathReal === ffmpegPath) {
@@ -326,28 +326,9 @@ export function findFfmpegPath(debug = false, log?: any) {
     return ffmpegPathReal;
   }
 
-  // dirty, but flow complains about process.resourcesPath
-  const resourcePath = `${(process as any).resourcesPath}`;
-  // TODO - figure out why I did this...
-  const psuedoProdPath = resourcePath.replace(
-    '/electron/dist/resources',
-    '/ffmpeg-static-electron-jdp/bin'
-  );
-  if (debug && log) log.info('resourcePath', resourcePath);
-  if (debug && log) log.info('psuedoProdPath', psuedoProdPath);
-
-  if (debug && log)
-    log.info('after "app" replacements for dev', ffmpegPathReal);
-  if (debug && log)
-    log.info('psuedoProdPath exists', fs.existsSync(psuedoProdPath));
-
-  // In true prod (not yarn build/start), ffmpeg is built into resources dir
-  // this will likely fall on it's face with "yarn start"
+  // fix the path for production / pacakged deployments
 
   if (os.platform() === 'darwin') {
-    // ffmpegPathReal = `${resourcePath}/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`;
-
-    // this is a guess for now, but it works on linux & win
     ffmpegPathReal = ffmpegPathReal.replace(
       'app.asar/dist/main/',
       'node_modules/ffmpeg-static-electron-jdp/'
@@ -358,50 +339,11 @@ export function findFfmpegPath(debug = false, log?: any) {
       'node_modules\\ffmpeg-static-electron-jdp\\'
     );
   } else {
-    /**  ie,
-       * /tmp/.mount_TabloTPItQDq/resources/  app.asar/dist/main/   bin/linux/x64/ffmpeg
-       * /opt/TabloTools/resources/  app.asar/dist/main/  bin/linux/x64/ffmpeg
-            To:
-          /tmp/.mount_TabloTPItQDq/resources/  node_modules/ffmpeg-static-electron-jdp/  bin/linux/x64/ffmpeg
-          /opt/TabloTools/resources/ node_modules/ffmpeg-static-electron-jdp/ bin/linux/x64/ffmpeg
-       *
-       */
     ffmpegPathReal = ffmpegPathReal.replace(
       'app.asar/dist/main/',
       'node_modules/ffmpeg-static-electron-jdp/'
     );
   }
-  // else {
-  //   const testStartPath = ffmpegPathReal.replace(
-  //     /^[/|\\]bin/,
-  //     psuedoProdPath
-  //   );
-
-  //   if (fs.existsSync(testStartPath)) {
-  //     if (debug && log)
-  //       log.info(
-  //         'testStartPath exists, replacing ffmpegPathReal - ',
-  //         testStartPath
-  //       );
-  //     ffmpegPathReal = testStartPath;
-  //   } else {
-  //     if (debug && log)
-  //       log.info('replacing psuedoProdPath "/resources" - ', psuedoProdPath);
-  //     ffmpegPathReal = psuedoProdPath.replace(
-  //       /[/|\\]resources/,
-  //       `/resources/node_modules/ffmpeg-static-electron-jdp${ffmpegPath}`
-  //     );
-  //     if (debug && log)
-  //       log.info('replaced psuedoProdPath "/resources" - ', ffmpegPathReal);
-  //   }
-  // }
-  // } else if (os.platform() === 'win32') {
-  //   // otherwise we can hit the node_modules dir
-  //   ffmpegPathReal = ffmpegPathReal.replace(
-  //     /^\/bin\//,
-  //     './node_modules/ffmpeg-static-electron-jdp/bin/'
-  //   );
-  // }
 
   if (debug && log) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
   return ffmpegPathReal;
