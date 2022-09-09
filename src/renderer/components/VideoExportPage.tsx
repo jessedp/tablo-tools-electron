@@ -218,7 +218,7 @@ function ExportActions(prop: Record<string, any>) {
               value={actionOnDuplicate}
               aria-describedby="btnState"
               onChange={setActionOnDuplicate}
-              title="More than 2 is probably silly, but YOLO!"
+              title="Override the global duplicte setting"
             >
               <option value={DUPE_INC}>{DUPE_INC.toLowerCase()}</option>
               <option value={DUPE_OVERWRITE}>
