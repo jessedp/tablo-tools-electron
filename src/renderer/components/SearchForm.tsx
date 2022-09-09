@@ -183,7 +183,7 @@ class SearchForm extends Component<
     // v0.1.12 - make sure we have Airings
     let { actionList } = this.state;
     actionList = await ensureAiringArray(actionList);
-    this.savedSearchList = await window.db.asyncFind('SearchDb', {});
+    this.savedSearchList = await window.db.findAsync('SearchDb', {});
     await this.setState({
       actionList,
     });
@@ -387,7 +387,7 @@ class SearchForm extends Component<
         series_path: event.value,
       };
       const seasons: Record<number, number> = {};
-      const recs = await window.db.asyncFind('RecDb', query);
+      const recs = await window.db.findAsync('RecDb', query);
       await asyncForEach(recs, async (rec) => {
         const airing = await Airing.create(rec);
         const num = airing.episode.season_number;
@@ -417,13 +417,13 @@ class SearchForm extends Component<
 
   updateSavedSearch = async (searchId = '') => {
     const { savedSearchFilter } = this.state;
-    this.savedSearchList = await window.db.asyncFind('SearchDb', {});
+    this.savedSearchList = await window.db.findAsync('SearchDb', {});
 
     if (!searchId) {
       await this.resetSearch();
     }
 
-    const rec = await window.db.asyncFindOne('SearchDb', {
+    const rec = await window.db.findOneAsync('SearchDb', {
       _id: searchId,
     });
 
@@ -656,7 +656,7 @@ class SearchForm extends Component<
     }
 
     const emptySearch = Object.keys(query).length === 0;
-    const count = await window.db.asyncCount('RecDb', query);
+    const count = await window.db.countAsync('RecDb', query);
     const projection = [];
 
     switch (sortFilter) {
@@ -723,7 +723,7 @@ class SearchForm extends Component<
       projection.push(['limit', limit]);
     }
 
-    let recs = await window.db.asyncFind('RecDb', query, projection);
+    let recs = await window.db.findAsync('RecDb', query, projection);
 
     if (percent < 100) {
       const pct = percent / 100;
@@ -830,7 +830,7 @@ class SearchForm extends Component<
 
   async refresh(): Promise<void> {
     this.showsList = await showList();
-    this.savedSearchList = await window.db.asyncFind('SearchDb', {});
+    this.savedSearchList = await window.db.findAsync('SearchDb', {});
     this.search();
   }
 

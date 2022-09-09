@@ -156,7 +156,7 @@ class SavedSearch extends Component<Props, State> {
 
     if (chkOverwrite === CHECKBOX_OFF && overwriteId === '') {
       searchName = searchName.trim();
-      const check = await db.asyncFindOne({
+      const check = await db.findOneAsync({
         slug,
       });
 
@@ -168,7 +168,7 @@ class SavedSearch extends Component<Props, State> {
           created: new Date().toISOString(),
           version: '1',
         };
-        const rec = await db.asyncInsert(newRec);
+        const rec = await db.insertAsync(newRec);
         sendFlash({
           message: 'Saved!',
         });
@@ -191,7 +191,7 @@ class SavedSearch extends Component<Props, State> {
         });
       }
     } else {
-      await db.asyncUpdate(
+      await db.updateAsync(
         {
           _id: overwriteId,
         },

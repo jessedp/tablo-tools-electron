@@ -49,7 +49,7 @@ class SportDetails extends Component<Props, State> {
   async componentDidMount() {
     // eslint-disable-next-line
     const id = parseInt(this.props.match.params.id, 10);
-    const rec = await window.db.asyncFindOne('RecDb', {
+    const rec = await window.db.findOneAsync('RecDb', {
       object_id: id,
     });
     const movie = await Airing.create(rec);

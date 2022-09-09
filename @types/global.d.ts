@@ -1,6 +1,6 @@
 // Whee, "declare" global variables for TypeScript
 
-import AsyncNedb from 'nedb-async';
+// import AsyncNedb from 'nedb-async';
 
 // eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var document: Document;
@@ -21,7 +21,7 @@ declare var CONNECTED: boolean;
 declare var EXPORTING: boolean;
 
 // eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare var RecDb: AsyncNedb;
+declare var RecDb: any;
 
 // eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var ShowDb: any;

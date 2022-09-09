@@ -50,7 +50,7 @@ ipcMain.handle(
   'airing-export',
   async (event: any, airing_id: string, actionOnDuplicate: string) => {
     try {
-      const data = await globalThis.RecDb.asyncFindOne({
+      const data = await globalThis.RecDb.findOneAsync({
         object_id: airing_id,
       });
       const airing = await Airing.create(data);

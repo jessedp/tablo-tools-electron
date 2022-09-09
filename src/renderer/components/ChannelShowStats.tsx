@@ -57,8 +57,8 @@ export default class ChannelShowStats extends Component<Props, State> {
   async refresh() {
     // const { RecDb } = global;
     const { network } = this.state;
-    const recTotal = await window.db.asyncCount('RecDb', {});
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recTotal = await window.db.countAsync('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const showCounts: Record<string, any> = {};
     const counter: string[] = [];
     recs.forEach((rec: Record<string, any>) => {

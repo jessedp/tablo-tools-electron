@@ -4,7 +4,7 @@ import { asyncForEach } from './utils';
 
 export async function movieList() {
   const recType = new RegExp('movie');
-  const recs = await window.db.asyncFind('RecDb', {
+  const recs = await window.db.findAsync('RecDb', {
     path: {
       $regex: recType,
     },
@@ -26,7 +26,7 @@ export async function movieList() {
 
 export async function showList() {
   const recType = new RegExp('series');
-  const recs = await window.db.asyncFind('ShowDb', {
+  const recs = await window.db.findAsync('ShowDb', {
     path: {
       $regex: recType,
     },

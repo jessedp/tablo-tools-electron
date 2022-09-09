@@ -9,7 +9,7 @@ const debug = Debug('tablo-tools:pre_templates');
 ipcMain.on('templates-load', async (event: any) => {
   const defaults = defaultTemplates;
   try {
-    const recs = await globalThis.NamingDb.asyncFind({});
+    const recs = await globalThis.NamingDb.findAsync({});
     debug('loading tempaltes: ', recs);
     const all = [...defaults, ...recs];
     globalThis.LoadedTemplates = all;

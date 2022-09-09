@@ -150,23 +150,23 @@ export default class Airing {
     // console.log('data: - ', data);
     // return Airing.create(
     //   data
-    //   // await window.db.asyncFindOne('RecDb', {
+    //   // await window.db.findOneAsync('RecDb', {
     //   //   object_id: id,
     //   // })
     // );
     let data = {};
     if (typeof window === 'undefined') {
-      data = await globalThis.RecDb.asyncfindOne({
+      data = await globalThis.RecDb.findOneAsync({
         object_id: id,
       });
     } else {
-      data = await window.db.asyncFindOne('RecDb', {
+      data = await window.db.findOneAsync('RecDb', {
         object_id: id,
       });
     }
 
     return Airing.create(data);
-    // await window.db.asyncFindOne('RecDb', {
+    // await window.db.findOneAsync('RecDb', {
     //   object_id: id,
     // })
     // );
@@ -182,11 +182,11 @@ export default class Airing {
       let showData = {};
 
       if (typeof window === 'undefined') {
-        showData = await globalThis.RecDb.asyncFindOne('ShowDb', {
+        showData = await globalThis.RecDb.findOneAsync('ShowDb', {
           path,
         });
       } else {
-        showData = await window.db.asyncFindOne('ShowDb', {
+        showData = await window.db.findOneAsync('ShowDb', {
           path,
         });
       }
@@ -517,18 +517,18 @@ export default class Airing {
           window.Tablo.delete(path);
         }
 
-        window.db.asyncRemove('RecDb', {
+        window.db.removeAsync('RecDb', {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           _id,
         });
 
         if (this.show && this.show.showCounts) {
           if (this.show.showCounts.airing_count === 1) {
-            window.db.asyncRemove('ShowDb', {
+            window.db.removeAsync('ShowDb', {
               object_id: this.show.id,
             });
           } else {
-            window.db.asyncUpdate(
+            window.db.updateAsync(
               'ShowDb',
               {
                 object_id: this.show.id,
@@ -603,19 +603,19 @@ export const getEpisodesByShow = async (show: Show): Promise<Array<Airing>> => {
 
   switch (show.type) {
     case SERIES:
-      recs = await window.db.asyncFind('RecDb', {
+      recs = await window.db.findAsync('RecDb', {
         series_path: show.path,
       });
       break;
 
     case EVENT:
-      recs = await window.db.asyncFind('RecDb', {
+      recs = await window.db.findAsync('RecDb', {
         sport_path: show.path,
       });
       break;
 
     case MOVIE:
-      recs = await window.db.asyncFind('RecDb', {
+      recs = await window.db.findAsync('RecDb', {
         movie_path: show.path,
       });
       break;

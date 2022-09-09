@@ -94,12 +94,12 @@ export async function programList(progPath = '') {
   let recs = [];
 
   if (progPath) {
-    recs = await window.db.asyncFind('RecDb', {
+    recs = await window.db.findAsync('RecDb', {
       program_path: progPath,
     });
   } else {
     const recType = new RegExp('program');
-    recs = await window.db.asyncFind('RecDb', {
+    recs = await window.db.findAsync('RecDb', {
       path: {
         $regex: recType,
       },
@@ -152,7 +152,7 @@ export async function programList(progPath = '') {
 
   return objRecs;
 } // export async function programsByProgramList(path: string) {
-//   const recs = await window.db.asyncFind('RecDb', { program_path: { $eq: path } });
+//   const recs = await window.db.findAsync('RecDb', { program_path: { $eq: path } });
 //   const objRecs = [];
 //   await asyncForEach(recs, async rec => {
 //     const airing = await Airing.create(rec);

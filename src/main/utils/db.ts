@@ -1,7 +1,8 @@
-// import Store from 'electron-store';
 import PubSub from 'pubsub-js';
 import path from 'path';
-import AsyncNedb from 'nedb-async';
+
+import AsyncNedb from '@seald-io/nedb';
+
 import Store from 'electron-store';
 import Debug from 'debug';
 import { hasDevice } from './utils';
@@ -14,7 +15,7 @@ const store = new Store();
 const dataDir = getPath('userData');
 
 export async function recDbStats() {
-  return global.RecDb.asyncCount({});
+  return global.RecDb.countAsync({});
 }
 
 export const makeRecDb = () => {

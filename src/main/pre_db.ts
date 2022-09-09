@@ -32,12 +32,44 @@ ipcMain.on(
 
 ipcMain.on(
   'db-async-find',
-  async (event: any, dbName: string, query: any, params: any = {}) => {
+  async (event: any, dbName: string, query: any, params: any = []) => {
+    debug(
+      'ENTER db-async-find - dbName = %s | query = %o | params = %o',
+      dbName,
+      query,
+      params
+    );
+
     try {
-      const recs = await globalThis[dbName].asyncFind(query, params);
+      const extractParam = (key: string, params: []) => {
+        const param = params.filter((item) => item[0] === key);
+        if (param && param[0] && param[0][1]) {
+          return param[0][1];
+        }
+        return null;
+      };
+      // the switch to @seald-io/nedb requires passing these args fairly differently...
+      // parse them from our original param sets and pass those into functions
+      const sort = extractParam('sort', params);
+      const skip = extractParam('skip', params);
+      const limit = extractParam('limit', params);
+
+      debug('db-async-find: sort = %o skip = %o limit = %o', sort, skip, limit);
+      const recs = await globalThis[dbName]
+        .findAsync(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
       event.returnValue = recs;
     } catch (e) {
-      debug('db-async-find', e);
+      debug(
+        'db-async-find - db = %s  | query = %o  | params = %o',
+        dbName,
+        query,
+        params,
+        e
+      );
+
       console.error('db-async-find', e);
       event.returnValue = [];
     }
@@ -46,7 +78,7 @@ ipcMain.on(
 
 ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
   try {
-    const recs = await globalThis[dbName].asyncFindOne(params);
+    const recs = await globalThis[dbName].findOneAsync(params);
     event.returnValue = recs;
   } catch (e) {
     debug('db-findOne', e);
@@ -57,7 +89,7 @@ ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
 
 ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
   try {
-    const count = await globalThis[dbName].asyncCount(params);
+    const count = await globalThis[dbName].countAsync(params);
     event.returnValue = count;
   } catch (e) {
     debug('db-count', dbName, e);
@@ -68,7 +100,7 @@ ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
 
 ipcMain.on('db-insert', async (event: any, dbName: string, query: any) => {
   try {
-    const count = await globalThis[dbName].asyncInsert(query);
+    const count = await globalThis[dbName].insertAsync(query);
     event.returnValue = count;
   } catch (e) {
     debug('db-insert', e);
@@ -86,7 +118,7 @@ ipcMain.on(
           query
         )} , options = ${JSON.stringify(options)}`
       );
-      const result = await globalThis[dbName].asyncRemove(
+      const result = await globalThis[dbName].removeAsync(
         query,
         options || { multi: false }
       );
@@ -109,7 +141,7 @@ ipcMain.on(
         )}, params = ${JSON.stringify(params)}`
       );
 
-      const recs = await globalThis[dbName].asyncUpdate(query, params);
+      const recs = await globalThis[dbName].updateAsync(query, params);
       event.returnValue = recs;
     } catch (e) {
       debug('db-update', e);

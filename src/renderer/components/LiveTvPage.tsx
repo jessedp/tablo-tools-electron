@@ -55,7 +55,7 @@ class LiveTvPage extends Component<Props, State> {
   }
 
   refresh = async () => {
-    const recs: Record<string, any>[] = await window.db.asyncFind(
+    const recs: Record<string, any>[] = await window.db.findAsync(
       'ChannelDb',
       {}
     );

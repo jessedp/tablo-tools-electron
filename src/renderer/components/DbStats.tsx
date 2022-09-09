@@ -36,10 +36,10 @@ export default class DbStats extends Component<Props, State> {
 
   async refresh() {
     // const { RecDb } = global;
-    const recTotal = window.db.asyncCount('RecDb', {});
+    const recTotal = window.db.countAsync('RecDb', {});
 
     /** Watched * */
-    const watched = window.db.asyncCount('RecDb', {
+    const watched = window.db.countAsync('RecDb', {
       'user_info.watched': true,
     });
     const watchedData = [
@@ -56,13 +56,13 @@ export default class DbStats extends Component<Props, State> {
     ];
 
     /** by state * */
-    const finished = window.db.asyncCount('RecDb', {
+    const finished = window.db.countAsync('RecDb', {
       'video_details.state': 'finished',
     });
-    const failed = window.db.asyncCount('RecDb', {
+    const failed = window.db.countAsync('RecDb', {
       'video_details.state': 'failed',
     });
-    const recording = window.db.asyncCount('RecDb', {
+    const recording = window.db.countAsync('RecDb', {
       'video_details.state': 'recording',
     });
     const stateData = [
@@ -85,25 +85,25 @@ export default class DbStats extends Component<Props, State> {
 
     /** by type * */
     let recType = new RegExp('episode');
-    const typeEpisode = window.db.asyncCount('RecDb', {
+    const typeEpisode = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
     recType = new RegExp('movie');
-    const typeMovie = window.db.asyncCount('RecDb', {
+    const typeMovie = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
     recType = new RegExp('sports');
-    const typeEvent = window.db.asyncCount('RecDb', {
+    const typeEvent = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
     recType = new RegExp('programs');
-    const typeProgram = window.db.asyncCount('RecDb', {
+    const typeProgram = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },

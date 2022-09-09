@@ -65,7 +65,7 @@ class ShowDetails extends Component<Props, State> {
   async componentDidMount() {
     // eslint-disable-next-line
     const id = parseInt(this.props.match.params.id, 10);
-    const rec = await window.db.asyncFindOne('ShowDb', {
+    const rec = await window.db.findOneAsync('ShowDb', {
       object_id: id,
     });
     const show = new Show(rec);
@@ -105,7 +105,7 @@ class ShowDetails extends Component<Props, State> {
     const query = {
       series_path: show.path,
     };
-    const recs = await window.db.asyncFind('RecDb', query, [
+    const recs = await window.db.findAsync('RecDb', query, [
       [
         'sort',
         {

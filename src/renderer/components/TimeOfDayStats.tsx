@@ -42,8 +42,8 @@ export default class TimeOfDayStats extends Component<Props, State> {
 
   async refresh() {
     // const { RecDb } = global;
-    const recTotal = await window.db.asyncCount('RecDb', {});
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recTotal = await window.db.countAsync('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const dayCounts: Record<string, any> = {};
     const hourCounts: Record<string, any> = {};
     const dateCounts: Record<string, any> = {};

@@ -34,8 +34,8 @@ export default class ResolutionSizeStats extends Component<Props, State> {
 
   async refresh() {
     // const { RecDb } = global;
-    const recTotal = await window.db.asyncCount('RecDb', {});
-    const recs = await window.db.asyncFind('RecDb', {});
+    const recTotal = await window.db.countAsync('RecDb', {});
+    const recs = await window.db.findAsync('RecDb', {});
     const res: Record<string, any> = {};
     recs.forEach((rec: Record<string, any>) => {
       const currentRes: string = rec.airing_details.channel.channel.resolution;
