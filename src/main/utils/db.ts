@@ -1,7 +1,6 @@
-// import Store from 'electron-store';
 import PubSub from 'pubsub-js';
 import path from 'path';
-// import AsyncNedb from 'nedb-async';
+
 import AsyncNedb from '@seald-io/nedb';
 
 import Store from 'electron-store';
