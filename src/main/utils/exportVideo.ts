@@ -53,6 +53,7 @@ export const cancelExportProcess = (airing: Airing) => {
     console.error('cancelExportProcess - unable to delete file', e);
     debug(airing.object_id, outFile, e);
   }
+  delete globalThis.exportProcs[airing.object_id];
 };
 
 export const dedupedExportFile = (
@@ -133,6 +134,7 @@ export const exportVideo = async (
   actionOnDuplicate: string,
   progressCallback: (...args: Array<any>) => any
 ) => {
+  debug('exportVideo - actionOnDuplicate %s', actionOnDuplicate);
   // noop it so we don't spread the typeof check everywhere
   let progressCb = (...args: Array<any>) => {};
   if (typeof progressCallback === 'function') {
@@ -182,7 +184,7 @@ export const exportVideo = async (
   }
   let outFile = '';
   try {
-    outFile = dedupedExportFile(airing);
+    outFile = dedupedExportFile(airing, actionOnDuplicate);
   } catch (err) {
     progressCb(airing.object_id, {
       failed: true,
@@ -215,6 +217,9 @@ export const exportVideo = async (
       resolve(`${airing.object_id} Unable to export file name!`);
     });
   }
+
+  debug('exportVideo - outfile: %s ', outFile);
+  debug('exportVideo - actionOnDuplicate : %s ', actionOnDuplicate);
 
   if (fs.existsSync(outFile)) {
     if (actionOnDuplicate === DUPE_SKIP) {

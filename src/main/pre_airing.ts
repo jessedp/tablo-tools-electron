@@ -59,7 +59,7 @@ ipcMain.handle(
 
       return await exportVideo(airing, actionOnDuplicate, (...args: any) => {
         ipcMain.emit(channel, args);
-        debug(`${channel} - progress - `, airing.id, args);
+        // debug(`${channel} - progress - `, airing.id, args);
       });
     } catch (e) {
       debug('ERROR in airing-export: ', e);

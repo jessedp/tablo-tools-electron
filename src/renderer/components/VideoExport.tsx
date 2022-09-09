@@ -76,8 +76,9 @@ const VideoExport = (WrappedComponent: any) => {
       const { exportList } = this.props;
       const { atOnce, actionOnDuplicate } = this.state;
       global.EXPORTING = true;
+      this.shouldCancel = false;
       // if (exportState === EXP_DONE) return;
-      await this.setState({
+      this.setState({
         exportState: EXP_WORKING,
       });
       // TODO: any to function def
@@ -86,13 +87,20 @@ const VideoExport = (WrappedComponent: any) => {
         const airing = new Airing(rec.airing);
         actions.push(() => {
           const channel = `export-progress-${airing.object_id}`;
+          if (!this.shouldCancel) {
+            window.electron.ipcRenderer.on(channel, (message: any) => {
+              // console.log(`${channel}`, message);
+              this.updateProgress(airing.object_id, message);
+            });
 
-          window.electron.ipcRenderer.on(channel, (message: any) => {
-            // console.log(`${channel}`, message);
-            this.updateProgress(airing.object_id, message);
+            return window.Airing.exportVideo(
+              airing.object_id,
+              actionOnDuplicate
+            );
+          }
+          return new Promise((resolve) => {
+            resolve(`Canceled ${airing.object_id}`);
           });
-
-          return window.Airing.exportVideo(airing.object_id, actionOnDuplicate);
         });
       });
       console.log('VideoExport - async actions - ', actions);
