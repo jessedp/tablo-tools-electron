@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import PubSub from 'pubsub-js';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -46,6 +47,8 @@ type Props = OwnProps & PropsFromRedux;
 class ShowDetails extends Component<Props, State> {
   initialState: State;
 
+  psToken: string;
+
   constructor(props: Props) {
     super(props);
     this.initialState = {
@@ -56,6 +59,7 @@ class ShowDetails extends Component<Props, State> {
       seasonRefs: [],
       show: null,
     };
+    this.psToken = '';
     this.state = this.initialState;
     (this as any).refresh = this.refresh.bind(this);
     (this as any).selectSeason = this.selectSeason.bind(this);
@@ -70,6 +74,7 @@ class ShowDetails extends Component<Props, State> {
     });
     const show = new Show(rec);
     this.refresh(show);
+    this.psToken = PubSub.subscribe('DB_CHANGE', () => this.refresh(show));
   }
 
   componentDidUpdate(prevProps: Props) {
