@@ -16,7 +16,7 @@ import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
 
-const { version } = require('../../package.json');
+import { version } from '../../release/app/package.json';
 
 checkNodeEnv('production');
 deleteSourceMaps();

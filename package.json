@@ -1,6 +1,5 @@
 {
   "name": "tablo-tools",
-  "version": "see release/app",
   "productName": "tablo-tools",
   "description": "see release/app",
   "main": "./src/main/main.ts",
