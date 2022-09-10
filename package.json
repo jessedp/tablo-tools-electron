@@ -92,7 +92,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./node_modules/ffmpeg-static/*"
     ],
     "publish": {
       "provider": "github",
