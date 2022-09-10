@@ -1,4 +1,4 @@
-import { version } from '../../package.json';
+import { version } from '../../release/app/package.json';
 import getConfig from './utils/config';
 
 const setupSentry = (init: any) => {
