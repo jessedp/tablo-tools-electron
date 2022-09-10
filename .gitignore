@@ -46,5 +46,7 @@ npm-debug.log.*
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
-release/
+release/app/dist
+release/build
+.erb/dll
 sentry.properties
