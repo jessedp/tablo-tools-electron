@@ -93,11 +93,7 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**",
-      "node_modules/ffmpeg-static-electron-jdp/*",
-      "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/{ffmpeg,ffmpeg.exe}",
-      "node_modules/ffmpeg-static-electron-jdp/index.js",
-      "node_modules/ffmpeg-static-electron-jdp/package.json"
+      "./assets/**"
     ],
     "publish": {
       "provider": "github",
@@ -282,7 +278,7 @@
     "electron-store": "^8.1.0",
     "electron-updater": "^5.2.2",
     "events": "^3.3.0",
-    "ffmpeg-static-electron-jdp": "^2.0.3",
+    "ffmpeg-static": "^5.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "handlebars": "^4.7.7",
     "history": "^4.10.1",

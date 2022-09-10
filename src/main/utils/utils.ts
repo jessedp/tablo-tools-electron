@@ -4,7 +4,8 @@ import * as os from 'os';
 import Store from 'electron-store';
 import Debug from 'debug';
 
-import ffmpeg from 'ffmpeg-static-electron-jdp';
+// import ffmpeg from 'ffmpeg-static-electron-jdp';
+import pathToFfmpeg from 'ffmpeg-static';
 
 const store = new Store();
 const debug = Debug('tablo-tools:utils');
@@ -301,7 +302,8 @@ export function throttleActions(
 }
 
 export function findFfmpegPath(debug = false, log?: any) {
-  const ffmpegPath = ffmpeg.path;
+  // const ffmpegPath = ffmpeg.path;
+  const ffmpegPath = pathToFfmpeg || '';
   if (debug && log) log.info('"ffmpeg.path" reports: ', ffmpegPath);
 
   let ffmpegPathReal = ffmpegPath;
