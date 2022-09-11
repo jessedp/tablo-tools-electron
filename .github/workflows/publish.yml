@@ -55,13 +55,13 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 15
-          max_attempts: 20
+          max_attempts: 1
           shell: bash
           command: |
             if [ "$RUNNER_OS" == "Linux" ]; then
               npm exec electron-builder -- --publish always --linux
             elif [ "$RUNNER_OS" == "Windows" ]; then
-              npm exec electron-builder -- --publish always --win
+              CSC_LINK="" npm exec electron-builder -- --publish always --win
             elif [ "$RUNNER_OS" == "macOS" ]; then
               npm exec electron-builder -- --publish always --mac
             else
