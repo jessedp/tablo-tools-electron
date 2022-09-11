@@ -72,6 +72,7 @@
       ]
     },
     "win": {
+      "certificateFile": null,
       "target": [
         "msi",
         "nsis"

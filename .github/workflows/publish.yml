@@ -61,7 +61,7 @@ jobs:
             if [ "$RUNNER_OS" == "Linux" ]; then
               npm exec electron-builder -- --publish always --linux
             elif [ "$RUNNER_OS" == "Windows" ]; then
-              CSC_LINK="" npm exec electron-builder -- --publish always --win
+              npm exec electron-builder -- --publish always --win
             elif [ "$RUNNER_OS" == "macOS" ]; then
               npm exec electron-builder -- --publish always --mac
             else
