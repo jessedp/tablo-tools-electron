@@ -58,7 +58,6 @@ class Build extends Component<BuildProps, State> {
   }
 
   async componentDidMount() {
-    const { Api } = global;
     let created = recDbCreated();
 
     // TODO: some const export?
@@ -68,13 +67,13 @@ class Build extends Component<BuildProps, State> {
       const autoBuild = async () => {
         created = recDbCreated();
 
-        if (!Api.device && !created) {
+        if (!window.Tablo.device() && !created) {
           if (i > 0) return;
           i += 1;
           setTimeout(autoBuild, 5000);
         }
 
-        if (Api.device && !created) this.build();
+        if (window.Tablo.device() && !created) this.build();
       };
 
       autoBuild();
