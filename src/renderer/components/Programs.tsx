@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PubSub from 'pubsub-js';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Button } from 'react-bootstrap';

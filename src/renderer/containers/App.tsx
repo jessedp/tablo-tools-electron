@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import Navbar from '../components/Navbar';
 import VersionInfo from '../components/VersionInfo';
 import IssueSearch from '../components/IssueSearch';

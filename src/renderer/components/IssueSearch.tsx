@@ -1,6 +1,6 @@
 // import { ipcRenderer, shell } from 'electron';
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 import { InputGroup, Form, Row, Col } from 'react-bootstrap';

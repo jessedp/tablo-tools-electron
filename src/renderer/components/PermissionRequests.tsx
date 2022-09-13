@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 // import Store from 'electron-store';
 import Modal from 'react-bootstrap/Modal';

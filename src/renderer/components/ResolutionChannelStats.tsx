@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import PubSub from 'pubsub-js';
 import Col from 'react-bootstrap/Col';

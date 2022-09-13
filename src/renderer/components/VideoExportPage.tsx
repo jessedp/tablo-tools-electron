@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 import { connect, ConnectedProps } from 'react-redux';
 import { Prompt, Redirect } from 'react-router-dom';

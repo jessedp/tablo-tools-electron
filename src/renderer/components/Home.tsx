@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';

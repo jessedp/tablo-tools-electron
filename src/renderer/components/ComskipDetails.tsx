@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PubSub from 'pubsub-js';
 import Alert from 'react-bootstrap/Alert';
 import MediumPie from './MediumPie';

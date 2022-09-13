@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { ExportRecordType } from '../constants/types';
 import {
   EXP_WAITING,
