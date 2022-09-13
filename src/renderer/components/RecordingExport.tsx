@@ -58,8 +58,9 @@ class RecordingExport extends Component<Props, State> {
 
   updateTemplate = (template: NamingTemplateType) => {
     const { record, updateExportRecord } = this.props;
-    record.airing.template = template;
-    updateExportRecord(record);
+    const updateRec = { ...{}, ...record };
+    updateRec.airing.template = template;
+    updateExportRecord(updateRec);
   };
 
   render() {
