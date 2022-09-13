@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,7 +12,6 @@ import * as BuildActions from '../store/build';
 import { DbSliceState } from '../store/build';
 
 import {
-  STATE_WAITING,
   STATE_START,
   STATE_LOADING,
   STATE_FINISH,
@@ -45,10 +44,6 @@ class Build extends Component<BuildProps, State> {
   building: boolean;
 
   psToken: string;
-
-  static defaultProps = {
-    view: 'progress',
-  };
 
   constructor(props: BuildProps) {
     super(props);
@@ -120,7 +115,7 @@ class Build extends Component<BuildProps, State> {
       window.electron.ipcRenderer.on(
         'get-recording-progress',
         (message: any) => {
-          console.log('progress', message);
+          console.debug('progress', message);
 
           updateProgress({
             airingInc: message,
@@ -225,10 +220,6 @@ class Build extends Component<BuildProps, State> {
         err = `${e}`;
       }
 
-      this.setState({
-        loading: STATE_ERROR,
-        log: [err],
-      });
       updateProgress({
         loading: STATE_ERROR,
         log: [err],
