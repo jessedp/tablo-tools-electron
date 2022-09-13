@@ -75,6 +75,16 @@ class Build extends Component<BuildProps, State> {
     }
   }
 
+  componentDidUpdate(prevProps: BuildProps) {
+    const { progress } = this.props;
+    if (
+      prevProps.progress.loading !== progress.loading &&
+      progress.loading === STATE_START
+    ) {
+      this.build();
+    }
+  }
+
   build = async () => {
     const { updateProgress } = this.props;
 
@@ -228,14 +238,6 @@ class Build extends Component<BuildProps, State> {
   };
 
   render() {
-    const { progress, updateProgress } = this.props;
-    if (progress.loading === STATE_START) {
-      updateProgress({
-        loading: STATE_LOADING,
-      });
-      console.log('starting');
-      this.build();
-    }
     return <></>;
   }
 }
