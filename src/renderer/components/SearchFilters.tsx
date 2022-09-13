@@ -162,6 +162,10 @@ export function WatchedFilter(props: FilterProps) {
       label: 'yes',
     },
     {
+      value: 'partial',
+      label: 'partial',
+    },
+    {
       value: 'no',
       label: 'no',
     },
