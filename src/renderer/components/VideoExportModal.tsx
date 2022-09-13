@@ -143,6 +143,12 @@ class VideoExportModal extends Component<Props, State> {
       title = `Previously Exported ${ctime}`;
     }
 
+    let buttonDisabled = false;
+    if (airing.videoDetails.state === 'recording') {
+      buttonDisabled = true;
+      title = 'Recording in progress, Export disabled';
+    }
+
     return (
       <>
         <Button
@@ -150,6 +156,7 @@ class VideoExportModal extends Component<Props, State> {
           size={size as any}
           onClick={this.show}
           title={title}
+          disabled={buttonDisabled}
         >
           <span className="fa fa-download" />
           {prettyLabel}
