@@ -1,4 +1,3 @@
-import React from 'react';
 import { withRouter } from 'react-router-dom';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -19,8 +18,6 @@ type Props = {
 };
 
 function SettingsPage(props: Props) {
-  // props: Props;
-
   const { location } = props;
   let content = <SettingsGeneral />;
 

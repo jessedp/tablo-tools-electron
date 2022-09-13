@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert, Container, ProgressBar, Spinner } from 'react-bootstrap';
 
 import { useDispatch, useSelector } from 'react-redux';

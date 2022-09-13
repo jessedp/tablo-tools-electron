@@ -1,4 +1,3 @@
-import React from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Select, { components } from 'react-select';
 import TabloImage from './TabloImage';

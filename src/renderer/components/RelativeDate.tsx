@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 type Props = {

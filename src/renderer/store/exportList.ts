@@ -17,7 +17,7 @@ const slice = createSlice({
   reducers: {
     addExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
       const exportRecord = action.payload;
-      console.log('addExport', exportRecord);
+
       if (exportRecord.airing.video_details?.state === 'recording') {
         console.log('addExport - skipping recording in progress', exportRecord);
         return;

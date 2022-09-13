@@ -1,4 +1,3 @@
-import React from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
@@ -10,6 +9,12 @@ type Props = {
   airing: Airing;
   withShow?: number;
 };
+
+function Title(prop: any) {
+  const { title } = prop;
+  if (!title) return <></>;
+  return <b>{title}</b>;
+}
 
 function TitleSlim(props: Props) {
   // static defaultProps = {
@@ -98,12 +103,6 @@ function TitleSlim(props: Props) {
       </Row>
     </div>
   );
-}
-
-function Title(prop: any) {
-  const { title } = prop;
-  if (!title) return <></>;
-  return <b>{title}</b>;
 }
 
 TitleSlim.defaultProps = {
