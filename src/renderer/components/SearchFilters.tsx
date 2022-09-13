@@ -287,23 +287,21 @@ export function ComskipFilter(props: FilterProps) {
     },
   ];
   const types: string[] = [];
-  // TODO: when this was async it belew up
-  // window.db.find('RecDb', {}, (_: any, recs: Record<string, any>) => {
-  //   recs.forEach((rec: Record<string, any>) => {
-  //     const cs = rec.video_details.comskip;
+  const recs = window.db.findAsync('RecDb', {});
+  recs.forEach((rec: Record<string, any>) => {
+    const cs = rec.video_details.comskip;
 
-  //     // TODO: missing comskip?
-  //     if (cs && cs.error) {
-  //       if (!types.includes(cs.error)) {
-  //         types.push(cs.error);
-  //         options.push({
-  //           value: cs.error,
-  //           label: cs.error,
-  //         });
-  //       }
-  //     }
-  //   });
-  // });
+    if (cs && cs.error) {
+      if (!types.includes(cs.error)) {
+        types.push(cs.error);
+        options.push({
+          value: cs.error,
+          label: cs.error,
+        });
+      }
+    }
+  });
+
   return (
     <FilterSelect
       name="comskipFilter"
