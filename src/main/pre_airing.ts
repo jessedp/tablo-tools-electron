@@ -14,8 +14,9 @@ const debug = Debug('tablo-tools:pre_airing');
 
 ipcMain.on(
   'airing-dedupedExportFile',
-  (event: any, airing: Airing, actionOnDuplicate: string) => {
+  (event: any, airing: Airing, actionOnDuplicate: string, template: any) => {
     try {
+      airing.template = template;
       const filename = dedupedExportFile(airing, actionOnDuplicate);
       debug('airing-dedupedExportFile', filename);
       event.returnValue = filename;
@@ -48,13 +49,18 @@ ipcMain.handle(
 
 ipcMain.handle(
   'airing-export',
-  async (event: any, airing_id: string, actionOnDuplicate: string) => {
+  async (
+    event: any,
+    airing_id: string,
+    actionOnDuplicate: string,
+    template: any
+  ) => {
     try {
       const data = await globalThis.RecDb.findOneAsync({
         object_id: airing_id,
       });
       const airing = await Airing.create(data);
-
+      airing.template = template;
       const channel = `export-progress`;
 
       return await exportVideo(airing, actionOnDuplicate, (...args: any) => {

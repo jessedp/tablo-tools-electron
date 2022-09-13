@@ -108,10 +108,15 @@ contextBridge.exposeInMainWorld('Tablo', {
 });
 
 contextBridge.exposeInMainWorld('Airing', {
-  exportVideo: (airing_id: string, actionOnDuplicate: string) =>
-    ipcRenderer.invoke('airing-export', airing_id, actionOnDuplicate),
-  dedupedExportFile: (airing: any, actionOnDuplicate: string) =>
-    ipcRenderer.sendSync('airing-dedupedExportFile', airing, actionOnDuplicate),
+  exportVideo: (airing_id: string, actionOnDuplicate: string, template: any) =>
+    ipcRenderer.invoke('airing-export', airing_id, actionOnDuplicate, template),
+  dedupedExportFile: (airing: any, actionOnDuplicate: string, template: any) =>
+    ipcRenderer.sendSync(
+      'airing-dedupedExportFile',
+      airing,
+      actionOnDuplicate,
+      template
+    ),
   cancelExportVideo: (airing: any, actionOnDuplicate: string) =>
     ipcRenderer.invoke('airing-cancelExportVideo', airing, actionOnDuplicate),
   getExportDetails: (airing: any) =>

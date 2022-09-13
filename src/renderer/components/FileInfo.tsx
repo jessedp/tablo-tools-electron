@@ -30,9 +30,13 @@ export default function FileInfo(props: FileInfoProps) {
   const [dedupedExportFile, setDedupedExportFile] = useState('');
   const exists = window.fs.existsSync(airing.exportFile);
   useEffect(() => {
-    const filename = window.Airing.dedupedExportFile(airing, actionOnDuplicate);
+    const filename = window.Airing.dedupedExportFile(
+      airing,
+      actionOnDuplicate,
+      airing.template
+    );
     setDedupedExportFile(filename);
-  }, [airing, actionOnDuplicate]);
+  }, [airing, actionOnDuplicate, airing.template]);
 
   if (!exists) {
     if (exportState === EXP_DONE) {

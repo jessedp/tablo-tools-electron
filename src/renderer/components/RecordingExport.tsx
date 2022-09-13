@@ -58,8 +58,16 @@ class RecordingExport extends Component<Props, State> {
 
   updateTemplate = (template: NamingTemplateType) => {
     const { record, updateExportRecord } = this.props;
-    const updateRec = { ...{}, ...record };
+    const { airing } = this.state;
+
+    const updateRec = JSON.parse(JSON.stringify(record));
+
     updateRec.airing.template = template;
+
+    if (airing) {
+      airing.template = template;
+      this.setState({ airing });
+    }
     updateExportRecord(updateRec);
   };
 
