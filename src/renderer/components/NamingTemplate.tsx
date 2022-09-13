@@ -156,9 +156,7 @@ class SettingsNaming extends Component<Props, State> {
           $regex: recType,
         },
       },
-      {
-        limit: 1000,
-      }
+      [['limit', 1000]]
     );
     await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);

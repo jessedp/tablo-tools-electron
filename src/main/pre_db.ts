@@ -41,8 +41,8 @@ ipcMain.on(
     );
 
     try {
-      const extractParam = (key: string, params: []) => {
-        const param = params.filter((item) => item[0] === key);
+      const extractParam = (key: string, pars: []) => {
+        const param = pars.filter((item) => item[0] === key);
         if (param && param[0] && param[0][1]) {
           return param[0][1];
         }

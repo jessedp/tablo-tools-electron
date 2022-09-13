@@ -136,7 +136,8 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   if (template.slug === getDefaultTemplateSlug())
     return 'Cannot save default slug!';
 
-  await global.NamingDb.updateAsync(
+  await window.db.updateAsync(
+    'NamingDb',
     {
       // eslint-disable-next-line no-underscore-dangle
       _id: template._id,

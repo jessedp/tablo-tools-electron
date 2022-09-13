@@ -16,6 +16,7 @@ import { readableBytes } from '../utils/utils';
 import RelativeDate from './RelativeDate';
 import FilenameEditor from './FilenameEditor';
 import OpenDirectory from './OpenDirecory';
+import DuplicateNames from './DuplicateNames';
 
 type FileInfoProps = {
   airing: Airing;
@@ -29,6 +30,8 @@ export default function FileInfo(props: FileInfoProps) {
 
   const [dedupedExportFile, setDedupedExportFile] = useState('');
   const exists = window.fs.existsSync(airing.exportFile);
+  const multiExist = window.ipcRenderer.sendSync('glob', airing.exportFile);
+
   useEffect(() => {
     const filename = window.Airing.dedupedExportFile(
       airing,
@@ -122,6 +125,15 @@ export default function FileInfo(props: FileInfoProps) {
       </span>
       {showSize ? (
         <span className="pr-1">({readableBytes(stats.size)})</span>
+      ) : (
+        ''
+      )}
+      {multiExist.length > 1 ? (
+        <DuplicateNames
+          files={multiExist}
+          total={multiExist.length}
+          label={`${multiExist.length} similar files`}
+        />
       ) : (
         ''
       )}

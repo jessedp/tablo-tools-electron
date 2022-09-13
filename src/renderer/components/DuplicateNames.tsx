@@ -8,17 +8,21 @@ import Airing from '../utils/Airing';
 import Filename from './Filename';
 
 type Props = {
-  files: Record<string, any>;
+  files: Record<string, any> | Array;
   total: number;
+  label?;
 };
 export default function DuplicateNames(props: Props) {
-  const { files, total } = props;
+  const { files, total, label } = props;
   const [show, setShow] = useState(false);
 
+  if (Object.keys(files).length === 0) {
+    return <></>;
+  }
+
   if (!show) {
-    const status = `${
-      total - Object.keys(files).length
-    } / ${total}* are duplicates`;
+    const totalDupeCnt = total - Object.keys(files).length;
+    const status = label || `${totalDupeCnt} / ${total}* are duplicates`;
     return (
       <Button
         variant="warning"
@@ -35,23 +39,37 @@ export default function DuplicateNames(props: Props) {
   type DupeRec = { file: string; airings: Airing[] };
   const dupes: DupeRec[] = [];
 
-  Object.keys(files).forEach((file) => {
-    // console.log(file, files[file].length);
-    if (files[file].length > 1) {
-      dupes.push({
-        file,
-        airings: files[file],
-      });
-    }
-  });
+  if (Array.isArray(files)) {
+    files.forEach((file: string) => {
+      dupes.push({ file, airings: [] });
+    });
+  } else {
+    // just assume it's a proper object
+    Object.keys(files).forEach((file) => {
+      console.log(typeof file, typeof files[file], files[file].length);
+      if (files[file].length > 1) {
+        dupes.push({
+          file,
+          airings: files[file],
+        });
+      }
+    });
+  }
+  console.log('dupes', dupes);
   // console.log('2', dupes);
-  dupes.sort((a, b) => (a.airings.length > b.airings.length ? -1 : 1));
+  dupes.sort((a, b) => (a.airings?.length > b.airings?.length ? -1 : 1));
   return (
     <Modal show={show} scrollable onHide={() => setShow(false)} size="lg">
       <Modal.Header closeButton>
         <Alert variant="warning" className="mb-0">
-          {total - Object.keys(files).length} / {total} are duplicates
-          <span className="smaller pl-2">(max 1000)</span>
+          {label ? (
+            <span>{label}</span>
+          ) : (
+            <>
+              {total - Object.keys(files).length} / {total} are duplicates
+              <span className="smaller pl-2">(max 1000)</span>
+            </>
+          )}
         </Alert>
       </Modal.Header>
       <Modal.Body>
