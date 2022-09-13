@@ -9,12 +9,12 @@ type Props = {
 };
 
 const MyPlayerLive = (props: Props) => {
+  const { channel } = props;
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     console.log('component mounted!');
-    const { channel } = props;
     const watchPath = `${channel.path}/watch`;
     let data: any = null; // ugh
 
@@ -43,7 +43,7 @@ const MyPlayerLive = (props: Props) => {
     console.log('MyLivePlayer - url', watchUrl);
     setUrl(watchUrl);
     setError(errorMsg);
-  }, [url, error, props]); // notice the empty array here
+  }, [url, error, props]);
 
   // const { channel } = this.props;
   // const { url, error } = this.state;
