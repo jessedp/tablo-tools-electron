@@ -353,7 +353,8 @@ export function fillTemplate(
     return newPart;
   });
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
-  if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
+  const valid_extensions = ['.mp4', '.mkv', '.avi', '.mov'];
+  // if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
   return filledPath;
 }
 
