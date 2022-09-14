@@ -4,7 +4,8 @@ import * as os from 'os';
 import Store from 'electron-store';
 import Debug from 'debug';
 
-import ffmpeg from 'ffmpeg-static-electron-jdp';
+// import ffmpeg from 'ffmpeg-static-electron-jdp';
+import pathToFfmpeg from 'ffmpeg-static';
 
 const store = new Store();
 const debug = Debug('tablo-tools:utils');
@@ -301,28 +302,29 @@ export function throttleActions(
 }
 
 export function findFfmpegPath(debug = false, log?: any) {
-  const ffmpegPath = ffmpeg.path;
+  // const ffmpegPath = ffmpeg.path;
+  const ffmpegPath = pathToFfmpeg || '';
   if (debug && log) log.info('"ffmpeg.path" reports: ', ffmpegPath);
 
   let ffmpegPathReal = ffmpegPath;
 
   /** "fix" the incorrect path in dev */
   if (process.env.NODE_ENV === 'development') {
-    if (os.platform() === 'win32') {
-      if (ffmpegPathReal === ffmpegPath) {
-        ffmpegPathReal = ffmpegPath.replace(
-          '\\app\\',
-          '\\node_modules\\ffmpeg-static-electron-jdp\\'
-        );
-      }
-    } else {
-      // *nix
-      ffmpegPathReal = ffmpegPath.replace(
-        '/src/',
-        '/node_modules/ffmpeg-static-electron-jdp/'
-      );
-    }
-    if (debug && log) log.info('Using ffmpeg path of:', ffmpegPathReal);
+    // if (os.platform() === 'win32') {
+    //   if (ffmpegPathReal === ffmpegPath) {
+    //     ffmpegPathReal = ffmpegPath.replace(
+    //       '\\app\\',
+    //       '\\node_modules\\ffmpeg-static-electron-jdp\\'
+    //     );
+    //   }
+    // } else {
+    //   // *nix
+    //   ffmpegPathReal = ffmpegPath.replace(
+    //     '/src/',
+    //     '/node_modules/ffmpeg-static-electron-jdp/'
+    //   );
+    // }
+    if (debug && log) log.info('Using ffmpeg path of: ', ffmpegPathReal);
     return ffmpegPathReal;
   }
 
@@ -331,17 +333,17 @@ export function findFfmpegPath(debug = false, log?: any) {
   if (os.platform() === 'darwin') {
     ffmpegPathReal = ffmpegPathReal.replace(
       'app.asar/dist/main/',
-      'node_modules/ffmpeg-static-electron-jdp/'
+      'node_modules/ffmpeg-static/'
     );
   } else if (os.platform() === 'win32') {
     ffmpegPathReal = ffmpegPathReal.replace(
       'app.asar\\dist\\main\\',
-      'node_modules\\ffmpeg-static-electron-jdp\\'
+      'node_modules\\ffmpeg-static\\'
     );
   } else {
     ffmpegPathReal = ffmpegPathReal.replace(
       'app.asar/dist/main/',
-      'node_modules/ffmpeg-static-electron-jdp/'
+      'node_modules/ffmpeg-static/'
     );
   }
 

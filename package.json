@@ -1,6 +1,5 @@
 {
   "name": "tablo-tools",
-  "version": "0.3.0-beta.3",
   "productName": "tablo-tools",
   "description": "see release/app",
   "main": "./src/main/main.ts",
@@ -73,6 +72,7 @@
       ]
     },
     "win": {
+      "certificateFile": null,
       "target": [
         "msi",
         "nsis"
@@ -94,16 +94,14 @@
     },
     "extraResources": [
       "./assets/**",
-      "node_modules/ffmpeg-static-electron-jdp/*",
-      "node_modules/ffmpeg-static-electron-jdp/bin/${os}/${arch}/{ffmpeg,ffmpeg.exe}",
-      "node_modules/ffmpeg-static-electron-jdp/index.js",
-      "node_modules/ffmpeg-static-electron-jdp/package.json"
+      "./node_modules/ffmpeg-static/*"
     ],
     "publish": {
       "provider": "github",
       "owner": "jessedp",
       "repo": "tablo-tools-electron",
-      "private": false
+      "private": false,
+      "timeout": 300000
     }
   },
   "repository": {
@@ -282,7 +280,7 @@
     "electron-store": "^8.1.0",
     "electron-updater": "^5.2.2",
     "events": "^3.3.0",
-    "ffmpeg-static-electron-jdp": "^2.0.3",
+    "ffmpeg-static": "^5.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "glob": "^8.0.3",
     "handlebars": "^4.7.7",

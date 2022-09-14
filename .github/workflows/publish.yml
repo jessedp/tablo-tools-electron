@@ -3,7 +3,7 @@ name: Publish
 # on: push
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'try-eugeneware-ffmpeg-static']
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ['main']
@@ -41,13 +41,15 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_ORG: ${{secrets.SENTRY_ORG}}
           SENTRY_PROJECT: ${{secrets.SENTRY_PROJECT}}
-          # DEBUG: 'electron-builder*'
+          DEBUG: 'electron-builder*'
 
           # These values are used for auto updates signing
-          # APPLE_ID: ${{ secrets.APPLE_ID }}
-          # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          # CSC_LINK: ${{ secrets.CSC_LINK }}
-          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
 
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,7 +57,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 15
-          max_attempts: 20
+          max_attempts: 5
           shell: bash
           command: |
             if [ "$RUNNER_OS" == "Linux" ]; then

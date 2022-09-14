@@ -7,7 +7,7 @@ import {
   ipcMain,
 } from 'electron';
 
-import { version } from '../../package.json';
+import { version } from '../../release/app/package.json';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
