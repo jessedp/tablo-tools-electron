@@ -361,8 +361,11 @@ export function fillTemplate(
   });
 
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
-  const valid_extensions = ['.mp4', '.mkv', '.avi', '.mov'];
-  // if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
+
+  const validExtensions = ['.mp4', '.mkv', '.avi', '.mov'];
+  const ext = filledPath.substring(filledPath.lastIndexOf('.'));
+  if (!validExtensions.includes(ext)) filledPath += '.mp4';
+
   console.log('returning filledPath: ', filledPath);
   return filledPath;
 }
