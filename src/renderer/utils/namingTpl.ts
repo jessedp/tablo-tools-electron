@@ -366,7 +366,6 @@ export function fillTemplate(
   const ext = filledPath.substring(filledPath.lastIndexOf('.'));
   if (!validExtensions.includes(ext)) filledPath += '.mp4';
 
-  console.log('returning filledPath: ', filledPath);
   return filledPath;
 }
 
