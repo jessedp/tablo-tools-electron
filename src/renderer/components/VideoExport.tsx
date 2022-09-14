@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { ExportRecordType } from '../constants/types';
 import {
   EXP_WAITING,
@@ -92,10 +92,10 @@ const VideoExport = (WrappedComponent: any) => {
               // console.log(`${channel}`, message);
               this.updateProgress(airing.object_id, message);
             });
-
             return window.Airing.exportVideo(
               airing.object_id,
-              actionOnDuplicate
+              actionOnDuplicate,
+              rec.airing.template
             );
           }
           return new Promise((resolve) => {

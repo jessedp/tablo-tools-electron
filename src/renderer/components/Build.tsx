@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,7 +12,6 @@ import * as BuildActions from '../store/build';
 import { DbSliceState } from '../store/build';
 
 import {
-  STATE_WAITING,
   STATE_START,
   STATE_LOADING,
   STATE_FINISH,
@@ -46,10 +45,6 @@ class Build extends Component<BuildProps, State> {
 
   psToken: string;
 
-  static defaultProps = {
-    view: 'progress',
-  };
-
   constructor(props: BuildProps) {
     super(props);
     this.psToken = '';
@@ -58,7 +53,6 @@ class Build extends Component<BuildProps, State> {
   }
 
   async componentDidMount() {
-    const { Api } = global;
     let created = recDbCreated();
 
     // TODO: some const export?
@@ -68,16 +62,26 @@ class Build extends Component<BuildProps, State> {
       const autoBuild = async () => {
         created = recDbCreated();
 
-        if (!Api.device && !created) {
+        if (!window.Tablo.device() && !created) {
           if (i > 0) return;
           i += 1;
           setTimeout(autoBuild, 5000);
         }
 
-        if (Api.device && !created) this.build();
+        if (window.Tablo.device() && !created) this.build();
       };
 
       autoBuild();
+    }
+  }
+
+  componentDidUpdate(prevProps: BuildProps) {
+    const { progress } = this.props;
+    if (
+      prevProps.progress.loading !== progress.loading &&
+      progress.loading === STATE_START
+    ) {
+      this.build();
     }
   }
 
@@ -121,7 +125,7 @@ class Build extends Component<BuildProps, State> {
       window.electron.ipcRenderer.on(
         'get-recording-progress',
         (message: any) => {
-          console.log('progress', message);
+          console.debug('progress', message);
 
           updateProgress({
             airingInc: message,
@@ -226,10 +230,6 @@ class Build extends Component<BuildProps, State> {
         err = `${e}`;
       }
 
-      this.setState({
-        loading: STATE_ERROR,
-        log: [err],
-      });
       updateProgress({
         loading: STATE_ERROR,
         log: [err],
@@ -238,14 +238,6 @@ class Build extends Component<BuildProps, State> {
   };
 
   render() {
-    const { progress, updateProgress } = this.props;
-    if (progress.loading === STATE_START) {
-      updateProgress({
-        loading: STATE_LOADING,
-      });
-      console.log('starting');
-      this.build();
-    }
     return <></>;
   }
 }

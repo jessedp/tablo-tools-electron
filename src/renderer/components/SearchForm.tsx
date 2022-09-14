@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
@@ -605,11 +605,24 @@ class SearchForm extends Component<
     }
 
     if (watchedFilter !== 'all') {
-      query['user_info.watched'] = watchedFilter === 'yes';
+      let text = 'not watched';
+      if (watchedFilter === 'yes') {
+        query['user_info.watched'] = true;
+        text = 'watched';
+      } else if (watchedFilter === 'no') {
+        query['user_info.watched'] = false;
+        text = 'not watched';
+      } else if (watchedFilter === 'partial') {
+        query['user_info.position'] = {
+          $gt: 0,
+        };
+        text = 'partially watched';
+      }
+
       steps.push({
         type: 'watched',
-        value: stateFilter,
-        text: `${watchedFilter === 'yes' ? 'watched' : 'not watched'}`,
+        value: watchedFilter,
+        text,
       });
     }
 
@@ -630,7 +643,7 @@ class SearchForm extends Component<
 
       steps.push({
         type: 'comskip',
-        value: stateFilter,
+        value: comskipFilter,
         text,
       });
     }

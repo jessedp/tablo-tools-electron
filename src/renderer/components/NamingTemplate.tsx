@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import slugify from 'slugify';
@@ -156,9 +156,7 @@ class SettingsNaming extends Component<Props, State> {
           $regex: recType,
         },
       },
-      {
-        limit: 1000,
-      }
+      [['limit', 1000]]
     );
     await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);

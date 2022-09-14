@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 // import { shell } from 'electron';
 import os from 'os';
 import path from 'path';
@@ -14,12 +14,10 @@ import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
 
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-// import fs from 'fs';
-// const fs = window.require('fs');
-const { archiver, fs } = window.electron;
 
-// const { shell } = window.require('electron').remote;
-const { shell } = window.electron;
+// const { archiver } = window.electron;
+
+// const { shell } = window.electron;
 
 type Props = Record<string, never>;
 type State = {
@@ -81,7 +79,7 @@ export default class ExportData extends Component<Props, State> {
   openExportFile = () => {
     const { fileFullPath } = this.state;
     if (!fileFullPath) return;
-    shell.showItemInFolder(fileFullPath);
+    window.ipcRenderer.send('open-path', fileFullPath);
   };
 
   startExport = async (upload = true) => {
@@ -102,7 +100,6 @@ export default class ExportData extends Component<Props, State> {
     };
 
     const tmpDir = path.join(os.tmpdir(), 'tablo-tools-export');
-    const { Api } = global;
 
     try {
       // $FlowFixMe guessing this means I don't have the proper node version somewhere
@@ -295,6 +292,8 @@ export default class ExportData extends Component<Props, State> {
     return (
       <div className="p-1 mb-3 mt-3">
         <Row>
+          <Col>
+            {/* <Row>
           <Col md="3">
             <h5>Submit Device Data</h5>
           </Col>
@@ -325,8 +324,8 @@ export default class ExportData extends Component<Props, State> {
             <Alert variant="light">
               <ul className="ml-0 pl-2">
                 <li>
-                  <b>Build &amp; Review</b> - creates the zip file to be upload
-                  so you can see what&apos;s being sent.
+                  <b>Build &amp; Review</b> - creates the zip file to be
+                  uploaded so you can see what&apos;s being sent.
                 </li>
                 <li>
                   <b>Upload</b> - creates and uploads the zip file
@@ -337,7 +336,7 @@ export default class ExportData extends Component<Props, State> {
           </Col>
         </Row>
         <Row>
-          <Col md="4">
+          <Col md="6">
             <Row className="mt-1">
               <Col md="5">
                 <Checkbox
@@ -406,7 +405,7 @@ export default class ExportData extends Component<Props, State> {
             <span className="smaller">
               The zip file will contain <code>.json</code> files. They are plain
               text files if you want to take a look.
-            </span>
+            </span> */}
             <Button
               size={'xs' as any}
               className="ml-5"

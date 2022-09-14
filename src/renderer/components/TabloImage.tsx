@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'react-bootstrap/Image';
 import unknownImg from '../../../assets/white-question-mark.png';
 import { getTabloImageUrl } from '../utils/utils';

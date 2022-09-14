@@ -7,7 +7,7 @@
 // console.log(remote);
 // const ipcRenderer = remote.ipcRenderer;
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { throttle } from '../utils/utils';
 
 // const { ipcRenderer, webFrame } = window.electron;

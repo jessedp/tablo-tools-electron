@@ -1,5 +1,5 @@
 // import * as React from 'react';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Container, Alert, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';

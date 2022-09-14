@@ -1,4 +1,3 @@
-import React from 'react';
 import Description from './Description';
 import Airing from '../utils/Airing';
 import './Title.css';

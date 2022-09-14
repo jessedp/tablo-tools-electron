@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PubSub from 'pubsub-js';
 import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';

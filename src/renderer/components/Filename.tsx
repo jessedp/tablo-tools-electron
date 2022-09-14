@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Row, Col, Badge } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -23,33 +23,44 @@ export default function Filename(prop: Props) {
   });
   const header = (
     <Row className="border-bottom mb-2">
-      <Col md="1">
-        <Badge pill variant="warning">
-          {airings.length}
-        </Badge>
-      </Col>
-      <Col>
-        {show ? (
-          <Button
-            onClick={() => setShow(false)}
-            variant="link"
-            size={'xs' as any}
-            title="Hide airings"
-          >
-            <span className="fa fa-toggle-on preview-toggle" />
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setShow(true)}
-            variant="link"
-            size={'xs' as any}
-            title="show airings"
-          >
-            <span className="fa fa-toggle-off preview-toggle" />
-          </Button>
-        )}
-        <span className="ml-2">{file}</span>
-      </Col>
+      {airings.length === 0 ? (
+        <>
+          <Col md="1" />
+          <Col>
+            <span className="ml-2">{file}</span>
+          </Col>
+        </>
+      ) : (
+        <>
+          <Col md="1">
+            <Badge pill variant="warning">
+              {airings.length}
+            </Badge>
+          </Col>
+          <Col>
+            {show ? (
+              <Button
+                onClick={() => setShow(false)}
+                variant="link"
+                size={'xs' as any}
+                title="Hide airings"
+              >
+                <span className="fa fa-toggle-on preview-toggle" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setShow(true)}
+                variant="link"
+                size={'xs' as any}
+                title="show airings"
+              >
+                <span className="fa fa-toggle-off preview-toggle" />
+              </Button>
+            )}
+            <span className="ml-2">{file}</span>
+          </Col>
+        </>
+      )}
     </Row>
   );
 

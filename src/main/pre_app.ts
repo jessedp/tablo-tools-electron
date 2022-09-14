@@ -1,5 +1,7 @@
+import { debug } from 'console';
 import { app, ipcMain } from 'electron';
-
+import glob from 'glob';
+import path from 'path';
 import getConfig, { setConfig, setConfigItem } from './utils/config';
 import { writeToFile } from './utils/utils';
 
@@ -43,4 +45,11 @@ ipcMain.on('write-to-file', (event: any, ...args: any) => {
   writeToFile(args[0], args[1]);
 
   event.returnValue = true;
+});
+
+ipcMain.on('glob', (event: any, arg: any) => {
+  const { root, dir, base, ext, name } = path.parse(arg);
+  const results = glob.sync(`${dir}${path.sep}${name}*`);
+  debug('glob results', results);
+  event.returnValue = results;
 });

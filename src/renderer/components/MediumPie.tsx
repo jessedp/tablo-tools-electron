@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 import { ResponsivePie } from '@nivo/pie';
 import { LegendProps } from '@nivo/legends';
 import { ColorSchemeId } from '@nivo/colors/dist/types/schemes/all';

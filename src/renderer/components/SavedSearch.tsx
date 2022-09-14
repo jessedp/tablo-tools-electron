@@ -47,7 +47,7 @@ type SavedSearchType = {
 class SavedSearch extends Component<Props, State> {
   chkOverRef: any;
 
-  static defaultProps: Record<string, any>;
+  // static defaultProps: Record<string, any>;
 
   constructor(props: Props) {
     super(props);
@@ -146,7 +146,7 @@ class SavedSearch extends Component<Props, State> {
     const { slug, overwriteId, chkOverwrite } = this.state;
     let { searchName } = this.state;
     const { searchState, updateValue, sendFlash } = this.props;
-    const db = global.SearchDb;
+
     searchState.actionList = [];
     searchState.airingList = [];
     searchState.savedSearchFilter = '';
@@ -156,7 +156,7 @@ class SavedSearch extends Component<Props, State> {
 
     if (chkOverwrite === CHECKBOX_OFF && overwriteId === '') {
       searchName = searchName.trim();
-      const check = await db.findOneAsync({
+      const check = await window.db.findOneAsync('SearchDb', {
         slug,
       });
 
@@ -168,7 +168,7 @@ class SavedSearch extends Component<Props, State> {
           created: new Date().toISOString(),
           version: '1',
         };
-        const rec = await db.insertAsync(newRec);
+        const rec = await window.db.insertAsync('SearchDb', newRec);
         sendFlash({
           message: 'Saved!',
         });
@@ -191,7 +191,8 @@ class SavedSearch extends Component<Props, State> {
         });
       }
     } else {
-      await db.updateAsync(
+      await window.db.updateAsync(
+        'SearchDb',
         {
           _id: overwriteId,
         },

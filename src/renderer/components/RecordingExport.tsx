@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -58,8 +58,17 @@ class RecordingExport extends Component<Props, State> {
 
   updateTemplate = (template: NamingTemplateType) => {
     const { record, updateExportRecord } = this.props;
-    record.airing.template = template;
-    updateExportRecord(record);
+    const { airing } = this.state;
+
+    const updateRec = JSON.parse(JSON.stringify(record));
+
+    updateRec.airing.template = template;
+
+    if (airing) {
+      airing.template = template;
+      this.setState({ airing });
+    }
+    updateExportRecord(updateRec);
   };
 
   render() {

@@ -136,7 +136,8 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   if (template.slug === getDefaultTemplateSlug())
     return 'Cannot save default slug!';
 
-  await global.NamingDb.updateAsync(
+  await window.db.updateAsync(
+    'NamingDb',
     {
       // eslint-disable-next-line no-underscore-dangle
       _id: template._id,
@@ -304,6 +305,7 @@ export function buildTemplateVars(
   const shortcuts = { ...typeVars, ...globalVars };
   return { full: result, shortcuts };
 }
+
 export function fillTemplate(
   template: NamingTemplateType | string,
   templateVars: TemplateVarsType
@@ -336,7 +338,10 @@ export function fillTemplate(
 
     return part;
   });
-  let filledPath = fsPath.normalize(parts.join(fsPath.sep));
+
+  let filledPath = parts.join(fsPath.sep);
+
+  filledPath = fsPath.normalize(filledPath);
   let i = 0;
 
   const sanitizeParts = filledPath.split(fsPath.sep).map((part) => {
@@ -344,16 +349,23 @@ export function fillTemplate(
 
     if (i === 1) {
       const test = part + fsPath.sep;
+
       if (fsPath.isAbsolute(test)) return part;
-      return `${window.ipcRenderer.sendSync('get-config').programPath}${part}`;
+
+      return `${window.ipcRenderer.sendSync('get-config').programPath}`;
     }
 
     const newPart = sanitize(part);
 
     return newPart;
   });
+
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
-  if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
+
+  const validExtensions = ['.mp4', '.mkv', '.avi', '.mov'];
+  const ext = filledPath.substring(filledPath.lastIndexOf('.'));
+  if (!validExtensions.includes(ext)) filledPath += '.mp4';
+
   return filledPath;
 }
 

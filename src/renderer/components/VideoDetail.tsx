@@ -1,4 +1,3 @@
-import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import { boolStr, readableBytes, readableDuration } from '../utils/utils';
@@ -7,6 +6,40 @@ import { boolStr, readableBytes, readableDuration } from '../utils/utils';
 type Props = {
   details: Record<string, any>;
 };
+
+/**
+ * @return {string}
+ */
+function Error(prop: any) {
+  const { detail } = prop;
+  if (!detail) return <></>;
+  const { error } = detail;
+  if (!error) return <></>;
+  return (
+    <Alert variant="warning">
+      <h6>
+        {' '}
+        Error: {error.code} - {error.details}
+      </h6>
+    </Alert>
+  );
+}
+
+/**
+ * @return {string}
+ */
+function CommercialSkip(prop: any) {
+  const { detail } = prop;
+  if (!detail) return <></>;
+  const { comskip } = detail;
+  if (!comskip) return <></>;
+  return (
+    <h6>
+      Commercial Skip status: <b>{comskip.state}</b>{' '}
+      {comskip.error ? `(${comskip.error})` : ''}
+    </h6>
+  );
+}
 
 function VideoDetail(props: Props) {
   const { details } = props;
@@ -44,40 +77,6 @@ function VideoDetail(props: Props) {
         </tr>
       </tbody>
     </Table>
-  );
-}
-/**
- * @return {string}
- */
-
-function Error(prop: any) {
-  const { detail } = prop;
-  if (!detail) return <></>;
-  const { error } = detail;
-  if (!error) return <></>;
-  return (
-    <Alert variant="warning">
-      <h6>
-        {' '}
-        Error: {error.code} - {error.details}
-      </h6>
-    </Alert>
-  );
-}
-
-/**
- * @return {string}
- */
-function CommercialSkip(prop: any) {
-  const { detail } = prop;
-  if (!detail) return <></>;
-  const { comskip } = detail;
-  if (!comskip) return <></>;
-  return (
-    <h6>
-      Commercial Skip status: <b>{comskip.state}</b>{' '}
-      {comskip.error ? `(${comskip.error})` : ''}
-    </h6>
   );
 }
 

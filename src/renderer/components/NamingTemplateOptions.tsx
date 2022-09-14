@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { InputGroup } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';

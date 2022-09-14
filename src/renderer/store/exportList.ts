@@ -17,7 +17,13 @@ const slice = createSlice({
   reducers: {
     addExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
       const exportRecord = action.payload;
+
+      if (exportRecord.airing.video_details?.state === 'recording') {
+        console.log('addExport - skipping recording in progress', exportRecord);
+        return;
+      }
       console.log('addExport', exportRecord);
+
       if (
         !state.records.find(
           (rec) => rec.airing.object_id === exportRecord.airing.object_id
@@ -39,7 +45,6 @@ const slice = createSlice({
     },
 
     updateExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
-      // console.log('updateExportRecord', action.payload);
       current(state);
 
       const exportRecord = action.payload;

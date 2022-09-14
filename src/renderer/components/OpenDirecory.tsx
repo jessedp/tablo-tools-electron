@@ -1,9 +1,4 @@
-import React from 'react';
 import Button from 'react-bootstrap/Button';
-// import { ipcRenderer } from 'electron';
-
-// const { ipcRenderer } = window.require('electron').remote;
-const { ipcRenderer } = window.electron;
 
 type Props = {
   path: string;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 // import { ipcRenderer, shell } from 'electron';
 
 import Button from 'react-bootstrap/Button';

@@ -135,6 +135,15 @@ class TemplateEditor extends Component<Props, State> {
         </Row>
         <Row>
           <Col>
+            <span className="smaller">
+              Note: <strong>EXT</strong> can be replaced with <i>mkv</i>,{' '}
+              <i>avi</i>, or <i>mov</i> - anything else will default to{' '}
+              <em>mp4</em>
+            </span>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
             <Alert variant="primary" className="p-0 pl-3 mb-0">
               shortcuts - common combinations/modications of original values
             </Alert>
