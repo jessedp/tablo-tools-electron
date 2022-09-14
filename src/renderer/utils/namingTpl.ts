@@ -305,6 +305,7 @@ export function buildTemplateVars(
   const shortcuts = { ...typeVars, ...globalVars };
   return { full: result, shortcuts };
 }
+
 export function fillTemplate(
   template: NamingTemplateType | string,
   templateVars: TemplateVarsType
@@ -337,7 +338,10 @@ export function fillTemplate(
 
     return part;
   });
-  let filledPath = fsPath.normalize(parts.join(fsPath.sep));
+
+  let filledPath = parts.join(fsPath.sep);
+
+  filledPath = fsPath.normalize(filledPath);
   let i = 0;
 
   const sanitizeParts = filledPath.split(fsPath.sep).map((part) => {
@@ -345,17 +349,21 @@ export function fillTemplate(
 
     if (i === 1) {
       const test = part + fsPath.sep;
+
       if (fsPath.isAbsolute(test)) return part;
-      return `${window.ipcRenderer.sendSync('get-config').programPath}${part}`;
+
+      return `${window.ipcRenderer.sendSync('get-config').programPath}`;
     }
 
     const newPart = sanitize(part);
 
     return newPart;
   });
+
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
   const valid_extensions = ['.mp4', '.mkv', '.avi', '.mov'];
   // if (!filledPath.endsWith('.mp4')) filledPath += '.mp4';
+  console.log('returning filledPath: ', filledPath);
   return filledPath;
 }
 
