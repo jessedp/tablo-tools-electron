@@ -2,7 +2,6 @@ import { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import path from 'path';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,7 +13,6 @@ import getConfig, { getPath, ConfigType, setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
 import Directory from './Directory';
-import SentryToggle from '../utils/sentryToggle';
 
 // const { ipcRenderer } = window.require('electron').remote;
 const { ipcRenderer } = window.electron;
@@ -304,7 +302,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${appName}${path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${window.path.sep}`, '');
     }
 
     return (

@@ -24,6 +24,7 @@ declare global {
     db: any;
     fs: any;
     os: any;
+    path: any;
     electron: {
       ipcRenderer: any;
 

@@ -1,8 +1,6 @@
 import { Component } from 'react';
-// import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import path from 'path';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from 'react-bootstrap/Row';
@@ -259,12 +257,12 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${appName}${path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${window.path.sep}`, '');
     }
 
     // const openLogs = () => {
-    //   console.log(path.normalize(`${logsPath}/main.log`));
-    //   shell.showItemInFolder(path.normalize(`${logsPath}/main.log`));
+    //   console.log(window.path.normalize(`${logsPath}/main.log`));
+    //   shell.showItemInFolder(window.path.normalize(`${logsPath}/main.log`));
     // };
     return (
       <div className="d-flex flex-row">
@@ -363,9 +361,9 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
               <div className="p-2 pl-4 bg-light border col-md-10">
                 All Logs are in: <br />
                 <span className="ml-1 text-danger mr-2">
-                  {`${logsPath}${path.sep}`}
+                  {`${logsPath}${window.path.sep}`}
                 </span>
-                <OpenDirectory path={`${logsPath}${path.sep}`} />
+                <OpenDirectory path={`${logsPath}${window.path.sep}`} />
                 <br />
                 <i className="smaller">
                   main.log and renderer.log are general internal logs

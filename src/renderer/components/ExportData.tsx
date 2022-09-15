@@ -1,7 +1,6 @@
 import { Component } from 'react';
 // import { shell } from 'electron';
 import os from 'os';
-import path from 'path';
 // import archiver from 'archiver';
 import axios from 'axios';
 
@@ -99,7 +98,7 @@ export default class ExportData extends Component<Props, State> {
       });
     };
 
-    const tmpDir = path.join(os.tmpdir(), 'tablo-tools-export');
+    const tmpDir = window.path.join(window.os.tmpdir(), 'tablo-tools-export');
 
     try {
       // $FlowFixMe guessing this means I don't have the proper node version somewhere
@@ -120,7 +119,7 @@ export default class ExportData extends Component<Props, State> {
     delete info.http;
     delete info.slip;
     const filename = `${info.server_id}_Export.zip`;
-    const tmpFile = path.join(tmpDir, filename);
+    const tmpFile = window.path.join(tmpDir, filename);
     // Setup the zip archive
     const output = fs.createWriteStream(tmpFile);
     const archive = archiver('zip', {

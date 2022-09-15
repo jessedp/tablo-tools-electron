@@ -3,6 +3,7 @@ import Debug from 'debug';
 
 import * as fs from 'fs';
 import * as os from 'os';
+import * as path from 'path';
 
 const debug = Debug('tablo-tools:preload');
 
@@ -38,7 +39,14 @@ contextBridge.exposeInMainWorld('fs', {
   existsSync: (filepath: fs.PathLike) => fs.existsSync(filepath),
   readFileSync: (filepath: any, options?: any) =>
     fs.readFileSync(filepath, options),
-  statSync: (path: any, options: any) => fs.statSync(path, options),
+  statSync: (filepath: any, options: any) => fs.statSync(filepath, options),
+});
+
+contextBridge.exposeInMainWorld('path', {
+  normalize: (filepath: string) => path.normalize(filepath),
+  sep: () => path.sep,
+  isAbsolute: (filepath: string) => path.isAbsolute(filepath),
+  join: (...args: string[]) => path.join(...args),
 });
 
 contextBridge.exposeInMainWorld('os', {
