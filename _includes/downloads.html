@@ -117,18 +117,16 @@ All files associated with the current release are
   <span class="smaller"
     >You will have to check back for new versions on your own.</span
   >
-  <br /><br />
-  <span class="warn fa fa-warning"> NOTICE: </span> The Windows packages are not
-  signed and will require clicking through security warnings to install, but it
-  will work fine after that. <a href="#codesigning">Why not?</a>
 </div>
 
 <div id="Mac" class="tabcontent">
-  <b>Packages:</b>
+  <b>For Automatic Updates:</b>
+
+  <b>x86 Packages:</b>
   <ul>
     <li>
       <span class="fab fa-apple list-icon"></span>
-      <b>.dmg - </b>
+      <b>Classic (x86) .dmg</b> -
       <a
         href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}.dmg"
       >
@@ -136,34 +134,39 @@ All files associated with the current release are
       </a>
     </li>
     <li>
-      <span class="fa  fa-file-archive-o list-icon"></span>
-      <b>.zip - </b>
-      <a
-        href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}-mac.zip"
-      >
-        TabloTools-{{page.version}}-mac.zip
+      <span class="fab fa-apple list-icon"></span>
+      <b>M1/M2 (arm64) .dmg</b> -
+      <a href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}-arm64-mac.dmg">
+        TabloTools-{{page.version}}-arm64-mac.dmg
       </a>
     </li>
   </ul>
-  <span class="warn fa fa-warning"> NOTICES: </span>
+
+  <div class="smaller">Updates will happpen the next time the app is opened after a new release is
+    made.</div>
+      <span class="warn fa fa-warning smaller"> note: </span>
+      As of v0.3.0, the Mac packages above <em>are</em> signed.
+      Please <a href="https://github.com/jessedp/tablo-tools-electron/issues" target="_new">let us know</a> if you run into
+      issues.
+  <br /><br />
+
+  <b>Other packages:</b>
   <ul>
+        <li>
+          <span class="fa  fa-file-archive-o list-icon"></span>
+          <b>Classic (x86) .zip</b> -
+          <a href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}-mac.zip">
+            TabloTools-{{page.version}}-mac.zip
+          </a>
+        </li>
     <li>
-      <span class="fa fa-minus list-icon-small"></span> Neither of these
-      packages are signed. <a href="#codesigning">Why not?</a>
+      <span class="fa  fa-file-archive-o list-icon"></span>
+      <b>M1/M2 (arm86) .zip</b> -
+      <a href="{{site.github.repository_url}}/releases/download/v{{page.version}}/TabloTools-{{page.version}}-mac.zip">
+        TabloTools-{{page.version}}-arm64-mac.zip
+      </a>
     </li>
-    <li>
-      <span class="fa fa-minus list-icon-small"></span> These have not been
-      installed or run on a Mac yet. Google thinks
-      <a
-        target="_blank"
-        href="https://www.wikihow.com/Install-Software-from-Unsigned-Developers-on-a-Mac"
-        >this article</a
-      >
-      might help with getting the <code>.dmg</code> installed.
-    </li>
-    <li>
-      <span class="fa fa-minus list-icon-small"></span> Automatic updates on
-      Macs require signed packages, so they will not work.
-    </li>
-  </ul>
+
+</ul>
+
 </div>
