@@ -10,18 +10,21 @@ type Props = {
 
 const MyPlayerLive = (props: Props) => {
   const { channel } = props;
+  // const { channel } = props;
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
+  const watchPath = `${channel.path}/watch`;
 
   useEffect(() => {
     console.log('component mounted!');
-    const watchPath = `${channel.path}/watch`;
+
     let data: any = null; // ugh
 
     let errorMsg = '';
 
     try {
       data = window.Tablo.post(watchPath);
+      console.log('data', data);
     } catch (e) {
       console.warn(`Unable to load ${watchPath}`, e);
       errorMsg = `${e}`;
@@ -29,7 +32,7 @@ const MyPlayerLive = (props: Props) => {
 
     let watchUrl = '';
 
-    if (!error) {
+    if (data && data.playlist_url) {
       // TODO: better local/forward rewrites (probably elsewhere)
       if (window.Tablo.device().private_ip === '127.0.0.1') {
         const re = new RegExp(
@@ -39,13 +42,16 @@ const MyPlayerLive = (props: Props) => {
       } else {
         watchUrl = data.playlist_url;
       }
+      setUrl(watchUrl);
+      setError('');
+    } else {
+      errorMsg = 'Unable to load channel!';
+      console.log(errorMsg);
+      setError(errorMsg);
     }
-    console.log('MyLivePlayer - url', watchUrl);
-    setUrl(watchUrl);
-    setError(errorMsg);
-  }, [url, error, channel.path, props]);
+  }, [watchPath]);
 
-  if (!url) {
+  if (!url && !error) {
     return (
       <div>
         <Spinner variant="success" size="sm" animation="grow" />
@@ -57,7 +63,8 @@ const MyPlayerLive = (props: Props) => {
   if (error) {
     return (
       <Alert variant="danger">
-        Uh-oh, unable to load <b>${channel.channel.network}</b>{' '}
+        Uh-oh, unable to load <b>${channel.channel.network}</b> within 5s
+        timeout. Please try again later.
       </Alert>
     );
   }
