@@ -1,14 +1,10 @@
-// import { ipcRenderer, shell } from 'electron';
-
 import { Component } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 import { InputGroup, Form, Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
-// const { shell } = window.require('electron').remote;
-// const { ipcRenderer } = window.require('electron');
-const { ipcRenderer, shell } = window.electron;
+const { ipcRenderer } = window.electron;
 
 type Props = Record<string, never>;
 type State = {

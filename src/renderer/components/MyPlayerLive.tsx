@@ -1,4 +1,4 @@
-import { Component, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactHlsPlayer from '@panelist/react-hls-player';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
@@ -31,7 +31,7 @@ const MyPlayerLive = (props: Props) => {
 
     if (!error) {
       // TODO: better local/forward rewrites (probably elsewhere)
-      if (window.Tablo.device.private_ip === '127.0.0.1') {
+      if (window.Tablo.device().private_ip === '127.0.0.1') {
         const re = new RegExp(
           '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}'
         );
@@ -43,10 +43,7 @@ const MyPlayerLive = (props: Props) => {
     console.log('MyLivePlayer - url', watchUrl);
     setUrl(watchUrl);
     setError(errorMsg);
-  }, [url, error, props]);
-
-  // const { channel } = this.props;
-  // const { url, error } = this.state;
+  }, [url, error, channel.path, props]);
 
   if (!url) {
     return (
@@ -67,10 +64,6 @@ const MyPlayerLive = (props: Props) => {
 
   return (
     <ReactHlsPlayer src={url} autoPlay controls width="100%" height="auto" />
-
-    // <Player fluid width={300} height={240}>
-    //   <HLSSource src={url} video={{}} type="" />
-    // </Player>
   );
 };
 

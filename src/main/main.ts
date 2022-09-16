@@ -93,7 +93,7 @@ ipcMain.on('get-recording-progress', async (progress_data) => {
   mainWindow?.webContents.send('get-recording-progress', progress_data);
 });
 
-ipcMain.on('export-progress', async (args) => {
+ipcMain.on('export-progress', async (...args) => {
   const channel = `export-progress-${args[0]}`;
   // debug(`export-progress - channel: ${channel}`, args);
   mainWindow?.webContents.send(channel, args[1]);

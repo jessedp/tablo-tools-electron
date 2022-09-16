@@ -47,7 +47,7 @@ type SavedSearchType = {
 class SavedSearch extends Component<Props, State> {
   chkOverRef: any;
 
-  // static defaultProps: Record<string, any>;
+  static defaultProps: Record<string, any>;
 
   constructor(props: Props) {
     super(props);

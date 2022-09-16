@@ -14,10 +14,6 @@ const store = new Store();
 
 const dataDir = getPath('userData');
 
-export async function recDbStats() {
-  return global.RecDb.countAsync({});
-}
-
 export const makeRecDb = () => {
   const device: any = store.get('CurrentDevice');
   if (!device.serverid) return null;
@@ -99,12 +95,12 @@ export const setupDb = async () => {
     debug('No device, skipping setupDb');
     return;
   }
-
-  global.RecDb = makeRecDb();
-  global.ShowDb = makeShowDb();
-  global.ChannelDb = makeChannelDb();
-  global.SearchDb = makeSearchDb();
-  global.NamingDb = makeNamingDb();
-  global.ExportLogDb = makeExportLoggingDb();
+  if (!global.dbs) global.dbs = {};
+  global.dbs.RecDb = makeRecDb();
+  global.dbs.ShowDb = makeShowDb();
+  global.dbs.ChannelDb = makeChannelDb();
+  global.dbs.SearchDb = makeSearchDb();
+  global.dbs.NamingDb = makeNamingDb();
+  global.dbs.ExportLogDb = makeExportLoggingDb();
   PubSub.publish('DB_CHANGE', true);
 };

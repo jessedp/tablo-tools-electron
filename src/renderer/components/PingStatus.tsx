@@ -1,12 +1,10 @@
 import { Component } from 'react';
 import PubSub from 'pubsub-js';
-// import Store from 'electron-store';
+
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { checkConnection, setCurrentDevice } from '../utils/Tablo';
 import routes from '../constants/routes.json';
-
-// const Store = window.require('electron-store');
 
 const { store } = window.electron;
 
@@ -78,7 +76,7 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
 
     const { history } = this.props;
     const device = window.Tablo.discoveredDevices().filter(
-      (item) => item.serverid === serverId
+      (item: any) => item.serverid === serverId
     );
     setCurrentDevice(device[0]);
     PubSub.publish('DB_CHANGE', true);
@@ -124,7 +122,7 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
             <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {discoveredDevices.map((dev) => {
+            {discoveredDevices.map((dev: any) => {
               const key = `ping-status-${dev.serverid}`;
               return (
                 <Dropdown.Item

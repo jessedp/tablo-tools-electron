@@ -1,18 +1,18 @@
 import { Component } from 'react';
 // import { shell } from 'electron';
-import os from 'os';
+// import os from 'os';
 // import archiver from 'archiver';
-import axios from 'axios';
+// import axios from 'axios';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Form from 'react-bootstrap/Form';
-import Alert from 'react-bootstrap/Alert';
+// import Spinner from 'react-bootstrap/Spinner';
+// import InputGroup from 'react-bootstrap/InputGroup';
+// import Form from 'react-bootstrap/Form';
+// import Alert from 'react-bootstrap/Alert';
 
-import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
+// import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 // const { archiver } = window.electron;
 
@@ -20,17 +20,17 @@ import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 type Props = Record<string, never>;
 type State = {
-  state: number;
+  // state: number;
   enableServerInfo: boolean;
   enableRecordings: boolean;
-  serverInfoStatus: any;
-  recordingStatus: any;
+  // serverInfoStatus: any;
+  // recordingStatus: any;
   fileFullPath: string;
 };
-const STATE_WAITING = 0;
-const STATE_WORKING = 1;
-const STATE_COMPLETE = 2;
-const STATE_ERROR = 3;
+// const STATE_WAITING = 0;
+// const STATE_WORKING = 1;
+// const STATE_COMPLETE = 2;
+// const STATE_ERROR = 3;
 export default class ExportData extends Component<Props, State> {
   shouldCancel: boolean;
 
@@ -38,15 +38,15 @@ export default class ExportData extends Component<Props, State> {
     super(props);
     this.shouldCancel = false;
     this.state = {
-      state: STATE_WAITING,
+      // state: STATE_WAITING,
       enableServerInfo: true,
       enableRecordings: true,
-      serverInfoStatus: '',
-      recordingStatus: '',
+      // serverInfoStatus: '',
+      // recordingStatus: '',
       fileFullPath: '',
     };
-    (this as any).startExport = this.startExport.bind(this);
-    (this as any).cancelExport = this.cancelExport.bind(this);
+    // (this as any).startExport = this.startExport.bind(this);
+    // (this as any).cancelExport = this.cancelExport.bind(this);
     (this as any).toggleServerInfo = this.toggleServerInfo.bind(this);
     (this as any).toggleRecordings = this.toggleRecordings.bind(this);
     (this as any).openExportFile = this.openExportFile.bind(this);
@@ -68,12 +68,12 @@ export default class ExportData extends Component<Props, State> {
     });
   };
 
-  cancelExport = () => {
-    this.shouldCancel = true;
-    this.setState({
-      state: STATE_WAITING,
-    });
-  };
+  // cancelExport = () => {
+  //   this.shouldCancel = true;
+  //   this.setState({
+  //     state: STATE_WAITING,
+  //   });
+  // };
 
   openExportFile = () => {
     const { fileFullPath } = this.state;
@@ -81,191 +81,191 @@ export default class ExportData extends Component<Props, State> {
     window.ipcRenderer.send('open-path', fileFullPath);
   };
 
-  startExport = async (upload = true) => {
-    const { enableServerInfo, enableRecordings } = this.state;
-    this.shouldCancel = false;
-    this.setState({
-      state: STATE_WORKING,
-    });
-    if (!enableServerInfo && !enableRecordings) return;
+  // startExport = async (upload = true) => {
+  //   const { enableServerInfo, enableRecordings } = this.state;
+  //   this.shouldCancel = false;
+  //   this.setState({
+  //     state: STATE_WORKING,
+  //   });
+  //   if (!enableServerInfo && !enableRecordings) return;
 
-    const bail = (msg: string) => {
-      console.log(msg);
-      this.setState({
-        state: STATE_ERROR,
-        serverInfoStatus: '',
-        recordingStatus: '',
-      });
-    };
+  //   const bail = (msg: string) => {
+  //     console.log(msg);
+  //     this.setState({
+  //       state: STATE_ERROR,
+  //       serverInfoStatus: '',
+  //       recordingStatus: '',
+  //     });
+  //   };
 
-    const tmpDir = window.path.join(window.os.tmpdir(), 'tablo-tools-export');
+  //   const tmpDir = window.path.join(window.os.tmpdir(), 'tablo-tools-export');
 
-    try {
-      // $FlowFixMe guessing this means I don't have the proper node version somewhere
-      fs.rmdirSync(tmpDir, {
-        recursive: true,
-      });
-      fs.mkdirSync(tmpDir, {
-        recursive: true,
-      });
-    } catch (e) {
-      bail(`${e}`);
-    }
+  //   try {
+  //     // $FlowFixMe guessing this means I don't have the proper node version somewhere
+  //     fs.rmdirSync(tmpDir, {
+  //       recursive: true,
+  //     });
+  //     fs.mkdirSync(tmpDir, {
+  //       recursive: true,
+  //     });
+  //   } catch (e) {
+  //     bail(`${e}`);
+  //   }
 
-    // need it for the file name, so...
-    const info = await Api.getServerInfo();
-    // get rid of personal data
-    delete info.public_ip;
-    delete info.http;
-    delete info.slip;
-    const filename = `${info.server_id}_Export.zip`;
-    const tmpFile = window.path.join(tmpDir, filename);
-    // Setup the zip archive
-    const output = fs.createWriteStream(tmpFile);
-    const archive = archiver('zip', {
-      zlib: {
-        level: 9,
-      }, // Sets the compression level.
-    });
-    archive.pipe(output);
-    // warnings (ie stat failures and other non-blocking errors)
-    archive.on('warning', (err) => {
-      if (err.code === 'ENOENT') {
-        console.warn('archive', err);
-        return '';
-      }
-      return bail(err.toString());
-    });
+  //   // need it for the file name, so...
+  //   const info = await Api.getServerInfo();
+  //   // get rid of personal data
+  //   delete info.public_ip;
+  //   delete info.http;
+  //   delete info.slip;
+  //   const filename = `${info.server_id}_Export.zip`;
+  //   const tmpFile = window.path.join(tmpDir, filename);
+  //   // Setup the zip archive
+  //   const output = fs.createWriteStream(tmpFile);
+  //   const archive = archiver('zip', {
+  //     zlib: {
+  //       level: 9,
+  //     }, // Sets the compression level.
+  //   });
+  //   archive.pipe(output);
+  //   // warnings (ie stat failures and other non-blocking errors)
+  //   archive.on('warning', (err) => {
+  //     if (err.code === 'ENOENT') {
+  //       console.warn('archive', err);
+  //       return '';
+  //     }
+  //     return bail(err.toString());
+  //   });
 
-    archive.on('error', (err) => {
-      return bail(err.toString());
-    });
+  //   archive.on('error', (err) => {
+  //     return bail(err.toString());
+  //   });
 
-    if (enableServerInfo) {
-      archive.append(JSON.stringify(info, null, 2), {
-        name: 'server-info.json',
-      });
-      this.setState({
-        serverInfoStatus: (
-          <span>
-            <span className="fa fa-check-circle text-success" />
-          </span>
-        ),
-      });
-    }
+  //   if (enableServerInfo) {
+  //     archive.append(JSON.stringify(info, null, 2), {
+  //       name: 'server-info.json',
+  //     });
+  //     this.setState({
+  //       serverInfoStatus: (
+  //         <span>
+  //           <span className="fa fa-check-circle text-success" />
+  //         </span>
+  //       ),
+  //     });
+  //   }
 
-    if (enableRecordings) {
-      this.setState({
-        recordingStatus: (
-          <span>
-            <span className="fa fa-spinner" />
-          </span>
-        ),
-      });
-      const total = await Api.getRecordingsCount();
-      let done = 0;
+  //   if (enableRecordings) {
+  //     this.setState({
+  //       recordingStatus: (
+  //         <span>
+  //           <span className="fa fa-spinner" />
+  //         </span>
+  //       ),
+  //     });
+  //     const total = await Api.getRecordingsCount();
+  //     let done = 0;
 
-      const updateTotal = (num: number | string) => {
-        this.setState({
-          recordingStatus: `${num} / ${total.length}`,
-        });
-      };
+  //     const updateTotal = (num: number | string) => {
+  //       this.setState({
+  //         recordingStatus: `${num} / ${total.length}`,
+  //       });
+  //     };
 
-      updateTotal(done);
-      const recs = await Api.getRecordings(true, (val: string) => {
-        done += 1;
-        updateTotal(val);
-      });
-      // TODO: maybe put these files elsewhere later
-      recs.forEach((rec: Record<string, any>) => {
-        archive.append(JSON.stringify(rec, null, 2), {
-          name: `airings/airing-${rec.object_id}.json`,
-        });
-      });
-      this.setState({
-        recordingStatus: (
-          <span>
-            <span className="fa fa-check-circle text-success" />
-          </span>
-        ),
-      });
-    }
+  //     updateTotal(done);
+  //     const recs = await Api.getRecordings(true, (val: string) => {
+  //       done += 1;
+  //       updateTotal(val);
+  //     });
+  //     // TODO: maybe put these files elsewhere later
+  //     recs.forEach((rec: Record<string, any>) => {
+  //       archive.append(JSON.stringify(rec, null, 2), {
+  //         name: `airings/airing-${rec.object_id}.json`,
+  //       });
+  //     });
+  //     this.setState({
+  //       recordingStatus: (
+  //         <span>
+  //           <span className="fa fa-check-circle text-success" />
+  //         </span>
+  //       ),
+  //     });
+  //   }
 
-    // this will trigger out.on('close')
-    archive.finalize();
-    this.setState({
-      state: STATE_COMPLETE,
-      serverInfoStatus: '',
-      recordingStatus: '',
-      fileFullPath: tmpFile,
-    });
+  //   // this will trigger out.on('close')
+  //   archive.finalize();
+  //   this.setState({
+  //     state: STATE_COMPLETE,
+  //     serverInfoStatus: '',
+  //     recordingStatus: '',
+  //     fileFullPath: tmpFile,
+  //   });
 
-    // listen for all archive data to be written
-    // 'close' event is fired only when a file descriptor is involved
-    // output.on('close', async () => {
-    //   console.log(`${archive.pointer()} total bytes`);
-    //   console.log(
-    //     'archiver has been finalized and the output file descriptor has closed.'
-    //   );
-    // });
-    if (!upload) {
-      return;
-    }
+  //   // listen for all archive data to be written
+  //   // 'close' event is fired only when a file descriptor is involved
+  //   // output.on('close', async () => {
+  //   //   console.log(`${archive.pointer()} total bytes`);
+  //   //   console.log(
+  //   //     'archiver has been finalized and the output file descriptor has closed.'
+  //   //   );
+  //   // });
+  //   if (!upload) {
+  //     return;
+  //   }
 
-    /** Now actually upload * */
-    const signUrl =
-      'https://8xd9zweji2.execute-api.us-east-1.amazonaws.com/TT_PresignedURL';
-    let resp;
+  //   /** Now actually upload * */
+  //   const signUrl =
+  //     'https://8xd9zweji2.execute-api.us-east-1.amazonaws.com/TT_PresignedURL';
+  //   let resp;
 
-    try {
-      resp = await axios.get(`${signUrl}?name=${filename}`);
-    } catch (e) {
-      bail(`getting signed url: ${e}`);
-      return;
-    }
+  //   try {
+  //     resp = await axios.get(`${signUrl}?name=${filename}`);
+  //   } catch (e) {
+  //     bail(`getting signed url: ${e}`);
+  //     return;
+  //   }
 
-    if (!resp.data) {
-      bail(`resp missing? ${resp}`);
-      return;
-    }
+  //   if (!resp.data) {
+  //     bail(`resp missing? ${resp}`);
+  //     return;
+  //   }
 
-    const { url } = resp.data.url;
-    const { fields } = resp.data.url;
-    const formData = new FormData();
-    Object.entries(fields).forEach(([k, v]) => {
-      // FIXME! or test me? forced string may not work...
-      formData.append(k, `${v}`);
-    });
-    const buffer = fs.readFileSync(tmpFile);
-    const blob = new Blob([buffer]);
-    formData.append('file', blob);
-    axios({
-      method: 'post',
-      url,
-      data: formData,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
-      .then(() => {
-        setTimeout(
-          () =>
-            this.setState({
-              state: STATE_WAITING,
-            }),
-          3000
-        );
-        return this.setState({
-          state: STATE_COMPLETE,
-          serverInfoStatus: '',
-          recordingStatus: '',
-          fileFullPath: tmpFile,
-        });
-      })
-      .catch((err) => {
-        bail(err.response.data);
-      });
-  };
+  //   const { url } = resp.data.url;
+  //   const { fields } = resp.data.url;
+  //   const formData = new FormData();
+  //   Object.entries(fields).forEach(([k, v]) => {
+  //     // FIXME! or test me? forced string may not work...
+  //     formData.append(k, `${v}`);
+  //   });
+  //   const buffer = fs.readFileSync(tmpFile);
+  //   const blob = new Blob([buffer]);
+  //   formData.append('file', blob);
+  //   axios({
+  //     method: 'post',
+  //     url,
+  //     data: formData,
+  //     headers: {
+  //       'Content-Type': 'application/x-www-form-urlencoded',
+  //     },
+  //   })
+  //     .then(() => {
+  //       setTimeout(
+  //         () =>
+  //           this.setState({
+  //             state: STATE_WAITING,
+  //           }),
+  //         3000
+  //       );
+  //       return this.setState({
+  //         state: STATE_COMPLETE,
+  //         serverInfoStatus: '',
+  //         recordingStatus: '',
+  //         fileFullPath: tmpFile,
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       bail(err.response.data);
+  //     });
+  // };
 
   causeError = () => {
     // "hidden" and allows causing an error in prod
@@ -280,14 +280,14 @@ export default class ExportData extends Component<Props, State> {
   };
 
   render() {
-    const {
-      state,
-      enableServerInfo,
-      enableRecordings,
-      serverInfoStatus,
-      recordingStatus,
-      fileFullPath,
-    } = this.state;
+    // const {
+    //   state,
+    //   enableServerInfo,
+    //   enableRecordings,
+    //   serverInfoStatus,
+    //   recordingStatus,
+    //   fileFullPath,
+    // } = this.state;
     return (
       <div className="p-1 mb-3 mt-3">
         <Row>
@@ -431,65 +431,65 @@ export default class ExportData extends Component<Props, State> {
   }
 }
 
-function ExportButton(prop: Record<string, any>) {
-  const { state, buildExport, startExport } = prop;
+// function ExportButton(prop: Record<string, any>) {
+//   const { state, buildExport, startExport } = prop;
 
-  // , cancelExport
-  if (state === STATE_WORKING) {
-    return <Spinner animation="grow" variant="info" />; // return (
-    //   <Button
-    //     size="sm"
-    //     variant="outline-warning"
-    //     type="button"
-    //     onClick={cancelExport}
-    //   >
-    //     Cancel
-    //   </Button>
-    // );
-  }
+//   // , cancelExport
+//   if (state === STATE_WORKING) {
+//     return <Spinner animation="grow" variant="info" />; // return (
+//     //   <Button
+//     //     size="sm"
+//     //     variant="outline-warning"
+//     //     type="button"
+//     //     onClick={cancelExport}
+//     //   >
+//     //     Cancel
+//     //   </Button>
+//     // );
+//   }
 
-  if (state === STATE_COMPLETE) {
-    return (
-      <Button as="div" size="sm" variant="success">
-        Thanks!
-      </Button>
-    );
-  }
+//   if (state === STATE_COMPLETE) {
+//     return (
+//       <Button as="div" size="sm" variant="success">
+//         Thanks!
+//       </Button>
+//     );
+//   }
 
-  if (state === STATE_ERROR) {
-    return (
-      <Button
-        size="sm"
-        variant="outline-danger"
-        type="button"
-        onClick={startExport}
-      >
-        Try again?
-      </Button>
-    );
-  }
+//   if (state === STATE_ERROR) {
+//     return (
+//       <Button
+//         size="sm"
+//         variant="outline-danger"
+//         type="button"
+//         onClick={startExport}
+//       >
+//         Try again?
+//       </Button>
+//     );
+//   }
 
-  // STATE_WAITING
-  return (
-    <>
-      <Button
-        size="sm"
-        variant="outline-primary"
-        type="button"
-        onClick={buildExport}
-        className="mr-2"
-      >
-        Build and Review
-      </Button>
+//   // STATE_WAITING
+//   return (
+//     <>
+//       <Button
+//         size="sm"
+//         variant="outline-primary"
+//         type="button"
+//         onClick={buildExport}
+//         className="mr-2"
+//       >
+//         Build and Review
+//       </Button>
 
-      <Button
-        size="sm"
-        variant="outline-danger"
-        type="button"
-        onClick={startExport}
-      >
-        Upload
-      </Button>
-    </>
-  );
-}
+//       <Button
+//         size="sm"
+//         variant="outline-danger"
+//         type="button"
+//         onClick={startExport}
+//       >
+//         Upload
+//       </Button>
+//     </>
+//   );
+// }

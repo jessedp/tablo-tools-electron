@@ -19,7 +19,7 @@ ipcMain.on(
   async (event: any, dbName: string, query: any, params: any = {}) => {
     try {
       // console.log('db-find event', arg, arg2);
-      const recs = await globalThis[dbName].find(query, params);
+      const recs = await globalThis.dbs[dbName].find(query, params);
       // console.log('db-find recs', recs);
       event.returnValue = recs;
     } catch (e) {
@@ -55,7 +55,7 @@ ipcMain.on(
       const limit = extractParam('limit', params);
 
       debug('db-async-find: sort = %o skip = %o limit = %o', sort, skip, limit);
-      const recs = await globalThis[dbName]
+      const recs = await globalThis.dbs[dbName]
         .findAsync(query)
         .sort(sort)
         .skip(skip)
@@ -78,7 +78,7 @@ ipcMain.on(
 
 ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
   try {
-    const recs = await globalThis[dbName].findOneAsync(params);
+    const recs = await globalThis.dbs[dbName].findOneAsync(params);
     event.returnValue = recs;
   } catch (e) {
     debug('db-findOne', e);
@@ -89,7 +89,7 @@ ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
 
 ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
   try {
-    const count = await globalThis[dbName].countAsync(params);
+    const count = await globalThis.dbs[dbName].countAsync(params);
     event.returnValue = count;
   } catch (e) {
     debug('db-count', dbName, e);
@@ -100,7 +100,7 @@ ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
 
 ipcMain.on('db-insert', async (event: any, dbName: string, query: any) => {
   try {
-    const count = await globalThis[dbName].insertAsync(query);
+    const count = await globalThis.dbs[dbName].insertAsync(query);
     event.returnValue = count;
   } catch (e) {
     debug('db-insert', e);
@@ -118,7 +118,7 @@ ipcMain.on(
           query
         )} , options = ${JSON.stringify(options)}`
       );
-      const result = await globalThis[dbName].removeAsync(
+      const result = await globalThis.dbs[dbName].removeAsync(
         query,
         options || { multi: false }
       );
@@ -133,7 +133,7 @@ ipcMain.on(
 
 ipcMain.on(
   'db-update',
-  async (event: any, dbName: string, query: any, params?: any = {}) => {
+  async (event: any, dbName: string, query: any, params: any = {}) => {
     try {
       debug(
         `ipcMain - db-update - dbName = ${dbName} , query = ${JSON.stringify(
@@ -141,7 +141,7 @@ ipcMain.on(
         )}, params = ${JSON.stringify(params)}`
       );
 
-      const recs = await globalThis[dbName].updateAsync(query, params);
+      const recs = await globalThis.dbs[dbName].updateAsync(query, params);
       event.returnValue = recs;
     } catch (e) {
       debug('db-update', e);

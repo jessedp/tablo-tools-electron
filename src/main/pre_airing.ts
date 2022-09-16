@@ -40,7 +40,7 @@ ipcMain.on('airing-getExportDetails', (event: any, airing: Airing) => {
 
 ipcMain.handle(
   'airing-cancelExportVideo',
-  async (event: any, airing: Airing) => {
+  async (_event: any, airing: Airing) => {
     console.log("ipcMain.handle('airing-cancelExportVideo') ", airing);
 
     return cancelExportProcess(airing);
@@ -50,7 +50,7 @@ ipcMain.handle(
 ipcMain.handle(
   'airing-export',
   async (
-    event: any,
+    _event: any,
     airing_id: string,
     actionOnDuplicate: string,
     template: any

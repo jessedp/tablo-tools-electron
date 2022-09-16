@@ -9,12 +9,11 @@ import * as FlashActions from '../store/flash';
 import type { FlashRecordType } from '../constants/types';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, {
-  getPath,
-  ConfigType,
-  setConfigItem,
-  CONFIG_FILE_NAME,
-} from '../utils/config';
+
+import getConfig, { getPath, setConfigItem } from '../utils/config';
+
+import { ConfigType } from '../constants/types_config';
+
 import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import Directory from './Directory';
@@ -252,6 +251,7 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
     } = this.state;
     let logsPath = getPath('logs');
     const appName = window.ipcRenderer.sendSync('get-name');
+    const configFileName = window.ipcRenderer.sendSync('get-config-file-name');
     const test = new RegExp(`${appName}`, 'g');
     const mat = logsPath.match(test);
 
@@ -336,8 +336,8 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
             <div className="p-2 pl-4 bg-light border col-md-10">
               Your settings <span className="smaller">(all of this)</span> are
               in: <br />
-              <span className="ml-1 text-danger mr-2">{CONFIG_FILE_NAME}</span>
-              <OpenDirectory path={CONFIG_FILE_NAME} />
+              <span className="ml-1 text-danger mr-2">{configFileName}</span>
+              <OpenDirectory path={configFileName} />
               <br />
               <i className="smaller">
                 You can back that up if you want to nuke the app directory but

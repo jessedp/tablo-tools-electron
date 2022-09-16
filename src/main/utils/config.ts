@@ -2,13 +2,14 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import Debug from 'debug';
-
+import { app } from 'electron';
 import {
   DUPE_ADDID,
   DUPE_INC,
   DUPE_OVERWRITE,
   DUPE_SKIP,
 } from '../../renderer/constants/app';
+import { ConfigType } from '../../renderer/constants/types_config';
 
 const debug = Debug('tablo-tools:config');
 
@@ -16,7 +17,6 @@ type GetPathType =
   | 'home'
   | 'appData'
   | 'userData'
-  | 'cache'
   | 'temp'
   | 'exe'
   | 'module'
@@ -31,24 +31,6 @@ type GetPathType =
   | 'crashDumps';
 
 export function getPath(key: GetPathType): string {
-  // if (!process.versions.electron) {
-  //   // Node.js process
-  //   // FiXME: for tests? this maybe should be "./" ... ? should be cleaned up? tests should create?
-  //   const tmpPath = path.normalize(`${os.tmpdir}/tablo-tools-testing/`);
-  //   fs.mkdirSync(tmpPath, { recursive: true });
-  //   return tmpPath;
-  // }
-  // console.log('homedir', window.os.homedir());
-
-  // console.log('process.type', process.type);
-
-  // console.log('get-path-main', window.ipcRenderer.sendSync('get-path-main'));
-  // const rcvPath = window.electron.ipcRenderer.myPing();
-
-  // const rcvPath = window.ipcRenderer.sendSync('get-path-main', key);
-  // console.log('rcvPath', rcvPath);
-  // // const rcvPath = app.getPath(key);
-  // return rcvPath;
   debug(`${process.type} - getPath() - key  = [${key}]`);
   try {
     // if (process.type === 'renderer') {
@@ -62,7 +44,6 @@ export function getPath(key: GetPathType): string {
   }
   // console.log('process.type', process.type);
   // // Electron main process
-  const { app } = require('electron');
 
   return app.getPath(key);
 }
@@ -75,34 +56,6 @@ export const CONFIG_FILE_NAME = path.normalize(
   `${logsPath}/tablo_tools_config.json`
 );
 
-export type ConfigType = {
-  autoRebuild: boolean;
-  autoRebuildMinutes: number;
-  autoUpdate: boolean;
-  notifyBeta: boolean;
-  episodePath: string;
-  moviePath: string;
-  eventPath: string;
-  programPath: string;
-  enableTestDevice: boolean;
-  testDeviceIp: string;
-  enableExportData: boolean;
-  exportDataPath: string;
-  allowErrorReport: boolean;
-  enableDebug: boolean;
-  episodeTemplate: string;
-  movieTemplate: string;
-  eventTemplate: string;
-  programTemplate: string;
-  // TODO: enum
-  actionOnDuplicate: string;
-  // TODO: these are residual from Settings b/c I haven't done the config properly
-  saveState?: number;
-  saveData: Array<string>;
-  // TODO: old setting to be removed with xfer code looking for it
-  enableIpOverride?: boolean;
-  overrideIp?: string;
-};
 export const VALID_DUPE_ACTIONS = [
   DUPE_ADDID,
   DUPE_INC,

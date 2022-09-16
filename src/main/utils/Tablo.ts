@@ -13,10 +13,7 @@ const debug = Debug('tablo-tools:Tablo');
 
 const store = new Store();
 
-export async function setCurrentDevice(
-  device: any,
-  publish = true
-): Promise<void> {
+export async function setCurrentDevice(device: any): Promise<void> {
   globalThis.Api.device = device;
 
   if (device) {
@@ -133,7 +130,7 @@ export async function checkConnection(): Promise<boolean> {
       status = false;
       client.end();
     })
-    .on('timeout', (evt: any) => {
+    .on('timeout', (_evt: any) => {
       debug(`checkConnection - Timeout after ${connTimeoutSec}ms`);
       status = false;
       client.end();
@@ -196,6 +193,6 @@ export async function setupApi(): Promise<void> {
   await checkConnection();
   // console.log('checked connection...');
   debug('checked connection...');
-  setCurrentDevice(currentDevice, false);
+  setCurrentDevice(currentDevice);
   // console.log('set device?', currentDevice);
 }

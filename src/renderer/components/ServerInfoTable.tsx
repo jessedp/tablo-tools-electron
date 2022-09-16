@@ -3,7 +3,7 @@ import Table from 'react-bootstrap/Table';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PubSub from 'pubsub-js';
-import ServerInfo from 'tablo-api/dist/ServerInfo';
+import ServerInfo from 'tablo-api/dist/src/ServerInfo';
 import { EmptyServerInfo } from '../utils/factories';
 
 // import Store from 'electron-store';

@@ -1,5 +1,5 @@
 import { debug } from 'console';
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 
 import {
   checkConnection,
@@ -91,7 +91,7 @@ ipcMain.on('tablo-getRecordingsCount', async (event: any) => {
   }
 });
 
-ipcMain.handle('tablo-getRecordings', async (event: any, force: string) => {
+ipcMain.handle('tablo-getRecordings', async (_event: any, force: string) => {
   try {
     ipcMain.emit('get-recording-progress', 0);
     const cb = (val: number) => {
@@ -102,7 +102,7 @@ ipcMain.handle('tablo-getRecordings', async (event: any, force: string) => {
     return recs;
   } catch (e) {
     console.error('tablo-getRecordings', e);
-    event.returnValue = {};
+    return {};
   }
 });
 
