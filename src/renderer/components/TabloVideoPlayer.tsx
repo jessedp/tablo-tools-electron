@@ -3,6 +3,8 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import ReactHlsPlayer from '@panelist/react-hls-player';
 
+import { sendFlash } from 'renderer/store/flash';
+import { Alert } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 
 type Props = {
@@ -13,8 +15,6 @@ type State = {
   url: string;
 };
 export default class TabloVideoPlayer extends Component<Props, State> {
-  // props: Props;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -32,6 +32,13 @@ export default class TabloVideoPlayer extends Component<Props, State> {
     if (!opened) {
       const watch = await airing.watch();
       if (watch) url = watch.playlist_url;
+      console.log('toggle - url', url);
+    }
+    if (!url) {
+      sendFlash({
+        message: 'Unable to start playback',
+        type: 'danger',
+      });
     }
 
     this.setState({
@@ -44,7 +51,7 @@ export default class TabloVideoPlayer extends Component<Props, State> {
     const { airing } = this.props;
     const { opened, url } = this.state;
 
-    if (!opened) {
+    if (!opened && !url) {
       return (
         <Button
           variant="outline-secondary"
@@ -57,6 +64,26 @@ export default class TabloVideoPlayer extends Component<Props, State> {
       );
     }
 
+    if (!url) {
+      return (
+        <>
+          <Modal size="lg" show={opened} onHide={this.toggle} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {airing.showTitle} - {airing.title}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {!airing.cachedWatch ? (
+                <div>Loading...</div>
+              ) : (
+                <Alert variant="danger">Unable to load video!</Alert>
+              )}
+            </Modal.Body>
+          </Modal>
+        </> //
+      );
+    }
     return (
       <>
         <Modal size="lg" show={opened} onHide={this.toggle} centered>

@@ -3,6 +3,7 @@ import Debug from 'debug';
 // import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 
+import Device from 'tablo-api/dist/src/Device';
 import {
   asyncForEach,
   readableDuration,
@@ -18,17 +19,10 @@ import {
   SERIES,
   // beginTimemark,
   NamingTemplateType,
-  DUPE_ADDID,
-  DUPE_OVERWRITE,
-  DUPE_SKIP,
-  DUPE_INC,
 } from '../constants/app';
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const debug = Debug('tablo-tools:Airing');
-
-const outFile = '';
-
 export default class Airing {
   episode!: Record<string, any>;
 
@@ -84,7 +78,7 @@ export default class Airing {
   // eslint-disable-next-line camelcase
   series_path!: string;
 
-  cmd: typeof FfmpegCommand;
+  cmd: any;
   // cmd: typeof Ffmpeg.FfmpegCommand;
   // cmd: Ffmpeg.FfmpegCommand;
 
@@ -470,8 +464,10 @@ export default class Airing {
   // }
 
   async watch() {
+    console.log('watch A - this.cachedWatch ', this.cachedWatch);
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
+
       let data;
 
       try {
@@ -486,7 +482,7 @@ export default class Airing {
       }
 
       // TODO: better local/forward rewrites (probably elsewhere)
-      let device = {};
+      let device: Device;
       if (typeof window === 'undefined') {
         device = await globalThis.Api.device;
       } else {
@@ -551,7 +547,7 @@ export default class Airing {
     });
   }
 
-  async getExportDetails() {
+  getExportDetails() {
     return window.Airing.getExportDetails(this);
   }
 
@@ -560,7 +556,7 @@ export default class Airing {
     reason?: string;
   } {
     const { exportFile, videoDetails } = this;
-    if (!fs.existsSync(exportFile))
+    if (!window.fs.existsSync(exportFile))
       return {
         valid: false,
         reason: 'No exported file found.',

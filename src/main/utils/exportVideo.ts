@@ -136,7 +136,7 @@ export const exportVideo = async (
 ) => {
   debug('exportVideo - actionOnDuplicate %s', actionOnDuplicate);
   // noop it so we don't spread the typeof check everywhere
-  let progressCb = (...args: Array<any>) => {};
+  let progressCb = (..._args: Array<any>) => {};
   if (typeof progressCallback === 'function') {
     progressCb = progressCallback;
   }

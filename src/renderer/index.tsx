@@ -25,6 +25,7 @@ declare global {
     fs: any;
     os: any;
     path: any;
+    config: any;
     electron: {
       ipcRenderer: any;
 

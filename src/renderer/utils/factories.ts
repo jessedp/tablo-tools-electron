@@ -1,4 +1,4 @@
-import ServerInfo, { Model } from 'tablo-api/dist/ServerInfo';
+import ServerInfo, { Model } from 'tablo-api/dist/src/ServerInfo';
 import { ExportRecordType } from '../constants/types';
 import Airing from './Airing';
 import {

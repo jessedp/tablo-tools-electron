@@ -1,5 +1,4 @@
 import { Component } from 'react';
-// import { ipcRenderer, shell } from 'electron';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -12,11 +11,6 @@ import { compare } from 'compare-versions';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
-// const { shell } = window.require('electron').remote;
-// const { ipcRenderer } = window.require('electron');
-
-const { ipcRenderer, shell } = window.electron;
-
 type Props = Record<string, unknown>;
 type State = {
   show: boolean;
@@ -25,8 +19,6 @@ type State = {
 };
 
 class VersionStatus extends Component<Props, State> {
-  // props: Props;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -45,7 +37,7 @@ class VersionStatus extends Component<Props, State> {
     }
 
     this.checkUpdate();
-    ipcRenderer.on('update-reply', () => {
+    window.ipcRenderer.on('update-reply', () => {
       this.checkUpdate();
     });
   }

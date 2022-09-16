@@ -9,13 +9,13 @@ import * as FlashActions from '../store/flash';
 import type { FlashRecordType } from '../constants/types';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
-import getConfig, { getPath, ConfigType, setConfigItem } from '../utils/config';
+// these next 2 are gross and from not cleaning up the main/render split
+import getConfig, { getPath, setConfigItem } from '../utils/config';
+import { ConfigType } from '../constants/types_config';
+
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import DurationPicker from './DurationPicker';
 import Directory from './Directory';
-
-// const { ipcRenderer } = window.require('electron').remote;
-const { ipcRenderer } = window.electron;
 
 type OwnProps = Record<string, never>;
 type StateProps = Record<string, never>;

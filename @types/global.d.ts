@@ -41,8 +41,20 @@ declare var Api: any;
 // eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare let window: Window;
 
-// for electron-store
+// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+declare var config: any;
+// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+declare var dbs: any;
+// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+declare var LoadedTemplates: any;
+// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+declare var exportProcs: any;
+// declare namespace globalThis {
+//   let exportProcs: any;
+//   declare const config: any;
+// }
 
+// for electron-store
 declare namespace electron {
   const ipcRenderer: any;
   const store: {

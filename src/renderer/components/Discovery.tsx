@@ -11,9 +11,6 @@ import { Spinner } from 'react-bootstrap';
 import { discover, setCurrentDevice } from '../utils/Tablo';
 import RelativeDate from './RelativeDate';
 
-// import Store from 'electron-store';
-// const Store = window.require('electron-store');
-
 const { store } = window.electron;
 type Props = {
   showServerInfo: (show: boolean) => void;
@@ -56,7 +53,7 @@ export default class Discovery extends Component<Props, State> {
   setDevice = async (serverId: string) => {
     const { showServerInfo } = this.props;
     const device = window.Tablo.discoveredDevices().filter(
-      (item) => item.serverid === serverId
+      (item: any) => item.serverid === serverId
     );
     await setCurrentDevice(device[0]);
 
@@ -146,7 +143,7 @@ function DiscoveryStatus(prop: Record<string, any>) {
         <div className="p-2 mb-2 bg-success text-white">
           Found {discoveredDevices.length} devices
         </div>
-        {discoveredDevices.map((device, i) => {
+        {discoveredDevices.map((device: any, i: string) => {
           const serverId = device.serverid;
           const key = `select-device-${i}`;
           return (

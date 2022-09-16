@@ -2,7 +2,11 @@ import { debug } from 'console';
 import { app, ipcMain } from 'electron';
 import glob from 'glob';
 import path from 'path';
-import getConfig, { setConfig, setConfigItem } from './utils/config';
+import getConfig, {
+  CONFIG_FILE_NAME,
+  setConfig,
+  setConfigItem,
+} from './utils/config';
 import { writeToFile } from './utils/utils';
 
 ipcMain.on('get-path-main', (event: any, arg: any) => {
@@ -20,6 +24,10 @@ ipcMain.on('get-name', (event: any) => {
 ipcMain.on('get-config', (event: any) => {
   globalThis.config = getConfig();
   event.returnValue = globalThis.config;
+});
+
+ipcMain.on('get-config-file-name', (event: any) => {
+  event.returnValue = CONFIG_FILE_NAME;
 });
 
 ipcMain.on('set-config', (event: any, arg: any) => {
@@ -48,7 +56,7 @@ ipcMain.on('write-to-file', (event: any, ...args: any) => {
 });
 
 ipcMain.on('glob', (event: any, arg: any) => {
-  const { root, dir, base, ext, name } = path.parse(arg);
+  const { dir, name } = path.parse(arg);
   const results = glob.sync(`${dir}${path.sep}${name}*`);
   debug('glob results', results);
   event.returnValue = results;

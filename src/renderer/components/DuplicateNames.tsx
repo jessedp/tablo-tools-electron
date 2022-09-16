@@ -8,9 +8,9 @@ import Airing from '../utils/Airing';
 import Filename from './Filename';
 
 type Props = {
-  files: Record<string, any> | Array;
+  files: Record<string, any> | Array<string>;
   total: number;
-  label?;
+  label?: any;
 };
 export default function DuplicateNames(props: Props) {
   const { files, total, label } = props;
@@ -94,3 +94,4 @@ export default function DuplicateNames(props: Props) {
     </Modal>
   );
 }
+DuplicateNames.defaultProps = { label: '' };

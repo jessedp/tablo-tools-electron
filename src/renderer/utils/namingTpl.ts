@@ -14,6 +14,7 @@ import {
   MOVIE,
   EVENT,
 } from '../constants/app';
+import { ConfigType } from '../constants/types_config';
 
 const debug = Debug('tablo-tools:namingTpl');
 // import sanitize from 'sanitize-filename';

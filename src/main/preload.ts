@@ -1,11 +1,8 @@
 import { contextBridge, ipcRenderer, shell, webFrame } from 'electron';
-import Debug from 'debug';
 
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-
-const debug = Debug('tablo-tools:preload');
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, ...args: any) => ipcRenderer.send(channel, ...args),
@@ -15,13 +12,13 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     return ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
   },
   on(channel: any, func: any) {
-    ipcRenderer.on(channel, (event, ...args) => func(...args));
+    ipcRenderer.on(channel, (_event, ...args) => func(...args));
   },
   once(channel: any, func: any) {
     const validChannels = ['ipc-example'];
     if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`
-      ipcRenderer.once(channel, (event, ...args) => func(...args));
+      ipcRenderer.once(channel, (_event, ...args) => func(...args));
     }
   },
 });
@@ -166,14 +163,14 @@ contextBridge.exposeInMainWorld('electron', {
       // const validChannels = ['ipc-example'];
       // if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`
-      return ipcRenderer.on(channel, (event, ...args) => func(...args));
+      return ipcRenderer.on(channel, (_event, ...args) => func(...args));
       // }
     },
     once(channel: any, func: any) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
-        ipcRenderer.once(channel, (event, ...args) => func(...args));
+        ipcRenderer.once(channel, (_event, ...args) => func(...args));
       }
     },
   },

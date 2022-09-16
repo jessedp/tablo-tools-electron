@@ -63,7 +63,6 @@ export default class Overview extends Component<Props, State> {
   }
 
   async refresh() {
-    const { RecDb } = global;
     const recs = await window.db.findAsync('RecDb', {});
     const duration = recs.reduce(
       (a: number, b: Record<string, any>) =>
