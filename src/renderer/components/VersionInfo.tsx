@@ -43,7 +43,10 @@ export default class VersionInfo extends Component<Props, State> {
     const beta = !!appVersion.match(/[a-zA-Z]/);
 
     if (
-      (beta && lastVersion !== appVersion) ||
+      (beta &&
+        lastVersion !== appVersion &&
+        relLastVersion !== '' &&
+        relNewVersion !== '') ||
       compare(relLastVersion, relNewVersion, '<')
     ) {
       let releases;
