@@ -150,7 +150,7 @@ export default class Airing {
     // );
     let data = {};
     if (typeof window === 'undefined') {
-      data = await globalThis.RecDb.findOneAsync({
+      data = await global.dbs.RecDb.findOneAsync({
         object_id: id,
       });
     } else {
@@ -176,7 +176,7 @@ export default class Airing {
       let showData = {};
 
       if (typeof window === 'undefined') {
-        showData = await globalThis.RecDb.findOneAsync('ShowDb', {
+        showData = await global.dbs.RecDb.findOneAsync('ShowDb', {
           path,
         });
       } else {

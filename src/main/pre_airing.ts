@@ -56,7 +56,7 @@ ipcMain.handle(
     template: any
   ) => {
     try {
-      const data = await globalThis.RecDb.findOneAsync({
+      const data = await global.dbs.RecDb.findOneAsync({
         object_id: airing_id,
       });
       const airing = await Airing.create(data);
