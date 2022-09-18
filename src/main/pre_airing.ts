@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import path from 'path';
 import Debug from 'debug';
 
 import Airing from '../renderer/utils/Airing';
@@ -17,7 +18,9 @@ ipcMain.on(
   (event: any, airing: Airing, actionOnDuplicate: string, template: any) => {
     try {
       airing.template = template;
-      const filename = dedupedExportFile(airing, actionOnDuplicate);
+      const filename = path.normalize(
+        dedupedExportFile(airing, actionOnDuplicate)
+      );
       debug('airing-dedupedExportFile', filename);
       event.returnValue = filename;
     } catch (e) {

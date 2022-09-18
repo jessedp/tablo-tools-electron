@@ -58,7 +58,7 @@ export default function FileInfo(props: FileInfoProps) {
     return (
       <div className="p-0 m-0 smaller font-weight-bold text-success">
         <span className="fa fa-check-circle pr-1" />
-        {airing.exportFile}
+        {window.path.normalize(airing.exportFile)}
         {exportState === EXP_WAITING ? (
           <>
             <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
