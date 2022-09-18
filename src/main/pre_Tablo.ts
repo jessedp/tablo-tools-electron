@@ -122,7 +122,7 @@ ipcMain.on('tablo-batch', async (event: any, ids: any) => {
     event.returnValue = recs;
   } catch (e) {
     console.error('tablo-batch', e);
-    event.returnValue = ['error', e];
+    event.returnValue = ['error', `${e}`];
   }
 });
 
