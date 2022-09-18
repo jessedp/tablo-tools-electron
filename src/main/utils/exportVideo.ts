@@ -47,12 +47,15 @@ export const cancelExportProcess = (airing: Airing) => {
   globalThis.exportProcs[airing.object_id].cmd.kill('SIGKILL');
 
   const { outFile } = globalThis.exportProcs[airing.object_id];
-  try {
-    fs.unlinkSync(outFile);
-  } catch (e) {
-    console.error('cancelExportProcess - unable to delete file', e);
-    debug(airing.object_id, outFile, e);
-  }
+  // sometimes (windows) takes a second to release the export file. try to wait on it.
+  setTimeout(() => {
+    try {
+      fs.unlinkSync(outFile);
+    } catch (e) {
+      console.error('cancelExportProcess - unable to delete file', e);
+      debug(airing.object_id, outFile, e);
+    }
+  }, 1500);
   delete globalThis.exportProcs[airing.object_id];
 };
 

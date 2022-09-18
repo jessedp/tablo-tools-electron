@@ -45,8 +45,8 @@ export default class VersionInfo extends Component<Props, State> {
     if (
       (beta &&
         lastVersion !== appVersion &&
-        relLastVersion !== '' &&
-        relNewVersion !== '') ||
+        relLastVersion.trim() !== '' &&
+        relNewVersion.trim() !== '') ||
       compare(relLastVersion, relNewVersion, '<')
     ) {
       let releases;
