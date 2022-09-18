@@ -67,7 +67,7 @@ ipcMain.handle(
       const channel = `export-progress`;
 
       return await exportVideo(airing, actionOnDuplicate, (...args: any) => {
-        ipcMain.emit(channel, args);
+        ipcMain.emit(channel, ...args);
         // debug(`${channel} - progress - `, airing.id, args);
       });
     } catch (e) {
