@@ -74,7 +74,7 @@ export function ellipse(str: string, length: number, ellipsis = '...') {
  * @param {string} title the string the potentially manipulate
  * @return {string} the title cased string
  */
-export function titleCase(title: string) {
+export function titleCase(title: string): string {
   const sentence = title.toLowerCase().split(' ');
 
   for (let i = 0; i < sentence.length; i += 1) {
@@ -320,9 +320,12 @@ export const throttle = <F extends (...args: any[]) => any>(
   waitFor: number
 ) => {
   const now = () => new Date().getTime();
-  const resetStartTime = () => (startTime = now());
-  let timeout: NodeJS.Timeout;
   let startTime: number = now() - waitFor;
+  const resetStartTime = () => {
+    startTime = now();
+  };
+  let timeout: NodeJS.Timeout;
+
   // console.log('throttle', now, startTime);
   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
     // OLDeslint-disable-next-line compat/compat
@@ -349,14 +352,4 @@ export const throttle = <F extends (...args: any[]) => any>(
         }, timeLeft);
       }
     });
-};
-
-export const getMethods = (obj: any) => {
-  const res = [];
-  for (const m in obj) {
-    if (typeof obj[m] === 'function') {
-      res.push(m);
-    }
-  }
-  return res;
 };

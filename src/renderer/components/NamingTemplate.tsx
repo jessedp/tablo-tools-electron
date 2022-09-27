@@ -28,6 +28,7 @@ import {
   deleteTemplate,
   TemplateVarsType,
   loadTemplates,
+  setDefaultTemplate,
 } from '../utils/namingTpl';
 import type { NamingTemplateType } from '../constants/app';
 import { setConfigItem } from '../utils/config';
@@ -193,47 +194,17 @@ class SettingsNaming extends Component<Props, State> {
     this.checkErrors();
   };
 
-  setDefaultTemplate = (template: NamingTemplateType) => {
-    const { type, sendFlash } = this.props;
-    let nextTemplate = template;
-
-    if (isCurrentTemplate(template)) {
-      nextTemplate = getDefaultTemplate(template.type);
-    }
-
-    switch (type) {
-      case SERIES:
-        setConfigItem({
-          episodeTemplate: nextTemplate.slug,
-        });
-        break;
-
-      case MOVIE:
-        setConfigItem({
-          movieTemplate: nextTemplate.slug,
-        });
-        break;
-
-      case EVENT:
-        setConfigItem({
-          eventTemplate: nextTemplate.slug,
-        });
-        break;
-
-      case PROGRAM:
-      default:
-        setConfigItem({
-          programTemplate: nextTemplate.slug,
-        });
-    }
+  setDefaultTemplate = (type: string, template: NamingTemplateType) => {
+    const { sendFlash } = this.props;
+    const realTemplate = setDefaultTemplate(type, template);
 
     sendFlash({
-      message: `${titleCase(nextTemplate.type)} will now use ${
-        nextTemplate.label
+      message: `${titleCase(realTemplate.type)} will now use ${
+        realTemplate.label
       }`,
     });
     this.setState({
-      defaultTemplate: nextTemplate,
+      defaultTemplate: realTemplate,
     });
   };
 

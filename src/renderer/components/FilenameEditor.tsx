@@ -1,30 +1,51 @@
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import { titleCase } from 'renderer/utils/utils';
+import { sendFlash } from 'renderer/store/flash';
+
 import { NamingTemplateType } from '../constants/app';
 import Airing from '../utils/Airing';
 import TemplateEditor from './TemplateEditor';
-import { buildTemplateVars } from '../utils/namingTpl';
+import { buildTemplateVars, setDefaultTemplate } from '../utils/namingTpl';
 import NamingTemplateOptions from './NamingTemplateOptions';
 
 type Props = {
   airing: Airing;
   updateTemplate: (arg0: NamingTemplateType) => void;
 };
+
 export default function FilenameEditor(props: Props) {
   const { airing, updateTemplate } = props;
   const [show, setShow] = useState(false);
   const [workingAiring, setWorkingAiring] = useState(new Airing({}, false));
   const [workingTemplate, setTemplate] = useState({ ...airing.template });
 
-  const copyAiring = async () => {
-    const newAiring = await Airing.create(airing.data);
-    setWorkingAiring(newAiring);
-  };
-
   useEffect(() => {
+    const copyAiring = async () => {
+      const newAiring = await Airing.create(airing.data);
+      setWorkingAiring(newAiring);
+    };
     copyAiring();
-  }, []);
+  }, [airing.data]);
+
+  const dispatch = useDispatch();
+
+  const setDefaultTemplateLocal = (
+    type: string,
+    template: NamingTemplateType
+  ) => {
+    const realTemplate = setDefaultTemplate(type, template);
+    dispatch(
+      sendFlash({
+        message: `${titleCase(realTemplate.type)} will now use ${
+          realTemplate.label
+        }`,
+      })
+    );
+  };
 
   workingAiring.template = { ...workingTemplate };
 
@@ -59,7 +80,7 @@ export default function FilenameEditor(props: Props) {
           type={airing.type}
           slug=""
           updateTemplate={setTemplate}
-          setDefaultTemplate={() => undefined}
+          setDefaultTemplate={setDefaultTemplateLocal}
         />
 
         <div className="name-preview border p-2">

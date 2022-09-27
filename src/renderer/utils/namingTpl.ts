@@ -5,7 +5,7 @@ import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
 import tplHelpers from 'template-helpers';
-import getConfig from './config';
+import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import {
   NamingTemplateType,
@@ -77,12 +77,6 @@ export function getDefaultRoot(type: string): string {
       return programPath;
   }
 }
-export function isCurrentTemplate(template: NamingTemplateType): boolean {
-  return template.slug === getTemplateSlug(template.type);
-}
-export function isDefaultTemplate(template: NamingTemplateType): boolean {
-  return template.slug === getDefaultTemplateSlug();
-}
 export function getTemplateSlug(type: string) {
   const { episodeTemplate, movieTemplate, eventTemplate, programTemplate } =
     getConfig();
@@ -102,6 +96,24 @@ export function getTemplateSlug(type: string) {
       return programTemplate;
   }
 }
+
+export function isCurrentTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getTemplateSlug(template.type);
+}
+
+export function isDefaultTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getDefaultTemplateSlug();
+}
+
+const stripSecondary = (piece: string) => {
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
+  let newPiece = piece;
+  secondaryReplacements.forEach((rep) => {
+    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+  });
+  return newPiece;
+};
+
 export function newTemplate(type: string): NamingTemplateType {
   const template = {
     type,
@@ -130,6 +142,23 @@ export function newTemplate(type: string): NamingTemplateType {
 
   return template;
 }
+
+export async function loadTemplates() {
+  const defaults = defaultTemplates;
+  let all = defaults;
+  const recs = await window.Templates.load();
+  if (Array.isArray(recs)) {
+    all = [...defaults, ...recs];
+  } else {
+    console.warn('loadTemplates() - recs was not an Array! ', recs);
+  }
+
+  console.log('renderer - loaded templates: ', all);
+
+  globalThis.LoadedTemplates = all;
+  debug('renderer - loadeded templates');
+}
+
 export async function upsertTemplate(modTemplate: NamingTemplateType) {
   const template = modTemplate;
   if (!template.type.trim()) return 'Cannot save without type!';
@@ -151,6 +180,7 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   await loadTemplates();
   return '';
 }
+
 export async function deleteTemplate(template: NamingTemplateType) {
   await window.db.removeAsync('NamingDb', {
     $and: [
@@ -190,21 +220,6 @@ export function getTemplate(type: string, slug?: string): NamingTemplateType {
   }
 
   return template;
-}
-export async function loadTemplates() {
-  const defaults = defaultTemplates;
-  let all = defaults;
-  const recs = await window.Templates.load();
-  if (Array.isArray(recs)) {
-    all = [...defaults, ...recs];
-  } else {
-    console.warn('loadTemplates() - recs was not an Array! ', recs);
-  }
-
-  console.log('renderer - loaded templates: ', all);
-
-  globalThis.LoadedTemplates = all;
-  debug('renderer - loadeded templates');
 }
 
 /** Build & fill */
@@ -370,11 +385,41 @@ export function fillTemplate(
   return filledPath;
 }
 
-const stripSecondary = (piece: string) => {
-  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
-  let newPiece = piece;
-  secondaryReplacements.forEach((rep) => {
-    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
-  });
-  return newPiece;
+export const setDefaultTemplate = (
+  type: string,
+  template: NamingTemplateType
+): NamingTemplateType => {
+  let nextTemplate = template;
+  console.log('namingTpl.js', 'nextTemplate1', nextTemplate);
+  if (isCurrentTemplate(template)) {
+    nextTemplate = getDefaultTemplate(template.type);
+  }
+
+  switch (type) {
+    case SERIES:
+      setConfigItem({
+        episodeTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case MOVIE:
+      setConfigItem({
+        movieTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case EVENT:
+      setConfigItem({
+        eventTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case PROGRAM:
+    default:
+      setConfigItem({
+        programTemplate: nextTemplate.slug,
+      });
+  }
+  console.log('namingTpl.js', 'nextTemplate2', nextTemplate);
+  return nextTemplate;
 };
