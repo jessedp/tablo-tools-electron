@@ -46,9 +46,7 @@ declare global {
 }
 
 window.Tablo.setup();
-console.log('finsihed Tablo setup');
-window.db.setup();
-console.log('finsihed db setup');
+console.log('finsihed Tablo, db setup');
 window.Templates.load();
 console.log('templates loaded');
 loadTemplates();
