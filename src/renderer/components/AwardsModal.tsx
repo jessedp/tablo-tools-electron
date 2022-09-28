@@ -14,7 +14,15 @@ export default function AwardsModal(prop: Prop) {
     return (
       <>
         <b>Awards:</b>
-        <i className="ml-1">None</i>
+        <Button
+          variant="light"
+          onClick={() => {}}
+          className="ml-2 pb-0 pt-0"
+          size={'xs' as any}
+          title="Nothing, yet..."
+        >
+          None
+        </Button>
       </>
     );
 
@@ -24,11 +32,11 @@ export default function AwardsModal(prop: Prop) {
       <>
         <b>Awards:</b>
         <Button
-          variant="outline-primary"
+          variant="success"
           onClick={() => setDisplay(true)}
-          className="ml-2"
+          className="ml-2 pb-0 pt-0"
           size={'xs' as any}
-          title="preview"
+          title={`View the ${len} Awards`}
         >
           {len}
         </Button>
