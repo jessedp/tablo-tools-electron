@@ -1,4 +1,3 @@
-import * as fsPath from 'path';
 import { format, parseISO } from 'date-fns';
 import Handlebars from 'handlebars';
 import Debug from 'debug';
@@ -15,6 +14,8 @@ import {
   EVENT,
 } from '../constants/app';
 import { ConfigType } from '../constants/types_config';
+
+import * as fsPath from './path';
 
 const debug = Debug('tablo-tools:namingTpl');
 // import sanitize from 'sanitize-filename';
@@ -77,12 +78,7 @@ export function getDefaultRoot(type: string): string {
       return programPath;
   }
 }
-export function isCurrentTemplate(template: NamingTemplateType): boolean {
-  return template.slug === getTemplateSlug(template.type);
-}
-export function isDefaultTemplate(template: NamingTemplateType): boolean {
-  return template.slug === getDefaultTemplateSlug();
-}
+
 export function getTemplateSlug(type: string) {
   const { episodeTemplate, movieTemplate, eventTemplate, programTemplate } =
     getConfig();
@@ -102,6 +98,13 @@ export function getTemplateSlug(type: string) {
       return programTemplate;
   }
 }
+export function isCurrentTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getTemplateSlug(template.type);
+}
+export function isDefaultTemplate(template: NamingTemplateType): boolean {
+  return template.slug === getDefaultTemplateSlug();
+}
+
 export function newTemplate(type: string): NamingTemplateType {
   const template = {
     type,
@@ -130,6 +133,23 @@ export function newTemplate(type: string): NamingTemplateType {
 
   return template;
 }
+
+export async function loadTemplates() {
+  const defaults = defaultTemplates;
+  let all = defaults;
+  const recs = await window.Templates.load();
+  if (Array.isArray(recs)) {
+    all = [...defaults, ...recs];
+  } else {
+    console.warn('loadTemplates() - recs was not an Array! ', recs);
+  }
+
+  console.log('renderer - loaded templates: ', all);
+
+  globalThis.LoadedTemplates = all;
+  debug('renderer - loadeded templates');
+}
+
 export async function upsertTemplate(modTemplate: NamingTemplateType) {
   const template = modTemplate;
   if (!template.type.trim()) return 'Cannot save without type!';
@@ -191,26 +211,20 @@ export function getTemplate(type: string, slug?: string): NamingTemplateType {
 
   return template;
 }
-export async function loadTemplates() {
-  const defaults = defaultTemplates;
-  let all = defaults;
-  const recs = await window.Templates.load();
-  if (Array.isArray(recs)) {
-    all = [...defaults, ...recs];
-  } else {
-    console.warn('loadTemplates() - recs was not an Array! ', recs);
-  }
-
-  console.log('renderer - loaded templates: ', all);
-
-  globalThis.LoadedTemplates = all;
-  debug('renderer - loadeded templates');
-}
 
 /** Build & fill */
 export type TemplateVarsType = {
   full: Record<string, any>;
   shortcuts: Record<string, any>;
+};
+
+const stripSecondary = (piece: string) => {
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
+  let newPiece = piece;
+  secondaryReplacements.forEach((rep) => {
+    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+  });
+  return newPiece;
 };
 
 export function buildTemplateVars(
@@ -311,6 +325,8 @@ export function fillTemplate(
   template: NamingTemplateType | string,
   templateVars: TemplateVarsType
 ) {
+  debug('template: %O', template);
+  debug('templateVars: %O', templateVars);
   let tplStr = '';
 
   if ((template as NamingTemplateType).type) {
@@ -319,7 +335,7 @@ export function fillTemplate(
     tplStr = template as string;
   }
 
-  const parts = tplStr.split(fsPath.sep).map((part: string) => {
+  const parts = tplStr.split(fsPath.sep()).map((part: string) => {
     const hbTemplate = Handlebars.compile(part, {
       noEscape: true,
       preventIndent: true,
@@ -340,19 +356,23 @@ export function fillTemplate(
     return part;
   });
 
-  let filledPath = parts.join(fsPath.sep);
+  let filledPath = parts.join(fsPath.sep());
+  debug('filledPath after sep join: %s', filledPath);
 
   filledPath = fsPath.normalize(filledPath);
+
+  debug('filledPath after normalize: %s', filledPath);
   let i = 0;
 
-  const sanitizeParts = filledPath.split(fsPath.sep).map((part) => {
+  const sanitizeParts = filledPath.split(fsPath.sep()).map((part) => {
     i += 1;
 
     if (i === 1) {
-      const test = part + fsPath.sep;
+      const test = fsPath.normalize(part + fsPath.sep());
 
       if (fsPath.isAbsolute(test)) return part;
 
+      debug('sanitizeParts - %s is not absolute', test);
       return `${window.ipcRenderer.sendSync('get-config').programPath}`;
     }
 
@@ -361,20 +381,12 @@ export function fillTemplate(
     return newPart;
   });
 
-  filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep));
+  filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep()));
 
+  debug('filledPath after sanitze: %s', filledPath);
   const validExtensions = ['.mp4', '.mkv', '.avi', '.mov'];
   const ext = filledPath.substring(filledPath.lastIndexOf('.'));
   if (!validExtensions.includes(ext)) filledPath += '.mp4';
 
   return filledPath;
 }
-
-const stripSecondary = (piece: string) => {
-  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
-  let newPiece = piece;
-  secondaryReplacements.forEach((rep) => {
-    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
-  });
-  return newPiece;
-};

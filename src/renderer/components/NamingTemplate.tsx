@@ -411,7 +411,9 @@ class SettingsNaming extends Component<Props, State> {
     } = this.state;
     if (!template || !template.template) return <></>; //
 
-    const filledPath = fillTemplate(template, templateVars);
+    const filledPath = window.path.normalize(
+      fillTemplate(template, templateVars)
+    );
     return (
       <div className="mb-3">
         <Row className="pb-0 mb-0">

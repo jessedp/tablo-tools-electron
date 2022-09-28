@@ -9,6 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import fs from 'fs';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -67,9 +68,13 @@ ipcMain.on('get-content-bounds', (event: any) => {
 
 ipcMain.on('open-path', (_, arg: string) => {
   debug('open-path = ', path.dirname(arg));
-
-  if (arg) shell.openPath(path.dirname(arg));
-  if (arg) shell.showItemInFolder(arg);
+  if (arg) {
+    if (fs.existsSync(arg)) {
+      shell.showItemInFolder(arg);
+    } else {
+      shell.openPath(path.dirname(arg));
+    }
+  }
 });
 
 class AppUpdater {
