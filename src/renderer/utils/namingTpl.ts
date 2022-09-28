@@ -107,7 +107,6 @@ export function isDefaultTemplate(template: NamingTemplateType): boolean {
   return template.slug === getDefaultTemplateSlug();
 }
 
-
 const stripSecondary = (piece: string) => {
   const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
   let newPiece = piece;
@@ -229,15 +228,6 @@ export function getTemplate(type: string, slug?: string): NamingTemplateType {
 export type TemplateVarsType = {
   full: Record<string, any>;
   shortcuts: Record<string, any>;
-};
-
-const stripSecondary = (piece: string) => {
-  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
-  let newPiece = piece;
-  secondaryReplacements.forEach((rep) => {
-    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
-  });
-  return newPiece;
 };
 
 export function buildTemplateVars(
