@@ -16,7 +16,7 @@ type PropType = {
   type: string;
   slug: string;
   updateTemplate: (template: NamingTemplateType) => void;
-  setDefaultTemplate: (template: NamingTemplateType) => void;
+  setDefaultTemplate: (type: string, template: NamingTemplateType) => void;
 };
 export default function NamingTemplateOptions(props: PropType) {
   const { type, slug, updateTemplate, setDefaultTemplate } = props;
@@ -79,7 +79,7 @@ export default function NamingTemplateOptions(props: PropType) {
           variant="outline-success"
           title="Use by default"
           onClick={() => {
-            setDefaultTemplate(selected);
+            setDefaultTemplate(type, selected);
             loadTemplateOptions(type);
           }}
           className="ml-2 d-inline-block"

@@ -4,7 +4,7 @@ import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
 import tplHelpers from 'template-helpers';
-import getConfig from './config';
+import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import {
   NamingTemplateType,
@@ -98,12 +98,24 @@ export function getTemplateSlug(type: string) {
       return programTemplate;
   }
 }
+
 export function isCurrentTemplate(template: NamingTemplateType): boolean {
   return template.slug === getTemplateSlug(template.type);
 }
+
 export function isDefaultTemplate(template: NamingTemplateType): boolean {
   return template.slug === getDefaultTemplateSlug();
 }
+
+
+const stripSecondary = (piece: string) => {
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
+  let newPiece = piece;
+  secondaryReplacements.forEach((rep) => {
+    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+  });
+  return newPiece;
+};
 
 export function newTemplate(type: string): NamingTemplateType {
   const template = {
@@ -171,6 +183,7 @@ export async function upsertTemplate(modTemplate: NamingTemplateType) {
   await loadTemplates();
   return '';
 }
+
 export async function deleteTemplate(template: NamingTemplateType) {
   await window.db.removeAsync('NamingDb', {
     $and: [
@@ -390,3 +403,42 @@ export function fillTemplate(
 
   return filledPath;
 }
+
+export const setDefaultTemplate = (
+  type: string,
+  template: NamingTemplateType
+): NamingTemplateType => {
+  let nextTemplate = template;
+  console.log('namingTpl.js', 'nextTemplate1', nextTemplate);
+  if (isCurrentTemplate(template)) {
+    nextTemplate = getDefaultTemplate(template.type);
+  }
+
+  switch (type) {
+    case SERIES:
+      setConfigItem({
+        episodeTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case MOVIE:
+      setConfigItem({
+        movieTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case EVENT:
+      setConfigItem({
+        eventTemplate: nextTemplate.slug,
+      });
+      break;
+
+    case PROGRAM:
+    default:
+      setConfigItem({
+        programTemplate: nextTemplate.slug,
+      });
+  }
+  console.log('namingTpl.js', 'nextTemplate2', nextTemplate);
+  return nextTemplate;
+};
