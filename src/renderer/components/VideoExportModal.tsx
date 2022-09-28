@@ -24,16 +24,7 @@ import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
 
-// import fs from 'fs';
-// const fs = window.require('fs');
-// const { fs } = window.electron;
-
 interface Props extends PropsFromRedux {
-  //   history: any;
-  // }
-
-  // // import getConfig from '../utils/config';
-  // type OwnProps = {
   airing: Airing;
   label?: string; // FIXME: input or type
   exportState: number;
@@ -45,24 +36,80 @@ interface Props extends PropsFromRedux {
   processVideo: () => void;
 }
 
-// type StateProps = {
-//   exportList: Array<ExportRecordType>;
-// };
+/**
+ * @return {string}
+ */
+function ExportButton(prop: any) {
+  const {
+    state,
+    cancel,
+    close,
+    process,
+    atOnce,
+    atOnceChange,
+    deleteOnFinish,
+    toggleDOF,
+  } = prop;
 
-// type DispatchProps = {
-//   addExportRecord: (record: ExportRecordType) => void;
-//   bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
-//   remAiring: (arg0: Airing) => void;
-// };
+  if (state === EXP_WORKING) {
+    return (
+      <Button variant="secondary" onClick={cancel}>
+        Cancel
+      </Button>
+    );
+  }
 
-// type Props = OwnProps & StateProps & DispatchProps;
+  return (
+    <Row>
+      <Col md="auto" className="pt-2">
+        <Checkbox
+          checked={deleteOnFinish}
+          handleChange={toggleDOF}
+          label="Delete when finished?"
+        />
+      </Col>
+      <Col md="auto">
+        <InputGroup size="sm" className="pt-1">
+          <InputGroup.Prepend>
+            <InputGroup.Text title="More than 2 is probably silly, but YOLO!">
+              <span className="fa fa-info pr-2" />
+              Max:
+            </InputGroup.Text>
+          </InputGroup.Prepend>
+          <Form.Control
+            as="select"
+            value={atOnce}
+            aria-describedby="btnState"
+            onChange={atOnceChange}
+            title="More than 2 is probably silly, but YOLO!"
+          >
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+          </Form.Control>
+        </InputGroup>
+      </Col>
+      <Col md="auto">
+        <Button variant="primary" onClick={process} className="mr-2">
+          Export
+        </Button>
+        <Button variant="secondary" onClick={close}>
+          Close
+        </Button>
+      </Col>
+    </Row>
+  );
+}
 
 type State = {
   opened: boolean;
 };
 
 class VideoExportModal extends Component<Props, State> {
-  static defaultProps: Record<string, any>;
+  static defaultProps = {
+    label: '',
+  };
 
   constructor(props: Props) {
     super(props);
@@ -78,7 +125,7 @@ class VideoExportModal extends Component<Props, State> {
     const { exportList, deleteOnFinish, remAiring, bulkRemExportRecord } =
       this.props;
     bulkRemExportRecord();
-
+    window.Airing.cancelExportVideo(exportList[0].airing);
     if (deleteOnFinish === CHECKBOX_ON) {
       remAiring(exportList[0].airing);
       PubSub.publish('DB_CHANGE', '');
@@ -199,84 +246,6 @@ class VideoExportModal extends Component<Props, State> {
       </> //
     );
   }
-}
-
-VideoExportModal.defaultProps = {
-  label: '',
-};
-
-/**
- * @return {string}
- */
-function ExportButton(prop: any) {
-  const {
-    state,
-    cancel,
-    close,
-    process,
-    atOnce,
-    atOnceChange,
-    deleteOnFinish,
-    toggleDOF,
-  } = prop;
-
-  if (state === EXP_WORKING) {
-    return (
-      <Button variant="secondary" onClick={cancel}>
-        Cancel
-      </Button>
-    );
-  }
-
-  // if (state === EXP_DONE) {
-  //   return (
-  //     <Button variant="secondary" onClick={close}>
-  //       Close
-  //     </Button>
-  //   );
-  // }
-  // if state === EXP_WAITING || EXP_CANCEL
-  return (
-    <Row>
-      <Col md="auto" className="pt-2">
-        <Checkbox
-          checked={deleteOnFinish}
-          handleChange={toggleDOF}
-          label="Delete when finished?"
-        />
-      </Col>
-      <Col md="auto">
-        <InputGroup size="sm" className="pt-1">
-          <InputGroup.Prepend>
-            <InputGroup.Text title="More than 2 is probably silly, but YOLO!">
-              <span className="fa fa-info pr-2" />
-              Max:
-            </InputGroup.Text>
-          </InputGroup.Prepend>
-          <Form.Control
-            as="select"
-            value={atOnce}
-            aria-describedby="btnState"
-            onChange={atOnceChange}
-            title="More than 2 is probably silly, but YOLO!"
-          >
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-          </Form.Control>
-        </InputGroup>
-      </Col>
-      <Col md="auto">
-        <Button variant="primary" onClick={process} className="mr-2">
-          Export
-        </Button>
-        <Button variant="secondary" onClick={close}>
-          Close
-        </Button>
-      </Col>
-    </Row>
-  );
 }
 
 const mapStateToProps = (state: any) => {
