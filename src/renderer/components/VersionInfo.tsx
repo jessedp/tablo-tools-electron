@@ -17,9 +17,45 @@ type State = {
   show: boolean;
   releases: Array<Record<string, any>>;
 };
-export default class VersionInfo extends Component<Props, State> {
-  // props: Props;
 
+function Release(prop: any) {
+  const { data } = prop;
+  const config = getConfig();
+  let notifyBeta = false;
+
+  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
+    notifyBeta = config.notifyBeta;
+  }
+
+  const beta = !!appVersion.match(/[a-zA-Z]/);
+  if (!beta && !notifyBeta && data.prerelease) return <></>; //
+
+  const bg = 'light';
+  // const text = 'dark';
+  let border = '';
+
+  if (notifyBeta && data.prerelease) {
+    // bg = 'secondary';
+    // text = 'text-dark';
+    border = 'danger';
+  }
+
+  return (
+    <Card border={border} bg={bg} className="mb-2">
+      <Card.Header>
+        {data.name}{' '}
+        <span className="pl-2 smaller muted">
+          <RelativeDate date={data.published_at} />{' '}
+        </span>
+      </Card.Header>
+      <Card.Body className="pt-2 pb-1">
+        <ReactMarkdown>{data.body}</ReactMarkdown>
+      </Card.Body>
+    </Card>
+  );
+}
+
+export default class VersionInfo extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -38,15 +74,15 @@ export default class VersionInfo extends Component<Props, State> {
 
     let relNewVersion = '0.0.0';
     const newMatch = appVersion.match(/[\d.]*/);
-    if (newMatch) relNewVersion = newMatch[0];
+    if (newMatch) [relNewVersion] = newMatch;
 
     const beta = !!appVersion.match(/[a-zA-Z]/);
 
     if (
-      (beta &&
-        lastVersion !== appVersion &&
-        relLastVersion.trim() !== '' &&
-        relNewVersion.trim() !== '') ||
+      beta &&
+      lastVersion !== appVersion &&
+      relLastVersion.trim() !== '' &&
+      relNewVersion.trim() !== '' &&
       compare(relLastVersion, relNewVersion, '<')
     ) {
       let releases;
@@ -110,41 +146,4 @@ export default class VersionInfo extends Component<Props, State> {
       </Modal>
     );
   }
-}
-
-function Release(prop: any) {
-  const { data } = prop;
-  const config = getConfig();
-  let notifyBeta = false;
-
-  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
-    notifyBeta = config.notifyBeta;
-  }
-
-  const beta = !!appVersion.match(/[a-zA-Z]/);
-  if (!beta && !notifyBeta && data.prerelease) return <></>; //
-
-  const bg = 'light';
-  // const text = 'dark';
-  let border = '';
-
-  if (notifyBeta && data.prerelease) {
-    // bg = 'secondary';
-    // text = 'text-dark';
-    border = 'danger';
-  }
-
-  return (
-    <Card border={border} bg={bg} className="mb-2">
-      <Card.Header>
-        {data.name}{' '}
-        <span className="pl-2 smaller muted">
-          <RelativeDate date={data.published_at} />{' '}
-        </span>
-      </Card.Header>
-      <Card.Body className="pt-2 pb-1">
-        <ReactMarkdown>{data.body}</ReactMarkdown>
-      </Card.Body>
-    </Card>
-  );
 }
