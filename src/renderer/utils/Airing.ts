@@ -415,53 +415,20 @@ export default class Airing {
 
   cachedExportFile!: string;
 
+  cachedDedupedExportFile = '';
+
   // TODO: Cache this somehow?
   get exportFile() {
     debug('Airing - exportFile: ', this.cachedExportFile);
     if (!this.cachedExportFile) {
       const vars = buildTemplateVars(this);
+      debug('Airing - template: ', this.template);
       debug('Airing - vars: ', vars);
       this.cachedExportFile = fillTemplate(this.template, vars);
     }
 
     return this.cachedExportFile;
   }
-
-  cachedDedupedExportFile = '';
-
-  // TODO: Cache this somehow?
-  // dedupedExportFile(actionOnDuplicate: string = getConfig().actionOnDuplicate) {
-  //   const { exportFile } = this;
-
-  //   if (
-  //     !fs.existsSync(exportFile) ||
-  //     actionOnDuplicate === DUPE_OVERWRITE ||
-  //     actionOnDuplicate === DUPE_SKIP
-  //   ) {
-  //     return exportFile;
-  //   }
-
-  //   const parsed = fsPath.parse(exportFile);
-
-  //   if (actionOnDuplicate === DUPE_ADDID) {
-  //     return fsPath.join(parsed.dir, `${parsed.name}-${this.id}${parsed.ext}`);
-  //   }
-
-  //   if (actionOnDuplicate === DUPE_INC) {
-  //     let cnt = 1;
-  //     let test;
-
-  //     do {
-  //       test = fsPath.join(parsed.dir, `${parsed.name}-${cnt}${parsed.ext}`);
-  //       cnt += 1;
-  //     } while (fs.existsSync(test));
-
-  //     return test;
-  //   }
-
-  //   console.log('DEFAULT', exportFile);
-  //   return exportFile;
-  // }
 
   async watch() {
     console.log('watch A - this.cachedWatch ', this.cachedWatch);

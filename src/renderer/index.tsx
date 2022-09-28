@@ -12,6 +12,7 @@ import { loadTemplates } from './utils/namingTpl';
 setupSentry(init);
 
 const store = configuredStore();
+localStorage.debug = 'tablo-tools*';
 
 declare global {
   interface Window {
