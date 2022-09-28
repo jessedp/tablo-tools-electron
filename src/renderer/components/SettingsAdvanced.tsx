@@ -257,7 +257,7 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${appName}${window.path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${window.path.sep()}`, '');
     }
 
     // const openLogs = () => {
@@ -361,9 +361,9 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
               <div className="p-2 pl-4 bg-light border col-md-10">
                 All Logs are in: <br />
                 <span className="ml-1 text-danger mr-2">
-                  {`${logsPath}${window.path.sep}`}
+                  {`${logsPath}${window.path.sep()}`}
                 </span>
-                <OpenDirectory path={`${logsPath}${window.path.sep}`} />
+                <OpenDirectory path={`${logsPath}${window.path.sep()}`} />
                 <br />
                 <i className="smaller">
                   main.log and renderer.log are general internal logs

@@ -333,7 +333,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 
     if (mat && mat.length > 1) {
       for (let i = 1; i < mat.length; i += 1)
-        logsPath = logsPath.replace(`${appName}${window.path.sep}`, '');
+        logsPath = logsPath.replace(`${appName}${window.path.sep()}`, '');
     }
 
     return (
