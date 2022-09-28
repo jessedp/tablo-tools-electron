@@ -48,48 +48,54 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     this.toggleDataExport = this.toggleDataExport.bind(this);
   }
 
+  getPathSaveMessage = (field: string, pathName: string) => {
+    let type = '';
+    switch (field) {
+      case 'exportDataPath':
+        type = 'Export Data';
+        break;
+
+      case 'episodePath':
+        type = 'Episode';
+        break;
+
+      case 'moviePath':
+        type = 'Movie';
+        break;
+
+      case 'eventPath':
+        type = 'Sports';
+        break;
+
+      case 'programPath':
+      default:
+        type = 'Manual Program';
+    }
+    const message = `${type} exports will appear in ${pathName}`;
+    return message;
+  };
+
+  savePath = (field: string, pathName: string) => {
+    const message = this.getPathSaveMessage(field, pathName);
+    const item: Record<string, any> = {};
+    // eslint-disable-next-line prefer-destructuring
+    item[field] = pathName;
+    this.saveConfigItem(item, {
+      message,
+    });
+  };
+
   setPathDialog = (field: string) => {
     const file = window.ipcRenderer.sendSync('open-dialog', {
       defaultPath: field,
       properties: ['openDirectory'],
     });
+    if (!file) return;
 
-    if (file) {
-      const fields: Record<string, any> = {};
-      // eslint-disable-next-line prefer-destructuring
-      fields[field] = file[0];
-      let type = '';
-
-      switch (field) {
-        case 'exportDataPath':
-          type = 'Export Data';
-          break;
-
-        case 'episodePath':
-          type = 'Episodes';
-          break;
-
-        case 'moviePath':
-          type = 'Movies';
-          break;
-
-        case 'eventPath':
-          type = 'Sports';
-          break;
-
-        case 'programPath':
-        default:
-          type = 'Sports';
-      }
-
-      const message = `${type} exports will appear in ${file[0]}`;
-      const item: Record<string, any> = {};
-      // eslint-disable-next-line prefer-destructuring
-      item[field] = file[0];
-      this.saveConfigItem(item, {
-        message,
-      });
-    }
+    // const fields: Record<string, any> = {};
+    // eslint-disable-next-line prefer-destructuring
+    // fields[field] = file[0];
+    this.savePath(field, file[0]);
   };
 
   /** This does the real work... */
@@ -184,28 +190,53 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     );
   };
 
-  setEpisodePath = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      episodePath: event.currentTarget.value,
-    });
+  setPath = (
+    field: string,
+    event: React.SyntheticEvent<HTMLInputElement> | string,
+    save = false
+  ) => {
+    let newVal = '';
+    if (typeof event === 'string') {
+      newVal = event;
+    } else {
+      newVal = event.currentTarget.value;
+    }
+
+    if (save) {
+      this.savePath(field, newVal);
+    } else {
+      const item: any = {};
+      item[field] = newVal;
+      this.setState(item);
+    }
   };
 
-  setMoviePath = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      moviePath: event.currentTarget.value,
-    });
+  setEpisodePath = (
+    event: React.SyntheticEvent<HTMLInputElement> | string,
+    save = false
+  ) => {
+    this.setPath('episodePath', event, save);
   };
 
-  setEventPath = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      eventPath: event.currentTarget.value,
-    });
+  setMoviePath = (
+    event: React.SyntheticEvent<HTMLInputElement> | string,
+    save = false
+  ) => {
+    this.setPath('moviePath', event, save);
   };
 
-  setProgramPath = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      programPath: event.currentTarget.value,
-    });
+  setEventPath = (
+    event: React.SyntheticEvent<HTMLInputElement> | string,
+    save = false
+  ) => {
+    this.setPath('eventPath', event, save);
+  };
+
+  setProgramPath = (
+    event: React.SyntheticEvent<HTMLInputElement> | string,
+    save = false
+  ) => {
+    this.setPath('programPath', event, save);
   };
 
   toggleIpOverride = () => {
@@ -395,7 +426,6 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
           onClick={() => this.setPathDialog('programPath')}
           onChange={this.setProgramPath}
           value={programPath}
-          disabled={false}
         />
       </div>
     );
