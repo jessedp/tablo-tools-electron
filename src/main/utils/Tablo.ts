@@ -43,13 +43,6 @@ export async function setCurrentDevice(device: any): Promise<void> {
       scope.setTag('tablo_firmware', device.server_version || 'unknown'); // scope.clear();
     });
 
-    if (currentDevice?.serverid === device.serverid) {
-      if (!currentDevice.info) await loadServerInfo();
-      debug(
-        'setCurrentDevice - current and new device are the same, exiting...'
-      );
-      return;
-    }
     store.set('CurrentDevice', device);
     setupDb();
     await loadServerInfo();
