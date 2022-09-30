@@ -18,6 +18,7 @@ import ExportData from './ExportData';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import Directory from './Directory';
 import OpenDirectory from './OpenDirecory';
+import { getPathSaveMessage } from './SettingsGeneral';
 
 type OwnProps = Record<string, never>;
 type StateProps = Record<string, never>;
@@ -46,48 +47,24 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
     this.setExportDataPath = this.setExportDataPath.bind(this);
   }
 
+  savePath = (field: string, pathName: string) => {
+    const message = getPathSaveMessage(field, pathName);
+    const item: Record<string, any> = {};
+    // eslint-disable-next-line prefer-destructuring
+    item[field] = pathName;
+    this.saveConfigItem(item, {
+      message,
+    });
+  };
+
   setPathDialog = (field: string) => {
     const file = window.ipcRenderer.sendSync('open-dialog', {
       defaultPath: field,
       properties: ['openDirectory'],
     });
+    if (!file) return;
 
-    if (file) {
-      const fields: Record<string, any> = {};
-      // eslint-disable-next-line prefer-destructuring
-      fields[field] = file[0];
-      let type = '';
-
-      switch (field) {
-        case 'exportDataPath':
-          type = 'Export Data';
-          break;
-
-        case 'episodePath':
-          type = 'Episodes';
-          break;
-
-        case 'moviePath':
-          type = 'Movies';
-          break;
-
-        case 'eventPath':
-          type = 'Sports';
-          break;
-
-        case 'programPath':
-        default:
-          type = 'Sports';
-      }
-
-      const message = `${type} exports will appear in ${file[0]}`;
-      const item: Record<string, any> = {};
-      // eslint-disable-next-line prefer-destructuring
-      item[field] = file[0];
-      this.saveConfigItem(item, {
-        message,
-      });
-    }
+    this.savePath(field, file[0]);
   };
 
   /** This does the real work... */
@@ -224,6 +201,15 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
     const { enableDebug } = this.state;
     const message = `Debug logging ${!enableDebug ? 'enabled' : 'disabled'}`;
     const type = !enableDebug ? 'success' : 'warning';
+
+    if (!enableDebug) {
+      localStorage.debug = 'tablo-tools*';
+      window.ipcRenderer.send('enable-debug-log', true);
+    } else {
+      localStorage.debug = '';
+      window.ipcRenderer.send('disable-debug-log', true);
+    }
+
     this.saveConfigItem(
       {
         enableDebug: !enableDebug,
@@ -235,10 +221,26 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
     );
   };
 
-  setExportDataPath = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      exportDataPath: event.currentTarget.value,
-    });
+  setExportDataPath = (
+    event: string | React.SyntheticEvent<HTMLInputElement>,
+    save = false
+  ) => {
+    console.log('setExportDataPath event ', event);
+    let path = '';
+    if (typeof event === 'string') {
+      path = event;
+    } else {
+      path = event.currentTarget.value;
+    }
+    console.log('setExportDataPath path  ', path);
+    if (path) {
+      if (save) {
+        this.savePath('exportDataPath', path);
+      }
+      this.setState({
+        exportDataPath: path,
+      });
+    }
   };
 
   render() {
@@ -260,10 +262,6 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
         logsPath = logsPath.replace(`${appName}${window.path.sep()}`, '');
     }
 
-    // const openLogs = () => {
-    //   console.log(window.path.normalize(`${logsPath}/main.log`));
-    //   shell.showItemInFolder(window.path.normalize(`${logsPath}/main.log`));
-    // };
     return (
       <div className="d-flex flex-row">
         <div>
@@ -355,8 +353,11 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
               />
               <div className="pl-4 smaller">
                 This doesn&apos;t clean itself up, so turn it off when you
-                don&apos;t need it and delete the logs files if you want.
+                don&apos;t need it and delete the logs files whenever.
                 <br />
+                <i>Note:</i> If debug was enabled using an environment variable
+                (eg, <i>DEBUG=tablo*</i>), this will <b>not</b> toggle <br />
+                console logging. It <b>will</b> toggle file logging.
               </div>
               <div className="p-2 pl-4 bg-light border col-md-10">
                 All Logs are in: <br />
@@ -365,9 +366,17 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
                 </span>
                 <OpenDirectory path={`${logsPath}${window.path.sep()}`} />
                 <br />
-                <i className="smaller">
-                  main.log and renderer.log are general internal logs
-                </i>
+                <div className="smaller">
+                  <ul>
+                    <li>
+                      <i>main.log</i> is an internal development log, 2Mb max
+                    </li>
+                    <li>
+                      Recording Exports look like:{' '}
+                      <i>465911-NightlyNews-s01e1.log</i>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </Col>
           </Row>
