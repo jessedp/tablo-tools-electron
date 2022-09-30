@@ -26,6 +26,33 @@ type DispatchProps = {
 
 type SettingsGeneralProps = OwnProps & StateProps & DispatchProps;
 
+export const getPathSaveMessage = (field: string, pathName: string) => {
+  let type = '';
+  switch (field) {
+    case 'exportDataPath':
+      type = 'Export Data';
+      break;
+
+    case 'episodePath':
+      type = 'Episode';
+      break;
+
+    case 'moviePath':
+      type = 'Movie';
+      break;
+
+    case 'eventPath':
+      type = 'Sports';
+      break;
+
+    case 'programPath':
+    default:
+      type = 'Manual Program';
+  }
+  const message = `${type} exports will appear in ${pathName}`;
+  return message;
+};
+
 class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
   constructor(props: SettingsGeneralProps) {
     super(props);
@@ -48,35 +75,8 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     this.toggleDataExport = this.toggleDataExport.bind(this);
   }
 
-  getPathSaveMessage = (field: string, pathName: string) => {
-    let type = '';
-    switch (field) {
-      case 'exportDataPath':
-        type = 'Export Data';
-        break;
-
-      case 'episodePath':
-        type = 'Episode';
-        break;
-
-      case 'moviePath':
-        type = 'Movie';
-        break;
-
-      case 'eventPath':
-        type = 'Sports';
-        break;
-
-      case 'programPath':
-      default:
-        type = 'Manual Program';
-    }
-    const message = `${type} exports will appear in ${pathName}`;
-    return message;
-  };
-
   savePath = (field: string, pathName: string) => {
-    const message = this.getPathSaveMessage(field, pathName);
+    const message = getPathSaveMessage(field, pathName);
     const item: Record<string, any> = {};
     // eslint-disable-next-line prefer-destructuring
     item[field] = pathName;
@@ -92,9 +92,6 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     });
     if (!file) return;
 
-    // const fields: Record<string, any> = {};
-    // eslint-disable-next-line prefer-destructuring
-    // fields[field] = file[0];
     this.savePath(field, file[0]);
   };
 
