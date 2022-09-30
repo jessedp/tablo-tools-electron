@@ -77,12 +77,18 @@ ipcMain.on('get-content-bounds', (event: any) => {
 });
 
 ipcMain.on('open-path', (_, arg: string) => {
-  debug('open-path = ', path.dirname(arg));
+  debug('open-path = ', arg);
   if (arg) {
-    if (fs.existsSync(arg)) {
+    if (fs.existsSync(arg) && !fs.statSync(arg).isDirectory()) {
+      debug('open-path showItemInFolder');
       shell.showItemInFolder(arg);
-    } else {
+    } else if (fs.existsSync(arg) && fs.statSync(arg).isDirectory()) {
+      shell.openPath(arg);
+    } else if (fs.existsSync(path.dirname(arg))) {
+      debug('open-path openPath = ', path.dirname(arg));
       shell.openPath(path.dirname(arg));
+    } else {
+      console.error(`CAN NOT OPEN "${arg}"`);
     }
   }
 });
