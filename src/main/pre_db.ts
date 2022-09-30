@@ -1,9 +1,11 @@
 import { ipcMain } from 'electron';
-import Debug from 'debug';
 
 import { setupDb } from './utils/db';
 
-const debug = Debug('tablo-tools:db');
+import { mainDebug } from './utils/logging';
+
+const debug = mainDebug.extend('pre_db');
+globalThis.debugInstances.push(debug);
 
 ipcMain.on('db-setup', async (event: any) => {
   try {

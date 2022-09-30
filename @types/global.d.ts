@@ -49,6 +49,9 @@ declare var dbs: any;
 declare var LoadedTemplates: any;
 // eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var exportProcs: any;
+// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+declare var debugInstances: Array;
+
 // declare namespace globalThis {
 //   let exportProcs: any;
 //   declare const config: any;

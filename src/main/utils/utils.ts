@@ -2,13 +2,15 @@ import * as fs from 'fs';
 import * as os from 'os';
 
 import Store from 'electron-store';
-import Debug from 'debug';
 
-// import ffmpeg from 'ffmpeg-static-electron-jdp';
 import pathToFfmpeg from 'ffmpeg-static';
 
+import { mainDebug } from './logging';
+
+const debug = mainDebug.extend('utils');
+globalThis.debugInstances.push(debug);
+
 const store = new Store();
-const debug = Debug('tablo-tools:utils');
 
 export const hasDevice = () => {
   const device: any = store.get('CurrentDevice');
@@ -301,30 +303,16 @@ export function throttleActions(
   return Promise.all(listOfPromises).then(() => resultArray);
 }
 
-export function findFfmpegPath(debug = false, log?: any) {
+export function findFfmpegPath(enableDebug = false, log?: any) {
   // const ffmpegPath = ffmpeg.path;
   const ffmpegPath = pathToFfmpeg || '';
-  if (debug && log) log.info('"ffmpeg.path" reports: ', ffmpegPath);
+  if (enableDebug && log) log.info('"ffmpeg.path" reports: ', ffmpegPath);
 
   let ffmpegPathReal = ffmpegPath;
 
   /** "fix" the incorrect path in dev */
   if (process.env.NODE_ENV === 'development') {
-    // if (os.platform() === 'win32') {
-    //   if (ffmpegPathReal === ffmpegPath) {
-    //     ffmpegPathReal = ffmpegPath.replace(
-    //       '\\app\\',
-    //       '\\node_modules\\ffmpeg-static-electron-jdp\\'
-    //     );
-    //   }
-    // } else {
-    //   // *nix
-    //   ffmpegPathReal = ffmpegPath.replace(
-    //     '/src/',
-    //     '/node_modules/ffmpeg-static-electron-jdp/'
-    //   );
-    // }
-    if (debug && log) log.info('Using ffmpeg path of: ', ffmpegPathReal);
+    if (enableDebug && log) log.info('Using ffmpeg path of: ', ffmpegPathReal);
     return ffmpegPathReal;
   }
 
@@ -347,7 +335,7 @@ export function findFfmpegPath(debug = false, log?: any) {
     );
   }
 
-  if (debug && log) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
+  if (enableDebug && log) log.info(`ffmpegPathReal : ${ffmpegPathReal}`);
   return ffmpegPathReal;
 }
 
@@ -371,9 +359,12 @@ export const throttle = <F extends (...args: any[]) => any>(
   waitFor: number
 ) => {
   const now = () => new Date().getTime();
-  const resetStartTime = () => (startTime = now());
-  let timeout: NodeJS.Timeout;
   let startTime: number = now() - waitFor;
+  const resetStartTime = () => {
+    startTime = now();
+  };
+  let timeout: NodeJS.Timeout;
+
   // console.log('throttle', now, startTime);
   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
     // OLDeslint-disable-next-line compat/compat

@@ -4,11 +4,14 @@ import path from 'path';
 import AsyncNedb from '@seald-io/nedb';
 
 import Store from 'electron-store';
-import Debug from 'debug';
+
 import { hasDevice } from './utils';
 import { getPath } from './config';
 
-const debug = Debug('tablo-tools:db');
+import { mainDebug } from './logging';
+
+const debug = mainDebug.extend('db');
+globalThis.debugInstances.push(debug);
 
 const store = new Store();
 

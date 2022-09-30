@@ -12,9 +12,10 @@ import path from 'path';
 import fs from 'fs';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+
+import updaterLog from 'electron-log';
+
 import Store from 'electron-store';
-import Debug from 'debug';
 
 import { init } from '@sentry/electron/main';
 
@@ -23,9 +24,18 @@ import MenuBuilder from './menu';
 
 import setupSentry from '../renderer/sentry';
 
+import { mainDebug } from './utils/logging';
+import getConfig from './utils/config';
+
 setupSentry(init);
 
-const debug = Debug('tablo-tools:main');
+if (getConfig().enableDebug) {
+  console.info('ENABLING DEBUG LOG!');
+  ipcMain.emit('enable-debug-log');
+}
+
+const debug = mainDebug.extend('main');
+globalThis.debugInstances.push(debug);
 
 require('./pre_app');
 require('./pre_Tablo');
@@ -79,8 +89,8 @@ ipcMain.on('open-path', (_, arg: string) => {
 
 class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
+    updaterLog.transports.file.level = 'info';
+    autoUpdater.logger = updaterLog;
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
