@@ -97,7 +97,15 @@ class AppUpdater {
   constructor() {
     updaterLog.transports.file.level = 'info';
     autoUpdater.logger = updaterLog;
-    autoUpdater.checkForUpdatesAndNotify();
+    try {
+      autoUpdater.checkForUpdatesAndNotify();
+    } catch (e) {
+      console.error(
+        'Problem running autoUpdater.checkForUpdatesAndNotify()',
+        e
+      );
+      debug('Problem running autoUpdater.checkForUpdatesAndNotify() %O', e);
+    }
   }
 }
 
