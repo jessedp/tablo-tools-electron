@@ -88,7 +88,10 @@ class Recording extends Component<Props, State> {
           <div className="float-right p-0 m-0">
             <Checkbox
               checked={checked}
-              ref={(checkboxRef) => (this.checkboxRef = checkboxRef)}
+              ref={(checkboxRef) => {
+                this.checkboxRef = checkboxRef;
+                return this.checkboxRef;
+              }}
               handleChange={this.toggleSelection}
             />
           </div>

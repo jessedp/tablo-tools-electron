@@ -1,11 +1,13 @@
 import { ipcMain } from 'electron';
-import Debug from 'debug';
 
 import { setupDb } from './utils/db';
 
-const debug = Debug('tablo-tools:db');
+import { mainDebug } from './utils/logging';
 
-ipcMain.on('db-setup', async (event: any) => {
+const debug = mainDebug.extend('pre_db');
+globalThis.debugInstances.push(debug);
+
+ipcMain.on('db-setup', async (event: Electron.IpcMainEvent) => {
   try {
     event.returnValue = await setupDb();
   } catch (e) {
@@ -16,7 +18,12 @@ ipcMain.on('db-setup', async (event: any) => {
 
 ipcMain.on(
   'db-find',
-  async (event: any, dbName: string, query: any, params: any = {}) => {
+  async (
+    event: Electron.IpcMainEvent,
+    dbName: string,
+    query: any,
+    params: any = {}
+  ) => {
     try {
       // console.log('db-find event', arg, arg2);
       const recs = await globalThis.dbs[dbName].find(query, params);
@@ -32,7 +39,12 @@ ipcMain.on(
 
 ipcMain.on(
   'db-async-find',
-  async (event: any, dbName: string, query: any, params: any = []) => {
+  async (
+    event: Electron.IpcMainEvent,
+    dbName: string,
+    query: any,
+    params: any = []
+  ) => {
     debug(
       'ENTER db-async-find - dbName = %s | query = %o | params = %o',
       dbName,
@@ -76,42 +88,56 @@ ipcMain.on(
   }
 );
 
-ipcMain.on('db-findOne', async (event: any, dbName: string, params: any) => {
-  try {
-    const recs = await globalThis.dbs[dbName].findOneAsync(params);
-    event.returnValue = recs;
-  } catch (e) {
-    debug('db-findOne', e);
-    console.error('db-findOne', e);
-    event.returnValue = {};
+ipcMain.on(
+  'db-findOne',
+  async (event: Electron.IpcMainEvent, dbName: string, params: any) => {
+    try {
+      const recs = await globalThis.dbs[dbName].findOneAsync(params);
+      event.returnValue = recs;
+    } catch (e) {
+      debug('db-findOne', e);
+      console.error('db-findOne', e);
+      event.returnValue = {};
+    }
   }
-});
+);
 
-ipcMain.on('db-count', async (event: any, dbName: string, params: any) => {
-  try {
-    const count = await globalThis.dbs[dbName].countAsync(params);
-    event.returnValue = count;
-  } catch (e) {
-    debug('db-count', dbName, e);
-    console.error('db-count', dbName, e);
-    event.returnValue = 0;
+ipcMain.on(
+  'db-count',
+  async (event: Electron.IpcMainEvent, dbName: string, params: any) => {
+    try {
+      const count = await globalThis.dbs[dbName].countAsync(params);
+      event.returnValue = count;
+    } catch (e) {
+      debug('db-count', dbName, e);
+      console.error('db-count', dbName, e);
+      event.returnValue = 0;
+    }
   }
-});
+);
 
-ipcMain.on('db-insert', async (event: any, dbName: string, query: any) => {
-  try {
-    const count = await globalThis.dbs[dbName].insertAsync(query);
-    event.returnValue = count;
-  } catch (e) {
-    debug('db-insert', e);
-    console.error('db-insert', e);
-    event.returnValue = 0;
+ipcMain.on(
+  'db-insert',
+  async (event: Electron.IpcMainEvent, dbName: string, query: any) => {
+    try {
+      const count = await globalThis.dbs[dbName].insertAsync(query);
+      event.returnValue = count;
+    } catch (e) {
+      debug('db-insert', e);
+      console.error('db-insert', e);
+      event.returnValue = 0;
+    }
   }
-});
+);
 
 ipcMain.on(
   'db-remove',
-  async (event: any, dbName: string, query: any, options: any) => {
+  async (
+    event: Electron.IpcMainEvent,
+    dbName: string,
+    query: any,
+    options: any
+  ) => {
     try {
       debug(
         `ipcMain - db-remove - dbName = ${dbName} , query = ${JSON.stringify(
@@ -133,7 +159,12 @@ ipcMain.on(
 
 ipcMain.on(
   'db-update',
-  async (event: any, dbName: string, query: any, params: any = {}) => {
+  async (
+    event: Electron.IpcMainEvent,
+    dbName: string,
+    query: any,
+    params: any = {}
+  ) => {
     try {
       debug(
         `ipcMain - db-update - dbName = ${dbName} , query = ${JSON.stringify(

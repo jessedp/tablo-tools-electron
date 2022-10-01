@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { Prompt, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -11,24 +12,21 @@ import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { DiskSpace } from 'check-disk-space';
+
 import { asyncForEach } from 'renderer/utils/utils';
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../constants/types';
-import {
-  EXP_WORKING,
-  DUPE_SKIP,
-  DUPE_INC,
-  DUPE_OVERWRITE,
-  DUPE_ADDID,
-  StdObj,
-} from '../constants/app';
+import { EXP_WORKING, StdObj } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
-import Checkbox from './Checkbox';
+
 import routes from '../constants/routes.json';
+
 import DiskInfo from './DiskInfo';
+
+import ExportActions from './ExportActions';
 
 interface Props extends PropsFromRedux {
   exportState: number;
@@ -45,6 +43,7 @@ type State = {
   loaded: boolean;
   allDiskStats: Record<string, number>;
 };
+
 
 /**
  * @return {string}
@@ -147,11 +146,13 @@ function ExportActions(prop: Record<string, any>) {
     </Alert>
   );
 }
+
 class VideoExportPage extends Component<Props, State> {
   // props: Props;
 
   constructor(props: Props) {
     super(props);
+
 
     this.state = {
       loaded: false,

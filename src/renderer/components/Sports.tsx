@@ -14,6 +14,29 @@ type State = {
   alertTxt: string;
   loaded: boolean;
 };
+
+export async function eventList() {
+  const recType = new RegExp('sports');
+  const recs = await window.db.findAsync('RecDb', {
+    path: {
+      $regex: recType,
+    },
+  });
+  const objRecs: Array<Airing> = [];
+  await asyncForEach(recs, async (rec) => {
+    const airing = await Airing.create(rec);
+    objRecs.push(airing);
+  });
+
+  const titleSort = (a: Airing, b: Airing) => {
+    if (a.show.sortableTitle > b.show.sortableTitle) return 1;
+    return -1;
+  };
+
+  objRecs.sort((a, b) => titleSort(a, b));
+  return objRecs;
+}
+
 export default class Sports extends Component<Props, State> {
   // initialState: State;
 
@@ -96,25 +119,4 @@ export default class Sports extends Component<Props, State> {
       </div>
     );
   }
-}
-export async function eventList() {
-  const recType = new RegExp('sports');
-  const recs = await window.db.findAsync('RecDb', {
-    path: {
-      $regex: recType,
-    },
-  });
-  const objRecs: Array<Airing> = [];
-  await asyncForEach(recs, async (rec) => {
-    const airing = await Airing.create(rec);
-    objRecs.push(airing);
-  });
-
-  const titleSort = (a: Airing, b: Airing) => {
-    if (a.show.sortableTitle > b.show.sortableTitle) return 1;
-    return -1;
-  };
-
-  objRecs.sort((a, b) => titleSort(a, b));
-  return objRecs;
 }

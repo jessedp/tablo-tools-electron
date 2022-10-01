@@ -12,9 +12,10 @@ import path from 'path';
 import fs from 'fs';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+
+import updaterLog from 'electron-log';
+
 import Store from 'electron-store';
-import Debug from 'debug';
 
 import { init } from '@sentry/electron/main';
 
@@ -23,9 +24,18 @@ import MenuBuilder from './menu';
 
 import setupSentry from '../renderer/sentry';
 
+import { mainDebug } from './utils/logging';
+import getConfig from './utils/config';
+
 setupSentry(init);
 
-const debug = Debug('tablo-tools:main');
+if (getConfig().enableDebug) {
+  console.info('ENABLING DEBUG LOG!');
+  ipcMain.emit('enable-debug-log');
+}
+
+const debug = mainDebug.extend('main');
+globalThis.debugInstances.push(debug);
 
 require('./pre_app');
 require('./pre_Tablo');
@@ -67,21 +77,35 @@ ipcMain.on('get-content-bounds', (event: any) => {
 });
 
 ipcMain.on('open-path', (_, arg: string) => {
-  debug('open-path = ', path.dirname(arg));
+  debug('open-path = ', arg);
   if (arg) {
-    if (fs.existsSync(arg)) {
+    if (fs.existsSync(arg) && !fs.statSync(arg).isDirectory()) {
+      debug('open-path showItemInFolder');
       shell.showItemInFolder(arg);
-    } else {
+    } else if (fs.existsSync(arg) && fs.statSync(arg).isDirectory()) {
+      shell.openPath(arg);
+    } else if (fs.existsSync(path.dirname(arg))) {
+      debug('open-path openPath = ', path.dirname(arg));
       shell.openPath(path.dirname(arg));
+    } else {
+      console.error(`CAN NOT OPEN "${arg}"`);
     }
   }
 });
 
 class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    updaterLog.transports.file.level = 'info';
+    autoUpdater.logger = updaterLog;
+    try {
+      autoUpdater.checkForUpdatesAndNotify();
+    } catch (e) {
+      console.error(
+        'Problem running autoUpdater.checkForUpdatesAndNotify()',
+        e
+      );
+      debug('Problem running autoUpdater.checkForUpdatesAndNotify() %O', e);
+    }
   }
 }
 

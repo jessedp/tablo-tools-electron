@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
 import path from 'path';
-import Debug from 'debug';
 
 import Airing from '../renderer/utils/Airing';
 
@@ -11,7 +10,10 @@ import {
   exportVideo,
 } from './utils/exportVideo';
 
-const debug = Debug('tablo-tools:pre_airing');
+import { mainDebug } from './utils/logging';
+
+const debug = mainDebug.extend('pre_airing');
+globalThis.debugInstances.push(debug);
 
 ipcMain.on(
   'airing-dedupedExportFile',

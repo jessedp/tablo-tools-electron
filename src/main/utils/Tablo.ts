@@ -1,6 +1,4 @@
 import * as net from 'net';
-
-import Debug from 'debug';
 import { compare } from 'compare-versions';
 import Tablo from 'tablo-api';
 import Store from 'electron-store';
@@ -9,7 +7,10 @@ import * as Sentry from '@sentry/electron/main';
 import getConfig from './config';
 import { setupDb } from './db';
 
-const debug = Debug('tablo-tools:Tablo');
+import { mainDebug } from './logging';
+
+const debug = mainDebug.extend('Tablo');
+globalThis.debugInstances.push(debug);
 
 const store = new Store();
 
@@ -123,7 +124,7 @@ export async function checkConnection(): Promise<boolean> {
       status = false;
       client.end();
     })
-    .on('timeout', (_evt: any) => {
+    .on('timeout', () => {
       debug(`checkConnection - Timeout after ${connTimeoutSec}ms`);
       status = false;
       client.end();
@@ -132,6 +133,7 @@ export async function checkConnection(): Promise<boolean> {
 
   return new Promise((resolve) => {
     client.on('close', () => {
+      // debug('checkConncetion - status = %s', status);
       global.CONNECTED = status;
       resolve(status);
     });

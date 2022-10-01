@@ -4,26 +4,24 @@ import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
-import Debug from 'debug';
+// import Debug from 'debug';
 
 import Airing from 'renderer/utils/Airing';
 import { findFfmpegPath } from './utils';
 import getConfig from './config';
 
 import {
-  // EVENT,// async processVideo(// async processVideo(
-  // MOVIE,
-  // PROGRAM,
-  // SERIES,
   beginTimemark,
-  // NamingTemplateType,
   DUPE_ADDID,
   DUPE_OVERWRITE,
   DUPE_SKIP,
   DUPE_INC,
 } from '../../renderer/constants/app';
 
-const debug = Debug('tablo-tools:exportVideo');
+import { mainDebug } from './logging';
+
+const debug = mainDebug.extend('exportVideo');
+globalThis.debugInstances.push(debug);
 
 globalThis.exportProcs = {};
 
@@ -139,6 +137,7 @@ export const exportVideo = async (
 ) => {
   debug('exportVideo - actionOnDuplicate %s', actionOnDuplicate);
   // noop it so we don't spread the typeof check everywhere
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   let progressCb = (..._args: Array<any>) => {};
   if (typeof progressCallback === 'function') {
     progressCb = progressCallback;
