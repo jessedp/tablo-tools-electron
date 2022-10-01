@@ -7,7 +7,6 @@ import PubSub from 'pubsub-js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import * as BuildActions from '../store/build';
-import { DbSliceState } from '../store/build';
 
 import { recDbCreated } from '../utils/db';
 
@@ -15,20 +14,17 @@ import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 import { hasDevice } from '../utils/Tablo';
 import DbLoadingSpinner from './DbLoadingSpinner';
-import { StdObj } from '../constants/app';
 
 type OwnProps = Record<string, never>;
 
-type StateProps = {
-  build: StdObj;
-};
+type StateProps = Record<string, any>;
 
 type DispatchProps = {
   startBuild: () => void;
-  updateProgress: (arg: DbSliceState) => void;
 };
 
-type DbStatusProps = OwnProps & StateProps & DispatchProps;
+// type DbStatusProps = OwnProps & StateProps & DispatchProps;
+type DbStatusProps = OwnProps & DispatchProps;
 
 type State = {
   dbAge: number;
@@ -188,19 +184,11 @@ class DbStatus extends Component<DbStatusProps, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { build } = state;
-  return {
-    build,
-  };
-};
-
 const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(BuildActions, dispatch);
 };
 
-// export default connect<any, any>(
 export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(DbStatus);

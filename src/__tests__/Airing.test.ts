@@ -1,3 +1,4 @@
+import sanitize from 'sanitize-filename';
 import Airing from '../renderer/utils/Airing';
 
 import * as seriesData from './data/airing-series-SNL.json';
@@ -9,8 +10,6 @@ import * as seriesShowData from './data/show-series-SNL.json';
 
 import { EVENT, MOVIE, PROGRAM, SERIES } from '../renderer/constants/app';
 import Show from '../renderer/utils/Show';
-
-import sanitize from 'sanitize-filename';
 
 let airingSeries = new Airing(seriesData);
 let airingSports = new Airing(sportsData);

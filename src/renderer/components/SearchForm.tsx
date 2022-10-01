@@ -1052,7 +1052,6 @@ const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(SearchActions, dispatch);
 };
 
-// export default connect<any, any>(
 export default connect<StateProps, DispatchProps, OwnProps>(
   null,
   mapDispatchToProps

@@ -123,7 +123,7 @@ export async function checkConnection(): Promise<boolean> {
       status = false;
       client.end();
     })
-    .on('timeout', (_evt: any) => {
+    .on('timeout', () => {
       debug(`checkConnection - Timeout after ${connTimeoutSec}ms`);
       status = false;
       client.end();
