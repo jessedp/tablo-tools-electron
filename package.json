@@ -267,6 +267,7 @@
     "axios": "^0.24.0",
     "bootstrap": "^4.3.1",
     "byte-data": "^16.0.3",
+    "check-disk-space": "^3.3.1",
     "compare-versions": "^5.0.1",
     "connected-react-router": "^6.9.2",
     "date-fns": "^2.8.1",

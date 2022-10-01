@@ -23,9 +23,9 @@ export default function Directory(prop: Props) {
   if (origValue === undefined) origValue = value;
 
   const changeField = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(
-      `onChange: target = ${event.currentTarget.value}, origValue = ${origValue}, value=${value}`
-    );
+    // console.log(
+    //   `onChange: target = ${event.currentTarget.value}, origValue = ${origValue}, value=${value}`
+    // );
     if (event.currentTarget.value === origValue) {
       setDirty(false);
     } else {

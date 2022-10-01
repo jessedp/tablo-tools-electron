@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer, shell, webFrame } from 'electron';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import checkDiskSpace, { Dependencies } from 'check-disk-space';
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, ...args: any) => ipcRenderer.send(channel, ...args),
@@ -37,6 +38,9 @@ contextBridge.exposeInMainWorld('fs', {
   readFileSync: (filepath: any, options?: any) =>
     fs.readFileSync(filepath, options),
   statSync: (filepath: any, options: any) => fs.statSync(filepath, options),
+  // I've done myself few favors in React by not awaiting it elsewhere so it's sync like
+  checkDiskSpace: async (directoryPath: string, dependencies?: Dependencies) =>
+    checkDiskSpace(directoryPath, dependencies),
 });
 
 contextBridge.exposeInMainWorld('path', {
