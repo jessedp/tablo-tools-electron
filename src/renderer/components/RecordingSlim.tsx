@@ -100,7 +100,7 @@ class RecordingSlim extends Component<Props> {
         >
           <Col md="8">
             {showCol}
-            <TitleSlim airing={airing} withShow={OFF} />
+            <TitleSlim airing={airing} withShow={ON} />
           </Col>
           <Col md="4" className="pr-0 mr-0">
             <div className="">

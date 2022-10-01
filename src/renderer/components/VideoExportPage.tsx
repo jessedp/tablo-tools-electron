@@ -10,6 +10,8 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
+import { DiskSpace } from 'check-disk-space';
+import { asyncForEach } from 'renderer/utils/utils';
 import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
@@ -26,6 +28,7 @@ import {
 import { ExportRecord } from '../utils/factories';
 import Checkbox from './Checkbox';
 import routes from '../constants/routes.json';
+import DiskInfo from './DiskInfo';
 
 interface Props extends PropsFromRedux {
   exportState: number;
@@ -37,101 +40,12 @@ interface Props extends PropsFromRedux {
   toggleDOF: () => void;
   cancelProcess: () => void;
   processVideo: () => void;
-
-  // addExportRecord: (record: ExportRecordType) => void;
-  // bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
-  // actionList: Array<Airing>;
-  // exportList: Array<ExportRecordType>;
 }
 type State = {
   loaded: boolean;
+  allDiskStats: Record<string, number>;
 };
 
-class VideoExportPage extends Component<Props, State> {
-  // props: Props;
-
-  constructor(props: Props) {
-    super(props);
-    // this.props = props;
-    this.state = {
-      loaded: false,
-    };
-  }
-
-  componentDidMount() {
-    const { actionList, addExportRecord } = this.props;
-    actionList.forEach((rec: StdObj) => {
-      const newRec = ExportRecord(rec);
-      addExportRecord(newRec);
-    });
-    this.setState({
-      loaded: true,
-    });
-  }
-
-  componentWillUnmount() {
-    const { bulkRemExportRecord } = this.props;
-    bulkRemExportRecord();
-  }
-
-  render() {
-    const { loaded } = this.state;
-    const {
-      exportList,
-      exportState,
-      atOnce,
-      atOnceChange,
-      deleteOnFinished,
-      toggleDOF,
-      actionOnDuplicate,
-      setActionOnDuplicate,
-      cancelProcess,
-      processVideo,
-    } = this.props;
-    if (!loaded) return <></>; //
-
-    if (exportList.length === 0) {
-      return <Redirect to={routes.SEARCH} />;
-    }
-
-    const sortedExportList = [...exportList].sort(
-      (a: ExportRecordType, b: ExportRecordType) => {
-        if (a.airing.airing_details.datetime < b.airing.airing_details.datetime)
-          return 1;
-        return -1;
-      }
-    );
-
-    return (
-      <>
-        <Prompt
-          when={exportState === EXP_WORKING}
-          message="Leaving will CANCEL all Exports in progress. Are you sure?"
-        />
-        <ExportActions
-          state={exportState}
-          atOnce={atOnce}
-          atOnceChange={atOnceChange}
-          cancel={cancelProcess}
-          process={processVideo}
-          toggleDOF={toggleDOF}
-          deleteOnFinish={deleteOnFinished}
-          actionOnDuplicate={actionOnDuplicate}
-          setActionOnDuplicate={setActionOnDuplicate}
-        />
-        {sortedExportList.map((rec: ExportRecordType) => {
-          return (
-            <RecordingExport
-              airing={new Airing(rec.airing)}
-              key={`RecordingExport-${rec.airing.object_id}`}
-              actionOnDuplicate={actionOnDuplicate}
-            />
-          );
-        })}
-      </> //
-    );
-  }
-}
 /**
  * @return {string}
  */
@@ -232,6 +146,120 @@ function ExportActions(prop: Record<string, any>) {
       </Row>
     </Alert>
   );
+}
+class VideoExportPage extends Component<Props, State> {
+  // props: Props;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      loaded: false,
+      allDiskStats: {},
+    };
+  }
+
+  async componentDidMount() {
+    const { actionList, addExportRecord } = this.props;
+    const allDisks: any = {};
+    await asyncForEach(actionList, async (rec: StdObj) => {
+      console.log(rec);
+      const airing = new Airing(rec);
+
+      const diskStats: DiskSpace = await window.fs.checkDiskSpace(
+        airing.exportFile
+      );
+
+      const pathKey = diskStats.diskPath;
+      allDisks[pathKey] = allDisks[pathKey]
+        ? allDisks[pathKey] + rec.video_details.size
+        : rec.video_details.size;
+      const newRec = ExportRecord(rec);
+      addExportRecord(newRec);
+    });
+    console.log(allDisks);
+    this.setState({
+      loaded: true,
+      allDiskStats: allDisks,
+    });
+  }
+
+  componentWillUnmount() {
+    const { bulkRemExportRecord } = this.props;
+    bulkRemExportRecord();
+  }
+
+  render() {
+    const { allDiskStats, loaded } = this.state;
+    const {
+      exportList,
+      exportState,
+      atOnce,
+      atOnceChange,
+      deleteOnFinished,
+      toggleDOF,
+      actionOnDuplicate,
+      setActionOnDuplicate,
+      cancelProcess,
+      processVideo,
+    } = this.props;
+    if (!loaded) return <></>; //
+
+    if (exportList.length === 0) {
+      return <Redirect to={routes.SEARCH} />;
+    }
+
+    const sortedExportList = [...exportList].sort(
+      (a: ExportRecordType, b: ExportRecordType) => {
+        if (a.airing.airing_details.datetime < b.airing.airing_details.datetime)
+          return 1;
+        return -1;
+      }
+    );
+
+    return (
+      <>
+        <Prompt
+          when={exportState === EXP_WORKING}
+          message="Leaving will CANCEL all Exports in progress. Are you sure?"
+        />
+        <ExportActions
+          state={exportState}
+          atOnce={atOnce}
+          atOnceChange={atOnceChange}
+          cancel={cancelProcess}
+          process={processVideo}
+          toggleDOF={toggleDOF}
+          deleteOnFinish={deleteOnFinished}
+          actionOnDuplicate={actionOnDuplicate}
+          setActionOnDuplicate={setActionOnDuplicate}
+        />
+        <div className="mt-2 mb-2 ml-5">
+          {Object.keys(allDiskStats).map((path) => {
+            return (
+              <div>
+                <DiskInfo
+                  displayPath
+                  filename={path}
+                  videoSize={allDiskStats[path]}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {sortedExportList.map((rec: ExportRecordType) => {
+          return (
+            <RecordingExport
+              airing={new Airing(rec.airing)}
+              key={`RecordingExport-${rec.airing.object_id}`}
+              actionOnDuplicate={actionOnDuplicate}
+            />
+          );
+        })}
+      </> //
+    );
+  }
 }
 
 const mapStateToProps = (state: any) => {

@@ -17,6 +17,7 @@ import RelativeDate from './RelativeDate';
 import FilenameEditor from './FilenameEditor';
 import OpenDirectory from './OpenDirecory';
 import DuplicateNames from './DuplicateNames';
+import DiskInfo from './DiskInfo';
 
 type FileInfoProps = {
   airing: Airing;
@@ -57,6 +58,10 @@ export default function FileInfo(props: FileInfoProps) {
 
     return (
       <div className="p-0 m-0 smaller font-weight-bold text-success">
+        <DiskInfo
+          filename={airing.exportFile}
+          videoSize={airing.videoDetails.size}
+        />
         <span className="fa fa-check-circle pr-1" />
         {window.path.normalize(airing.exportFile)}
         {exportState === EXP_WAITING ? (
@@ -118,7 +123,6 @@ export default function FileInfo(props: FileInfoProps) {
       ) : (
         <span className="ml-1 mr-1" />
       )}
-
       <OpenDirectory path={dedupedExportFile} />
       <span className="pr-1">
         created <RelativeDate date={stats.ctime} />
