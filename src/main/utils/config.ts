@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import Debug from 'debug';
+
 import { app } from 'electron';
 import {
   DUPE_ADDID,
@@ -11,7 +11,10 @@ import {
 } from '../../renderer/constants/app';
 import { ConfigType } from '../../renderer/constants/types_config';
 
-const debug = Debug('tablo-tools:config');
+import { mainDebug } from './logging';
+
+const debug = mainDebug.extend('config');
+globalThis.debugInstances.push(debug);
 
 type GetPathType =
   | 'home'
@@ -31,9 +34,7 @@ type GetPathType =
   | 'crashDumps';
 
 export function getPath(key: GetPathType): string {
-  debug(`${process.type} - getPath() - key  = [${key}]`);
   try {
-    // if (process.type === 'renderer') {
     if (typeof window !== 'undefined') {
       const rcvPath = window.ipcRenderer.sendSync('get-path-main', key);
       console.log('rcvPath', rcvPath);
@@ -42,8 +43,6 @@ export function getPath(key: GetPathType): string {
   } catch (e) {
     console.log('getPath err', e);
   }
-  // console.log('process.type', process.type);
-  // // Electron main process
 
   return app.getPath(key);
 }
@@ -87,9 +86,7 @@ export const defaultConfig: ConfigType = {
 
 export function setConfigItem(item: Record<string, any>) {
   cachedConfig = { ...cachedConfig, ...item };
-  console.log(
-    `writing config file - ${CONFIG_FILE_NAME}\n${JSON.stringify(cachedConfig)}`
-  );
+  debug(`writing config file - ${CONFIG_FILE_NAME} %O`, cachedConfig);
   fs.writeFileSync(CONFIG_FILE_NAME, JSON.stringify(cachedConfig));
 }
 
