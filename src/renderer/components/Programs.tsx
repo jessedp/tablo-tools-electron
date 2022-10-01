@@ -18,6 +18,70 @@ type State = {
   alertTxt: string;
   loaded: boolean;
 };
+
+export async function programList(progPath = '') {
+  let recs = [];
+
+  if (progPath) {
+    recs = await window.db.findAsync('RecDb', {
+      program_path: progPath,
+    });
+  } else {
+    const recType = new RegExp('program');
+    recs = await window.db.findAsync('RecDb', {
+      path: {
+        $regex: recType,
+      },
+    });
+  }
+
+  const objs: Record<string, ProgramData> = {};
+  const newRecs: Airing[] = [];
+  await await asyncForEach(recs, async (rec) => {
+    const airing = await Airing.create(rec);
+    newRecs.push(airing);
+  });
+  newRecs.sort((a, b) =>
+    a.airingDetails.datetime > b.airingDetails.datetime ? 1 : -1
+  );
+  newRecs.forEach((rec) => {
+    const path = rec.program_path.trim();
+
+    if (Object.prototype.hasOwnProperty.call(objs, path)) {
+      objs[path].count += 1;
+
+      if (!rec.userInfo.watched) {
+        objs[rec.program_path].unwatched += 1;
+      }
+
+      objs[rec.program_path].airings.push(rec);
+    } else {
+      const airings = [rec];
+      objs[path] = {
+        path: btoa(path),
+        airing: rec,
+        airings,
+        count: 1,
+        unwatched: rec.userInfo.watched ? 0 : 1,
+      };
+    }
+  });
+  const objRecs: ProgramData[] = Object.keys(objs).map((id) => objs[id]);
+
+  const titleSort = (a: ProgramData, b: ProgramData) => {
+    if (a.airing.title > b.airing.title) return 1;
+    return -1;
+  };
+
+  objRecs.sort((a, b) => titleSort(a, b));
+
+  if (progPath) {
+    return [objRecs[0]];
+  }
+
+  return objRecs;
+}
+
 export default class Programs extends Component<Props, State> {
   psToken: string;
 
@@ -90,78 +154,3 @@ export default class Programs extends Component<Props, State> {
     );
   }
 }
-export async function programList(progPath = '') {
-  let recs = [];
-
-  if (progPath) {
-    recs = await window.db.findAsync('RecDb', {
-      program_path: progPath,
-    });
-  } else {
-    const recType = new RegExp('program');
-    recs = await window.db.findAsync('RecDb', {
-      path: {
-        $regex: recType,
-      },
-    });
-  }
-
-  const objs: Record<string, ProgramData> = {};
-  const newRecs: Airing[] = [];
-  await await asyncForEach(recs, async (rec) => {
-    const airing = await Airing.create(rec);
-    newRecs.push(airing);
-  });
-  newRecs.sort((a, b) =>
-    a.airingDetails.datetime > b.airingDetails.datetime ? 1 : -1
-  );
-  newRecs.forEach((rec) => {
-    const path = rec.program_path.trim();
-
-    if (Object.prototype.hasOwnProperty.call(objs, path)) {
-      objs[path].count += 1;
-
-      if (!rec.userInfo.watched) {
-        objs[rec.program_path].unwatched += 1;
-      }
-
-      objs[rec.program_path].airings.push(rec);
-    } else {
-      const airings = [rec];
-      objs[path] = {
-        path: btoa(path),
-        airing: rec,
-        airings,
-        count: 1,
-        unwatched: rec.userInfo.watched ? 0 : 1,
-      };
-    }
-  });
-  const objRecs: ProgramData[] = Object.keys(objs).map((id) => objs[id]);
-
-  const titleSort = (a: ProgramData, b: ProgramData) => {
-    if (a.airing.title > b.airing.title) return 1;
-    return -1;
-  };
-
-  objRecs.sort((a, b) => titleSort(a, b));
-
-  if (progPath) {
-    return [objRecs[0]];
-  }
-
-  return objRecs;
-} // export async function programsByProgramList(path: string) {
-//   const recs = await window.db.findAsync('RecDb', { program_path: { $eq: path } });
-//   const objRecs = [];
-//   await asyncForEach(recs, async rec => {
-//     const airing = await Airing.create(rec);
-//     objRecs.push(airing);
-//   });
-//   const titleSort = (a, b) => {
-//     if (a.datetime > b.datetime) return 1;
-//     return -1;
-//   };
-//   objRecs.sort((a, b) => titleSort(a, b));
-//   return objRecs;
-// }

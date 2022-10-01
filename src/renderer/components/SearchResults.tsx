@@ -10,8 +10,7 @@ import type { SearchAlert } from '../utils/types';
 import type { SearchSliceState } from '../store/search';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';
-import { ON } from '../constants/app';
-import { VIEW_GRID } from '../constants/app';
+import { ON, VIEW_GRID } from '../constants/app';
 
 type OwnProps = Record<string, never>;
 type StateProps = SearchSliceState;
@@ -26,6 +25,23 @@ type State = {
   view?: string;
   loading: boolean;
 };
+
+function Loading(prop: any) {
+  const { loading } = prop;
+  if (!loading) return <></>; //
+
+  return (
+    <div
+      className="d-flex justify-content-center"
+      style={{
+        maxWidth: '400px',
+        marginTop: '75px',
+      }}
+    >
+      <Spinner animation="border" size={'xl' as any} variant="primary" />
+    </div>
+  );
+}
 
 class SearchResults extends Component<SearchResultsProps, State> {
   initialState: State;
@@ -122,23 +138,6 @@ class SearchResults extends Component<SearchResultsProps, State> {
       </div>
     );
   }
-}
-
-function Loading(prop: any) {
-  const { loading } = prop;
-  if (!loading) return <></>; //
-
-  return (
-    <div
-      className="d-flex justify-content-center"
-      style={{
-        maxWidth: '400px',
-        marginTop: '75px',
-      }}
-    >
-      <Spinner animation="border" size={'xl' as any} variant="primary" />
-    </div>
-  );
 }
 
 const mapStateToProps = (state: any) => {

@@ -6,7 +6,19 @@ module.exports = {
     'import/no-unresolved': 'error',
     // Since React 17 and typescript 4.1 you can safely disable the rule
     'react/react-in-jsx-scope': 'off',
-
+    'jsx-a11y/label-has-associated-control': [
+      2,
+      {
+        labelComponents: ['label'],
+        labelAttributes: ['label'],
+        controlComponents: ['FullCheckbox'],
+        depth: 3,
+      },
+    ],
+    // TODO: needs to be turned on again
+    '@typescript-eslint/no-explicit-any': 'off',
+    'react/static-property-placement': 'off',
+    'import/no-cycle': 'off',
     'no-console': 'off',
   },
   parserOptions: {

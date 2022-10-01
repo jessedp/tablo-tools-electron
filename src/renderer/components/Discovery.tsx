@@ -23,6 +23,82 @@ const STATE_NONE = 0;
 const STATE_SELECTED = 1;
 const STATE_MULTI = 2;
 const STATE_WORKING = 3;
+
+function DiscoveryStatus(prop: Record<string, any>) {
+  const { state, setDevice } = prop;
+
+  if (state === STATE_WORKING) {
+    return <Spinner animation="grow" variant="success" />;
+  }
+
+  if (state === STATE_NONE) {
+    return (
+      <Alert variant="danger" className="fade m-2">
+        No Tablos found.
+      </Alert>
+    );
+  }
+
+  if (state === STATE_MULTI) {
+    const discoveredDevices = window.Tablo.discoveredDevices();
+    return (
+      <div className="m-2">
+        <div className="p-2 mb-2 bg-success text-white">
+          Found {discoveredDevices.length} devices
+        </div>
+        {discoveredDevices.map((device: any, i: string) => {
+          const serverId = device.serverid;
+          const key = `select-device-${i}`;
+          return (
+            <Row className="p-1 pb-2 mb-2 border" key={key}>
+              <Col md="2">
+                <Button size={'xs' as any} onClick={() => setDevice(serverId)}>
+                  use
+                </Button>
+              </Col>
+              <Col>
+                <div>
+                  <b>{device.name}</b> ({device.private_ip})
+                </div>
+              </Col>
+              <br />
+            </Row>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // if (state === STATE_SELECTED)
+  return <></>;
+}
+
+function DiscoveryTitle(prop: Record<string, any>) {
+  const { device, localDiscover, state } = prop;
+  let checked;
+  if (window.Tablo.CONNECTED()) {
+    if (state === STATE_MULTI) return <></>;
+    checked = new Date(device.inserted);
+    return (
+      <>
+        <span>Since: {checked ? <RelativeDate date={checked} /> : ''}</span>
+        <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
+          Rediscover
+        </Button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <span>No devices found yet, click Discover</span>
+      <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
+        Discover
+      </Button>
+    </>
+  );
+}
+
 export default class Discovery extends Component<Props, State> {
   psToken: string;
 
@@ -119,79 +195,4 @@ export default class Discovery extends Component<Props, State> {
       </Container>
     );
   }
-}
-
-function DiscoveryStatus(prop: Record<string, any>) {
-  const { state, setDevice } = prop;
-
-  if (state === STATE_WORKING) {
-    return <Spinner animation="grow" variant="success" />;
-  }
-
-  if (state === STATE_NONE) {
-    return (
-      <Alert variant="danger" className="fade m-2">
-        No Tablos found.
-      </Alert>
-    );
-  }
-
-  if (state === STATE_MULTI) {
-    const discoveredDevices = window.Tablo.discoveredDevices();
-    return (
-      <div className="m-2">
-        <div className="p-2 mb-2 bg-success text-white">
-          Found {discoveredDevices.length} devices
-        </div>
-        {discoveredDevices.map((device: any, i: string) => {
-          const serverId = device.serverid;
-          const key = `select-device-${i}`;
-          return (
-            <Row className="p-1 pb-2 mb-2 border" key={key}>
-              <Col md="2">
-                <Button size={'xs' as any} onClick={() => setDevice(serverId)}>
-                  use
-                </Button>
-              </Col>
-              <Col>
-                <div>
-                  <b>{device.name}</b> ({device.private_ip})
-                </div>
-              </Col>
-              <br />
-            </Row>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // if (state === STATE_SELECTED)
-  return <></>;
-}
-
-function DiscoveryTitle(prop: Record<string, any>) {
-  const { device, localDiscover, state } = prop;
-  let checked;
-  if (window.Tablo.CONNECTED()) {
-    if (state === STATE_MULTI) return <></>;
-    checked = new Date(device.inserted);
-    return (
-      <>
-        <span>Since: {checked ? <RelativeDate date={checked} /> : ''}</span>
-        <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
-          Rediscover
-        </Button>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <span>No devices found yet, click Discover</span>
-      <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
-        Discover
-      </Button>
-    </>
-  );
 }

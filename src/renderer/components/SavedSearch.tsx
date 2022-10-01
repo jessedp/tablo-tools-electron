@@ -276,9 +276,10 @@ class SavedSearch extends Component<Props, State> {
                             }}
                           >
                             <Checkbox
-                              ref={(chkOverRef) =>
-                                (this.chkOverRef = chkOverRef)
-                              }
+                              ref={(chkOverRef) => {
+                                this.chkOverRef = chkOverRef;
+                                return this.chkOverRef;
+                              }}
                               handleChange={this.toggleType}
                               label="Overwrite:"
                               checked={chkOverwrite}

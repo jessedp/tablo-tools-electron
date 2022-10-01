@@ -44,6 +44,60 @@ interface RouterProps {
 type OwnProps = RouteComponentProps<RouterProps>;
 type Props = OwnProps & PropsFromRedux;
 
+function SeasonList(prop: any) {
+  // const [active, setActive] = useState(0);
+  const active = '';
+
+  const setActive = (key: string) => key;
+
+  const { seasons, selectSeason } = prop;
+  const output: Array<JSX.Element> = [];
+  Object.keys(seasons).forEach((key) => {
+    const listKey = `season-${key}`;
+    const isActive = active === key;
+    output.push(
+      <ListGroup.Item
+        as="li"
+        key={listKey}
+        action
+        active={isActive}
+        onClick={() => {
+          setActive(key);
+          selectSeason(listKey);
+        }}
+      >
+        Season {key}
+      </ListGroup.Item>
+    );
+  });
+  return (
+    <div
+      className="mt-2"
+      style={{
+        width: '120px',
+        cursor: 'pointer',
+      }}
+    >
+      <Sticky
+        stickyStyle={{
+          zIndex: 10000,
+        }}
+        scrollElement=".scrollable-area"
+      >
+        <ListGroup
+          as="ul"
+          className="bg-white"
+          style={{
+            zIndex: 10000,
+            width: '120px',
+          }}
+        >
+          {output}
+        </ListGroup>
+      </Sticky>
+    </div>
+  );
+}
 class ShowDetails extends Component<Props, State> {
   initialState: State;
 
@@ -303,61 +357,6 @@ class ShowDetails extends Component<Props, State> {
     );
   }
 } // TODO: Convert to class
-
-function SeasonList(prop: any) {
-  // const [active, setActive] = useState(0);
-  const active = '';
-
-  const setActive = (key: string) => key;
-
-  const { seasons, selectSeason } = prop;
-  const output: Array<JSX.Element> = [];
-  Object.keys(seasons).forEach((key) => {
-    const listKey = `season-${key}`;
-    const isActive = active === key;
-    output.push(
-      <ListGroup.Item
-        as="li"
-        key={listKey}
-        action
-        active={isActive}
-        onClick={() => {
-          setActive(key);
-          selectSeason(listKey);
-        }}
-      >
-        Season {key}
-      </ListGroup.Item>
-    );
-  });
-  return (
-    <div
-      className="mt-2"
-      style={{
-        width: '120px',
-        cursor: 'pointer',
-      }}
-    >
-      <Sticky
-        stickyStyle={{
-          zIndex: 10000,
-        }}
-        scrollElement=".scrollable-area"
-      >
-        <ListGroup
-          as="ul"
-          className="bg-white"
-          style={{
-            zIndex: 10000,
-            width: '120px',
-          }}
-        >
-          {output}
-        </ListGroup>
-      </Sticky>
-    </div>
-  );
-}
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => {
   // eslint-disable-next-line
