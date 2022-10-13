@@ -11,6 +11,7 @@ export type ExportRecordType = {
   startTime: Date | number;
   endTime: Date | number;
   ffmpegLog: Array<string>;
+  isBulk: boolean;
 };
 export type FlashRecordType = {
   message: string;

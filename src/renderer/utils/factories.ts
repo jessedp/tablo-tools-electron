@@ -20,6 +20,7 @@ export function ExportRecord(airing: StdObj) {
     startTime: new Date().getMilliseconds(),
     endTime: new Date().getMilliseconds(),
     ffmpegLog: [],
+    isBulk: true,
   };
   // console.log('ExportRecord record', airing.data);
   return record;
