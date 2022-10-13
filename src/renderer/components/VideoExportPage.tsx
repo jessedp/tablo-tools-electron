@@ -11,7 +11,7 @@ import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
 import { ExportRecordType } from '../constants/types';
-import { EXP_WORKING, StdObj } from '../constants/app';
+import { ExportLogRecordType, EXP_WORKING, StdObj } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 
 import routes from '../constants/routes.json';
@@ -49,10 +49,21 @@ class VideoExportPage extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { actionList, addExportRecord } = this.props;
+    const { actionList, exportList, addExportRecord, remExportRecord } =
+      this.props;
     const allDisks: any = {};
+    // Since we aren't clearing the ExportList when the page exits, make sure nothing was removed
+    // from the actionList while we were gone
+    await asyncForEach(exportList, async (rec: ExportRecordType) => {
+      const test = actionList.find((airRec: StdObj) => {
+        return airRec.object_id === rec.airing.object_id;
+      });
+      if (!test) {
+        remExportRecord(rec);
+      }
+    });
+
     await asyncForEach(actionList, async (rec: StdObj) => {
-      console.log(rec);
       const airing = new Airing(rec);
 
       const diskStats: DiskSpace = await window.fs.checkDiskSpace(
@@ -66,17 +77,16 @@ class VideoExportPage extends Component<Props, State> {
       const newRec = ExportRecord(rec);
       addExportRecord(newRec);
     });
-    console.log(allDisks);
     this.setState({
       loaded: true,
       allDiskStats: allDisks,
     });
   }
 
-  componentWillUnmount() {
-    const { bulkRemExportRecord } = this.props;
-    bulkRemExportRecord();
-  }
+  // componentWillUnmount() {
+  //   const { bulkRemExportRecord } = this.props;
+  //   bulkRemExportRecord();
+  // }
 
   render() {
     const { allDiskStats, loaded } = this.state;
@@ -128,6 +138,7 @@ class VideoExportPage extends Component<Props, State> {
             return (
               <div>
                 <DiskInfo
+                  key={path}
                   displayPath
                   filename={path}
                   videoSize={allDiskStats[path]}
@@ -155,7 +166,9 @@ const mapStateToProps = (state: any) => {
   const { exportList } = state;
   return {
     actionList: state.actionList.records,
-    exportList: exportList.records,
+    exportList: exportList.records.filter(
+      (rec: ExportRecordType) => rec.isBulk
+    ),
   };
 };
 

@@ -104,6 +104,7 @@ function ExportButton(prop: any) {
 
 type State = {
   opened: boolean;
+  existing: boolean;
 };
 
 class VideoExportModal extends Component<Props, State> {
@@ -116,18 +117,41 @@ class VideoExportModal extends Component<Props, State> {
     // this.props = props;
     this.state = {
       opened: false,
+      existing: false,
     };
     (this as any).show = this.show.bind(this);
     (this as any).close = this.close.bind(this);
   }
 
   close = async () => {
-    const { exportList, deleteOnFinish, remAiring, bulkRemExportRecord } =
-      this.props;
-    bulkRemExportRecord();
-    window.Airing.cancelExportVideo(exportList[0].airing);
+    const {
+      airing,
+
+      exportList,
+      deleteOnFinish,
+      remAiring,
+      remExportRecord,
+      updateExportRecord,
+    } = this.props;
+    const { existing } = this.state;
+
+    // bulkRemExportRecord();
+    // console.log('remove?', exportList[0]);
+    let expRec = exportList.find(
+      (rec: ExportRecordType) => rec.airing.object_id === airing.object_id
+    );
+    // console.log('remove?', exportList[0]);
+
+    if (existing) {
+      expRec = { ...expRec, isBulk: true };
+      updateExportRecord(expRec);
+    } else {
+      remExportRecord(expRec);
+    }
+
+    window.Airing.cancelExportVideo(expRec.airing);
     if (deleteOnFinish === CHECKBOX_ON) {
-      remAiring(exportList[0].airing);
+      remAiring(expRec.airing);
       PubSub.publish('DB_CHANGE', '');
     }
 
@@ -137,11 +161,28 @@ class VideoExportModal extends Component<Props, State> {
   };
 
   show() {
-    const { airing, bulkRemExportRecord, addExportRecord } = this.props;
-    bulkRemExportRecord();
-    addExportRecord(ExportRecord(airing.data));
+    const { airing, exportList, addExportRecord, updateExportRecord } =
+      this.props;
+    // bulkRemExportRecord();
+    let newRec = exportList.find(
+      (rec: ExportRecordType) => rec.airing.object_id === airing.object_id
+    );
+    let existing = false;
+    if (newRec) {
+      console.log('FOUND', newRec);
+      newRec = { ...newRec, isBulk: false };
+      // newRec.isBulk = false;
+      console.log(newRec);
+      existing = true;
+      updateExportRecord(newRec);
+    } else {
+      newRec = ExportRecord(airing.data);
+      newRec.isBulk = false;
+      addExportRecord(newRec);
+    }
     this.setState({
       opened: true,
+      existing,
     });
   }
 
@@ -175,9 +216,9 @@ class VideoExportModal extends Component<Props, State> {
     // const airingList = exportList.map((rec: ExportRecordType) => rec.airing);
     let airingList = [];
 
-    if (exportList.length > 0 && exportList[0] !== undefined) {
-      // console.log('exportList', exportList);
-      airingList = exportList.map((rec: ExportRecordType) => rec.airing);
+    if (exportList.length > 0) {
+      const recs = exportList.filter((rec: ExportRecordType) => !rec.isBulk);
+      airingList = recs.map((rec: ExportRecordType) => rec.airing);
     }
 
     let variant = 'outline-secondary';

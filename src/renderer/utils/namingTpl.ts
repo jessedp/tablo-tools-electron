@@ -362,11 +362,11 @@ export function fillTemplate(
   });
 
   let filledPath = parts.join(fsPath.sep());
-  debug('filledPath after sep join: %s', filledPath);
+  // debug('filledPath after sep join: %s', filledPath);
 
   filledPath = fsPath.normalize(filledPath);
 
-  debug('filledPath after normalize: %s', filledPath);
+  // debug('filledPath after normalize: %s', filledPath);
   let i = 0;
 
   const sanitizeParts = filledPath.split(fsPath.sep()).map((part) => {

@@ -22,7 +22,6 @@ const slice = createSlice({
         console.log('addExport - skipping recording in progress', exportRecord);
         return;
       }
-      console.log('addExport', exportRecord);
 
       if (
         !state.records.find(

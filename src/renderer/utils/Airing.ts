@@ -419,7 +419,7 @@ export default class Airing {
 
   // TODO: Cache this somehow?
   get exportFile() {
-    debug('Airing - exportFile: ', this.cachedExportFile);
+    // debug('Airing - exportFile: ', this.cachedExportFile);
     if (!this.cachedExportFile) {
       const vars = buildTemplateVars(this);
       debug('Airing - template: ', this.template);
