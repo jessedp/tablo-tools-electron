@@ -52,32 +52,38 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
       x: e.screenX,
       y: e.screenY,
     };
-
-    if (this.checkYInbounds(2)) {
-      this.setState({
-        showToggle: true,
-      });
-      if (this.autohideTimer) clearTimeout(this.autohideTimer);
-      this.autohideTimer = setTimeout(
-        () =>
-          this.setState({
-            showToggle: false,
-          }),
-        5000
-      );
-    } else if (!this.checkYInbounds(40)) {
-      this.setState({
-        showToggle: false,
-      });
+    // doing this so checkYInbounds can return a bool
+    try {
+      if (this.checkYInbounds(2)) {
+        this.setState({
+          showToggle: true,
+        });
+        if (this.autohideTimer) clearTimeout(this.autohideTimer);
+        this.autohideTimer = setTimeout(
+          () =>
+            this.setState({
+              showToggle: false,
+            }),
+          5000
+        );
+      } else if (!this.checkYInbounds(40)) {
+        this.setState({
+          showToggle: false,
+        });
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
   checkYInbounds = (limit = 10) => {
-    // const win = remote.getCurrentWindow();
-    // const bounds = win.getContentBounds();
-
-    // const bounds = ipcRenderer.getContentBounds();
     const bounds = window.ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
+    if (!bounds) {
+      throw Error('checkYInbounds - "bounds" is empty');
+    }
+    if (!this.lastMousePos) {
+      throw Error('checkYInbounds - "this.lastMousePos" is empty');
+    }
     return this.lastMousePos.y - bounds.y < limit;
   };
 
