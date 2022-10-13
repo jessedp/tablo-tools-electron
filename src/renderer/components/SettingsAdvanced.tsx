@@ -225,14 +225,14 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
     event: string | React.SyntheticEvent<HTMLInputElement>,
     save = false
   ) => {
-    console.log('setExportDataPath event ', event);
+    // console.log('setExportDataPath event ', event);
     let path = '';
     if (typeof event === 'string') {
       path = event;
     } else {
-      path = event.currentTarget.value;
+      path = event.currentTarget?.value;
     }
-    console.log('setExportDataPath path  ', path);
+    // console.log('setExportDataPath path  ', path);
     if (path) {
       if (save) {
         this.savePath('exportDataPath', path);
@@ -240,6 +240,11 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
       this.setState({
         exportDataPath: path,
       });
+    } else {
+      console.error(
+        'setExportDataPath - unable to find path in "event"',
+        event
+      );
     }
   };
 
