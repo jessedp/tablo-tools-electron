@@ -23,9 +23,7 @@ function Release(prop: any) {
   const config = getConfig();
   let notifyBeta = false;
 
-  if (Object.prototype.hasOwnProperty.call(config, 'notifyBeta')) {
-    notifyBeta = config.notifyBeta;
-  }
+  notifyBeta = Boolean(config.notifyBeta);
 
   const beta = !!appVersion.match(/[a-zA-Z]/);
   if (!beta && !notifyBeta && data.prerelease) return <></>; //
