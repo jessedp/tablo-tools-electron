@@ -1,15 +1,11 @@
-// import * as React from 'react';
 import { Component } from 'react';
+import * as Sentry from '@sentry/electron/renderer';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Container, Alert, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import getConfig from '../utils/config';
 import routes from '../constants/routes.json';
 
-// type Props = {
-//   children: React.ReactNode;
-//   location: any;
-// };
 type State = {
   hasError: boolean;
   showDetails: boolean;
@@ -18,11 +14,9 @@ type State = {
 };
 
 class ErrorContainer extends Component<RouteComponentProps, State> {
-  // props: Props;
-
   constructor(props: RouteComponentProps) {
     super(props);
-    // this.props = props;
+
     this.state = {
       hasError: false,
       showDetails: false,
@@ -34,9 +28,6 @@ class ErrorContainer extends Component<RouteComponentProps, State> {
   componentDidUpdate(prevProps: RouteComponentProps) {
     const { location } = this.props;
     if (!location) this.onRouteChanged();
-
-    // TODO: upgrade - renamed location.location TO location.pathname
-    // FIXME: upgrade - logic may be wrong....
 
     if (
       (location.pathname &&
@@ -54,8 +45,12 @@ class ErrorContainer extends Component<RouteComponentProps, State> {
       showDetails: false,
       error,
       info,
-    }); // You can also log the error to an error reporting service
-    // logErrorToMyService(error, info);
+    });
+
+    if (process.env.NODE_ENV === 'production') {
+      // Send the Error to Sentry - it takes care of the allowErrorReporting check
+      Sentry.captureException(error);
+    }
   }
 
   onRouteChanged() {
