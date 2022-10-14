@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import { bindActionCreators } from 'redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import Sticky from 'react-sticky-el';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -208,11 +208,9 @@ class ShowDetails extends Component<Props, State> {
     if (!show || !show.id) return <></>; //
 
     const airDate = (date: string) => {
-      // TODO: this is a wrong but "probably will work" assumption
-      let plusTZ = `${date} 12:00 EST`;
-      plusTZ = new Date(Date.parse(plusTZ)).toLocaleString();
+      const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
       // Tues Jan 1st, 1999
-      return format(Date.parse(plusTZ), 'EE MMM do, yyyy');
+      return format(parsedDate, 'EE MMM do, yyyy');
     };
 
     return (
