@@ -208,6 +208,7 @@ class ShowDetails extends Component<Props, State> {
     if (!show || !show.id) return <></>; //
 
     const airDate = (date: string) => {
+      if (!date) return <i>unknown</i>;
       const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
       // Tues Jan 1st, 1999
       return format(parsedDate, 'EE MMM do, yyyy');
