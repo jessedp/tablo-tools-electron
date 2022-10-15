@@ -163,16 +163,23 @@ ipcMain.on(
     event: Electron.IpcMainEvent,
     dbName: string,
     query: any,
-    params: any = {}
+    params: any = {},
+    options: any = {}
   ) => {
     try {
       debug(
-        `ipcMain - db-update - dbName = ${dbName} , query = ${JSON.stringify(
-          query
-        )}, params = ${JSON.stringify(params)}`
+        'ipcMain - db-update - dbName = %s , query = %o, params = %o , options = %o',
+        dbName,
+        query,
+        params,
+        options
       );
 
-      const recs = await globalThis.dbs[dbName].updateAsync(query, params);
+      const recs = await globalThis.dbs[dbName].updateAsync(
+        query,
+        params,
+        options
+      );
       event.returnValue = recs;
     } catch (e) {
       debug('db-update', e);

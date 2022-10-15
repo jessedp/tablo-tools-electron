@@ -148,9 +148,11 @@ export function newTemplate(type: string): NamingTemplateType {
 export async function loadTemplates() {
   const defaults = defaultTemplates;
   let all = defaults;
+  debug('loadTemplates - defaults: %o', defaults);
   const recs = await window.Templates.load();
+  debug('loadTemplates - recs: %o', recs);
   if (Array.isArray(recs)) {
-    all = [...defaults, ...recs];
+    all = recs;
   } else {
     console.warn('loadTemplates() - recs was not an Array! ', recs);
   }
@@ -360,11 +362,11 @@ export function fillTemplate(
   });
 
   let filledPath = parts.join(fsPath.sep());
-  debug('filledPath after sep join: %s', filledPath);
+  // debug('filledPath after sep join: %s', filledPath);
 
   filledPath = fsPath.normalize(filledPath);
 
-  debug('filledPath after normalize: %s', filledPath);
+  // debug('filledPath after normalize: %s', filledPath);
   let i = 0;
 
   const sanitizeParts = filledPath.split(fsPath.sep()).map((part) => {

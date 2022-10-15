@@ -5,6 +5,9 @@ import * as os from 'os';
 import * as path from 'path';
 import checkDiskSpace, { Dependencies } from 'check-disk-space';
 
+// Future me: don't try to use this again - preload is essentially in the Renderer proc
+// import { mainDebug } from './utils/logging';
+
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, ...args: any) => ipcRenderer.send(channel, ...args),
   sendSync: (channel: string, ...args: any) =>
@@ -81,13 +84,15 @@ contextBridge.exposeInMainWorld('db', {
     ipcRenderer.sendSync('db-remove', db, query, options);
   },
 
-  updateAsync: (db: string, query: any, options?: any) => {
+  updateAsync: (db: string, query: any, params: any, options?: any) => {
     console.log(
       `updateAsync - db = ${db} , query = ${JSON.stringify(
         query
-      )} , options = ${JSON.stringify(options)}`
+      )} , params = ${JSON.stringify(params)} , options = ${JSON.stringify(
+        options
+      )}`
     );
-    ipcRenderer.sendSync('db-update', db, query, options);
+    ipcRenderer.sendSync('db-update', db, query, params, options);
   },
 
   dbCreatedKey: () => ipcRenderer.sendSync('db-dbCreatedKey'),
