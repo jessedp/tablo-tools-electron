@@ -1,4 +1,5 @@
 const { notarize } = require('electron-notarize');
+const { isPullRequest } = require('builder-util');
 const { build } = require('../../package.json');
 
 exports.default = async function notarizeMacos(context) {
@@ -9,6 +10,13 @@ exports.default = async function notarizeMacos(context) {
 
   if (process.env.CI !== 'true') {
     console.warn('Skipping notarizing step. Packaging is not running in CI');
+    return;
+  }
+
+  if (isPullRequest()) {
+    console.warn(
+      'Skipping notarizing step. Current build is a part of pull request'
+    );
     return;
   }
 
