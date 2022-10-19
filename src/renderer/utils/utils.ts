@@ -2,8 +2,9 @@ import * as Sentry from '@sentry/electron/renderer';
 import getConfig from './config';
 
 export const sendError = (error: any, info?: any) => {
+  console.error('sendError - error: ', error);
   // Send the Error to Sentry - init() take care of the allowErrorReporting check
-  if (process.env.NODE_ENV === 'production!') {
+  if (process.env.NODE_ENV === 'production') {
     Sentry.captureException(error);
   }
 };
