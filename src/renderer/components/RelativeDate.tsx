@@ -1,4 +1,5 @@
 import { formatDistanceToNow, format } from 'date-fns';
+import { sendError } from 'renderer/utils/utils';
 
 type Props = {
   date: string | number | Date | null;
@@ -14,7 +15,13 @@ export default function RelativeDate(props: Props) {
 
   if (!date) return <>Never</>; //
 
-  let distance = formatDistanceToNow(date);
+  let distance;
+  try {
+    distance = formatDistanceToNow(date);
+  } catch (e) {
+    sendError(e);
+    return <>unknown ({date})</>;
+  }
   if (distance === 'less than a minute') distance = '< 1 minute';
   return (
     <span
