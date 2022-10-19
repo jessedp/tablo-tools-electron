@@ -7,6 +7,7 @@ import Device from 'tablo-api/dist/src/Device';
 import {
   asyncForEach,
   readableDuration,
+  sendError,
   // findFfmpegPath,
   timeStrToSeconds,
 } from './utils';
@@ -348,8 +349,13 @@ export default class Airing {
       case PROGRAM:
         return '';
 
-      default:
-        throw new Error(`unknown airing type! ${this.type}`);
+      default: {
+        const err = new Error(
+          `unknown airing type! Type = ${this.type} , This: ${this}`
+        );
+        sendError(err);
+        return '';
+      }
     }
   }
 
