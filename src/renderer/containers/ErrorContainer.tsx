@@ -1,8 +1,8 @@
 import { Component } from 'react';
-import * as Sentry from '@sentry/electron/renderer';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Container, Alert, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { sendError } from 'renderer/utils/utils';
 import getConfig from '../utils/config';
 import routes from '../constants/routes.json';
 
@@ -47,10 +47,7 @@ class ErrorContainer extends Component<RouteComponentProps, State> {
       info,
     });
 
-    if (process.env.NODE_ENV === 'production') {
-      // Send the Error to Sentry - it takes care of the allowErrorReporting check
-      Sentry.captureException(error);
-    }
+    sendError(error, info);
   }
 
   onRouteChanged() {

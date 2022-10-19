@@ -63,29 +63,6 @@ const configuration: webpack.Configuration = {
     new webpack.DefinePlugin({
       'process.type': '"main"',
     }),
-    // TODO: re-enable after 11 upgrde
-    // new SentryWebpackPlugin({
-    //   include: '.',
-    //   ignoreFile: '.sentrycliignore',
-    //   ignore: [
-    //     'node_modules',
-    //     'configs',
-    //     '_site',
-    //     'flow-typed',
-    //     'internals',
-    //     'test',
-    //     'dll',
-    //     'babel.config.js',
-    //     '.eslintrc',
-    //   ],
-    //   configFile: 'sentry.properties',
-    //   dryRun: false,
-    //   release: version,
-    //   setCommits: {
-    //     repo: 'jessedp/tablo-tools-electron',
-    //     auto: true,
-    //   },
-    // }),
   ],
 
   /**
