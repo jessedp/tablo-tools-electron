@@ -18,6 +18,9 @@ export default function DiskInfo(props: Props) {
   });
 
   useEffect(() => {
+    if (filename.startsWith('\\')) {
+      return;
+    }
     const getDiskStats = async (file: string) => {
       const stats = await window.fs.checkDiskSpace(file);
       setDiskStats(stats);
@@ -25,17 +28,18 @@ export default function DiskInfo(props: Props) {
     getDiskStats(filename).catch(console.error);
   }, [filename]);
 
-  // console.log('airing.videoDetails.size', videoSize);
-  // console.log('diskStats', diskStats);
   const spaceLeft = diskStats.free - videoSize;
   const percentSpaceLeft = spaceLeft / diskStats.free;
 
-  // console.log('spaceLeft : ', spaceLeft);
-  // console.log('percentSpaceLeft : ', percentSpaceLeft);
-
   const icon = 'fas pr-1';
   if (percentSpaceLeft >= 0.05) return <></>;
-
+  if (filename.startsWith('\\\\'))
+    return (
+      <span className="text-warning ">
+        Warning: Unable to check available space on Windows UNC/network paths
+        <br />
+      </span>
+    );
   if (spaceLeft < 0) {
     return (
       <span className="text-danger ">
