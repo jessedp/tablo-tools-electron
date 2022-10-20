@@ -20,7 +20,7 @@ import RecordingDurationStats from './RecordingDurationStats';
 // import Store from 'electron-store';
 // const Store = window.require('electron-store');
 
-import { StdObj } from '../utils/types';
+import { StdObj } from '../constants/types';
 
 const { store } = window.electron;
 type Props = Record<string, never>;

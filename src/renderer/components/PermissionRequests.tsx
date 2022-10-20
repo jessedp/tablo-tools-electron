@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import getConfig, { setConfigItem } from '../utils/config';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import SentryToggle from '../utils/sentryToggle';
-import { StdObj } from '../utils/types';
+import { StdObj } from '../constants/types';
 
 // const Store = window.require('electron-store');
 

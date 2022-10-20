@@ -10,7 +10,7 @@ import * as SearchActions from '../store/search';
 
 import { asyncForEach } from '../utils/utils';
 import ConfirmDelete from './ConfirmDelete';
-import { StdObj } from '../utils/types';
+import { StdObj } from '../constants/types';
 
 type State = Record<string, unknown>;
 

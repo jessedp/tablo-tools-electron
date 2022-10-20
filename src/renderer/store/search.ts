@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ViewType, VIEW_GRID } from '../constants/app';
-import { SearchAlert } from '../utils/types';
+import { SearchAlert } from '../constants/types';
 import { EmptySearchAlert } from '../utils/factories';
 
 export type SearchSliceState = {

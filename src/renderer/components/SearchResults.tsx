@@ -6,7 +6,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { asyncForEach } from '../utils/utils';
 import Recording from './Recording';
 import Airing, { ensureAiringArray } from '../utils/Airing';
-import type { SearchAlert } from '../utils/types';
+import type { SearchAlert } from '../constants/types';
 import type { SearchSliceState } from '../store/search';
 import SearchResultAlerts from './SearchResultAlerts';
 import RecordingSlim from './RecordingSlim';

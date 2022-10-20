@@ -1,4 +1,4 @@
-import { SearchAlert } from '../utils/types';
+import { SearchAlert } from './types';
 
 export const ON = 1;
 export const OFF = 0;

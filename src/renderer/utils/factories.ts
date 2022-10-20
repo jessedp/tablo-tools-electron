@@ -6,7 +6,7 @@ import {
   StdObj,
   ExportRecordType,
   SearchAlert,
-} from './types';
+} from '../constants/types';
 
 import Airing from './Airing';
 import { EXP_WAITING } from '../constants/app';

@@ -10,7 +10,7 @@ import Button from 'react-bootstrap/Button';
 import * as ActionListActions from '../store/actionList';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
-import { StdObj } from '../utils/types';
+import { StdObj } from '../constants/types';
 import { getTabloImageUrl } from '../utils/utils';
 
 import TabloImage from './TabloImage';

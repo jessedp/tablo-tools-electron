@@ -10,7 +10,7 @@ import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
-import { ExportRecordType, StdObj } from '../utils/types';
+import { ExportRecordType, StdObj } from '../constants/types';
 import { EXP_WORKING } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 

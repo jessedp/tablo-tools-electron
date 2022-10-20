@@ -14,7 +14,7 @@ import Show from './Show';
 
 import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
 
-import { NamingTemplateType } from './types';
+import { NamingTemplateType } from '../constants/types';
 
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 

@@ -7,7 +7,7 @@ import tplHelpers from 'template-helpers';
 import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
-import { NamingTemplateType } from './types';
+import { NamingTemplateType } from '../constants/types';
 
 import { ConfigType } from '../constants/types_config';
 

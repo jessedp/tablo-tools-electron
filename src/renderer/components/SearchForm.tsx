@@ -25,7 +25,7 @@ import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
 import { showList } from '../utils/dbHelpers';
 
-import type { QryStep, SearchAlert } from '../utils/types';
+import type { QryStep, SearchAlert } from '../constants/types';
 import { comskipAvailable } from '../utils/Tablo';
 import SavedSearch from './SavedSearch';
 

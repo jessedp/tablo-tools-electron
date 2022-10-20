@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { ExportRecordType, ExportLogRecordType } from '../utils/types';
+import { ExportRecordType, ExportLogRecordType } from '../constants/types';
 import {
   EXP_WAITING,
   EXP_WORKING,

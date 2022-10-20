@@ -1,5 +1,5 @@
 // @flow
-import { ShowCounts } from './types';
+import { ShowCounts } from '../constants/types';
 
 import { EVENT, MOVIE, SERIES } from '../constants/app';
 
