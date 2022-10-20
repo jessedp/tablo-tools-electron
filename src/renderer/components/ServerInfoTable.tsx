@@ -6,13 +6,9 @@ import PubSub from 'pubsub-js';
 import ServerInfo from 'tablo-api/dist/src/ServerInfo';
 import { EmptyServerInfo } from '../utils/factories';
 
-// import Store from 'electron-store';
-
-// const Store = window.require('electron-store');
-
 const { store } = window.electron;
 type Props = Record<string, unknown>;
-// TODO: type it
+
 type State = {
   serverInfo: ServerInfo;
 };
@@ -58,7 +54,6 @@ export default class ServerInfoTable extends Component<Props, State> {
     let { serverInfo } = this.state;
     const device: any = store.get('CurrentDevice');
 
-    // if (!device || Object.keys(serverInfo).length === 0 || !serverInfo) {
     if (!device) {
       return '';
     }
@@ -84,10 +79,6 @@ export default class ServerInfoTable extends Component<Props, State> {
             <th>Public IP</th>
             <td>{device.public_ip}</td>
           </tr>
-          {/* <tr>
-            <th>Timezone</th>
-            <td>{serverInfo.timezone}</td>
-          </tr> */}
           <tr>
             <th>Firmware version</th>
             <td>{serverInfo.version}</td>
