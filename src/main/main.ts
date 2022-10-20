@@ -104,7 +104,6 @@ class AppUpdater {
         'Problem running autoUpdater.checkForUpdatesAndNotify()',
         e
       );
-      debug('Problem running autoUpdater.checkForUpdatesAndNotify() %O', e);
     }
   }
 }
