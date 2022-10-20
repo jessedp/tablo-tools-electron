@@ -8,7 +8,8 @@ import Airing from '../utils/Airing';
 import RecordingSlim from './RecordingSlim';
 import Show from '../utils/Show';
 import * as ActionListActions from '../store/actionList';
-import { ON, OFF, StdObj } from '../constants/app';
+import { ON, OFF } from '../constants/app';
+import { StdObj } from '../constants/types';
 
 interface Props extends PropsFromRedux {
   // eslint-disable-next-line react/no-unused-prop-types
