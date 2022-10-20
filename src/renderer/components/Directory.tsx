@@ -123,10 +123,16 @@ export default function Directory(prop: Props) {
               does not exist, will be auto-created
             </span>
           ) : (
+            ''
+          )}
+
+          {!exists && isUNC ? (
             <span className="smaller text-muted">
               <span className="fa fa-exclamation-circle text-danger pt-2 pl-1 pr-1" />
               Network Path does not exist, CAN NOT be auto-created
             </span>
+          ) : (
+            ''
           )}
         </InputGroup>
       </div>

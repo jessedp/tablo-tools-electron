@@ -6,13 +6,9 @@ import sanitize from 'sanitize-filename';
 import tplHelpers from 'template-helpers';
 import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
-import {
-  NamingTemplateType,
-  SERIES,
-  PROGRAM,
-  MOVIE,
-  EVENT,
-} from '../constants/app';
+import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
+import { NamingTemplateType } from '../constants/types';
+
 import { ConfigType } from '../constants/types_config';
 
 import * as fsPath from './path';
@@ -401,7 +397,7 @@ export const setDefaultTemplate = (
   template: NamingTemplateType
 ): NamingTemplateType => {
   let nextTemplate = template;
-  console.log('namingTpl.js', 'nextTemplate1', nextTemplate);
+  debug('namingTpl.js', 'nextTemplate1', nextTemplate);
   if (isCurrentTemplate(template)) {
     nextTemplate = getDefaultTemplate(template.type);
   }
@@ -431,6 +427,6 @@ export const setDefaultTemplate = (
         programTemplate: nextTemplate.slug,
       });
   }
-  console.log('namingTpl.js', 'nextTemplate2', nextTemplate);
+  debug('namingTpl.js', 'nextTemplate2', nextTemplate);
   return nextTemplate;
 };

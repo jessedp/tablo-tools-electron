@@ -11,7 +11,7 @@ import {
   readableDuration,
   throttleActions,
 } from '../utils/utils';
-import type { SearchAlert } from '../utils/types';
+import type { SearchAlert } from '../constants/types';
 import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';

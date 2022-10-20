@@ -423,6 +423,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
           onClick={() => this.setPathDialog('programPath')}
           onChange={this.setProgramPath}
           value={programPath}
+          disabled={false}
         />
       </div>
     );

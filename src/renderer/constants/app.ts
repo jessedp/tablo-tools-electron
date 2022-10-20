@@ -1,4 +1,4 @@
-import { SearchAlert } from '../utils/types';
+import { SearchAlert } from './types';
 
 export const ON = 1;
 export const OFF = 0;
@@ -31,31 +31,6 @@ export const EMPTY_SEARCHALERT: SearchAlert = {
   matches: [],
 };
 
-export type NamingTemplateType = {
-  type: string;
-  slug: string;
-  label: string;
-  template: string;
-  _id?: string;
-};
-
-export type ExportLogRecordType = {
-  server_id: string;
-  via: string;
-  object_id: number;
-  startTime: Date | string;
-  endTime: Date | string;
-  status: number;
-  atOnce: number;
-  origPath: string;
-  realPath: string;
-  deleteOnFinish: boolean;
-  dupeAction: string;
-  result: string;
-  ffmpegLog: Array<string>;
-  airingData: Record<string, any>;
-};
-
 export const versionUpdateTestMessage2 = {
   available: true,
   info: {
@@ -80,19 +55,6 @@ export const versionUpdateTestMessage2 = {
       '<p>Fix one for loading Airings where the data is physically missing.</p>',
   },
 };
-
-export type ShowStatRowType = {
-  object_id: number;
-  cover: number;
-  show: any;
-  count: string; // FIXME: BOO! used toLocalString() b/c there's no formatter option in chart library?
-  duration: number;
-  size: number;
-  first: Date;
-  last: Date;
-};
-
-export type StdObj = Record<string, any>;
 
 export const VIEW_GRID = 'grid';
 export const VIEW_SELECTED = 'selected';

@@ -10,7 +10,8 @@ import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import { ON, OFF, StdObj } from '../constants/app';
+import { ON, OFF } from '../constants/app';
+import { StdObj } from '../constants/types';
 import VideoExportModal from './VideoExportModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import AiringDetailsModal from './AiringDetailsModal';
@@ -100,7 +101,7 @@ class RecordingSlim extends Component<Props> {
         >
           <Col md="8">
             {showCol}
-            <TitleSlim airing={airing} withShow={ON} />
+            <TitleSlim airing={airing} withShow={withShow} />
           </Col>
           <Col md="4" className="pr-0 mr-0">
             <div className="">

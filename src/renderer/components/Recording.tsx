@@ -15,7 +15,7 @@ import VideoExportModal from './VideoExportModal';
 import Airing from '../utils/Airing';
 import AiringDetailsModal from './AiringDetailsModal';
 import { getTabloImageUrl } from '../utils/utils';
-import { StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
 
 type OwnProps = {
   airing: Airing;

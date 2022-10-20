@@ -9,7 +9,7 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { Alert } from 'react-bootstrap';
-import type { NamingTemplateType } from '../constants/app';
+import type { NamingTemplateType } from '../constants/types';
 
 type Props = {
   template: NamingTemplateType;

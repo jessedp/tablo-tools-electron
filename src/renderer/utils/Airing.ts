@@ -1,6 +1,5 @@
 import Debug from 'debug';
 
-// import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 
 import Device from 'tablo-api/dist/src/Device';
@@ -8,19 +7,15 @@ import {
   asyncForEach,
   readableDuration,
   sendError,
-  // findFfmpegPath,
   timeStrToSeconds,
 } from './utils';
+
 import Show from './Show';
 
-import {
-  EVENT,
-  MOVIE,
-  PROGRAM,
-  SERIES,
-  // beginTimemark,
-  NamingTemplateType,
-} from '../constants/app';
+import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
+
+import { NamingTemplateType } from '../constants/types';
+
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
 
 const debug = Debug('tablo-tools:Airing');

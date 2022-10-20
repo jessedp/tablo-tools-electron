@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import type { SearchAlert } from '../utils/types';
+import type { SearchAlert } from '../constants/types';
 import MatchesToBadges from './SearchFilterMatches';
 import * as ActionListActions from '../store/actionList';
 

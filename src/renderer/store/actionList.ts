@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
 import Show from '../utils/Show';
 
 export type ActionListState = {
