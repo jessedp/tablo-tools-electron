@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as os from 'os';
+import * as path from 'path';
 
 import Store from 'electron-store';
 
@@ -226,24 +227,24 @@ export function writeToFile(
   const { config } = globalThis;
 
   if (!config.enableExportData) return;
-  const path = config.exportDataPath;
+  const exportPath = config.exportDataPath;
 
   try {
     fs.mkdirSync(config.exportDataPath, {
       recursive: true,
     });
+
+    let outData = data;
+    if (typeof data === 'object') outData = JSON.stringify(data);
+    const outFile = path.join(exportPath, name);
+    console.log(outFile);
+    if (typeof outData === 'string') {
+      fs.writeFileSync(outFile, outData);
+    } else {
+      fs.writeFileSync(outFile, JSON.stringify(outData, null, 2));
+    }
   } catch (e) {
     console.error('writeToFile', e);
-    debug('writeToFile', e);
-  }
-
-  let outData = data;
-  if (typeof data === 'object') outData = JSON.stringify(data);
-  const outFile = `${path}${name}`;
-  if (typeof outData === 'string') {
-    fs.writeFileSync(outFile, outData);
-  } else {
-    fs.writeFileSync(outFile, JSON.stringify(outData, null, 2));
   }
 }
 
