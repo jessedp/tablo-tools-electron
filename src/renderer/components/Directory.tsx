@@ -48,6 +48,7 @@ export default function Directory(prop: Props) {
   };
 
   const exists = window.fs.existsSync(value);
+  const isUNC = value.startsWith('\\\\');
   return (
     <div className="d-flex flex-row">
       <div>
@@ -114,9 +115,17 @@ export default function Directory(prop: Props) {
               exists!
             </span>
           ) : (
+            ''
+          )}
+          {!exists && !isUNC ? (
             <span className="smaller text-muted">
               <span className="fa fa-exclamation-circle text-danger pt-2 pl-1 pr-1" />
               does not exist, will be auto-created
+            </span>
+          ) : (
+            <span className="smaller text-muted">
+              <span className="fa fa-exclamation-circle text-danger pt-2 pl-1 pr-1" />
+              Network Path does not exist, CAN NOT be auto-created
             </span>
           )}
         </InputGroup>
