@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, current } from '@reduxjs/toolkit';
-import { ExportRecordType } from '../constants/types';
 // import { current } from 'immer';
-import { StdObj } from '../constants/app';
+import { ExportRecordType, StdObj } from '../utils/types';
 
 export type ExportListState = {
   records: StdObj[];

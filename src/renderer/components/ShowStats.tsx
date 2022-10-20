@@ -4,7 +4,7 @@ import PubSub from 'pubsub-js';
 import DataTable from 'react-data-table-component';
 import moment from 'moment';
 import Button from 'react-bootstrap/Button';
-import { ShowStatRowType } from '../constants/app';
+import { ShowStatRowType } from '../utils/types';
 import { EmptyShowStatRow } from '../utils/factories';
 import { asyncForEach, parseSeconds, readableBytes } from '../utils/utils';
 import Duration from './Duration';

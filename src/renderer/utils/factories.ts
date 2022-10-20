@@ -1,16 +1,17 @@
 import ServerInfo, { Model } from 'tablo-api/dist/src/ServerInfo';
-import { ExportRecordType } from '../constants/types';
-import Airing from './Airing';
 import {
-  EXP_WAITING,
   ExportLogRecordType,
   NamingTemplateType,
   ShowStatRowType,
   StdObj,
-} from '../constants/app';
-// import getConfig from './config';
+  ExportRecordType,
+  SearchAlert,
+} from './types';
+
+import Airing from './Airing';
+import { EXP_WAITING } from '../constants/app';
+
 import { TemplateVarsType } from './namingTpl';
-import { SearchAlert } from './types';
 
 export function ExportRecord(airing: StdObj) {
   const record: ExportRecordType = {

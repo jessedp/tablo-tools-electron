@@ -10,8 +10,7 @@ import * as ExportListActions from '../store/exportList';
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
-import { NamingTemplateType } from '../constants/app';
-import { ExportRecordType } from '../constants/types';
+import { NamingTemplateType, ExportRecordType } from '../utils/types';
 import ExportProgress from './ExportProgress';
 import FileInfo from './FileInfo';
 

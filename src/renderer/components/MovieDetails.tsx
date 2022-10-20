@@ -18,7 +18,7 @@ import AwardsModal from './AwardsModal';
 import AiringDetailsModal from './AiringDetailsModal';
 import TabloVideoPlayer from './TabloVideoPlayer';
 import VideoExportModal from './VideoExportModal';
-import { StdObj } from '../constants/app';
+import { StdObj } from '../utils/types';
 
 // interface Props extends PropsFromRedux {}
 

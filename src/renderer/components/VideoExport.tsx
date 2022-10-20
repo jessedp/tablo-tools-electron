@@ -1,12 +1,11 @@
 import { Component } from 'react';
-import { ExportRecordType } from '../constants/types';
+import { ExportRecordType, ExportLogRecordType } from '../utils/types';
 import {
   EXP_WAITING,
   EXP_WORKING,
   EXP_DONE,
   EXP_CANCEL,
   EXP_FAIL,
-  ExportLogRecordType,
 } from '../constants/app';
 import {
   throttleActions,

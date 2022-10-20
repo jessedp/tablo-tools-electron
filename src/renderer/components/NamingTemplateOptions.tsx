@@ -7,7 +7,7 @@ import {
   getTemplates,
   isCurrentTemplate,
 } from '../utils/namingTpl';
-import { NamingTemplateType } from '../constants/app';
+import { NamingTemplateType } from '../utils/types';
 import SelectStyles from './SelectStyles';
 
 import { EmptyNamingTemplate } from '../utils/factories';

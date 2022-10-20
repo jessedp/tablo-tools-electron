@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import { titleCase } from 'renderer/utils/utils';
 import { sendFlash } from 'renderer/store/flash';
 
-import { NamingTemplateType } from '../constants/app';
+import { NamingTemplateType } from '../utils/types';
 import Airing from '../utils/Airing';
 import TemplateEditor from './TemplateEditor';
 import { buildTemplateVars, setDefaultTemplate } from '../utils/namingTpl';
