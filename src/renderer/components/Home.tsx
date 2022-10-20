@@ -208,7 +208,7 @@ export default class Home extends Component<Props, State> {
                 <Discovery showServerInfo={this.showServerInfo} />
               </Card.Subtitle>
               <Card.Body className="p-1">
-                <div className="">
+                <div style={{ position: 'relative' }}>
                   {showServerInfo ? <ServerInfoTable /> : ''}
                 </div>
               </Card.Body>
