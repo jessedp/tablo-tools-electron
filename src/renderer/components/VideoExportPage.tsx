@@ -10,8 +10,8 @@ import Airing from '../utils/Airing';
 import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
-import { ExportRecordType } from '../constants/types';
-import { ExportLogRecordType, EXP_WORKING, StdObj } from '../constants/app';
+import { ExportRecordType, StdObj } from '../utils/types';
+import { EXP_WORKING } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 
 import routes from '../constants/routes.json';
@@ -66,6 +66,9 @@ class VideoExportPage extends Component<Props, State> {
     await asyncForEach(actionList, async (rec: StdObj) => {
       const airing = new Airing(rec);
 
+      // Freeze the current Template when adding to Export List
+      airing.data.customTemplate = airing.template;
+
       const diskStats: DiskSpace = await window.fs.checkDiskSpace(
         airing.exportFile
       );
@@ -74,7 +77,8 @@ class VideoExportPage extends Component<Props, State> {
       allDisks[pathKey] = allDisks[pathKey]
         ? allDisks[pathKey] + rec.video_details.size
         : rec.video_details.size;
-      const newRec = ExportRecord(rec);
+
+      const newRec = ExportRecord(airing.data);
       addExportRecord(newRec);
     });
     this.setState({
@@ -136,9 +140,8 @@ class VideoExportPage extends Component<Props, State> {
         <div className="mt-2 mb-2 ml-5">
           {Object.keys(allDiskStats).map((path) => {
             return (
-              <div>
+              <div key={path}>
                 <DiskInfo
-                  key={path}
                   displayPath
                   filename={path}
                   videoSize={allDiskStats[path]}
