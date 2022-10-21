@@ -94,7 +94,7 @@ const VideoExport = (WrappedComponent: any) => {
             return window.Airing.exportVideo(
               airing.object_id,
               actionOnDuplicate,
-              rec.airing.template
+              airing.template
             );
           }
           return new Promise((resolve) => {
