@@ -158,7 +158,7 @@ class DbStatus extends Component<DbStatusProps, State> {
           width: '140px',
         }}
       >
-        <Row>
+        <Row className="mr-0">
           <Col md="2" className="ml-2 pr-0 mr-0 pl-0 btn btn-xs smaller">
             <DbLoadingSpinner />
           </Col>
