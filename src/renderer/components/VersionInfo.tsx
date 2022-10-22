@@ -1,9 +1,18 @@
+/**
+ * VersionInfo.tsx
+ *  This displays Release Notes and is displayed when it detects a new version
+ *  has been installed.
+ */
+
 import { Component } from 'react';
 import axios from 'axios';
-// import Store from 'electron-store';
+
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
+
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 import { compare } from 'compare-versions';
 import Button from 'react-bootstrap/Button';
 
@@ -47,7 +56,13 @@ function Release(prop: any) {
         </span>
       </Card.Header>
       <Card.Body className="pt-2 pb-1">
-        <ReactMarkdown>{data.body}</ReactMarkdown>
+        <ReactMarkdown
+          disallowedElements={['script']}
+          remarkPlugins={[remarkGfm]}
+          linkTarget="_blank"
+        >
+          {data.body}
+        </ReactMarkdown>
       </Card.Body>
     </Card>
   );

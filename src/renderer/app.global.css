@@ -219,6 +219,14 @@ button:focus {
   margin-bottom: 100px;
 }
 
+div.markdown-div > ul > li > a {
+  color: blue;
+}
+
+div.markdown-div > * > a {
+  color: blue;
+}
+
 /** Overview - Device/discover **/
 .device-card {
   display: block;

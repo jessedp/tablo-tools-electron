@@ -95,6 +95,14 @@ ipcMain.on('open-path', (_, arg: string) => {
 
 class AppUpdater {
   constructor() {
+    const autoUpdateOption = getConfig().autoUpdate;
+    if (!autoUpdateOption) {
+      console.log(
+        'autoUpdate Config option disabled, NOT checking for new version'
+      );
+      return;
+    }
+
     updaterLog.transports.file.level = 'info';
     autoUpdater.logger = updaterLog;
     try {
