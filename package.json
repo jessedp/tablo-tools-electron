@@ -307,6 +307,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.9",
+    "remark-gfm": "^3.0.1",
     "sanitize-filename": "^1.6.3",
     "slugify": "^1.4.2",
     "source-map-support": "^0.5.19",

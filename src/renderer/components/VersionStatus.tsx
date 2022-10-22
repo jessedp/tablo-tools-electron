@@ -1,9 +1,16 @@
+/**
+ * VersionStatus.tsx
+ *  This recurringly checks for new software versions (beta and full) and displays
+ *  an indicator icon in NavBar if one exists.
+ */
+
 import { Component } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { format } from 'date-fns';
 import axios from 'axios';
 
@@ -29,17 +36,16 @@ class VersionStatus extends Component<Props, State> {
 
   async componentDidMount() {
     // electron-updater in main proc for full releases
-    window.ipcRenderer.send('update-request');
+    // window.ipcRenderer.send('update-request');
 
     if (process.env.NODE_ENV === 'production') {
       setInterval(this.checkUpdate, 1000 * 60 * 60);
-      setTimeout(this.checkUpdate, 1000);
     }
 
     this.checkUpdate();
-    window.ipcRenderer.on('update-reply', () => {
-      this.checkUpdate();
-    });
+    // window.ipcRenderer.on('update-reply', () => {
+    //   this.checkUpdate();
+    // });
   }
 
   show = () => {
@@ -152,7 +158,6 @@ class VersionStatus extends Component<Props, State> {
                 warned.
               </div>
             )}
-
             <Button
               className="pt-2 ml-2 mt-3 bolder mb-2"
               variant="success"
@@ -167,7 +172,10 @@ class VersionStatus extends Component<Props, State> {
             <br />
             <h4>Release Notes:</h4>
             <ReactMarkdown
-              disallowedElements={['a', 'script', 'link', 'linkReference']}
+              className="markdown-div"
+              disallowedElements={['script']}
+              remarkPlugins={[remarkGfm]}
+              linkTarget="_blank"
             >
               {record.body}
             </ReactMarkdown>
@@ -191,7 +199,7 @@ class VersionStatus extends Component<Props, State> {
             </Button>
           </Modal.Footer>
         </Modal>
-      </> //
+      </>
     );
   }
 }
