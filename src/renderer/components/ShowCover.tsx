@@ -36,7 +36,7 @@ function BottomLine(prop: { show: Show }) {
     <>
       <div className={style}>
         {showCounts
-          ? `${showCounts.unwatched_count} of ${showCounts.airing_count} unwatched`
+          ? `${showCounts?.unwatched_count} of ${showCounts?.airing_count} unwatched`
           : ''}
       </div>
     </> //
@@ -98,7 +98,7 @@ function ShowCover(props: OwnProps): JSX.Element {
         a + (b.show?.object_id === show?.object_id ? 1 : 0),
       0
     );
-    return recCount === show.showCounts.airing_count
+    return recCount === show.showCounts?.airing_count
       ? CHECKBOX_ON
       : CHECKBOX_OFF;
   });
