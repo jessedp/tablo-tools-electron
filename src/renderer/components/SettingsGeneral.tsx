@@ -134,9 +134,12 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 
   toggleAutoUpdate = () => {
     const { autoUpdate } = this.state;
-    const message = `Automatic Updates are now ${
-      !autoUpdate ? 'enabled' : 'disabled'
-    }`;
+    // !autoUpdate because we haven't saved the option, but want a correct message
+    let message = 'Automatic Updates are now disabled';
+    if (!autoUpdate) {
+      message =
+        'Automatic Updates are now enabled. Re-open the app for updates.';
+    }
     const type = !autoUpdate ? 'success' : 'warning';
     this.saveConfigItem(
       {
@@ -357,10 +360,9 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
               label="Enable automatic updates?"
             />
             <div className="pl-4 smaller">
-              On Linux and Windows, try to automatically download and install{' '}
-              <b>new releases</b>. Regardless of this setting, a notification
-              will appear when a new release is available (or based on your
-              choice below).
+              Try to automatically download and install <b>new releases</b>.
+              Regardless of this setting, a notification will appear when a new
+              release is available (or based on your choice below).
             </div>
           </Col>
         </Row>
