@@ -4,7 +4,8 @@ import { RootState } from '../store';
 import { addShow, remShow } from '../store/actionList';
 import TabloImage from './TabloImage';
 import Show from '../utils/Show';
-import { SERIES, MOVIE, EVENT, PROGRAM, StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
+import { SERIES, MOVIE, EVENT, PROGRAM } from '../constants/app';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
 
 function BottomLine(prop: { show: Show }) {

@@ -16,14 +16,13 @@ import VideoExport from './VideoExport';
 import { ExportRecordType } from '../constants/types';
 import * as ExportListActions from '../store/exportList';
 import * as ActionListActions from '../store/actionList';
-import { EXP_WORKING } from '../constants/app';
+import { EXP_DONE, EXP_WORKING } from '../constants/app';
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
-import { EXP_DONE } from '../../../_site/release/app/dist/src/renderer/constants/app';
 
 interface Props extends PropsFromRedux {
   airing: Airing;
@@ -152,6 +151,7 @@ class VideoExportModal extends Component<Props, State> {
     }
 
     if (deleteOnFinish === CHECKBOX_ON) {
+      remAiring(expRec.airing);
       await airing.delete();
       PubSub.publish('DB_CHANGE', '');
     }
