@@ -23,6 +23,7 @@ import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
+import { EXP_DONE } from '../../../_site/release/app/dist/src/renderer/constants/app';
 
 interface Props extends PropsFromRedux {
   airing: Airing;
@@ -126,8 +127,8 @@ class VideoExportModal extends Component<Props, State> {
   close = async () => {
     const {
       airing,
-
       exportList,
+      exportState,
       deleteOnFinish,
       remAiring,
       remExportRecord,
@@ -135,12 +136,9 @@ class VideoExportModal extends Component<Props, State> {
     } = this.props;
     const { existing } = this.state;
 
-    // bulkRemExportRecord();
-    // console.log('remove?', exportList[0]);
     let expRec = exportList.find(
       (rec: ExportRecordType) => rec.airing.object_id === airing.object_id
     );
-    // console.log('remove?', exportList[0]);
 
     if (existing) {
       expRec = { ...expRec, isBulk: true };
@@ -149,9 +147,12 @@ class VideoExportModal extends Component<Props, State> {
       remExportRecord(expRec);
     }
 
-    window.Airing.cancelExportVideo(expRec.airing);
+    if (exportState !== EXP_DONE) {
+      window.Airing.cancelExportVideo(expRec.airing);
+    }
+
     if (deleteOnFinish === CHECKBOX_ON) {
-      remAiring(expRec.airing);
+      await airing.delete();
       PubSub.publish('DB_CHANGE', '');
     }
 
