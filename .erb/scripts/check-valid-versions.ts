@@ -1,7 +1,8 @@
 // Check to see if the places version numbers are set are in sync
-
 import chalk from 'chalk';
+import { execSync } from 'child_process';
 import { exit } from 'process';
+import { compare } from 'compare-versions';
 import { version as ReleaseVersion } from '../../release/app/package.json';
 import { version as RootVersion } from '../../package.json';
 
@@ -26,4 +27,21 @@ if (ReleaseVersion !== RootVersion) {
   );
 
   exit(-1);
+}
+
+const getCurrentTagCmd = `git describe --tags --abbrev=0`;
+const currentTag = execSync(getCurrentTagCmd)
+  .toString()
+  .replace('v', '')
+  .trim();
+
+console.log('currentTag', currentTag);
+console.log('ReleaseVersion', ReleaseVersion);
+
+if (!compare(ReleaseVersion, currentTag, '>')) {
+  console.error(
+    chalk.red.bold(
+      `The Development/Current Release version (${ReleaseVersion}) must be greater than the Most Recently Tagged Release's version (${currentTag})`
+    )
+  );
 }
