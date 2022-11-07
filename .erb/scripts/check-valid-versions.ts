@@ -29,6 +29,8 @@ if (ReleaseVersion !== RootVersion) {
   exit(-1);
 }
 
+execSync('git fetch --tags');
+
 const getCurrentTagCmd = `git describe --tags --abbrev=0`;
 const currentTag = execSync(getCurrentTagCmd)
   .toString()
