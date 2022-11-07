@@ -346,7 +346,11 @@ export default class Airing {
 
       default: {
         const err = new Error(
-          `unknown airing type! Type = ${this.type} , This: ${this}`
+          `unknown airing type! Type = ${this.type} , This: ${JSON.stringify(
+            this,
+            null,
+            2
+          )}`
         );
         sendError(err);
         return '';
