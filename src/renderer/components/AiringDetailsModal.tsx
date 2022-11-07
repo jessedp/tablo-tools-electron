@@ -57,8 +57,12 @@ export default function AiringDetailsModal(props: Props) {
     window.electron.shell.openExternal(directoryUrl);
   };
 
-  // eslint-disable-next-line no-underscore-dangle
-  delete airing.data._id;
+  try {
+    // eslint-disable-next-line no-underscore-dangle
+    delete airing.data._id;
+  } catch (e) {
+    // ignore the potentially missing field...
+  }
   return (
     <Modal show={show} scrollable onHide={() => setShow(false)} size="lg">
       <Modal.Header closeButton>
