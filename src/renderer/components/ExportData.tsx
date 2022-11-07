@@ -52,6 +52,7 @@ export default class ExportData extends Component<Props, State> {
     (this as any).openExportFile = this.openExportFile.bind(this);
     (this as any).causeError = this.causeError.bind(this);
     (this as any).causeError2 = this.causeError2.bind(this);
+    (this as any).causeError3 = this.causeError3.bind(this);
   }
 
   toggleServerInfo = () => {
@@ -279,6 +280,12 @@ export default class ExportData extends Component<Props, State> {
     throw new Error('causeError 2!');
   };
 
+  causeError3 = () => {
+    // "hidden" and allows causing an Ignored error in prod
+
+    throw new Error('causeError 3!');
+  };
+
   render() {
     // const {
     //   state,
@@ -421,6 +428,16 @@ export default class ExportData extends Component<Props, State> {
               variant="white"
               onClick={this.causeError2}
               title="purposefully cause a bogus error in production to test reporting... #2"
+            >
+              &nbsp;
+            </Button>
+
+            <Button
+              size={'xs' as any}
+              className="ml-5"
+              variant="white"
+              onClick={this.causeError3}
+              title="purposefully cause a bogus error in production that will not be reported"
             >
               &nbsp;
             </Button>

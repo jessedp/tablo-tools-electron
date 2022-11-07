@@ -1,5 +1,13 @@
+import Debug from 'debug';
 import { version } from '../../release/app/package.json';
 import getConfig from './utils/config';
+
+const debug = Debug('tablo-tools:sentry');
+
+const ignoreError = (event: any) => {
+  debug('Ignored: %s', JSON.stringify(event, null, 2));
+  return null;
+};
 
 const setupSentry = (init: any) => {
   if (process.env.NODE_ENV === 'production') {
@@ -21,6 +29,70 @@ const setupSentry = (init: any) => {
 
         const value = event.exception.values[0];
 
+        // ignore errors we can't (currently) do anything about
+        const errorText = value.value.toString();
+
+        /**
+         * test error message from Settings->Advanced (ExportData)
+         */
+        if (errorText.trim() === 'causeError 3!') {
+          return ignoreError(event);
+        }
+
+        /**
+         * auto-updater on Windows
+         */
+
+        // #TABLO-TOOLS-ELECTRON-SJ - the auto updater on Windows being funky
+        if (
+          errorText.includes('ENOENT: no such file or directory, rename') &&
+          errorText.include('temp-TabloTools-Setup')
+        ) {
+          return ignoreError(event);
+        }
+        // #TABLO-TOOLS-ELECTRON-SG - the auto updater on Windows being funky
+        if (
+          errorText.includes('EPERM: operation not permitted, open') &&
+          errorText.include('temp-TabloTools-Setup')
+        ) {
+          return ignoreError(event);
+        }
+        // #TABLO-TOOLS-ELECTRON-D1 - the auto updater on Windows being funky
+        if (
+          errorText.includes(
+            'Command failed: powershell.exe -NoProfile -NonInteractive -InputFormat None -Command Get-AuthenticodeSignature'
+          )
+        ) {
+          return ignoreError(event);
+        }
+        /**
+         * nedb not behaving
+         *  - pre seald/nedb - a locking error, not actually an error
+         *  - post seald/nedb - still not actually an error, just happens on first usage of 0.3+?
+         */
+
+        // #TABLO-TOOLS-ELECTRON-R6 - nedb causing fake errors trying to rename tmp files
+        if (
+          errorText.includes('ENOENT: no such file or directory, rename') &&
+          errorText.include('.db~')
+        ) {
+          return ignoreError(event);
+        }
+        // #TABLO-TOOLS-ELECTRON-RS - nedb causing fake errors trying to rename tmp files
+        if (
+          errorText.includes('ENOENT: no such file or directory, open') &&
+          errorText.include('.db~')
+        ) {
+          return ignoreError(event);
+        }
+        if (
+          errorText.includes('EPERM: operation not permitted, rename') &&
+          errorText.include('.db~')
+        ) {
+          return ignoreError(event);
+        }
+
+        // Okay, send it!
         if (value.stacktrace && value.stacktrace.frames) {
           value.stacktrace.frames.forEach((frame: any) => {
             if (frame && frame.filename && frame.filename.includes('dist/')) {
@@ -35,7 +107,6 @@ const setupSentry = (init: any) => {
             }
           });
         }
-
         return event;
       },
     });
