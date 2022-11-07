@@ -30,7 +30,7 @@ import {
   loadTemplates,
   setDefaultTemplate,
 } from '../utils/namingTpl';
-import type { NamingTemplateType } from '../constants/app';
+import type { NamingTemplateType } from '../constants/types';
 import { setConfigItem } from '../utils/config';
 import { titleCase, asyncForEach } from '../utils/utils';
 import Airing from '../utils/Airing';
@@ -140,7 +140,6 @@ class SettingsNaming extends Component<Props, State> {
       template,
       templateVars,
     });
-    await this.checkErrors();
   }
 
   checkErrors = async () => {
@@ -349,6 +348,7 @@ class SettingsNaming extends Component<Props, State> {
   };
 
   setView = (view: string) => {
+    this.checkErrors();
     this.setState({
       view,
     });
@@ -440,27 +440,28 @@ class SettingsNaming extends Component<Props, State> {
                 ''
               )}
 
-              {view !== 'view' ? (
-                <Button
-                  size={'xs' as any}
-                  variant="secondary"
-                  onClick={this.cancel}
-                  title="cancel"
-                >
-                  <span className="fas fa-window-close naming-icons" />
-                </Button>
-              ) : (
-                ''
-              )}
               {view !== 'view' && getDefaultTemplateSlug() !== template.slug ? (
                 <Button
                   size={'xs' as any}
                   variant="success"
                   onClick={this.save}
-                  className="ml-2"
                   title="Save Template"
                 >
                   <span className="fa fa-save naming-icons" />
+                </Button>
+              ) : (
+                ''
+              )}
+
+              {view !== 'view' ? (
+                <Button
+                  size={'xs' as any}
+                  variant="secondary"
+                  onClick={this.cancel}
+                  className="ml-2"
+                  title="cancel"
+                >
+                  <span className="fas fa-window-close naming-icons" />
                 </Button>
               ) : (
                 ''
