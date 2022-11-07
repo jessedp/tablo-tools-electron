@@ -10,9 +10,10 @@ log.hooks.push((message, transport) => {
   if (transport !== log.transports.file) {
     return message;
   }
-
-  if (message.data[0].includes('password')) {
-    return false;
+  if (message && message.data && !message.data[0]) {
+    if (message.data[0].includes('password')) {
+      return false;
+    }
   }
 
   // from ansi-regex which blows for some reason
