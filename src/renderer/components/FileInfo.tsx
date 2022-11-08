@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import { NamingTemplateType } from '../constants/types';
 import {
   EXP_WAITING,
   EXP_WORKING,
   EXP_DONE,
   EXP_DELETE,
-  NamingTemplateType,
   DUPE_OVERWRITE,
   DUPE_SKIP,
 } from '../constants/app';
