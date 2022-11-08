@@ -9,7 +9,8 @@ import AiringStatus from './AiringStatus';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import Checkbox, { CHECKBOX_ON, CHECKBOX_OFF } from './Checkbox';
-import { ON, OFF, StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
+import { ON, OFF } from '../constants/app';
 
 type OwnProps = {
   doDelete?: () => undefined;
@@ -62,7 +63,7 @@ class RecordingMini extends Component<Props> {
 
   render() {
     const { airing, checked, withShow, withSelect } = this.props;
-    // const classes = `border pb-1 mb-2 pt-1`;
+
     let showCol = <></>;
     let chkCol = <></>;
 
