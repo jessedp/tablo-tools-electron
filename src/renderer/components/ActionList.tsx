@@ -15,7 +15,8 @@ import type { SearchAlert } from '../constants/types';
 import * as SearchActions from '../store/search';
 import SearchResults from './SearchResults';
 import routes from '../constants/routes.json';
-import { EMPTY_SEARCHALERT, StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
+import { EMPTY_SEARCHALERT } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
 
 interface Props extends PropsFromRedux {

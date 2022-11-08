@@ -16,13 +16,8 @@ import Airing from '../utils/Airing';
 import { asyncForEach, throttleActions } from '../utils/utils';
 import RecordingMini from './RecordingMini';
 
-import {
-  EXP_DONE,
-  EXP_WAITING,
-  EXP_WORKING,
-  ON,
-  StdObj,
-} from '../constants/app';
+import { StdObj } from '../constants/types';
+import { EXP_DONE, EXP_WAITING, EXP_WORKING, ON } from '../constants/app';
 
 interface Props extends PropsFromRedux {
   airing?: Airing | null;

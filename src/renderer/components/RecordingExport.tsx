@@ -5,11 +5,14 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import * as ActionListActions from '../store/actionList';
 import * as ExportListActions from '../store/exportList';
 
 import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
+import { EXP_WORKING, EXP_DONE } from '../constants/app';
 import { NamingTemplateType, ExportRecordType } from '../constants/types';
 import ExportProgress from './ExportProgress';
 import FileInfo from './FileInfo';
@@ -24,6 +27,8 @@ type StateProps = {
 };
 
 type DispatchProps = {
+  remAiring: (arg0: StdObj) => void;
+  remExportRecord: (arg0: ExportRecordType) => void;
   updateExportRecord: (arg0: ExportRecordType) => void;
 };
 
@@ -54,6 +59,12 @@ class RecordingExport extends Component<Props, State> {
       this.render();
     }
   }
+
+  removeFromExport = () => {
+    const { record, remAiring, remExportRecord } = this.props;
+    remAiring(record.airing);
+    remExportRecord(record);
+  };
 
   updateTemplate = (template: NamingTemplateType) => {
     const { record, updateExportRecord } = this.props;
@@ -104,7 +115,7 @@ class RecordingExport extends Component<Props, State> {
               </Col>
             </Row>
             <Row>
-              <Col md="auto">
+              <Col md="11">
                 <FileInfo
                   airing={airing}
                   actionOnDuplicate={actionOnDuplicate}
@@ -112,6 +123,20 @@ class RecordingExport extends Component<Props, State> {
                   updateTemplate={this.updateTemplate}
                 />
               </Col>
+              {exportState !== EXP_WORKING && exportState !== EXP_DONE ? (
+                <Col md="1">
+                  <Button
+                    variant="outline-danger"
+                    size={'xs' as any}
+                    title="Remove from queue"
+                    onClick={this.removeFromExport}
+                  >
+                    <span className="fa fa-trash-alt" />
+                  </Button>
+                </Col>
+              ) : (
+                ''
+              )}
             </Row>
           </Col>
         </Row>
@@ -132,7 +157,10 @@ const mapStateToProps = (state: any, ownProps: OwnProps) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators({ ...ExportListActions }, dispatch);
+  return bindActionCreators(
+    { ...ExportListActions, ...ActionListActions },
+    dispatch
+  );
 };
 
 export default connect<StateProps, DispatchProps, OwnProps>(

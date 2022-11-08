@@ -6,14 +6,13 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { Badge, Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import * as ActionListActions from '../store/actionList';
-import { ON, OFF, NO, StdObj } from '../constants/app';
+import { StdObj } from '../constants/types';
+import { ON, OFF, NO } from '../constants/app';
 import { ProgramData } from '../constants/types_airing';
 import RecordingSlim from './RecordingSlim';
 import ProgramCover from './ProgramCover';
 import { programList } from './Programs';
 import routes from '../constants/routes.json';
-
-// interface Props extends PropsFromRedux {}
 
 type State = {
   rec: ProgramData | null;
@@ -140,8 +139,6 @@ class ProgramEpisodeList extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: any) => {
-  // const { rec } = ownProps;
-  // const { airings } = rec;
   const airings: StdObj[] = [];
   let selectedCount = 0;
   if (airings.length > 0) {
