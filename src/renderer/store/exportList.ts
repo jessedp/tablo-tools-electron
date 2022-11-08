@@ -33,9 +33,11 @@ const slice = createSlice({
 
     remExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
       const exportRecord = action.payload;
-      state.records = [...state.records].filter(
-        (rec) => rec.airing.object_id !== exportRecord.airing.object_id
-      );
+      state.records = [...state.records].filter((rec) => {
+        if (!rec.airing) return false;
+        if (!exportRecord.airing) return false;
+        return rec.airing.object_id !== exportRecord.airing.object_id;
+      });
     },
 
     bulkRemExportRecord: (state) => {

@@ -110,7 +110,9 @@ export function getTabloImageUrl(imageId: string | number) {
   if (id === 0) {
     return '';
   }
-  const host = window.Tablo.device().private_ip;
+  const device = window.Tablo.device();
+  if (!device) return '';
+  const host = device.private_ip;
   return `http://${host}:8885/images/${id}`;
 }
 

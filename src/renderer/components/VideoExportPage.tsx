@@ -69,14 +69,16 @@ class VideoExportPage extends Component<Props, State> {
       // Freeze the current Template when adding to Export List
       airing.data.customTemplate = airing.template;
 
-      const diskStats: DiskSpace = await window.fs.checkDiskSpace(
-        airing.exportFile
-      );
+      if (!airing.exportFile.startsWith('\\')) {
+        const diskStats: DiskSpace = await window.fs.checkDiskSpace(
+          airing.exportFile
+        );
 
-      const pathKey = diskStats.diskPath;
-      allDisks[pathKey] = allDisks[pathKey]
-        ? allDisks[pathKey] + rec.video_details.size
-        : rec.video_details.size;
+        const pathKey = diskStats.diskPath;
+        allDisks[pathKey] = allDisks[pathKey]
+          ? allDisks[pathKey] + rec.video_details.size
+          : rec.video_details.size;
+      }
 
       const newRec = ExportRecord(airing.data);
       addExportRecord(newRec);
