@@ -90,6 +90,13 @@
       "synopsis": "The control over your Tablo you needed",
       "category": "AudioVideo;Video;"
     },
+    "deb": {
+      "depends": [
+        "libnotify4",
+        "libxtst6",
+        "libnss3"
+      ]
+    },
     "directories": {
       "app": "release/app",
       "buildResources": "assets",
