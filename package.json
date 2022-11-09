@@ -3,7 +3,7 @@
   "productName": "tablo-tools",
   "description": "see release/app",
   "main": "./src/main/main.ts",
-  "version": "0.3.7-beta.0",
+  "version": "0.3.7-beta.1",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
@@ -89,6 +89,13 @@
       ],
       "synopsis": "The control over your Tablo you needed",
       "category": "AudioVideo;Video;"
+    },
+    "deb": {
+      "depends": [
+        "libnotify4",
+        "libxtst6",
+        "libnss3"
+      ]
     },
     "directories": {
       "app": "release/app",
