@@ -237,7 +237,6 @@ export function writeToFile(
     let outData = data;
     if (typeof data === 'object') outData = JSON.stringify(data);
     const outFile = path.join(exportPath, name);
-    console.log(outFile);
     if (typeof outData === 'string') {
       fs.writeFileSync(outFile, outData);
     } else {
