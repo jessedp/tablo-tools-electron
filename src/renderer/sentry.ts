@@ -40,6 +40,14 @@ const setupSentry = (init: any) => {
         }
 
         /**
+         * this is /not/ my problem.
+         */
+
+        if (errorText.includes('ENOSPC: no space left on device')) {
+          return ignoreError(event);
+        }
+
+        /**
          * auto-updater on Windows
          */
 
