@@ -93,18 +93,100 @@ ipcMain.on('open-path', (_, arg: string) => {
   }
 });
 
+let mainWindow: BrowserWindow | null = null;
+
 class AppUpdater {
   constructor() {
+    autoUpdater.on('error', (error) => {
+      // sentry #R
+      if (!error.toString().match('ENOENT')) console.error(error);
+
+      const data = {
+        available: false,
+        error,
+        info: {},
+      };
+
+      mainWindow?.webContents.send('update-reply', data);
+    });
+
+    autoUpdater.on('update-available', (info) => {
+      const data = {
+        available: true,
+        info,
+        error: null,
+      };
+      mainWindow?.webContents.send('update-reply', data);
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+      mainWindow?.webContents.send('update-downloaded');
+    });
+
+    ipcMain.on('set-autoupdate-check', () => {
+      const autoUpdateOption = getConfig().autoUpdate;
+
+      if (autoUpdateOption) {
+        autoUpdater.autoDownload = true;
+        autoUpdater.autoInstallOnAppQuit = false;
+        autoUpdater.checkForUpdatesAndNotify();
+      } else {
+        autoUpdater.autoDownload = false;
+        autoUpdater.autoInstallOnAppQuit = false;
+        console.log(
+          'autoUpdate Config option disabled, NOT checking for new version'
+        );
+      }
+    });
+
+    ipcMain.on('update-available-check', () => {
+      debug('update-available-check received!');
+      try {
+        autoUpdater.checkForUpdatesAndNotify();
+      } catch (e) {
+        console.error('autoUpdater.checkForUpdatesAndNotify problem', e);
+      }
+    });
+
+    ipcMain.on('update-download-now', () => {
+      debug('update-now received!');
+      try {
+        autoUpdater.autoDownload = true;
+        autoUpdater.autoInstallOnAppQuit = true;
+        autoUpdater.checkForUpdatesAndNotify();
+      } catch (e) {
+        console.error('autoUpdater.downloadUpdate problem', e);
+      }
+    });
+
+    ipcMain.on('update-quit-install', () => {
+      debug('update-quit-install received!');
+      try {
+        autoUpdater.quitAndInstall();
+      } catch (e) {
+        console.error('autoUpdater.quitAndInstall problem', e);
+      }
+    });
+
     const autoUpdateOption = getConfig().autoUpdate;
-    if (!autoUpdateOption) {
+
+    autoUpdater.allowPrerelease = false;
+
+    updaterLog.transports.file.level = 'info';
+    autoUpdater.logger = updaterLog;
+
+    if (autoUpdateOption) {
+      autoUpdater.autoDownload = true;
+      autoUpdater.autoInstallOnAppQuit = false;
+    } else {
+      autoUpdater.autoDownload = false;
+      autoUpdater.autoInstallOnAppQuit = false;
       console.log(
         'autoUpdate Config option disabled, NOT checking for new version'
       );
       return;
     }
 
-    updaterLog.transports.file.level = 'info';
-    autoUpdater.logger = updaterLog;
     try {
       autoUpdater.checkForUpdatesAndNotify();
     } catch (e) {
@@ -115,8 +197,6 @@ class AppUpdater {
     }
   }
 }
-
-let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;

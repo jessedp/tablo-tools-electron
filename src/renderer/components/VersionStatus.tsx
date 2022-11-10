@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import axios from 'axios';
 
 import { compare } from 'compare-versions';
+// import { versionUpdateTestMessage2 } from 'renderer/constants/app';
 import RelativeDate from './RelativeDate';
 import getConfig from '../utils/config';
 
@@ -22,30 +23,46 @@ type Props = Record<string, unknown>;
 type State = {
   show: boolean;
   updateAvailable: boolean;
+  updateReady: boolean;
+  quitAndInstall: boolean;
   record?: Record<string, any>;
 };
 
 class VersionStatus extends Component<Props, State> {
+  checkUpdateTimer: NodeJS.Timer | undefined;
+
   constructor(props: Props) {
     super(props);
+
     this.state = {
       show: false,
       updateAvailable: false,
+      updateReady: false,
+      quitAndInstall: false,
     };
   }
 
   async componentDidMount() {
     // electron-updater in main proc for full releases
-    // window.ipcRenderer.send('update-request');
 
+    // always check once
+    window.ipcRenderer.send('update-available-check');
+
+    // in prod, keeping checking every hour
     if (process.env.NODE_ENV === 'production') {
-      setInterval(this.checkUpdate, 1000 * 60 * 60);
+      this.checkUpdateTimer = setInterval(
+        () => window.ipcRenderer.send('update-available-check'),
+        1000 * 60
+      );
     }
 
-    this.checkUpdate();
-    // window.ipcRenderer.on('update-reply', () => {
-    //   this.checkUpdate();
-    // });
+    window.ipcRenderer.on('update-reply', () => {
+      this.checkUpdate();
+    });
+
+    window.ipcRenderer.on('update-downloaded', () => {
+      this.setDownloaded();
+    });
   }
 
   show = () => {
@@ -56,6 +73,28 @@ class VersionStatus extends Component<Props, State> {
 
   close = () => {
     this.setState({
+      show: false,
+    });
+  };
+
+  setDownloaded = () => {
+    const { quitAndInstall } = this.state;
+    if (this.checkUpdateTimer !== undefined) {
+      clearInterval(this.checkUpdateTimer);
+    }
+    if (quitAndInstall) {
+      window.ipcRenderer.send('update-quit-install');
+    } else {
+      this.setState({ show: true });
+    }
+  };
+
+  downloadNow = () => {
+    window.ipcRenderer.send('update-download-now');
+    this.setState({
+      quitAndInstall: true,
+      updateAvailable: false,
+      updateReady: true,
       show: false,
     });
   };
@@ -94,10 +133,29 @@ class VersionStatus extends Component<Props, State> {
   };
 
   render() {
-    const { show, record, updateAvailable } = this.state;
+    const { show, record, updateAvailable, updateReady } = this.state;
+
+    // const { show, updateReady } = this.state;
+    // const updateAvailable = true;
+    // const record = versionUpdateTestMessage2;
 
     if (!record || Object.keys(record).length === 0 || !updateAvailable)
-      return <></>; //
+      return <></>;
+
+    if (updateReady)
+      return (
+        <div className="p-1 pr-2">
+          <span
+            className="text-success"
+            style={{
+              fontSize: '18px',
+            }}
+            title="New version installed and will be ready after restarting the app"
+          >
+            <span className="fa fa-check-circle" />
+          </span>
+        </div>
+      );
 
     let color = 'text-warning ';
     let type = 'NEW Release ';
@@ -160,7 +218,16 @@ class VersionStatus extends Component<Props, State> {
             )}
             <Button
               className="pt-2 ml-2 mt-3 bolder mb-2"
-              variant="success"
+              variant="outline-success"
+              onClick={this.downloadNow}
+            >
+              <span className="fa fa-bolt pr-2" />
+              Automatically Upgrade to {record.tag_name} now!
+            </Button>
+
+            <Button
+              className="pt-2 ml-2 mt-3 bolder mb-2"
+              variant="outline-secondary"
               onClick={() =>
                 window.electron.shell.openExternal(record.html_url)
               }

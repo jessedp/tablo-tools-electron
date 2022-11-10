@@ -150,6 +150,8 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
         type,
       }
     );
+    // and immediately check just in case
+    window.ipcRenderer.send('set-autoupdate-check');
   };
 
   toggleNotifyBeta = () => {
