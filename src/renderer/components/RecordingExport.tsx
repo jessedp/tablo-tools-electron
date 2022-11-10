@@ -126,12 +126,12 @@ class RecordingExport extends Component<Props, State> {
               {exportState !== EXP_WORKING && exportState !== EXP_DONE ? (
                 <Col md="1">
                   <Button
-                    variant="outline-danger"
+                    variant="outline-warning"
                     size={'xs' as any}
                     title="Remove from queue"
                     onClick={this.removeFromExport}
                   >
-                    <span className="fa fa-trash-alt" />
+                    <span className="fa fa-minus-circle" />
                   </Button>
                 </Col>
               ) : (
