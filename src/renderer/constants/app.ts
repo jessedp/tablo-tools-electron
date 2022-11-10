@@ -35,7 +35,8 @@ export const versionUpdateTestMessage2 = {
   available: true,
   info: {
     info: {
-      version: '0.1.5-alpha.1',
+      version: '0.3.6',
+
       files: [
         {
           url: 'TabloTools-0.1.5-alpha.1.AppImage',
@@ -54,6 +55,11 @@ export const versionUpdateTestMessage2 = {
     releaseNotes:
       '<p>Fix one for loading Airings where the data is physically missing.</p>',
   },
+  tag_name: 'v0.3.6',
+  published_at: '2022-10-23 12:00:00',
+  html_url:
+    'https://github.com/jessedp/tablo-tools-electron/releases/tag/v0.3.6',
+  body: 'fake release notes',
 };
 
 export const VIEW_GRID = 'grid';
