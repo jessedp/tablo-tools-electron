@@ -247,8 +247,17 @@ class VersionStatus extends Component<Props, State> {
               {record.body}
             </ReactMarkdown>
             <Button
-              className="pt-2 ml-2 mt-3 bolder"
-              variant="success"
+              className="pt-2 ml-2 mt-3 bolder mb-2"
+              variant="outline-success"
+              onClick={this.downloadNow}
+            >
+              <span className="fa fa-bolt pr-2" />
+              Automatically Upgrade to {record.tag_name} now!
+            </Button>
+
+            <Button
+              className="pt-2 ml-2 mt-3 bolder mb-2"
+              variant="outline-secondary"
               onClick={() =>
                 window.electron.shell.openExternal(record.html_url)
               }
