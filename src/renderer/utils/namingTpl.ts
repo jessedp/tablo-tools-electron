@@ -3,11 +3,11 @@ import Handlebars from 'handlebars';
 import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
-import tplHelpers from 'template-helpers';
 import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import { NamingTemplateType } from '../constants/types';
+import helpers from './templateHelpers';
 
 import { ConfigType } from '../constants/types_config';
 
@@ -16,7 +16,6 @@ import * as fsPath from './path';
 const debug = Debug('tablo-tools:namingTpl');
 // import sanitize from 'sanitize-filename';
 
-const helpers = tplHelpers();
 Handlebars.registerHelper(helpers);
 
 /** BUILT-INS       */
