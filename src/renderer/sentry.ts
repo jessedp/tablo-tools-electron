@@ -40,6 +40,14 @@ const setupSentry = (init: any) => {
         }
 
         /**
+         * this is /not/ my problem.
+         */
+
+        if (errorText.includes('ENOSPC: no space left on device')) {
+          return ignoreError(event);
+        }
+
+        /**
          * auto-updater on Windows
          */
 
@@ -65,6 +73,15 @@ const setupSentry = (init: any) => {
         ) {
           return ignoreError(event);
         }
+
+        // #TABLO-TOOLS-ELECTRON-SS - the auto updater on Linux being funky
+        if (
+          errorText.includes('ENOENT: no such file or directory, chmod') &&
+          errorText.include('tablo-tools-updater')
+        ) {
+          return ignoreError(event);
+        }
+
         /**
          * nedb not behaving
          *  - pre seald/nedb - a locking error, not actually an error
