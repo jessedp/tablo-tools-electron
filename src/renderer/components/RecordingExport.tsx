@@ -123,7 +123,9 @@ class RecordingExport extends Component<Props, State> {
                   updateTemplate={this.updateTemplate}
                 />
               </Col>
-              {exportState !== EXP_WORKING && exportState !== EXP_DONE ? (
+              {exportState !== EXP_WORKING &&
+              exportState !== EXP_DONE &&
+              record.isBulk === true ? (
                 <Col md="1">
                   <Button
                     variant="outline-warning"

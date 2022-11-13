@@ -8,7 +8,7 @@ import Button from 'react-bootstrap/Button';
 
 import { InputGroup, Form, Alert } from 'react-bootstrap';
 import Handlebars from 'handlebars';
-import tplHelpers from 'template-helpers';
+
 import sanitize from 'sanitize-filename';
 import * as FlashActions from '../store/flash';
 
@@ -33,13 +33,12 @@ import {
 import type { NamingTemplateType } from '../constants/types';
 import { setConfigItem } from '../utils/config';
 import { titleCase, asyncForEach } from '../utils/utils';
+import helpers from '../utils/templateHelpers';
 import Airing from '../utils/Airing';
 import DuplicateNames from './DuplicateNames';
 import NamingPreview from './NamingPreview';
 
 import { EmptyNamingTemplate, EmptyTemplateVars } from '../utils/factories';
-
-const helpers = tplHelpers();
 
 // Setup our example data
 const exampleData: Record<string, any> = {};
@@ -47,24 +46,6 @@ exampleData[SERIES] = require('../../__tests__/data/episode.json');
 exampleData[MOVIE] = require('../../__tests__/data/movie.json');
 exampleData[EVENT] = require('../../__tests__/data/event.json');
 exampleData[PROGRAM] = require('../../__tests__/data/program.json');
-
-helpers.lPad = (str: string, len: string | number, char: string | number) => {
-  if (!str) return '';
-  let length = 2;
-  let filler = '0';
-
-  if (typeof len === 'string') {
-    length = parseInt(len, 10);
-  } else {
-    length = len;
-  }
-
-  if (typeof char === 'string' || typeof char === 'number') {
-    filler = `${char}`;
-  }
-
-  return str.toString().padStart(length, filler);
-};
 
 Handlebars.registerHelper(helpers);
 
