@@ -370,7 +370,7 @@ export function fillTemplate(
     if (i === 1) {
       const test = fsPath.normalize(part + fsPath.sep());
 
-      if (fsPath.isAbsolute(test)) return part;
+      if (fsPath.isAbsolute(test) || test.startsWith('\\\\')) return part;
 
       debug('sanitizeParts - %s is not absolute', test);
       return `${window.ipcRenderer.sendSync('get-config').programPath}`;
