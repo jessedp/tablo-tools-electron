@@ -137,8 +137,9 @@ class SettingsNaming extends Component<Props, State> {
           $regex: recType,
         },
       },
-      [['limit', 1000]]
+      [['limit', 100]]
     );
+    console.log('typeof recs', typeof recs);
     await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);
       const vars = await buildTemplateVars(airing);
@@ -150,7 +151,9 @@ class SettingsNaming extends Component<Props, State> {
         files[file] = [airing];
       }
     });
+
     const previews = <NamingPreview files={files} />;
+    // const previews = null;
     const uniqueNames = files.length;
     let duplicates;
 

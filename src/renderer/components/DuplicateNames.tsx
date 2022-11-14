@@ -67,7 +67,7 @@ export default function DuplicateNames(props: Props) {
           ) : (
             <>
               {total - Object.keys(files).length} / {total} are duplicates
-              <span className="smaller pl-2">(max 1000)</span>
+              <span className="smaller pl-2">(max 100)</span>
             </>
           )}
         </Alert>
