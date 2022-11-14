@@ -18,7 +18,7 @@ export default function DiskInfo(props: Props) {
   });
 
   useEffect(() => {
-    if (filename.startsWith('\\')) {
+    if (filename.startsWith('\\\\')) {
       return;
     }
     const getDiskStats = async (file: string) => {

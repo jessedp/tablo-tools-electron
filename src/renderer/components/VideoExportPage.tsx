@@ -69,7 +69,7 @@ class VideoExportPage extends Component<Props, State> {
       // Freeze the current Template when adding to Export List
       airing.data.customTemplate = airing.template;
 
-      if (!airing.exportFile.startsWith('\\')) {
+      if (!airing.exportFile.startsWith('\\\\')) {
         const diskStats: DiskSpace = await window.fs.checkDiskSpace(
           airing.exportFile
         );
