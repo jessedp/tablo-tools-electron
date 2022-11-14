@@ -1,4 +1,3 @@
-import { debug } from 'console';
 import { ipcMain } from 'electron';
 
 import {
@@ -10,6 +9,11 @@ import {
 } from './utils/Tablo';
 
 import { hasDevice } from './utils/utils';
+
+import { mainDebug } from './utils/logging';
+
+const debug = mainDebug.extend('pre_Tablo');
+globalThis.debugInstances.push(debug);
 
 ipcMain.on('tablo-setup-api', async (event: any) => {
   try {
@@ -148,8 +152,9 @@ ipcMain.on('tablo-post', async (event: any, query: any) => {
 
 ipcMain.on('tablo-delete', async (event: any, query: any) => {
   try {
-    const recs = await globalThis.Api.delete(query);
-    event.returnValue = recs;
+    const result = await globalThis.Api.delete(query);
+    debug('tablo-delete %O', result.data);
+    event.returnValue = result.data;
   } catch (e) {
     console.error('tablo-delete', e);
     event.returnValue = {};

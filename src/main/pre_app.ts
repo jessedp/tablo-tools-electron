@@ -1,5 +1,5 @@
-import { debug } from 'console';
 import { app, ipcMain } from 'electron';
+
 import glob from 'glob';
 import path from 'path';
 import getConfig, {
@@ -8,6 +8,10 @@ import getConfig, {
   setConfigItem,
 } from './utils/config';
 import { writeToFile } from './utils/utils';
+import { mainDebug } from './utils/logging';
+
+const debug = mainDebug.extend('pre_app');
+globalThis.debugInstances.push(debug);
 
 ipcMain.on('get-path-main', (event: any, arg: any) => {
   event.returnValue = app.getPath(arg);
