@@ -52,7 +52,7 @@ class VersionStatus extends Component<Props, State> {
     if (process.env.NODE_ENV === 'production') {
       this.checkUpdateTimer = setInterval(
         () => window.ipcRenderer.send('update-available-check'),
-        1000 * 60
+        1000 * 60 * 60
       );
     }
 
