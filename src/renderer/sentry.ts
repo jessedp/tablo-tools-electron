@@ -30,7 +30,7 @@ const setupSentry = (init: any) => {
         const value = event.exception.values[0];
 
         // ignore errors we can't (currently) do anything about
-        const errorText = value.value.toString();
+        const errorText: string = value.value.toString();
 
         /**
          * test error message from Settings->Advanced (ExportData)
@@ -54,14 +54,14 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-SJ - the auto updater on Windows being funky
         if (
           errorText.includes('ENOENT: no such file or directory, rename') &&
-          errorText.include('temp-TabloTools-Setup')
+          errorText.includes('temp-TabloTools-Setup')
         ) {
           return ignoreError(event);
         }
         // #TABLO-TOOLS-ELECTRON-SG - the auto updater on Windows being funky
         if (
           errorText.includes('EPERM: operation not permitted, open') &&
-          errorText.include('temp-TabloTools-Setup')
+          errorText.includes('temp-TabloTools-Setup')
         ) {
           return ignoreError(event);
         }
@@ -77,7 +77,7 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-SS - the auto updater on Linux being funky
         if (
           errorText.includes('ENOENT: no such file or directory, chmod') &&
-          errorText.include('tablo-tools-updater')
+          errorText.includes('tablo-tools-updater')
         ) {
           return ignoreError(event);
         }
@@ -91,20 +91,20 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-R6 - nedb causing fake errors trying to rename tmp files
         if (
           errorText.includes('ENOENT: no such file or directory, rename') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }
         // #TABLO-TOOLS-ELECTRON-RS - nedb causing fake errors trying to rename tmp files
         if (
           errorText.includes('ENOENT: no such file or directory, open') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }
         if (
           errorText.includes('EPERM: operation not permitted, rename') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }
