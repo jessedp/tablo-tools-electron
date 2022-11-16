@@ -46,4 +46,5 @@ if (!compare(ReleaseVersion, currentTag, '>')) {
       `The Development/Current Release version (${ReleaseVersion}) must be greater than the Most Recently Tagged Release's version (${currentTag})`
     )
   );
+  exit(-1);
 }
