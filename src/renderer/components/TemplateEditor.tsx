@@ -54,9 +54,14 @@ class TemplateEditor extends Component<Props, State> {
   onChange(value: string) {
     const { updateValue } = this.props;
     const { workingValue } = this.state;
-    workingValue.template = value.trim();
+
+    const updatedWorkingValue = {
+      ...workingValue,
+      ...{ template: value.trim() },
+    };
+
     this.setState({
-      workingValue,
+      workingValue: updatedWorkingValue,
     });
     updateValue(workingValue.template);
   }
