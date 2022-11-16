@@ -12,7 +12,6 @@ import routes from '../constants/routes.json';
 import PingStatus from './PingStatus';
 import DbStatus from './DbStatus';
 import SelectedBox from './SelectedBox';
-import LogoBox from './Logo';
 import ScreenControls from './ScreenControls';
 import VersionStatus from './VersionStatus';
 
@@ -117,7 +116,6 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
       <Row className="mb-2 top-bar" onMouseMove={this.mouseMove}>
         <ScreenControls mouseInRange={showToggle} />
         <Col md="7">
-          <LogoBox />
           <div className="menu-buttons">
             <ButtonGroup className="ml-2 pt-1">
               <LinkContainer activeClassName="active" to={routes.HOME}>
@@ -196,7 +194,7 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
         </Col>
         <Col md="5">
           <Row>
-            <Col md="2">
+            <Col md="2" style={{ textAlign: 'right' }}>
               <SelectedBox />
             </Col>
             <Col md="10" className="smaller pt-2 align-items menu-buttons">
