@@ -339,7 +339,6 @@ export const throttle = <F extends (...args: any[]) => any>(
 
   // console.log('throttle', now, startTime);
   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
-    // OLDeslint-disable-next-line compat/compat
     new Promise((resolve) => {
       const timeLeft = startTime + waitFor - now();
       if (timeout) {
