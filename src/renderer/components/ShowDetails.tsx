@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import PubSub from 'pubsub-js';
 import { bindActionCreators } from 'redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter, Redirect } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { format, parse } from 'date-fns';
 import Sticky from 'react-sticky-el';
@@ -13,6 +13,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 
 import * as ActionListActions from '../store/actionList';
+import * as FlashActions from '../store/flash';
 
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
@@ -204,8 +205,21 @@ class ShowDetails extends Component<Props, State> {
   render() {
     const { show, airings, episodes, seasons, seasonRefs } = this.state;
     const { selectedCount } = this.props;
-    const { bulkAddAirings, bulkRemAirings } = this.props;
-    if (!show || !show.id) return <></>; //
+    const { bulkAddAirings, bulkRemAirings, sendFlash } = this.props;
+
+    console.log('SHOW', show);
+
+    // initial load before
+    if (!show) return <></>;
+
+    // is it a bad record?
+    if (!show.id) {
+      sendFlash({
+        type: 'warning',
+        message: 'Unable to load Show, please try again',
+      });
+      return <Redirect to={routes.SHOWS} />;
+    }
 
     const airDate = (date: string) => {
       if (!date) return <i>unknown</i>;
@@ -370,7 +384,10 @@ const mapStateToProps = (state: any, ownProps: OwnProps) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
+  return bindActionCreators(
+    { ...ActionListActions, ...FlashActions },
+    dispatch
+  );
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
