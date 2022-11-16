@@ -16,9 +16,6 @@ import LogoBox from './Logo';
 import ScreenControls from './ScreenControls';
 import VersionStatus from './VersionStatus';
 
-// const { ipcRenderer } = window.require('electron');
-// const { ipcRenderer } = window.electron;
-
 type Props = {
   location: Record<string, any>;
 };
@@ -77,7 +74,7 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
   };
 
   checkYInbounds = (limit = 10) => {
-    const bounds = window.ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
+    const bounds = window.ipcRenderer.sendSync('get-content-bounds');
     if (!bounds) {
       throw Error('checkYInbounds - "bounds" is empty');
     }

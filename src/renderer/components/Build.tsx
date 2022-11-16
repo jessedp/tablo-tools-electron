@@ -122,16 +122,13 @@ class Build extends Component<BuildProps, State> {
         airingMax: total,
       });
 
-      window.electron.ipcRenderer.on(
-        'get-recording-progress',
-        (message: any) => {
-          console.debug('progress', message);
+      window.ipcRenderer.on('get-recording-progress', (message: any) => {
+        console.debug('progress', message);
 
-          updateProgress({
-            airingInc: message,
-          });
-        }
-      );
+        updateProgress({
+          airingInc: message,
+        });
+      });
 
       const recs = await window.Tablo.getRecordings(true);
 

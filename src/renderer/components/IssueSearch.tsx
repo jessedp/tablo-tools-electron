@@ -4,8 +4,6 @@ import Modal from 'react-bootstrap/Modal';
 import { InputGroup, Form, Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
-const { ipcRenderer } = window.electron;
-
 type Props = Record<string, never>;
 type State = {
   show: boolean;
@@ -25,7 +23,7 @@ export default class IssueSearch extends Component<Props, State> {
   }
 
   componentDidMount() {
-    ipcRenderer.on('search-issues', () => {
+    window.ipcRenderer.on('search-issues', () => {
       console.log('rcv search-issues');
       this.setState({
         show: true,
