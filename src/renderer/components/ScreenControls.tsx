@@ -11,7 +11,6 @@ type State = {
 export default class ScreenControls extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    // const win = remote.getCurrentWindow();
     this.state = {
       isFullscreen: window.ipcRenderer.sendSync('is-fullscreen'),
       zoomFactor: window.webFrame.getZoomFactor(),
@@ -48,13 +47,11 @@ export default class ScreenControls extends Component<Props, State> {
   };
 
   zoomIn = () => {
-    // ipcRenderer.invoke('zoom-in');
     window.webFrame.setZoomLevel(window.webFrame.getZoomLevel() - 1);
     this.setState({ zoomFactor: window.webFrame.getZoomFactor() });
   };
 
   zoomOut = () => {
-    // ipcRenderer.invoke('zoom-in');
     window.webFrame.setZoomLevel(window.webFrame.getZoomLevel() + 1);
     this.setState({ zoomFactor: window.webFrame.getZoomFactor() });
   };
@@ -62,7 +59,6 @@ export default class ScreenControls extends Component<Props, State> {
   render() {
     const { mouseInRange } = this.props;
     const { isFullscreen, zoomFactor } = this.state;
-    // const zoomFactor = webFrame.getZoomFactor();
 
     if (mouseInRange) {
       return (

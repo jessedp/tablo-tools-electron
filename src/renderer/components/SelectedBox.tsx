@@ -14,19 +14,10 @@ import { StdObj } from '../constants/types';
 
 type State = Record<string, unknown>;
 
-// interface Props extends PropsFromRedux {
-//   records: Array<StdObj>;
-//   bulkAddAirings: (airings: Array<StdObj>) => void;
-//   bulkRemAirings: (airings: Array<StdObj>) => void;
-//   history: any;
-// }
-
 class SelectedBox extends Component<
   RouteComponentProps & PropsFromRedux,
   State
 > {
-  // initialState: State;
-
   setStateStore(...args: Array<Record<string, any>>) {
     const values = args[0];
     this.setState(values);
@@ -40,7 +31,6 @@ class SelectedBox extends Component<
     const actionList: Array<StdObj> = [];
     await asyncForEach(recs, async (doc) => {
       try {
-        // const rec = await Airing.create(doc);
         actionList.push(doc);
       } catch (e) {
         console.log('Unable to load Airing data: ', e);
@@ -58,7 +48,7 @@ class SelectedBox extends Component<
         <span className="fa fa-shopping-cart pr-1" />
         {records.length}
       </>
-    ); //
+    );
     const { history } = this.props;
     const delInner = (
       <>
@@ -66,9 +56,9 @@ class SelectedBox extends Component<
         Delete
       </>
     );
-    //
+
     return (
-      <div className="selected-basket smaller text-primary pt-2">
+      <div className="selected-basket smaller text-primary pt-1">
         <DropdownButton
           as={ButtonGroup}
           title={title}
@@ -98,7 +88,7 @@ class SelectedBox extends Component<
                   Clear All
                 </span>
               </DropdownItem>
-            </> //
+            </>
           ) : (
             ''
           )}
@@ -131,8 +121,3 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(SelectedBox));
-
-// export default connect<any, any>(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(withRouter(SelectedBox));

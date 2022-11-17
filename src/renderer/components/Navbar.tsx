@@ -111,13 +111,12 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
       ddClass = 'primary';
     }
 
-    // if (ddClass) toggleClass = `${toggleClass} active`;
     return (
       <Row className="mb-2 top-bar" onMouseMove={this.mouseMove}>
         <ScreenControls mouseInRange={showToggle} />
         <Col md="7">
           <div className="menu-buttons">
-            <ButtonGroup className="ml-2 pt-1">
+            <ButtonGroup className="pt-1">
               <LinkContainer activeClassName="active" to={routes.HOME}>
                 <Button
                   size="sm"
@@ -192,17 +191,14 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
             </ButtonGroup>
           </div>
         </Col>
-        <Col md="5">
+        <Col md="5" className="mt-0 pt-0">
           <Row>
-            <Col md="2" style={{ textAlign: 'right' }}>
-              <SelectedBox />
-            </Col>
-            <Col md="10" className="smaller pt-2 align-items menu-buttons">
+            <Col md="12" className="smaller align-items menu-buttons">
               <div className="d-flex flex-row-reverse">
                 <div>
                   <VersionStatus />
                 </div>
-                <div className="pr-1">
+                <div className="pt-1 pr-2 pl-1">
                   <LinkContainer
                     activeClassName="active"
                     to={routes.GENSETTINGS}
@@ -215,8 +211,11 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
                 <div className="pt-2 p-0 pr-0">
                   <DbStatus />
                 </div>
-                <div className="pt-2 pr-0 mr-4">
+                <div className="pt-2 pr-0">
                   <PingStatus />
+                </div>
+                <div className="mt-0 pt-0 ">
+                  <SelectedBox />
                 </div>
               </div>
             </Col>
