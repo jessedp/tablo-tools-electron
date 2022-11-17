@@ -194,7 +194,7 @@ export default class Home extends Component<Props, State> {
     }
 
     return (
-      <Container>
+      <div className="pr-2">
         <Row>
           <Col md="12">
             <Row>
@@ -241,7 +241,7 @@ export default class Home extends Component<Props, State> {
             </Card>
           </Col>
         </Row>
-      </Container>
+      </div>
     );
   }
 }
