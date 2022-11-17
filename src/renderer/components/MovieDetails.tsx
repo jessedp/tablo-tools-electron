@@ -77,9 +77,11 @@ class MovieDetails extends Component<Props, State> {
     const { selectedCount } = this.props;
     const { addAiring, remAiring, sendFlash } = this.props;
 
-    console.log(movie);
+    // initial render
+    if (!movie) return <></>;
 
-    if (!movie || !movie.show) {
+    // subsequent renders...
+    if (!movie.show) {
       sendFlash({
         type: 'warning',
         message: 'Unable to load Movie, please try again',
