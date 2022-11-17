@@ -6,6 +6,7 @@ import { DropdownButton, ButtonGroup } from 'react-bootstrap';
 import DropdownItem from 'react-bootstrap/DropdownItem';
 import routes from '../constants/routes.json';
 import * as ActionListActions from '../store/actionList';
+import * as ExportListActions from '../store/exportList';
 import * as SearchActions from '../store/search';
 
 import { asyncForEach } from '../utils/utils';
@@ -42,7 +43,7 @@ class SelectedBox extends Component<
   };
 
   render() {
-    const { records, bulkRemAirings } = this.props;
+    const { records, bulkRemAirings, bulkRemExportRecord } = this.props;
     const title = (
       <>
         <span className="fa fa-shopping-cart pr-1" />
@@ -82,7 +83,12 @@ class SelectedBox extends Component<
                 <ConfirmDelete label="Delete" button={delInner} />
               </DropdownItem>
               <hr className="m-1 p-0" />
-              <DropdownItem onClick={() => bulkRemAirings([])}>
+              <DropdownItem
+                onClick={() => {
+                  bulkRemAirings([]);
+                  bulkRemExportRecord();
+                }}
+              >
                 <span>
                   <span className="fa fa-minus pr-2" />
                   Clear All
@@ -106,7 +112,7 @@ class SelectedBox extends Component<
 
 const mapDispatchToProps = (dispatch: any) => {
   return bindActionCreators(
-    { ...ActionListActions, ...SearchActions },
+    { ...ActionListActions, ...ExportListActions, ...SearchActions },
     dispatch
   );
 };
