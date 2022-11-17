@@ -488,12 +488,12 @@ body,
 }
 
 .selected-basket {
-  min-width: 125px;
-  width: 125px;
+  /* min-width: 125px;
+  width: 125px; */
   min-height: 50px;
   height: 50px;
   margin: 0 10px 0 0;
-  padding: 5px;
+  /* padding: 5px; */
   display: inline-block;
 }
 

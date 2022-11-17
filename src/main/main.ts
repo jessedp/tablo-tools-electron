@@ -288,12 +288,10 @@ const createWindow = async () => {
   });
 
   mainWindow.on('enter-full-screen', () => {
-    // TODO: throttle() or debounce() should work? fire's 50 - 65 times
     mainWindow?.webContents.send('enter-full-screen');
   });
 
   mainWindow.on('leave-full-screen', () => {
-    // TODO: throttle() or debounce() should work? fire's 50 - 65 times
     mainWindow?.webContents.send('leave-full-screen');
   });
 

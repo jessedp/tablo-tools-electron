@@ -8,13 +8,13 @@ import checkDiskSpace, { Dependencies } from 'check-disk-space';
 // Future me: don't try to use this again - preload is essentially in the Renderer proc
 // import { mainDebug } from './utils/logging';
 
+// For better security, should validate the channels:
+//    const validChannels = ['ipc-example'];
+//    if (validChannels.includes(channel)) {
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, ...args: any) => ipcRenderer.send(channel, ...args),
   sendSync: (channel: string, ...args: any) =>
     ipcRenderer.sendSync(channel, ...args),
-  getContentBounds() {
-    return ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
-  },
   on(channel: any, func: any) {
     ipcRenderer.on(channel, (_event, ...args) => func(...args));
   },
@@ -156,31 +156,6 @@ contextBridge.exposeInMainWorld('electron', {
     },
     set(property: any, val: any) {
       ipcRenderer.send('electron-store-set', property, val);
-    },
-  },
-
-  ipcRenderer: {
-    getContentBounds() {
-      return ipcRenderer.sendSync('get-content-bounds'); // win.getContentBounds();
-    },
-    myPing() {
-      return 'hi!!';
-      // ipcRenderer.send('ipc-example', 'ping');
-    },
-    on(channel: any, func: any) {
-      console.log('preload - electron.ipcRenderer.on', channel, func);
-      // const validChannels = ['ipc-example'];
-      // if (validChannels.includes(channel)) {
-      // Deliberately strip event as it includes `sender`
-      return ipcRenderer.on(channel, (_event, ...args) => func(...args));
-      // }
-    },
-    once(channel: any, func: any) {
-      const validChannels = ['ipc-example'];
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.once(channel, (_event, ...args) => func(...args));
-      }
     },
   },
 });

@@ -13,6 +13,7 @@ import { hasDevice } from '../utils/Tablo';
 import DbLoadingTable from './DbLoadingTable';
 
 import BuildTitle from './BuildTitle';
+import LogoBox from './Logo';
 
 // const { ipcRenderer } = window.require('electron');
 
@@ -193,10 +194,21 @@ export default class Home extends Component<Props, State> {
     }
 
     return (
-      <Container>
-        <Alert variant="primary">
-          <h4 className="mb-2 pt-1">Welcome to Tablo Tools v{appVersion}</h4>
-        </Alert>
+      <div className="pr-2">
+        <Row>
+          <Col md="12">
+            <Row>
+              <Col md="2">
+                <LogoBox />
+              </Col>
+              <Col md="10">
+                <Alert variant="primary">
+                  <h4 className="">Welcome to Tablo Tools v{appVersion}</h4>
+                </Alert>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
 
         <Row>
           <Col md="6">
@@ -229,7 +241,7 @@ export default class Home extends Component<Props, State> {
             </Card>
           </Col>
         </Row>
-      </Container>
+      </div>
     );
   }
 }

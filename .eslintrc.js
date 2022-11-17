@@ -15,10 +15,12 @@ module.exports = {
         depth: 3,
       },
     ],
+    'dot-notation': 'off',
+    '@typescript-eslint/dot-notation': 'off',
     // TODO: needs to be turned on again
     '@typescript-eslint/no-explicit-any': 'off',
     'react/static-property-placement': 'off',
-    'import/no-cycle': 'off',
+    'import/no-cycle': 'warn',
     'no-console': 'off',
   },
   parserOptions: {

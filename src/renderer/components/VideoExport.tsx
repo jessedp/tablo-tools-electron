@@ -87,7 +87,7 @@ const VideoExport = (WrappedComponent: any) => {
         actions.push(() => {
           const channel = `export-progress-${airing.object_id}`;
           if (!this.shouldCancel) {
-            window.electron.ipcRenderer.on(channel, (message: any) => {
+            window.ipcRenderer.on(channel, (message: any) => {
               // console.log(`${channel}`, message);
               this.updateProgress(airing.object_id, message);
             });
@@ -189,11 +189,13 @@ const VideoExport = (WrappedComponent: any) => {
         dumpLog = true;
       } else {
         // const pct = progress.percent  doesn't always work, so..
-        const pct = Math.round(
+        let pct = Math.round(
           (timeStrToSeconds(progress.timemark) /
             parseInt(airing.videoDetails.duration, 10)) *
             100
         );
+        if (pct === 0) pct = 0.1;
+
         const label = `${progress.timemark} / ${readableDuration(
           airing.videoDetails.duration
         )}`;

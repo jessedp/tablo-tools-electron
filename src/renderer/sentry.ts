@@ -30,7 +30,7 @@ const setupSentry = (init: any) => {
         const value = event.exception.values[0];
 
         // ignore errors we can't (currently) do anything about
-        const errorText = value.value.toString();
+        const errorText: string = value.value.toString();
 
         /**
          * test error message from Settings->Advanced (ExportData)
@@ -47,6 +47,49 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        if (errorText.includes('net::ERR_NETWORK_CHANGED')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-FC
+        if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-NX
+        if (errorText.includes('Fatal Error: EXCEPTION_BREAKPOINT')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-NF
+        if (errorText.includes('Fatal Error: SIGBUS')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-CR
+        if (errorText.includes('ResizeObserver loop limit exceeded')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-ST
+        if (
+          errorText.includes(
+            'Cannot download "https://objects.githubusercontent.com/github-production'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
+        // Kind of my fault... these are folks running a beta after I've deleted its assets
+        // TABLO-TOOLS-ELECTRON-NH
+        if (
+          errorText.includes(
+            'Cannot find latest.yml in the latest release artifacts'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
         /**
          * auto-updater on Windows
          */
@@ -54,14 +97,14 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-SJ - the auto updater on Windows being funky
         if (
           errorText.includes('ENOENT: no such file or directory, rename') &&
-          errorText.include('temp-TabloTools-Setup')
+          errorText.includes('temp-TabloTools-Setup')
         ) {
           return ignoreError(event);
         }
         // #TABLO-TOOLS-ELECTRON-SG - the auto updater on Windows being funky
         if (
           errorText.includes('EPERM: operation not permitted, open') &&
-          errorText.include('temp-TabloTools-Setup')
+          errorText.includes('temp-TabloTools-Setup')
         ) {
           return ignoreError(event);
         }
@@ -74,10 +117,15 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        // TABLO-TOOLS-ELECTRON-QP
+        if (errorText.includes('EBUSY: resource busy or locked, rename')) {
+          return ignoreError(event);
+        }
+
         // #TABLO-TOOLS-ELECTRON-SS - the auto updater on Linux being funky
         if (
           errorText.includes('ENOENT: no such file or directory, chmod') &&
-          errorText.include('tablo-tools-updater')
+          errorText.includes('tablo-tools-updater')
         ) {
           return ignoreError(event);
         }
@@ -91,20 +139,20 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-R6 - nedb causing fake errors trying to rename tmp files
         if (
           errorText.includes('ENOENT: no such file or directory, rename') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }
         // #TABLO-TOOLS-ELECTRON-RS - nedb causing fake errors trying to rename tmp files
         if (
           errorText.includes('ENOENT: no such file or directory, open') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }
         if (
           errorText.includes('EPERM: operation not permitted, rename') &&
-          errorText.include('.db~')
+          errorText.includes('.db~')
         ) {
           return ignoreError(event);
         }

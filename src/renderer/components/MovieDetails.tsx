@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter, Redirect } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -9,6 +9,7 @@ import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 
 import * as ActionListActions from '../store/actionList';
+import * as FlashActions from '../store/flash';
 import Airing from '../utils/Airing';
 import routes from '../constants/routes.json';
 import { getTabloImageUrl, readableDuration } from '../utils/utils';
@@ -74,8 +75,19 @@ class MovieDetails extends Component<Props, State> {
   render() {
     const { movie } = this.state;
     const { selectedCount } = this.props;
-    const { addAiring, remAiring } = this.props;
+    const { addAiring, remAiring, sendFlash } = this.props;
+
+    // initial render
     if (!movie) return <></>;
+
+    // subsequent renders...
+    if (!movie.show) {
+      sendFlash({
+        type: 'warning',
+        message: 'Unable to load Movie, please try again',
+      });
+      return <Redirect to={routes.MOVIES} />;
+    }
 
     const { show } = movie;
     return (
@@ -212,7 +224,10 @@ const mapStateToProps = (state: any, ownProps: OwnProps) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
+  return bindActionCreators(
+    { ...ActionListActions, ...FlashActions },
+    dispatch
+  );
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

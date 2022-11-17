@@ -1,19 +1,5 @@
-// import { ipcRenderer } from 'electron';
-// const { webFrame } = window.require('electron').remote;
-// const ipcRenderer = window.electron.ipcRenderer;
-// const ipcRenderer = window.ipcRenderer;
-
-// const { remote } = window.require('electron');
-// console.log(remote);
-// const ipcRenderer = remote.ipcRenderer;
-
 import { Component } from 'react';
 import { throttle } from '../utils/utils';
-
-// const { ipcRenderer, webFrame } = window.electron;
-
-// import { webFrame } from 'electron';
-// const webFrame = window.webFrame;
 
 type Props = {
   mouseInRange: boolean;
@@ -25,7 +11,6 @@ type State = {
 export default class ScreenControls extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    // const win = remote.getCurrentWindow();
     this.state = {
       isFullscreen: window.ipcRenderer.sendSync('is-fullscreen'),
       zoomFactor: window.webFrame.getZoomFactor(),
@@ -36,17 +21,16 @@ export default class ScreenControls extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    window.ipcRenderer.on('enter-full-screen', () => {
-      throttle(() => {
-        // console.log('enter-full-screen rcvd');
+    window.ipcRenderer.on('enter-full-screen', async () => {
+      // note this returns a promise we immediately run
+      await throttle(() => {
         this.setState({
           isFullscreen: true,
           zoomFactor: window.webFrame.getZoomFactor(),
         });
-      }, 250);
+      }, 250)();
     });
     window.ipcRenderer.on('leave-full-screen', () => {
-      // console.log('leave-full-screen rcvd');
       this.setState({
         isFullscreen: false,
         zoomFactor: window.webFrame.getZoomFactor(),
@@ -54,20 +38,20 @@ export default class ScreenControls extends Component<Props, State> {
     });
   }
 
+  enterFullscreen = () => {
+    window.ipcRenderer.send('set-fullscreen', true);
+  };
+
   exitFullscreen = () => {
-    // const win = remote.getCurrentWindow();
-    // win.setFullScreen(false);
-    window.electron.ipcRenderer.invoke('set-fullscreen', false);
+    window.ipcRenderer.send('set-fullscreen', false);
   };
 
   zoomIn = () => {
-    // ipcRenderer.invoke('zoom-in');
     window.webFrame.setZoomLevel(window.webFrame.getZoomLevel() - 1);
     this.setState({ zoomFactor: window.webFrame.getZoomFactor() });
   };
 
   zoomOut = () => {
-    // ipcRenderer.invoke('zoom-in');
     window.webFrame.setZoomLevel(window.webFrame.getZoomLevel() + 1);
     this.setState({ zoomFactor: window.webFrame.getZoomFactor() });
   };
@@ -75,7 +59,6 @@ export default class ScreenControls extends Component<Props, State> {
   render() {
     const { mouseInRange } = this.props;
     const { isFullscreen, zoomFactor } = this.state;
-    // const zoomFactor = webFrame.getZoomFactor();
 
     if (mouseInRange) {
       return (
@@ -89,11 +72,24 @@ export default class ScreenControls extends Component<Props, State> {
                 role="button"
                 tabIndex={0}
               >
-                <span className="fa fa-sign-out-alt pr-2" />
-                exit fullscreen
+                <span
+                  className="fa fa-compress-arrows-alt pr-2"
+                  title="exit fullscreen"
+                />
               </div>
             ) : (
-              ''
+              <span
+                className="bg-light p-2"
+                onClick={this.enterFullscreen}
+                onKeyDown={this.enterFullscreen}
+                role="button"
+                tabIndex={0}
+              >
+                <span
+                  className="fa fa-expand-arrows-alt pr-2"
+                  title="enter fullscreen"
+                />
+              </span>
             )}
             <div className="zoom-control smallerish">
               <div

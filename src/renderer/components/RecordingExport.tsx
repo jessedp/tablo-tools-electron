@@ -13,7 +13,11 @@ import TitleSlim from './TitleSlim';
 import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import { EXP_WORKING, EXP_DONE } from '../constants/app';
-import { NamingTemplateType, ExportRecordType } from '../constants/types';
+import {
+  NamingTemplateType,
+  ExportRecordType,
+  StdObj,
+} from '../constants/types';
 import ExportProgress from './ExportProgress';
 import FileInfo from './FileInfo';
 
