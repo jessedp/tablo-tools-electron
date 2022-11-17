@@ -47,6 +47,49 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        if (errorText.includes('net::ERR_NETWORK_CHANGED')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-FC
+        if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-NX
+        if (errorText.includes('Fatal Error: EXCEPTION_BREAKPOINT')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-NF
+        if (errorText.includes('Fatal Error: SIGBUS')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-CR
+        if (errorText.includes('ResizeObserver loop limit exceeded')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-ST
+        if (
+          errorText.includes(
+            'Cannot download "https://objects.githubusercontent.com/github-production'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
+        // Kind of my fault... these are folks running a beta after I've deleted its assets
+        // TABLO-TOOLS-ELECTRON-NH
+        if (
+          errorText.includes(
+            'Cannot find latest.yml in the latest release artifacts'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
         /**
          * auto-updater on Windows
          */
@@ -71,6 +114,11 @@ const setupSentry = (init: any) => {
             'Command failed: powershell.exe -NoProfile -NonInteractive -InputFormat None -Command Get-AuthenticodeSignature'
           )
         ) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-QP
+        if (errorText.includes('EBUSY: resource busy or locked, rename')) {
           return ignoreError(event);
         }
 
