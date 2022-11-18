@@ -142,16 +142,14 @@ class SettingsNaming extends Component<Props, State> {
 
     await asyncForEach(recs, async (rec) => {
       const airing = await Airing.create(rec);
-      const vars = await buildTemplateVars(airing);
+      const vars = buildTemplateVars(airing);
       const file = fillTemplate(template, vars);
-
       if (Array.isArray(files[file])) {
         files[file].push(airing);
       } else {
         files[file] = [airing];
       }
     });
-
     const previews = <NamingPreview files={files} />;
     const uniqueNames = files.length;
     let duplicates;
@@ -165,7 +163,6 @@ class SettingsNaming extends Component<Props, State> {
       duplicates,
       previews,
     });
-    // return false;
   };
 
   updateTemplate = (template: NamingTemplateType) => {
@@ -238,12 +235,11 @@ class SettingsNaming extends Component<Props, State> {
   updatePath = (path: string) => {
     if (!path) return;
     const { template } = this.state;
-    this.checkErrors();
-    // console.log('updatePath', path, 'template', template);
     template.template = path || this.originalTemplate.template;
     this.setState({
       template,
     });
+    this.checkErrors();
   };
 
   setDefaultSlug = () => {
