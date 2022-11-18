@@ -63,7 +63,7 @@ class TemplateEditor extends Component<Props, State> {
     this.setState({
       workingValue: updatedWorkingValue,
     });
-    updateValue(workingValue.template);
+    updateValue(updatedWorkingValue.template);
   }
 
   onCursorChange(newValue: any) {
