@@ -9,11 +9,15 @@ export default function RelativeDate(props: Props) {
   const { term } = props;
   let { date } = props;
 
+  if (date?.toString() === 'Invalid Date') {
+    return <>Unknown ({date.toString()})</>;
+  }
+
   if (typeof date === 'string') {
     date = Date.parse(date);
   }
 
-  if (!date) return <>Never</>; //
+  if (!date) return <>Never</>;
 
   let distance;
   try {
