@@ -75,10 +75,14 @@ export default class ServerInfoTable extends Component<Props, State> {
             <th>Local IP</th>
             <td>{device.private_ip}</td>
           </tr>
-          <tr>
-            <th>Public IP</th>
-            <td>{device.public_ip}</td>
-          </tr>
+          {device.public_ip ? (
+            <tr>
+              <th>Public IP</th>
+              <td>{device.public_ip}</td>
+            </tr>
+          ) : (
+            ''
+          )}
           <tr>
             <th>Firmware version</th>
             <td>{serverInfo.version}</td>

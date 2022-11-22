@@ -123,7 +123,7 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             {discoveredDevices.map((dev: any) => {
-              const key = `ping-status-${dev.serverid}`;
+              const key = `ping-status-${dev.server_id}`;
               return (
                 <Dropdown.Item
                   key={key}

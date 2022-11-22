@@ -8,6 +8,7 @@ import getConfig from './config';
 import { setupDb } from './db';
 
 import { mainDebug } from './logging';
+import { asyncForEach } from './utils';
 
 const debug = mainDebug.extend('Tablo');
 globalThis.debugInstances.push(debug);
@@ -47,7 +48,6 @@ export async function setCurrentDevice(device: any): Promise<void> {
     store.set('CurrentDevice', device);
     setupDb();
     await loadServerInfo();
-    // if (publish) PubSub.publish('DEVICE_CHANGE', true);
   } else {
     console.warn(
       'sentry config - setCurrentDevice called without device!',
@@ -58,21 +58,33 @@ export async function setCurrentDevice(device: any): Promise<void> {
 }
 
 export const discover = async (): Promise<void> => {
-  let deviceArray: Array<any> = [];
+  const deviceArray: Array<any> = [];
   let devices: Array<any> = [];
 
   try {
-    // devices = await Tablo.discover();
     devices = await globalThis.Api.discover();
-    deviceArray = Object.keys(devices).map(
-      (i: string) => devices[parseInt(i, 10)]
-    );
+    debug('devices', devices);
+    const origDevice = globalThis.Api.device;
+
+    await asyncForEach(devices, async (device: any) => {
+      if (device.via === 'broadcast') {
+        globalThis.Api.device = device;
+        const info = await globalThis.Api.get('/server/info');
+        debug('discover, bcast - device %O', device);
+        debug('discover, bcast - info %O', info);
+        // FIX ME!
+        info.serverid = info.server_id;
+        globalThis.Api.device = origDevice;
+        deviceArray.push({ ...device, ...info });
+      } else {
+        deviceArray.push(device);
+      }
+    });
   } catch (e) {
     debug('discover(): Device Discovery failed %O', e);
   }
-  // console.log('discover - getConfig?');
+
   const cfg = getConfig();
-  // console.log('discover - gotConfig?', cfg);
 
   if (cfg.enableTestDevice) {
     let overDevice = {
@@ -93,7 +105,6 @@ export const discover = async (): Promise<void> => {
   }
 
   global.discoveredDevices = deviceArray;
-  // PubSub.publish('DEVLIST_CHANGE', true);
 };
 
 export async function checkConnection(): Promise<boolean> {
@@ -133,7 +144,6 @@ export async function checkConnection(): Promise<boolean> {
 
   return new Promise((resolve) => {
     client.on('close', () => {
-      // debug('checkConncetion - status = %s', status);
       global.CONNECTED = status;
       resolve(status);
     });
