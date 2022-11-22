@@ -208,10 +208,10 @@ class Navbar extends Component<Props & RouteComponentProps, State> {
                     </Button>
                   </LinkContainer>
                 </div>
-                <div className="pt-2 p-0 pr-0">
+                <div className="pt-2 pr-0 pl-2">
                   <DbStatus />
                 </div>
-                <div className="pt-2 pr-0">
+                <div className="pt-2 ml-1">
                   <PingStatus />
                 </div>
                 <div className="mt-0 pt-0 ">

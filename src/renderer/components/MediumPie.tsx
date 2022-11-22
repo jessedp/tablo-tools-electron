@@ -2,7 +2,6 @@ import { CSSProperties } from 'react';
 import { ResponsivePie } from '@nivo/pie';
 import { LegendProps } from '@nivo/legends';
 import { ColorSchemeId } from '@nivo/colors/dist/types/schemes/all';
-import { readableBytes } from 'renderer/utils/utils';
 
 type Props = {
   data: Array<any>;
@@ -97,7 +96,7 @@ export default function MediumPie(props: Props): JSX.Element {
       ],
     },
   ];
-  console.log(data);
+
   return (
     <div style={styles.root}>
       <ResponsivePie
@@ -112,14 +111,6 @@ export default function MediumPie(props: Props): JSX.Element {
         animate
         isInteractive
         valueFormat={totalFormat}
-        // onMouseEnter={(_data, event) => {
-        //   // eslint-disable-next-line no-param-reassign
-        //   event.target.style.cursor = 'currentDur';
-        // }}
-        // onMouseLeave={(_data, event) => {
-        //   // eslint-disable-next-line no-param-reassign
-        //   event.target.style.cursor = 'cursor';
-        // }}
       />
       <div style={styles.overlay}>
         <span>{totalFormat ? totalFormat(total) : 0}</span>
