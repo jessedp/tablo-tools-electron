@@ -58,7 +58,13 @@ function DiscoveryStatus(prop: Record<string, any>) {
               </Col>
               <Col>
                 <div>
-                  <b>{device.name}</b> ({device.private_ip})
+                  {device.name ? (
+                    <span>
+                      <b>{device.name}</b> ({device.private_ip})
+                    </span>
+                  ) : (
+                    <b>{device.private_ip}</b>
+                  )}
                 </div>
               </Col>
               <br />
@@ -69,7 +75,6 @@ function DiscoveryStatus(prop: Record<string, any>) {
     );
   }
 
-  // if (state === STATE_SELECTED)
   return <></>;
 }
 
@@ -78,10 +83,16 @@ function DiscoveryTitle(prop: Record<string, any>) {
   let checked;
   if (window.Tablo.CONNECTED()) {
     if (state === STATE_MULTI) return <></>;
-    checked = new Date(device.inserted);
+    checked = device.inserted ? new Date(device.inserted) : '';
     return (
       <>
-        <span>Since: {checked ? <RelativeDate date={checked} /> : ''}</span>
+        {checked ? (
+          <span>
+            Since: <RelativeDate date={checked} />{' '}
+          </span>
+        ) : (
+          ''
+        )}
         <Button onClick={localDiscover} className="ml-auto mr-2" size="sm">
           Rediscover
         </Button>
