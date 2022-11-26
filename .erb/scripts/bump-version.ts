@@ -56,7 +56,6 @@ const rootPkgFile = './package.json';
   const answers = await inquirer.prompt(confirm);
   if (answers.confirm === true) {
     const prettierOptions: Options = { filepath: rootPkgFile };
-    console.log(prettierOptions);
     const rootPkg: any = JSON.parse(readFileSync(rootPkgFile).toString());
     rootPkg.version = newVersion;
     writeFileSync(
