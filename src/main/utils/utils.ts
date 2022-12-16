@@ -15,7 +15,7 @@ const store = new Store();
 
 export const hasDevice = () => {
   const device: any = store.get('CurrentDevice');
-  if (!device || !(device.server_id || device.serverid)) {
+  if (!device || !device.server_id) {
     debug("hasDevice() - No device found, can't init db");
     return false;
   }

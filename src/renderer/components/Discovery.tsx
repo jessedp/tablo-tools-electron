@@ -47,7 +47,7 @@ function DiscoveryStatus(prop: Record<string, any>) {
           Found {discoveredDevices.length} devices
         </div>
         {discoveredDevices.map((device: any, i: string) => {
-          const serverId = device.serverid;
+          const serverId = device.server_id;
           const key = `select-device-${i}`;
           return (
             <Row className="p-1 pb-2 mb-2 border" key={key}>
@@ -140,7 +140,7 @@ export default class Discovery extends Component<Props, State> {
   setDevice = async (serverId: string) => {
     const { showServerInfo } = this.props;
     const device = window.Tablo.discoveredDevices().filter(
-      (item: any) => item.serverid === serverId
+      (item: any) => item.server_id === serverId
     );
     await setCurrentDevice(device[0]);
 
@@ -178,7 +178,7 @@ export default class Discovery extends Component<Props, State> {
       store.set('Devices', devices);
 
       if (devices.length === 1) {
-        await this.setDevice(devices[0].serverid);
+        await this.setDevice(devices[0].server_id);
         showServerInfo(true);
       } else {
         showServerInfo(false);

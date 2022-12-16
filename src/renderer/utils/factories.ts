@@ -27,7 +27,6 @@ export function ExportRecord(airing: StdObj) {
   return record;
 }
 export function ExportLogRecord(airing: Airing) {
-  // const { device } = window.Tablo.device().serverid;
   const isWeb = !(typeof window === 'undefined');
   const record: ExportLogRecordType = {
     server_id: window.Tablo.device().server_id,

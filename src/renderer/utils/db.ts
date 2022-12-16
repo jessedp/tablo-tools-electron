@@ -1,6 +1,6 @@
 export const dbCreatedKey = () => {
   const dev: any = window.electron.store.get('CurrentDevice');
-  return `LastDbBuild-${dev.serverid}`;
+  return `LastDbBuild-${dev.server_id}`;
 };
 export function recDbCreated() {
   try {

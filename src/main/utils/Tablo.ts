@@ -37,7 +37,7 @@ export async function setCurrentDevice(device: any): Promise<void> {
 
     Sentry.configureScope((scope) => {
       scope.setUser({
-        id: device.serverid,
+        id: device.server_id,
         username: device.name,
       });
       scope.setTag('tablo_host', device.host || 'unknown');
@@ -46,7 +46,7 @@ export async function setCurrentDevice(device: any): Promise<void> {
     });
 
     store.set('CurrentDevice', device);
-    setupDb();
+    await setupDb();
     await loadServerInfo();
   } else {
     console.warn(
@@ -72,8 +72,7 @@ export const discover = async (): Promise<void> => {
         const info = await globalThis.Api.get('/server/info');
         debug('discover, bcast - device %O', device);
         debug('discover, bcast - info %O', info);
-        // FIX ME!
-        info.serverid = info.server_id;
+
         globalThis.Api.device = origDevice;
         deviceArray.push({ ...device, ...info });
       } else {
@@ -87,15 +86,16 @@ export const discover = async (): Promise<void> => {
   const cfg = getConfig();
 
   if (cfg.enableTestDevice) {
-    let overDevice = {
+    const overDevice = {
       name: 'Test Device',
       board: 'test_dev',
       private_ip: '127.0.0.1',
       server_id: 'TID_testing',
       via: 'n/a',
       dev_type: 'test',
+      inserted: Date.now(),
     };
-    if (devices.length > 0) overDevice = { ...devices[0] };
+    // if (devices.length > 0) overDevice = { ...devices[0] };
     const fakeServerId = cfg.testDeviceIp.replace(/\./g, '-');
     overDevice.name = 'Test Device';
     overDevice.server_id = `TID_${fakeServerId}`;
@@ -105,6 +105,7 @@ export const discover = async (): Promise<void> => {
   }
 
   global.discoveredDevices = deviceArray;
+  await setupDb();
 };
 
 export async function checkConnection(): Promise<boolean> {

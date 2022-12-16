@@ -36,21 +36,16 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
   async componentDidMount() {
     const checkConn = async () => {
       const check = checkConnection();
-      // console.log('checkConnection', check);
-      if (check) {
-        this.setState({
-          pingInd: true,
-        });
-        return true;
-      }
+      const { pingInd } = this.state;
 
-      this.setState({
-        pingInd: false,
-      });
-      return false;
+      if (check !== pingInd) {
+        this.setState({
+          pingInd: check,
+        });
+      }
+      return check;
     };
 
-    // this.devListToken = PubSub.subscribe('DEVLIST_CHANGE', this.updateDevices);
     this.devToken = PubSub.subscribe('DEVICE_CHANGE', this.checkConn);
     checkConn();
     this.timer = setInterval(checkConn, 5000);
@@ -64,11 +59,13 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
   }
 
   checkConn = async () => {
+    const { pingInd } = this.state;
     const test = await checkConnection();
-    //  console.log('conn: ', test);
-    this.setState({
-      pingInd: !!test,
-    });
+    if (pingInd !== test) {
+      this.setState({
+        pingInd: !!test,
+      });
+    }
   };
 
   changeDevice = (serverId: string | null) => {
@@ -76,7 +73,7 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
 
     const { history } = this.props;
     const device = window.Tablo.discoveredDevices().filter(
-      (item: any) => item.serverid === serverId
+      (item: any) => item.server_id === serverId
     );
     setCurrentDevice(device[0]);
     PubSub.publish('DB_CHANGE', true);
@@ -85,10 +82,9 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
 
   render() {
     const { pingInd } = this.state;
-    // const { device } = globalThis.Api;
     const device = window.Tablo.device();
     const currentDevice: any = store.get('CurrentDevice');
-    if (!device || !currentDevice) return <></>; //
+    if (!device || !currentDevice) return <></>;
 
     let pingStatus = 'text-danger';
 
@@ -96,9 +92,9 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
       pingStatus = 'text-success';
     }
 
-    // const { discoveredDevices } = global;
     const discoveredDevices = window.Tablo.discoveredDevices();
-
+    // TODO: this rerenders a ton on mouseovers? also not rediscovering, so...
+    // console.log('discoveredDevices', discoveredDevices);
     if (!device && discoveredDevices.length === 1) {
       return (
         <span title={device.private_ip}>
@@ -121,22 +117,26 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
             {currentDevice.name}
             <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
           </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {discoveredDevices.map((dev: any) => {
-              const key = `ping-status-${dev.server_id}`;
-              return (
-                <Dropdown.Item
-                  key={key}
-                  onSelect={this.changeDevice}
-                  eventKey={dev.serverid}
-                >
-                  {dev.name} - {dev.private_ip}
-                </Dropdown.Item>
-              );
-            })}
-          </Dropdown.Menu>
+          {discoveredDevices.length > 0 ? (
+            <Dropdown.Menu>
+              {discoveredDevices.map((dev: any) => {
+                const key = `ping-status-${dev.server_id}`;
+                return (
+                  <Dropdown.Item
+                    key={key}
+                    onSelect={this.changeDevice}
+                    eventKey={dev.server_id}
+                  >
+                    {dev.name} - {dev.private_ip}
+                  </Dropdown.Item>
+                );
+              })}
+            </Dropdown.Menu>
+          ) : (
+            <></>
+          )}
         </Dropdown>
-      </> //
+      </>
     );
   }
 }

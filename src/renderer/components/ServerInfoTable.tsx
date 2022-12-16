@@ -69,7 +69,7 @@ export default class ServerInfoTable extends Component<Props, State> {
           </tr>
           <tr>
             <th>Server ID</th>
-            <td>{device.serverid}</td>
+            <td>{device.server_id}</td>
           </tr>
           <tr>
             <th>Local IP</th>
@@ -81,7 +81,7 @@ export default class ServerInfoTable extends Component<Props, State> {
               <td>{device.public_ip}</td>
             </tr>
           ) : (
-            ''
+            <></>
           )}
           <tr>
             <th>Firmware version</th>
