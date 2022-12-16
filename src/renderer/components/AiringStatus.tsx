@@ -1,5 +1,7 @@
 import { Component } from 'react';
 import Airing from '../utils/Airing';
+import ToggleProtected from './ToggleProtected';
+import ToggleWatched from './ToggleWatched';
 
 type Props = {
   airing: Airing;
@@ -74,21 +76,7 @@ export default class AiringStatus extends Component<Props> {
 
   watched = () => {
     const { airing } = this.props;
-    const { userInfo } = airing;
-
-    if (userInfo.watched) {
-      return (
-        <i
-          className="fa fa-eye p-1"
-          style={{
-            color: 'forestgreen',
-          }}
-          title="watched"
-        />
-      );
-    }
-
-    return <i className="fa fa-eye p-1" title="unwatched" />;
+    return <ToggleWatched airing={airing} />;
   };
 
   recording = () => {
@@ -192,9 +180,11 @@ export default class AiringStatus extends Component<Props> {
   good = () => {
     let msg = 'Recording successful';
     if (this.isComskipGood()) msg = 'Commercial Skip ready';
+
+    // Ugh. This pl-0, pr-1 works with the padding/placement of ToggleProtected, so look at that
     return (
       <i
-        className="fa fa-check-circle p-1"
+        className="fa fa-check-circle pl-0 pr-1"
         style={{
           color: 'forestgreen',
         }}
@@ -247,20 +237,7 @@ export default class AiringStatus extends Component<Props> {
 
   protected = () => {
     const { airing } = this.props;
-    const { userInfo } = airing;
-
-    if (userInfo.protected) {
-      return (
-        <i
-          className="fa fa-lock p-1"
-          style={{
-            color: 'grey',
-          }}
-          title="Protected"
-        />
-      );
-    }
-    return <></>;
+    return <ToggleProtected airing={airing} />;
   };
 
   render() {
@@ -272,8 +249,14 @@ export default class AiringStatus extends Component<Props> {
     }
 
     if (this.isComskipGood() || this.isGoodRecording())
-      return <>{this.good()}</>;
-    //
+      return (
+        <>
+          {this.watched()}
+          {this.protected()}
+          {this.good()}
+        </>
+      );
+
     return (
       <div>
         {this.clean()}
