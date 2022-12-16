@@ -519,6 +519,56 @@ export default class Airing {
     });
   }
 
+  async setProtected(protect = true) {
+    try {
+      if (typeof window === 'undefined') {
+        await globalThis.Api.patch(this.path, { protected: protect });
+      } else {
+        await window.Tablo.patch(this.path, { protected: protect });
+      }
+      window.db.updateAsync(
+        'RecDb',
+        {
+          object_id: this.id,
+        },
+        {
+          $set: {
+            'user_info.protected': protect,
+          },
+        }
+      );
+    } catch (e) {
+      console.log('Airing.setProtected', e);
+      return false;
+    }
+    return true;
+  }
+
+  async setWatched(watched = true) {
+    try {
+      if (typeof window === 'undefined') {
+        await globalThis.Api.patch(this.path, { watched });
+      } else {
+        await window.Tablo.patch(this.path, { watched });
+      }
+      window.db.updateAsync(
+        'RecDb',
+        {
+          object_id: this.id,
+        },
+        {
+          $set: {
+            'user_info.watched': watched,
+          },
+        }
+      );
+    } catch (e) {
+      console.log('Airing.setWatched', e);
+      return false;
+    }
+    return true;
+  }
+
   getExportDetails() {
     return window.Airing.getExportDetails(this);
   }
