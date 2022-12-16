@@ -92,11 +92,11 @@ class RecordingMini extends Component<Props> {
             maxHeight: '55px',
           }}
         >
-          <Col md="8">
+          <Col md="auto" className="mr-0 pr-0">
             {showCol}
-            <TitleSlim airing={airing} withShow={ON} />
+            <TitleSlim airing={airing} withShow={OFF} />
           </Col>
-          <Col md="4" className="mr-0 pr-0">
+          <Col md="auto" className="ml-auto mr-0 pr-0">
             <div className="">
               <div className="d-flex flex-row-reverse d-block">
                 {chkCol}
