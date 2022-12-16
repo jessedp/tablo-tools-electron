@@ -17,80 +17,92 @@ const store = new Store();
 
 const dataDir = getPath('userData');
 
-export const makeRecDb = () => {
+export const makeRecDb = async () => {
   const device: any = store.get('CurrentDevice');
-  if (!device.serverid) return null;
-  const recDbName = `${device.serverid}-recordings.db`;
+  if (!device.server_id) return null;
+  const recDbName = `${device.server_id}-recordings.db`;
   const recFile = path.join(dataDir, recDbName);
   debug('creating %s at %s', recDbName, recFile);
-  return new AsyncNedb({
-    filename: recFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: recFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeRecDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
-export const makeShowDb = () => {
+export const makeShowDb = async () => {
   const device: any = store.get('CurrentDevice');
-  if (!device.serverid) return null;
-  const showDbName = `${device.serverid}-show.db`;
+  if (!device.server_id) return null;
+  const showDbName = `${device.server_id}-show.db`;
   const showFile = path.join(dataDir, showDbName);
   debug('creating %s at %s', showDbName, showFile);
-  return new AsyncNedb({
-    filename: showFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: showFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeShowDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
-export const makeSearchDb = () => {
+export const makeSearchDb = async () => {
   const searchDbName = `saved-search.db`;
   const searchFile = path.join(dataDir, searchDbName);
   debug('creating %s at %s', searchDbName, searchFile);
-  return new AsyncNedb({
-    filename: searchFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: searchFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeSearchDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
-export const makeChannelDb = () => {
+export const makeChannelDb = async () => {
   const device: any = store.get('CurrentDevice');
-  if (!device.serverid) return null;
-  const channelDbName = `${device.serverid}-channel.db`;
+  if (!device.server_id) return null;
+  const channelDbName = `${device.server_id}-channel.db`;
   const channelFile = path.join(dataDir, channelDbName);
   debug('creating %s at %s', channelDbName, channelFile);
-  return new AsyncNedb({
-    filename: channelFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: channelFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeChannelDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
-export const makeNamingDb = () => {
+export const makeNamingDb = async () => {
   const device: any = store.get('CurrentDevice');
-  if (!device.serverid) return null;
+  if (!device.server_id) return null;
   const namingDbName = `template-naming.db`;
   const namingFile = path.join(dataDir, namingDbName);
   debug('creating %s at %s', namingDbName, namingFile);
-  return new AsyncNedb({
-    filename: namingFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: namingFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeNamingDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
-export const makeExportLoggingDb = () => {
+export const makeExportLoggingDb = async () => {
   const device: any = store.get('CurrentDevice');
-  if (!device.serverid) return null;
+  if (!device.server_id) return null;
   const exportDbName = `export-log.db`;
   const exportFile = path.join(dataDir, exportDbName);
   debug('creating %s at %s', exportDbName, exportFile);
-  return new AsyncNedb({
-    filename: exportFile,
-    autoload: true,
-    inMemoryOnly: false,
-  });
+  const db = new AsyncNedb({ filename: exportFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeExportDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
 };
 
 export const setupDb = async () => {
@@ -99,11 +111,11 @@ export const setupDb = async () => {
     return;
   }
   if (!global.dbs) global.dbs = {};
-  global.dbs.RecDb = makeRecDb();
-  global.dbs.ShowDb = makeShowDb();
-  global.dbs.ChannelDb = makeChannelDb();
-  global.dbs.SearchDb = makeSearchDb();
-  global.dbs.NamingDb = makeNamingDb();
-  global.dbs.ExportLogDb = makeExportLoggingDb();
+  global.dbs.RecDb = await makeRecDb();
+  global.dbs.ShowDb = await makeShowDb();
+  global.dbs.ChannelDb = await makeChannelDb();
+  global.dbs.SearchDb = await makeSearchDb();
+  global.dbs.NamingDb = await makeNamingDb();
+  global.dbs.ExportLogDb = await makeExportLoggingDb();
   PubSub.publish('DB_CHANGE', true);
 };
