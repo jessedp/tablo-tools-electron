@@ -94,7 +94,7 @@ class RecordingMini extends Component<Props> {
         >
           <Col md="auto" className="mr-0 pr-0">
             {showCol}
-            <TitleSlim airing={airing} withShow={OFF} />
+            <TitleSlim airing={airing} withShow={withShow} />
           </Col>
           <Col md="auto" className="ml-auto mr-0 pr-0">
             <div className="">
