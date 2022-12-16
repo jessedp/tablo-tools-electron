@@ -150,6 +150,7 @@ class SettingsAdvanced extends Component<SettingsAdvancedProps, ConfigType> {
         type,
       }
     );
+    discover();
   };
 
   saveTestDeviceIp = () => {
