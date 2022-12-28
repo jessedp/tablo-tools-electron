@@ -12,6 +12,7 @@ import * as SearchActions from '../store/search';
 import { asyncForEach } from '../utils/utils';
 import ConfirmDelete from './ConfirmDelete';
 import { StdObj } from '../constants/types';
+import ConfirmMarkAs from './ConfirmMarkAs';
 
 type State = Record<string, unknown>;
 
@@ -81,6 +82,9 @@ class SelectedBox extends Component<
               </DropdownItem>
               <DropdownItem onClick={() => undefined}>
                 <ConfirmDelete label="Delete" button={delInner} />
+              </DropdownItem>
+              <DropdownItem onClick={() => undefined}>
+                <ConfirmMarkAs />
               </DropdownItem>
               <hr className="m-1 p-0" />
               <DropdownItem

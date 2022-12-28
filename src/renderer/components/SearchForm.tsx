@@ -844,7 +844,7 @@ class SearchForm extends Component<
   async refresh(): Promise<void> {
     this.showsList = await showList();
     this.savedSearchList = await window.db.findAsync('SearchDb', {});
-    this.search();
+    await this.search();
   }
 
   render() {
