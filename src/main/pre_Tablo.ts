@@ -145,7 +145,17 @@ ipcMain.on('tablo-post', async (event: any, query: any) => {
     const recs = await globalThis.Api.post(query);
     event.returnValue = recs;
   } catch (e) {
-    console.error('tablo-get', e);
+    console.error('tablo-post', e);
+    event.returnValue = {};
+  }
+});
+
+ipcMain.on('tablo-patch', async (event: any, path: string, query: any) => {
+  try {
+    const recs = await globalThis.Api.patch(path, query);
+    event.returnValue = recs;
+  } catch (e) {
+    console.error('tablo-patch', e);
     event.returnValue = {};
   }
 });

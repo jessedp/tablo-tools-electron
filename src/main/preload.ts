@@ -118,6 +118,8 @@ contextBridge.exposeInMainWorld('Tablo', {
   batch: (ids: any) => ipcRenderer.sendSync('tablo-batch', ids),
   get: (query: any) => ipcRenderer.sendSync('tablo-get', query),
   post: (query: any) => ipcRenderer.sendSync('tablo-post', query),
+  patch: (object_path: string, query: any) =>
+    ipcRenderer.sendSync('tablo-patch', object_path, query),
   delete: (query: any) => ipcRenderer.sendSync('tablo-delete', query),
 });
 

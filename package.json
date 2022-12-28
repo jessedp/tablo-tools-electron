@@ -323,7 +323,7 @@
     "source-map-support": "^0.5.19",
     "styled-components": "^5.1.0",
     "supports-color": "^9.2.2",
-    "tablo-api": "^0.4.11",
+    "tablo-api": "^0.4.12",
     "template-helpers": "^1.0.1",
     "text-encoding": "^0.7.0"
   },
