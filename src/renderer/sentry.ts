@@ -77,6 +77,10 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        if (errorText.includes('Fatal Error: EXC_BAD_ACCESS')) {
+          return ignoreError(event);
+        }
+
         // TABLO-TOOLS-ELECTRON-NX
         if (errorText.includes('Fatal Error: EXCEPTION_BREAKPOINT')) {
           return ignoreError(event);
