@@ -76,7 +76,13 @@ export default function FileInfo(props: FileInfoProps) {
     );
   }
 
-  const stats = window.fs.statSync(airing.exportFile);
+  let stats = { ctime: 0, size: 0 };
+  try {
+    stats = window.fs.statSync(airing.exportFile);
+  } catch (e) {
+    console.error('FileInfo - window.fs.statSync error', e);
+  }
+
   let showSize = true;
   let baseClass = 'p-0 m-0 smaller font-weight-bold';
   let icon = 'fa pr-1 ';

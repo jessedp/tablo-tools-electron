@@ -50,7 +50,7 @@ function Release(prop: any) {
   return (
     <Card border={border} bg={bg} className="mb-2">
       <Card.Header>
-        {data.name}{' '}
+        <h3 style={{ display: 'inline', color: 'forestgreen' }}>{data.name}</h3>
         <span className="pl-2 smaller muted">
           <RelativeDate date={data.published_at} />{' '}
         </span>
@@ -138,7 +138,7 @@ export default class VersionInfo extends Component<Props, State> {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Welcome to Tablo Tools &nbsp;
+            <h3 style={{ display: 'inline' }}>Welcome to Tablo Tools </h3>
             <span className="text-danger">v{appVersion}</span>
           </Modal.Title>
         </Modal.Header>

@@ -151,7 +151,7 @@ class VideoExportModal extends Component<Props, State> {
     }
 
     if (exportState === EXP_DONE && deleteOnFinish === CHECKBOX_ON) {
-      remAiring(expRec.airing);
+      if (expRec && expRec.airing) remAiring(expRec.airing);
       await airing.delete();
       PubSub.publish('DB_CHANGE', '');
     }

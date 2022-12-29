@@ -56,6 +56,31 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        // TABLO-TOOLS-ELECTRON-FC
+        if (errorText.includes('net::ERR_CERT_AUTHORITY_INVALID')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-V4
+        if (
+          errorText.includes('Error: Unable to find latest version on GitHub')
+        ) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-EX
+        if (
+          errorText.includes(
+            '503 "method: GET url: https://objects.githubusercontent.com/'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
+        if (errorText.includes('Fatal Error: EXC_BAD_ACCESS')) {
+          return ignoreError(event);
+        }
+
         // TABLO-TOOLS-ELECTRON-NX
         if (errorText.includes('Fatal Error: EXCEPTION_BREAKPOINT')) {
           return ignoreError(event);
