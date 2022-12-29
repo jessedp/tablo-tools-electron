@@ -16,7 +16,7 @@ const store = new Store();
 export const hasDevice = () => {
   const device: any = store.get('CurrentDevice');
   if (!device || !device.server_id) {
-    debug("hasDevice() - No device found, can't init db");
+    debug("hasDevice() - No device found, can't init db - %o", device);
     return false;
   }
 

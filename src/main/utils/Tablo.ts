@@ -23,6 +23,12 @@ export async function setCurrentDevice(device: any): Promise<void> {
     debug('curdev = ', currentDevice);
     debug('newdev = ', device);
 
+    // 0.3.10 - normalized on server_id and remove serverid. This converts old saved devices
+    if (device.serverid && !device.server_id) {
+      device.server_id = device.serverid;
+      delete device.serverid;
+    }
+
     const loadServerInfo = async () => {
       try {
         globalThis.Api.device.info = await globalThis.Api.get('/settings/info');
