@@ -68,6 +68,15 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        // TABLO-TOOLS-ELECTRON-EX
+        if (
+          errorText.includes(
+            '503 "method: GET url: https://objects.githubusercontent.com/'
+          )
+        ) {
+          return ignoreError(event);
+        }
+
         // TABLO-TOOLS-ELECTRON-NX
         if (errorText.includes('Fatal Error: EXCEPTION_BREAKPOINT')) {
           return ignoreError(event);
