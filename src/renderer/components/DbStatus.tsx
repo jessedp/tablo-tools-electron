@@ -111,7 +111,7 @@ class DbStatus extends Component<DbStatusProps, State> {
     const config = getConfig();
     let autoRebuild = true;
 
-    if (Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
+    if (config && Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
       autoRebuild = config.autoRebuild;
     }
 
