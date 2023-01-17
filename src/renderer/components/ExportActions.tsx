@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
+import { useSelector } from 'react-redux';
 import {
   EXP_WORKING,
   DUPE_SKIP,
@@ -14,6 +15,7 @@ import {
 } from '../constants/app';
 
 import Checkbox from './Checkbox';
+import { RootState } from '../store';
 
 export default function ExportActions(prop: Record<string, any>) {
   const {
@@ -27,6 +29,9 @@ export default function ExportActions(prop: Record<string, any>) {
     actionOnDuplicate,
     setActionOnDuplicate,
   } = prop;
+
+  const recs = useSelector((Rstate: RootState) => Rstate.exportList);
+  const totalExportRecs = recs.records.length;
 
   if (state === EXP_WORKING) {
     return (
@@ -48,7 +53,10 @@ export default function ExportActions(prop: Record<string, any>) {
     <Alert variant="primary" className="p-2 m-2">
       <Row>
         <Col md="4" className="pt-2">
-          <h4 className="pl-2">Export Recordings</h4>
+          <h4 className="pl-2">
+            Export Recordings{' '}
+            <small className="pl-1">({totalExportRecs})</small>
+          </h4>
         </Col>
         <Col md="auto">
           <InputGroup size="sm" className="pt-1">

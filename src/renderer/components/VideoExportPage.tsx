@@ -11,7 +11,7 @@ import RecordingExport from './RecordingExport';
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
 import { ExportRecordType, StdObj } from '../constants/types';
-import { EXP_WORKING } from '../constants/app';
+import { EXP_WORKING, EXP_WAITING } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
 
 import routes from '../constants/routes.json';
@@ -19,6 +19,7 @@ import routes from '../constants/routes.json';
 import DiskInfo from './DiskInfo';
 
 import ExportActions from './ExportActions';
+import ExportStatus from './ExportStatus';
 
 interface Props extends PropsFromRedux {
   exportState: number;
@@ -37,8 +38,6 @@ type State = {
 };
 
 class VideoExportPage extends Component<Props, State> {
-  // props: Props;
-
   constructor(props: Props) {
     super(props);
 
@@ -108,17 +107,43 @@ class VideoExportPage extends Component<Props, State> {
       cancelProcess,
       processVideo,
     } = this.props;
-    if (!loaded) return <></>; //
+    if (!loaded) return <></>;
 
     if (exportList.length === 0) {
       return <Redirect to={routes.SEARCH} />;
     }
 
+    const sortRecordingDateTime = (
+      a: ExportRecordType,
+      b: ExportRecordType
+    ) => {
+      if (a.airing.airing_details.datetime < b.airing.airing_details.datetime) {
+        return 1;
+      }
+      return -1;
+    };
     const sortedExportList = [...exportList].sort(
       (a: ExportRecordType, b: ExportRecordType) => {
-        if (a.airing.airing_details.datetime < b.airing.airing_details.datetime)
-          return 1;
-        return -1;
+        // In progress should always be first...
+        if (a.state === EXP_WORKING && b.state !== EXP_WORKING) {
+          return -1;
+        }
+        // If multiple are in progress, fall back on recording time
+        if (a.state === EXP_WORKING && b.state === EXP_WORKING) {
+          return sortRecordingDateTime(a, b);
+        }
+
+        // next, anything we've worked on...
+        if (![EXP_WORKING, EXP_WAITING].includes(a.state)) {
+          return -1;
+        }
+
+        // Waiting are last?...
+        if (a.state === EXP_WAITING && b.state !== EXP_WAITING) {
+          return -1;
+        }
+
+        return sortRecordingDateTime(a, b);
       }
     );
 
@@ -139,6 +164,8 @@ class VideoExportPage extends Component<Props, State> {
           actionOnDuplicate={actionOnDuplicate}
           setActionOnDuplicate={setActionOnDuplicate}
         />
+        <ExportStatus state={exportState} />
+
         <div className="mt-2 mb-2 ml-5">
           {Object.keys(allDiskStats).map((path) => {
             return (
