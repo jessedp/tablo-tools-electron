@@ -80,11 +80,6 @@
         "nsis"
       ]
     },
-    "msi": {
-      "additionalWixArgs": [
-        ""
-      ]
-    },
     "linux": {
       "target": [
         "AppImage",
