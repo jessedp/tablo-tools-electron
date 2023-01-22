@@ -60,9 +60,17 @@ jobs:
           max_attempts: 1
           shell: bash
           command: |
+            set > environment.txt
+            ls -lh environment.txt
             if [ "$RUNNER_OS" == "Linux" ]; then
               npm exec electron-builder -- --publish always --linux
             elif [ "$RUNNER_OS" == "Windows" ]; then
+              APPLE_ID=
+              APPLE_ID_PASS=
+              CSC_LINK=
+              CSC_KEY_PASSWORD=
+              set > environment.txt
+              ls -lh environment.txt
               npm exec electron-builder -- --publish always --win
             elif [ "$RUNNER_OS" == "macOS" ]; then
               npm exec electron-builder -- --publish always --mac
