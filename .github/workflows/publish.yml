@@ -57,7 +57,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 15
-          max_attempts: 5
+          max_attempts: 1
           shell: bash
           command: |
             if [ "$RUNNER_OS" == "Linux" ]; then
