@@ -81,6 +81,11 @@
         "nsis"
       ]
     },
+    "msi": {
+      "additionalWixArgs": [
+        "-sval"
+      ]
+    },
     "linux": {
       "target": [
         "AppImage",
