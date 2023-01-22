@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [windows-latest]
 
     steps:
       - name: Checkout git repo
@@ -61,11 +61,11 @@ jobs:
           shell: bash
           command: |
             if [ "$RUNNER_OS" == "Linux" ]; then
-              # npm exec electron-builder -- --publish always --linux
+              npm exec electron-builder -- --publish always --linux
             elif [ "$RUNNER_OS" == "Windows" ]; then
               npm exec electron-builder -- --publish always --win
             elif [ "$RUNNER_OS" == "macOS" ]; then
-              # npm exec electron-builder -- --publish always --mac
+              npm exec electron-builder -- --publish always --mac
             else
               echo "$RUNNER_OS not supported"
               exit 1
