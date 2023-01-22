@@ -75,7 +75,6 @@
       ]
     },
     "win": {
-      "certificateFile": null,
       "target": [
         "msi",
         "nsis"
@@ -83,7 +82,7 @@
     },
     "msi": {
       "additionalWixArgs": [
-        "-sval"
+        ""
       ]
     },
     "linux": {
