@@ -35,9 +35,7 @@ function MyPlayerLive(props: Props) {
     if (data && data.playlist_url) {
       // TODO: better local/forward rewrites (probably elsewhere)
       if (window.Tablo.device().private_ip === '127.0.0.1') {
-        const re = new RegExp(
-          '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}'
-        );
+        const re = /[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}/;
         watchUrl = data.playlist_url.replace(re, '127.0.0.1:8888');
       } else {
         watchUrl = data.playlist_url;

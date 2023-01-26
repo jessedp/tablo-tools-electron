@@ -6,6 +6,11 @@ import MatchesToBadges from './SearchFilterMatches';
 import { VIEW_GRID, VIEW_LIST } from '../constants/app';
 import Show from '../utils/Show';
 
+export type Option = {
+  value: string;
+  label: string;
+};
+
 type FullFilterProps = {
   name: string;
   placeholder: string;
@@ -17,11 +22,6 @@ type FullFilterProps = {
 export type Season = {
   num: number;
   count: number;
-};
-
-export type Option = {
-  value: string;
-  label: string;
 };
 
 export type JSXOption = {

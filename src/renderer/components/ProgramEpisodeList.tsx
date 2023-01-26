@@ -14,6 +14,30 @@ import ProgramCover from './ProgramCover';
 import { programList } from './Programs';
 import routes from '../constants/routes.json';
 
+/** Redux setup */
+const mapStateToProps = (state: any) => {
+  const airings: StdObj[] = [];
+  let selectedCount = 0;
+  if (airings.length > 0) {
+    selectedCount = state.actionList.records.reduce(
+      (a: number, b: StdObj) =>
+        a +
+        (airings.find((obj: StdObj) => obj.object_id === b.object_id) ? 1 : 0),
+      0
+    );
+  }
+  return {
+    selectedCount,
+  };
+};
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 type State = {
   rec: ProgramData | null;
 };
@@ -32,7 +56,7 @@ class ProgramEpisodeList extends Component<Props, State> {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { match } = this.props;
 
     // eslint-disable-next-line
@@ -137,27 +161,5 @@ class ProgramEpisodeList extends Component<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: any) => {
-  const airings: StdObj[] = [];
-  let selectedCount = 0;
-  if (airings.length > 0) {
-    selectedCount = state.actionList.records.reduce(
-      (a: number, b: StdObj) =>
-        a +
-        (airings.find((obj: StdObj) => obj.object_id === b.object_id) ? 1 : 0),
-      0
-    );
-  }
-  return {
-    selectedCount,
-  };
-};
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(ProgramEpisodeList));

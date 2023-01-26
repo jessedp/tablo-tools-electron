@@ -15,6 +15,8 @@ export default class ScreenControls extends Component<Props, State> {
       isFullscreen: window.ipcRenderer.sendSync('is-fullscreen'),
       zoomFactor: window.webFrame.getZoomFactor(),
     };
+
+    (this as any).enterFullscreen = this.enterFullscreen.bind(this);
     (this as any).exitFullscreen = this.exitFullscreen.bind(this);
     (this as any).zoomIn = this.zoomIn.bind(this);
     (this as any).zoomOut = this.zoomOut.bind(this);

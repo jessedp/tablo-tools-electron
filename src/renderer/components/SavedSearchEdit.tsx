@@ -11,6 +11,15 @@ import slugify from 'slugify';
 import Button from 'react-bootstrap/Button';
 import * as FlashActions from '../store/flash';
 
+/** Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(FlashActions, dispatch);
+};
+
+const connector = connect(null, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 interface Props extends PropsFromRedux {
   searchId: string;
   updateValue: (id: string) => Promise<void>;
@@ -26,8 +35,6 @@ type State = {
 };
 
 class SavedSearchEdit extends Component<Props, State> {
-  searchList: [];
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -35,7 +42,7 @@ class SavedSearchEdit extends Component<Props, State> {
       slug: '',
       show: false,
     };
-    this.searchList = [];
+
     (this as any).handleShow = this.handleShow.bind(this);
     (this as any).handleClose = this.handleClose.bind(this);
     (this as any).deleteSearch = this.deleteSearch.bind(this);
@@ -294,12 +301,5 @@ class SavedSearchEdit extends Component<Props, State> {
     );
   }
 }
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(FlashActions, dispatch);
-};
-
-const connector = connect(null, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(SavedSearchEdit);
