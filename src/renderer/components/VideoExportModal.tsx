@@ -24,6 +24,25 @@ import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
 
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any) => {
+  const { exportList } = state;
+  return {
+    exportList: exportList.records,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(
+    { ...ExportListActions, ...ActionListActions },
+    dispatch
+  );
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 interface Props extends PropsFromRedux {
   airing: Airing;
   label?: string; // FIXME: input or type
@@ -290,26 +309,4 @@ class VideoExportModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { exportList } = state;
-  return {
-    exportList: exportList.records,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(
-    { ...ExportListActions, ...ActionListActions },
-    dispatch
-  );
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
 export default connector(VideoExport(VideoExportModal));
-
-// export default connect<StateProps, DispatchProps, OwnProps>(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(VideoExport(VideoExportModal));

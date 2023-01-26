@@ -49,6 +49,14 @@ exampleData[PROGRAM] = require('../../__tests__/data/program.json');
 
 Handlebars.registerHelper(helpers);
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(FlashActions, dispatch);
+};
+
+const connector = connect(null, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
 interface Props extends PropsFromRedux {
   label: string;
   type: string;
@@ -566,10 +574,4 @@ class SettingsNaming extends Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(FlashActions, dispatch);
-};
-
-const connector = connect(null, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 export default connector(SettingsNaming);

@@ -19,6 +19,14 @@ import MatchesToBadges from './SearchFilterMatches';
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
 import SelectStyles from './SelectStyles';
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(FlashActions, dispatch);
+};
+
+const connector = connect(null, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
 interface Props extends PropsFromRedux {
   searchState: SearchState;
   slug?: string;
@@ -405,12 +413,5 @@ class SavedSearch extends Component<Props, State> {
 SavedSearch.defaultProps = {
   slug: '',
 };
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(FlashActions, dispatch);
-};
-
-const connector = connect(null, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(SavedSearch);

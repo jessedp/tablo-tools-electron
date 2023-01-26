@@ -9,6 +9,21 @@ import type { SearchAlert } from '../constants/types';
 import MatchesToBadges from './SearchFilterMatches';
 import * as ActionListActions from '../store/actionList';
 
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any) => {
+  return {
+    results: state.search.results,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 type State = Record<string, unknown>;
 
 interface Props extends PropsFromRedux {
@@ -62,18 +77,5 @@ class SearchResultAlerts extends Component<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: any) => {
-  return {
-    results: state.search.results,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(SearchResultAlerts);

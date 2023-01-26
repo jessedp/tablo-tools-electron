@@ -11,6 +11,32 @@ import * as ActionListActions from '../store/actionList';
 import { ON, OFF } from '../constants/app';
 import { StdObj } from '../constants/types';
 
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any, ownProps: any) => {
+  const { show, seasonNumber } = ownProps;
+  //
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) =>
+      a +
+      (b.show?.object_id === show?.object_id &&
+      parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)
+        ? 1
+        : 0),
+    0
+  );
+  return {
+    selectedCount,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(ActionListActions, dispatch);
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 interface Props extends PropsFromRedux {
   // eslint-disable-next-line react/no-unused-prop-types
   show: Show;
@@ -88,29 +114,5 @@ class SeasonEpisodeList extends Component<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: any, ownProps: any) => {
-  const { show, seasonNumber } = ownProps;
-  //
-  const selectedCount = state.actionList.records.reduce(
-    (a: number, b: StdObj) =>
-      a +
-      (b.show?.object_id === show?.object_id &&
-      parseInt(b.episode.season_number, 10) === parseInt(seasonNumber, 10)
-        ? 1
-        : 0),
-    0
-  );
-  return {
-    selectedCount,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ActionListActions, dispatch);
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(SeasonEpisodeList);

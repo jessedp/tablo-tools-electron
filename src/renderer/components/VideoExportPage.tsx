@@ -21,6 +21,25 @@ import DiskInfo from './DiskInfo';
 import ExportActions from './ExportActions';
 import ExportStatus from './ExportStatus';
 
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any) => {
+  const { exportList } = state;
+  return {
+    actionList: state.actionList.records,
+    exportList: exportList.records.filter(
+      (rec: ExportRecordType) => rec.isBulk
+    ),
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(ExportListActions, dispatch);
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 interface Props extends PropsFromRedux {
   exportState: number;
   atOnce: number;
@@ -193,22 +212,5 @@ class VideoExportPage extends Component<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: any) => {
-  const { exportList } = state;
-  return {
-    actionList: state.actionList.records,
-    exportList: exportList.records.filter(
-      (rec: ExportRecordType) => rec.isBulk
-    ),
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(ExportListActions, dispatch);
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(VideoExport(VideoExportPage));
