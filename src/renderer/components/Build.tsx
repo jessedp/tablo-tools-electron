@@ -43,11 +43,8 @@ type State = {
 class Build extends Component<BuildProps, State> {
   building: boolean;
 
-  psToken: string;
-
   constructor(props: BuildProps) {
     super(props);
-    this.psToken = '';
     this.building = false;
     this.build = this.build.bind(this);
   }

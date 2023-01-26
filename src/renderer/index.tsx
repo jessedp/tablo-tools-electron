@@ -14,7 +14,10 @@ setupSentry(init);
 const store = configuredStore();
 localStorage.debug = 'tablo-tools*';
 
+// FIX ME: this /should/ have been covered by global.d.ts, but things like
+// window.db in src/renderer/utils/Airing.tsx complain if this doesn't exist
 declare global {
+  /* eslint-disable-next-line no-unused-vars */
   interface Window {
     require: any;
     ipcRenderer: any;
