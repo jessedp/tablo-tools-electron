@@ -32,7 +32,7 @@ class ProgramEpisodeList extends Component<Props, State> {
     };
   }
 
-  componentDidMount = async () => {
+  componentDidMount() {
     const { match } = this.props;
 
     // eslint-disable-next-line
@@ -40,7 +40,7 @@ class ProgramEpisodeList extends Component<Props, State> {
     console.log('match|', match);
     const recs = await programList(atob(path));
     this.refresh(recs[0]);
-  };
+  }
 
   componentDidUpdate(prevProps: Props) {
     const { selectedCount } = this.props;

@@ -66,26 +66,6 @@ export default class TabloVideoPlayer extends Component<Props, State> {
 
     if (!url) {
       return (
-        <>
-          <Modal size="lg" show={opened} onHide={this.toggle} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>
-                {airing.showTitle} - {airing.title}
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {!airing.cachedWatch ? (
-                <div>Loading...</div>
-              ) : (
-                <Alert variant="danger">Unable to load video!</Alert>
-              )}
-            </Modal.Body>
-          </Modal>
-        </> //
-      );
-    }
-    return (
-      <>
         <Modal size="lg" show={opened} onHide={this.toggle} centered>
           <Modal.Header closeButton>
             <Modal.Title>
@@ -96,17 +76,33 @@ export default class TabloVideoPlayer extends Component<Props, State> {
             {!airing.cachedWatch ? (
               <div>Loading...</div>
             ) : (
-              <ReactHlsPlayer
-                src={url}
-                autoPlay
-                controls
-                width="100%"
-                height="auto"
-              />
+              <Alert variant="danger">Unable to load video!</Alert>
             )}
           </Modal.Body>
-        </Modal>
-      </> //
+        </Modal> //
+      );
+    }
+    return (
+      <Modal size="lg" show={opened} onHide={this.toggle} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {airing.showTitle} - {airing.title}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {!airing.cachedWatch ? (
+            <div>Loading...</div>
+          ) : (
+            <ReactHlsPlayer
+              src={url}
+              autoPlay
+              controls
+              width="100%"
+              height="auto"
+            />
+          )}
+        </Modal.Body>
+      </Modal> //
     );
   }
 }

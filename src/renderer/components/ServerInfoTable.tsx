@@ -24,11 +24,11 @@ export default class ServerInfoTable extends Component<Props, State> {
     this.refresh = this.refresh.bind(this);
   }
 
-  componentDidMount = async () => {
+  componentDidMount() {
     this.psToken = PubSub.subscribe('DEVICE_CHANGE', this.refresh);
     // TODO: this should a PubSub instead of hoping it beats the 1st ping
     setTimeout(this.refresh, 500);
-  };
+  }
 
   componentWillUnmount() {
     PubSub.unsubscribe(this.psToken);

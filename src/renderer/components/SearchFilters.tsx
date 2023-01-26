@@ -398,7 +398,7 @@ SavedSearchFilter.defaultProps = {
   searches: [],
 };
 
-const DropdownIndicator = (props: Record<string, any>) => {
+function DropdownIndicator(props: Record<string, any>) {
   // eslint-disable-next-line react/prop-types
   const { selectProps } = props;
   // eslint-disable-next-line react/prop-types
@@ -414,7 +414,7 @@ const DropdownIndicator = (props: Record<string, any>) => {
       </components.DropdownIndicator>
     )
   );
-};
+}
 
 export const SORT_REC_ASC = 1;
 export const SORT_REC_DSC = 2;

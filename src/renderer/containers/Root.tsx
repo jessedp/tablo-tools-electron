@@ -10,12 +10,14 @@ type Props = {
   history: History;
 };
 
-const Root = ({ store, history }: Props) => (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Routes />
-    </ConnectedRouter>
-  </Provider>
-);
+function Root({ store, history }: Props) {
+  return (
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <Routes />
+      </ConnectedRouter>
+    </Provider>
+  );
+}
 
 export default Root;

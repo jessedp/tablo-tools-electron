@@ -62,59 +62,57 @@ export default class ScreenControls extends Component<Props, State> {
 
     if (mouseInRange) {
       return (
-        <>
-          <div className="screen-control bg-light">
-            {isFullscreen ? (
-              <div
-                className="bg-light p-2 fullscreen-control"
-                onClick={this.exitFullscreen}
-                onKeyDown={this.exitFullscreen}
-                role="button"
-                tabIndex={0}
-              >
-                <span
-                  className="fa fa-compress-arrows-alt pr-2"
-                  title="exit fullscreen"
-                />
-              </div>
-            ) : (
+        <div className="screen-control bg-light">
+          {isFullscreen ? (
+            <div
+              className="bg-light p-2 fullscreen-control"
+              onClick={this.exitFullscreen}
+              onKeyDown={this.exitFullscreen}
+              role="button"
+              tabIndex={0}
+            >
               <span
-                className="bg-light p-2"
-                onClick={this.enterFullscreen}
-                onKeyDown={this.enterFullscreen}
-                role="button"
-                tabIndex={0}
-              >
-                <span
-                  className="fa fa-expand-arrows-alt pr-2"
-                  title="enter fullscreen"
-                />
-              </span>
-            )}
-            <div className="zoom-control smallerish">
-              <div
-                className="p-2 zoom-btn"
-                onClick={this.zoomIn}
-                onKeyDown={this.zoomIn}
-                role="button"
-                tabIndex={0}
-              >
-                <span className="fa fa-minus pl-2 pr-2" />
-              </div>
-              <span className="fa fa-search pl-2 pr-2" />
-              {Math.round(zoomFactor * 100)}%
-              <div
-                className="p-2 zoom-btn"
-                onClick={this.zoomOut}
-                onKeyDown={this.zoomOut}
-                role="button"
-                tabIndex={0}
-              >
-                <span className="fa fa-plus pl-2 pr-2" />
-              </div>
+                className="fa fa-compress-arrows-alt pr-2"
+                title="exit fullscreen"
+              />
+            </div>
+          ) : (
+            <span
+              className="bg-light p-2"
+              onClick={this.enterFullscreen}
+              onKeyDown={this.enterFullscreen}
+              role="button"
+              tabIndex={0}
+            >
+              <span
+                className="fa fa-expand-arrows-alt pr-2"
+                title="enter fullscreen"
+              />
+            </span>
+          )}
+          <div className="zoom-control smallerish">
+            <div
+              className="p-2 zoom-btn"
+              onClick={this.zoomIn}
+              onKeyDown={this.zoomIn}
+              role="button"
+              tabIndex={0}
+            >
+              <span className="fa fa-minus pl-2 pr-2" />
+            </div>
+            <span className="fa fa-search pl-2 pr-2" />
+            {Math.round(zoomFactor * 100)}%
+            <div
+              className="p-2 zoom-btn"
+              onClick={this.zoomOut}
+              onKeyDown={this.zoomOut}
+              role="button"
+              tabIndex={0}
+            >
+              <span className="fa fa-plus pl-2 pr-2" />
             </div>
           </div>
-        </>
+        </div>
       );
     }
 

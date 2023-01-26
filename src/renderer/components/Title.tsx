@@ -21,26 +21,24 @@ function Title(props: Props) {
   }
 
   return (
-    <>
-      <h6>
-        <div className="pb-1">
-          {airing.datetime}
-          {episodeNum}
-        </div>
-        <div
-          className="title-area"
-          style={{
-            display: '100vh',
-          }}
-        >
-          <b>
-            {airing.showTitle}
-            {airing.title ? ` - ${airing.title}` : ''}{' '}
-          </b>
-          <Description description={airing.description} />
-        </div>
-      </h6>
-    </> //
+    <h6>
+      <div className="pb-1">
+        {airing.datetime}
+        {episodeNum}
+      </div>
+      <div
+        className="title-area"
+        style={{
+          display: '100vh',
+        }}
+      >
+        <b>
+          {airing.showTitle}
+          {airing.title ? ` - ${airing.title}` : ''}{' '}
+        </b>
+        <Description description={airing.description} />
+      </div>
+    </h6> //
   );
 }
 

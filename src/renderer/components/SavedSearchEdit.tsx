@@ -41,9 +41,9 @@ class SavedSearchEdit extends Component<Props, State> {
     (this as any).deleteSearch = this.deleteSearch.bind(this);
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.refresh();
-  };
+  }
 
   componentDidUpdate(prevProps: Props) {
     const { searchId } = this.props;

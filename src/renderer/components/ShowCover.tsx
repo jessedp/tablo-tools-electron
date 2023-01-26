@@ -34,13 +34,11 @@ function BottomLine(prop: { show: Show }) {
   }
 
   return (
-    <>
-      <div className={style}>
-        {showCounts
-          ? `${showCounts?.unwatched_count} of ${showCounts?.airing_count} unwatched`
-          : ''}
-      </div>
-    </> //
+    <div className={style}>
+      {showCounts
+        ? `${showCounts?.unwatched_count} of ${showCounts?.airing_count} unwatched`
+        : ''}
+    </div> //
   );
 }
 

@@ -8,7 +8,7 @@ type Props = {
   channel: Channel;
 };
 
-const MyPlayerLive = (props: Props) => {
+function MyPlayerLive(props: Props) {
   const { channel } = props;
   // const { channel } = props;
   const [url, setUrl] = useState('');
@@ -72,6 +72,6 @@ const MyPlayerLive = (props: Props) => {
   return (
     <ReactHlsPlayer src={url} autoPlay controls width="100%" height="auto" />
   );
-};
+}
 
 export default MyPlayerLive;
