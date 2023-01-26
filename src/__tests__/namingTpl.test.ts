@@ -27,5 +27,5 @@ test('fill basic template using string', () => {
   expect(filledTpl).toContain(vars.shortcuts.episodeOrTMS);
 
   // ends with mp4
-  expect(filledTpl).toMatch(new RegExp(`.mp4$`));
+  expect(filledTpl).toMatch(/\.mp4$/);
 });

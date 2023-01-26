@@ -462,9 +462,7 @@ export default class Airing {
       }
 
       if (device.private_ip === '127.0.0.1') {
-        const re = new RegExp(
-          '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}'
-        );
+        const re = /[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}/;
         data.playlist_url = data.playlist_url.replace(re, '127.0.0.1:8888');
       }
 
@@ -475,10 +473,9 @@ export default class Airing {
   }
 
   async delete() {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { _id, path } = this;
     console.log(`Airing.delete - ${_id} - ${path}`);
-    // OLDeslint-disable-next-line compat/compat
+
     return new Promise((resolve, reject) => {
       try {
         if (process.env.NODE_ENV === 'production') {
@@ -486,7 +483,6 @@ export default class Airing {
         }
 
         window.db.removeAsync('RecDb', {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           _id,
         });
 
