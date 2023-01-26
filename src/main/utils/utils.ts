@@ -303,7 +303,7 @@ export function throttleActions(
   return Promise.all(listOfPromises).then(() => resultArray);
 }
 
-export function findFfmpegPath(enableDebug = false, log?: any) {
+export function findFfmpegPath(enableDebug = false, log: any = null) {
   // const ffmpegPath = ffmpeg.path;
   const ffmpegPath = pathToFfmpeg || '';
   if (enableDebug && log) log.info('"ffmpeg.path" reports: ', ffmpegPath);
