@@ -16,7 +16,7 @@ import VideoExport from './VideoExport';
 import { ExportRecordType } from '../constants/types';
 import * as ExportListActions from '../store/exportList';
 import * as ActionListActions from '../store/actionList';
-import { EXP_DONE, EXP_WORKING } from '../constants/app';
+import { EXP_DONE, EXP_WAITING, EXP_WORKING } from '../constants/app';
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
@@ -165,7 +165,10 @@ class VideoExportModal extends Component<Props, State> {
       remExportRecord(expRec);
     }
 
-    if (exportState !== EXP_DONE) {
+    // canceling will cause an existing file to be deleted - there are times that is bad
+    const doNotCancelStates = [EXP_WAITING, EXP_WORKING, EXP_DONE];
+
+    if (!doNotCancelStates.includes(exportState)) {
       window.Airing.cancelExportVideo(expRec.airing);
     }
 
