@@ -9,7 +9,7 @@ import Airing from '../utils/Airing';
 
 type PreviewRec = { file: string; airing: Airing };
 
-const Filename = (prop: PreviewRec) => {
+function Filename(prop: PreviewRec) {
   const { file, airing } = prop;
   const [show, setShow] = useState(false);
   const header = (
@@ -54,7 +54,7 @@ const Filename = (prop: PreviewRec) => {
       />
     </> //
   );
-};
+}
 
 type Props = {
   files: Record<string, any>;

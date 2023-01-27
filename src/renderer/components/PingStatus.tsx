@@ -107,36 +107,30 @@ class PingStatus extends Component<Props & RouteComponentProps, State> {
     }
 
     return (
-      <>
-        <Dropdown>
-          <Dropdown.Toggle
-            size={'xs' as any}
-            variant="light"
-            id="dropdown-basic"
-          >
-            {currentDevice.name}
-            <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
-          </Dropdown.Toggle>
-          {discoveredDevices.length > 0 ? (
-            <Dropdown.Menu>
-              {discoveredDevices.map((dev: any) => {
-                const key = `ping-status-${dev.server_id}`;
-                return (
-                  <Dropdown.Item
-                    key={key}
-                    onSelect={this.changeDevice}
-                    eventKey={dev.server_id}
-                  >
-                    {dev.name} - {dev.private_ip}
-                  </Dropdown.Item>
-                );
-              })}
-            </Dropdown.Menu>
-          ) : (
-            <></>
-          )}
-        </Dropdown>
-      </>
+      <Dropdown>
+        <Dropdown.Toggle size={'xs' as any} variant="light" id="dropdown-basic">
+          {currentDevice.name}
+          <span className={`d-inline pl-2 fa fa-circle ${pingStatus}`} />
+        </Dropdown.Toggle>
+        {discoveredDevices.length > 0 ? (
+          <Dropdown.Menu>
+            {discoveredDevices.map((dev: any) => {
+              const key = `ping-status-${dev.server_id}`;
+              return (
+                <Dropdown.Item
+                  key={key}
+                  onSelect={this.changeDevice}
+                  eventKey={dev.server_id}
+                >
+                  {dev.name} - {dev.private_ip}
+                </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        ) : (
+          <></>
+        )}
+      </Dropdown>
     );
   }
 }

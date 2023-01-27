@@ -32,11 +32,11 @@ type State = {
 // const STATE_COMPLETE = 2;
 // const STATE_ERROR = 3;
 export default class ExportData extends Component<Props, State> {
-  shouldCancel: boolean;
+  // shouldCancel: boolean;
 
   constructor(props: Props) {
     super(props);
-    this.shouldCancel = false;
+    // this.shouldCancel = false;
     this.state = {
       // state: STATE_WAITING,
       enableServerInfo: true,

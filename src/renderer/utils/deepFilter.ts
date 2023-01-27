@@ -6,12 +6,12 @@ function isCollection(value: Array<any> | Record<string, any>) {
 
 export default function filter(value: any, fn: (...args: Array<any>) => any) {
   if (Array.isArray(value)) {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    // eslint-disable-next-line no-use-before-define
     return filterArray(value, fn);
   }
 
   if (isPlainObject(value)) {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    // eslint-disable-next-line no-use-before-define
     return filterObject(value, fn);
   }
 

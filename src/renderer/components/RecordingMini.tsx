@@ -84,34 +84,32 @@ class RecordingMini extends Component<Props> {
     }
 
     return (
-      <>
-        <Row
-          className="border-bottom mb-1 pb-1 pr-2"
-          style={{
-            width: '100%',
-            maxHeight: '55px',
-          }}
-        >
-          <Col md="auto" className="mr-0 pr-0">
-            {showCol}
-            <TitleSlim airing={airing} withShow={withShow} />
-          </Col>
-          <Col md="auto" className="ml-auto mr-0 pr-0">
-            <div className="">
-              <div className="d-flex flex-row-reverse d-block">
-                {chkCol}
-                <div className="smaller text-secondary align-top d-inline-block pt-1">
-                  <span className="fa fa-clock pr-1" />
-                  {airing.actualDuration} / {airing.duration}
-                </div>
-                <div className="d-inline-block mr-3">
-                  <AiringStatus airing={airing} />
-                </div>
+      <Row
+        className="border-bottom mb-1 pb-1 pr-2"
+        style={{
+          width: '100%',
+          maxHeight: '55px',
+        }}
+      >
+        <Col md="auto" className="mr-0 pr-0">
+          {showCol}
+          <TitleSlim airing={airing} withShow={withShow} />
+        </Col>
+        <Col md="auto" className="ml-auto mr-0 pr-0">
+          <div className="">
+            <div className="d-flex flex-row-reverse d-block">
+              {chkCol}
+              <div className="smaller text-secondary align-top d-inline-block pt-1">
+                <span className="fa fa-clock pr-1" />
+                {airing.actualDuration} / {airing.duration}
+              </div>
+              <div className="d-inline-block mr-3">
+                <AiringStatus airing={airing} />
               </div>
             </div>
-          </Col>
-        </Row>
-      </> //
+          </div>
+        </Col>
+      </Row> //
     );
   }
 }

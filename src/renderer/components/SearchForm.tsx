@@ -19,7 +19,6 @@ import {
   escapeRegExp,
   readableBytes,
   readableDuration,
-  throttleActions,
 } from '../utils/utils';
 import Airing, { ensureAiringArray } from '../utils/Airing';
 import Show from '../utils/Show';
@@ -298,26 +297,26 @@ class SearchForm extends Component<
     window.electron.store.set('SearchState', JSON.stringify(cleanState));
   };
 
-  deleteAll = async (countCallback: (...args: Array<any>) => any) => {
-    let { actionList } = this.state;
-    actionList = ensureAiringArray(actionList);
-    const list: Array<() => void> = [];
-    actionList.forEach((item) => {
-      list.push(() => item.delete());
-    });
-    await throttleActions(list, 4, countCallback)
-      .then(async () => {
-        // let ConfirmDelete display success for 1 sec
-        setTimeout(() => {
-          this.search();
-        }, 1000);
-        return false;
-      })
-      .catch((result) => {
-        console.log('deleteAll failed', result);
-        return false;
-      });
-  };
+  // deleteAll = async (countCallback: (...args: Array<any>) => any) => {
+  //   let { actionList } = this.state;
+  //   actionList = ensureAiringArray(actionList);
+  //   const list: Array<() => void> = [];
+  //   actionList.forEach((item) => {
+  //     list.push(() => item.delete());
+  //   });
+  //   await throttleActions(list, 4, countCallback)
+  //     .then(async () => {
+  //       // let ConfirmDelete display success for 1 sec
+  //       setTimeout(() => {
+  //         this.search();
+  //       }, 1000);
+  //       return false;
+  //     })
+  //     .catch((result) => {
+  //       console.log('deleteAll failed', result);
+  //       return false;
+  //     });
+  // };
 
   resetSearch = async () => {
     const { setLoading } = this.props;

@@ -19,6 +19,20 @@ import RecordingMini from './RecordingMini';
 import { StdObj } from '../constants/types';
 import { EXP_DONE, EXP_WAITING, EXP_WORKING, ON } from '../constants/app';
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators({ ...ActionListActions }, dispatch);
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    records: state.actionList.records,
+  };
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
 interface Props extends PropsFromRedux {
   airing?: Airing | null;
   label?: JSX.Element | string;
@@ -287,18 +301,5 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     );
   }
 }
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators({ ...ActionListActions }, dispatch);
-};
-
-const mapStateToProps = (state: any) => {
-  return {
-    records: state.actionList.records,
-  };
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(ConfirmDelete));

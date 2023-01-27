@@ -1,13 +1,15 @@
 module.exports = {
   extends: 'erb',
+  env: { es2021: true },
   rules: {
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': 'error',
+    // 'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+
     // Since React 17 and typescript 4.1 you can safely disable the rule
     'react/react-in-jsx-scope': 'off',
     'jsx-a11y/label-has-associated-control': [
-      2,
+      'warn',
       {
         labelComponents: ['label'],
         labelAttributes: ['label'],
@@ -22,6 +24,26 @@ module.exports = {
     'react/static-property-placement': 'off',
     'import/no-cycle': 'warn',
     'no-console': 'off',
+    // added after package upgrades in 0.3.12
+    'import/extensions': [
+      'error',
+      {
+        json: 'always',
+      },
+    ],
+    'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
+    // no dumb, useless rules
+    'react/jsx-no-useless-fragment': 'off',
+    // turn off b/c typescript does this for us(?)
+    'no-undef': 'off',
+    'no-unused-vars': ['error', { args: 'none', caughtErrors: 'none' }],
+    'class-methods-use-this': 'off',
+    'import/no-import-module-exports': [
+      'error',
+      {
+        exceptions: ['**/*/webpack.config.*.ts'],
+      },
+    ],
   },
   parserOptions: {
     ecmaVersion: 2020,

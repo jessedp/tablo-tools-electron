@@ -118,14 +118,14 @@ contextBridge.exposeInMainWorld('Tablo', {
   batch: (ids: any) => ipcRenderer.sendSync('tablo-batch', ids),
   get: (query: any) => ipcRenderer.sendSync('tablo-get', query),
   post: (query: any) => ipcRenderer.sendSync('tablo-post', query),
-  patch: (object_path: string, query: any) =>
-    ipcRenderer.sendSync('tablo-patch', object_path, query),
+  patch: (objectPath: string, query: any) =>
+    ipcRenderer.sendSync('tablo-patch', objectPath, query),
   delete: (query: any) => ipcRenderer.sendSync('tablo-delete', query),
 });
 
 contextBridge.exposeInMainWorld('Airing', {
-  exportVideo: (airing_id: string, actionOnDuplicate: string, template: any) =>
-    ipcRenderer.invoke('airing-export', airing_id, actionOnDuplicate, template),
+  exportVideo: (airingId: string, actionOnDuplicate: string, template: any) =>
+    ipcRenderer.invoke('airing-export', airingId, actionOnDuplicate, template),
   dedupedExportFile: (airing: any, actionOnDuplicate: string, template: any) =>
     ipcRenderer.sendSync(
       'airing-dedupedExportFile',

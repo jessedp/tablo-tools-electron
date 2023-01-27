@@ -27,7 +27,7 @@ export async function programList(progPath = '') {
       program_path: progPath,
     });
   } else {
-    const recType = new RegExp('program');
+    const recType = /program/;
     recs = await window.db.findAsync('RecDb', {
       path: {
         $regex: recType,

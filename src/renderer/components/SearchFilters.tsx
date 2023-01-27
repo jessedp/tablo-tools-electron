@@ -6,6 +6,11 @@ import MatchesToBadges from './SearchFilterMatches';
 import { VIEW_GRID, VIEW_LIST } from '../constants/app';
 import Show from '../utils/Show';
 
+export type Option = {
+  value: string;
+  label: string;
+};
+
 type FullFilterProps = {
   name: string;
   placeholder: string;
@@ -17,11 +22,6 @@ type FullFilterProps = {
 export type Season = {
   num: number;
   count: number;
-};
-
-export type Option = {
-  value: string;
-  label: string;
 };
 
 export type JSXOption = {
@@ -398,7 +398,7 @@ SavedSearchFilter.defaultProps = {
   searches: [],
 };
 
-const DropdownIndicator = (props: Record<string, any>) => {
+function DropdownIndicator(props: Record<string, any>) {
   // eslint-disable-next-line react/prop-types
   const { selectProps } = props;
   // eslint-disable-next-line react/prop-types
@@ -414,7 +414,7 @@ const DropdownIndicator = (props: Record<string, any>) => {
       </components.DropdownIndicator>
     )
   );
-};
+}
 
 export const SORT_REC_ASC = 1;
 export const SORT_REC_DSC = 2;

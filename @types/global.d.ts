@@ -1,61 +1,47 @@
+/* eslint no-var: "off", no-unused-vars: "off" */
 // Whee, "declare" global variables for TypeScript
 
 // import AsyncNedb from 'nedb-async';
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var document: Document;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-// interface MyWindow extends Window {
-//   electron: { ipcRender: any };
-// }
-
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var navigator: Navigator;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var discoveredDevices: Array<any>;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var CONNECTED: boolean;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var EXPORTING: boolean;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var RecDb: any;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var ShowDb: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var ChannelDb: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var SearchDb: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var NamingDb: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var ExportLogDb: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
 declare var Templates: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
+
+declare var Tablo: any;
+
 declare var Api: any;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare let window: Window;
+declare var window: Window;
 
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
 declare var config: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare var dbs: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare var LoadedTemplates: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare var exportProcs: any;
-// eslint-disable-next-line no-var, @typescript-eslint/no-unused-vars
-declare var debugInstances: Array;
 
-// declare namespace globalThis {
-//   let exportProcs: any;
-//   declare const config: any;
-// }
+declare var dbs: any;
+
+declare var LoadedTemplates: any;
+
+declare var exportProcs: any;
+
+declare var debugInstances: Array;
 
 // for electron-store
 declare namespace electron {
@@ -66,14 +52,3 @@ declare namespace electron {
     set: (key: string, val: any) => undefined;
   };
 }
-
-// declare namespace global {
-//   interface Window {
-//     electron: {
-//       store: {
-//         get: (key: string) => any;
-//         set: (key: string, val: any) => void;
-//       };
-//     };
-//   }
-// }

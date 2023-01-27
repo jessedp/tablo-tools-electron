@@ -204,9 +204,9 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.on('get-recording-progress', async (progress_data) => {
-  debug('get-recording-progress', progress_data);
-  mainWindow?.webContents.send('get-recording-progress', progress_data);
+ipcMain.on('get-recording-progress', async (progressData) => {
+  debug('get-recording-progress', progressData);
+  mainWindow?.webContents.send('get-recording-progress', progressData);
 });
 
 ipcMain.on('export-progress', async (...args) => {

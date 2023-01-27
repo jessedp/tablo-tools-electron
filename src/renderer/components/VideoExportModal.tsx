@@ -16,13 +16,32 @@ import VideoExport from './VideoExport';
 import { ExportRecordType } from '../constants/types';
 import * as ExportListActions from '../store/exportList';
 import * as ActionListActions from '../store/actionList';
-import { EXP_DONE, EXP_WORKING } from '../constants/app';
+import { EXP_DONE, EXP_WAITING, EXP_WORKING } from '../constants/app';
 import RecordingExport from './RecordingExport';
 import Airing from '../utils/Airing';
 import { ExportRecord } from '../utils/factories';
 import Checkbox, { CHECKBOX_ON } from './Checkbox';
 
 import getConfig from '../utils/config';
+
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any) => {
+  const { exportList } = state;
+  return {
+    exportList: exportList.records,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(
+    { ...ExportListActions, ...ActionListActions },
+    dispatch
+  );
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
 
 interface Props extends PropsFromRedux {
   airing: Airing;
@@ -146,7 +165,10 @@ class VideoExportModal extends Component<Props, State> {
       remExportRecord(expRec);
     }
 
-    if (exportState !== EXP_DONE) {
+    // canceling will cause an existing file to be deleted - there are times that is bad
+    const doNotCancelStates = [EXP_WAITING, EXP_WORKING, EXP_DONE];
+
+    if (!doNotCancelStates.includes(exportState)) {
       window.Airing.cancelExportVideo(expRec.airing);
     }
 
@@ -290,26 +312,4 @@ class VideoExportModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { exportList } = state;
-  return {
-    exportList: exportList.records,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(
-    { ...ExportListActions, ...ActionListActions },
-    dispatch
-  );
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
 export default connector(VideoExport(VideoExportModal));
-
-// export default connect<StateProps, DispatchProps, OwnProps>(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(VideoExport(VideoExportModal));

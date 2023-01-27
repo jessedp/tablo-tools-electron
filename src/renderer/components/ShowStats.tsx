@@ -20,6 +20,15 @@ type State = {
   data: Array<ShowStatRowType>;
 };
 
+function ShowImageRow(row: ShowStatRowType) {
+  const { cover, show } = row;
+  return (
+    <div>
+      <TabloImage imageId={cover} className="menu-image-md mr-2" />
+      {show}
+    </div>
+  );
+}
 export default class ShowStats extends Component<Props, State> {
   psToken: string;
 
@@ -192,12 +201,7 @@ export default class ShowStats extends Component<Props, State> {
         minWidth: `${titleMinWidth}px`,
         width: `${titleWidth}px`,
         defaultSortField: true,
-        format: (row: ShowStatRowType) => (
-          <div>
-            <TabloImage imageId={row.cover} className="menu-image-md mr-2" />
-            {row.show}
-          </div>
-        ),
+        format: ShowImageRow,
       },
       {
         name: 'object_id',

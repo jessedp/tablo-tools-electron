@@ -21,18 +21,41 @@ import TabloVideoPlayer from './TabloVideoPlayer';
 import VideoExportModal from './VideoExportModal';
 import { StdObj } from '../constants/types';
 
-// interface Props extends PropsFromRedux {}
-
-type State = {
-  movie: Airing | null;
-};
-
 interface RouterProps {
   // type for `match.params`
   id: string; // must be type `string` since value comes from the URL
 }
 
 type OwnProps = RouteComponentProps<RouterProps>;
+
+/** BEGIN Redux setup */
+const mapStateToProps = (state: any, ownProps: OwnProps) => {
+  // eslint-disable-next-line
+  const id = parseInt(ownProps.match.params.id, 10);
+  const selectedCount = state.actionList.records.reduce(
+    (a: number, b: StdObj) => a + (b.object_id === id ? 1 : 0),
+    0
+  );
+  return {
+    selectedCount,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(
+    { ...ActionListActions, ...FlashActions },
+    dispatch
+  );
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */ // interface Props extends PropsFromRedux {}
+
+type State = {
+  movie: Airing | null;
+};
+
 type Props = OwnProps & PropsFromRedux;
 
 class MovieDetails extends Component<Props, State> {
@@ -210,27 +233,5 @@ class MovieDetails extends Component<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: any, ownProps: OwnProps) => {
-  // eslint-disable-next-line
-  const id = parseInt(ownProps.match.params.id, 10);
-  const selectedCount = state.actionList.records.reduce(
-    (a: number, b: StdObj) => a + (b.object_id === id ? 1 : 0),
-    0
-  );
-  return {
-    selectedCount,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(
-    { ...ActionListActions, ...FlashActions },
-    dispatch
-  );
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(MovieDetails));

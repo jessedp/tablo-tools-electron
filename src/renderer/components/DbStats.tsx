@@ -84,25 +84,25 @@ export default class DbStats extends Component<Props, State> {
     ];
 
     /** by type * */
-    let recType = new RegExp('episode');
+    let recType = /episode/;
     const typeEpisode = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
-    recType = new RegExp('movie');
+    recType = /movie/;
     const typeMovie = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
-    recType = new RegExp('sports');
+    recType = /sports/;
     const typeEvent = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,
       },
     });
-    recType = new RegExp('programs');
+    recType = /programs/;
     const typeProgram = window.db.countAsync('RecDb', {
       path: {
         $regex: recType,

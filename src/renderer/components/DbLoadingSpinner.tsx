@@ -46,11 +46,7 @@ export default function DbLoading(): JSX.Element {
   }
 
   if (loading === STATE_ERROR) {
-    return (
-      <>
-        <span className="fa fa-exclamation-triangle pr-1 text-danger" />
-      </>
-    );
+    return <span className="fa fa-exclamation-triangle pr-1 text-danger" />;
   }
 
   if (loading === STATE_FINISH) return <></>;

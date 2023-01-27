@@ -16,7 +16,7 @@ type State = {
 };
 
 export async function eventList() {
-  const recType = new RegExp('sports');
+  const recType = /sports/;
   const recs = await window.db.findAsync('RecDb', {
     path: {
       $regex: recType,

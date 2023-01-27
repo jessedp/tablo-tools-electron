@@ -91,54 +91,52 @@ class RecordingSlim extends Component<Props> {
     }
 
     return (
-      <>
-        <Row
-          className="border-bottom mb-1 pb-1 pr-0"
-          style={{
-            width: '100%',
-            maxHeight: '55px',
-          }}
-        >
-          <Col md="8">
-            {showCol}
-            <TitleSlim airing={airing} withShow={withShow} />
-          </Col>
-          <Col md="4" className="pr-0 mr-0">
-            <div className="">
-              <div className="d-flex flex-row-reverse d-block">
-                {chkCol}
-                <div
-                  className="smaller text-secondary align-top d-inline-block pt-1"
-                  style={{
-                    width: '110px',
-                  }}
-                >
-                  <span className="fa fa-clock pr-2 " />
-                  <span>
-                    {airing.actualDuration} / {airing.duration}
-                  </span>
-                </div>
-                <div className="d-inline-block mr-3">
-                  <AiringStatus airing={airing} />
-                </div>
+      <Row
+        className="border-bottom mb-1 pb-1 pr-0"
+        style={{
+          width: '100%',
+          maxHeight: '55px',
+        }}
+      >
+        <Col md="8">
+          {showCol}
+          <TitleSlim airing={airing} withShow={withShow} />
+        </Col>
+        <Col md="4" className="pr-0 mr-0">
+          <div className="">
+            <div className="d-flex flex-row-reverse d-block">
+              {chkCol}
+              <div
+                className="smaller text-secondary align-top d-inline-block pt-1"
+                style={{
+                  width: '110px',
+                }}
+              >
+                <span className="fa fa-clock pr-2 " />
+                <span>
+                  {airing.actualDuration} / {airing.duration}
+                </span>
+              </div>
+              <div className="d-inline-block mr-3">
+                <AiringStatus airing={airing} />
               </div>
             </div>
-            {withActions === ON ? (
-              <div className="d-flex flex-row-reverse">
-                <ConfirmDelete airing={airing} />
-                &nbsp;
-                <VideoExportModal airing={airing} />
-                &nbsp;
-                <TabloVideoPlayer airing={airing} />
-                &nbsp;
-                <AiringDetailsModal airing={airing} />
-              </div>
-            ) : (
-              ''
-            )}
-          </Col>
-        </Row>
-      </> //
+          </div>
+          {withActions === ON ? (
+            <div className="d-flex flex-row-reverse">
+              <ConfirmDelete airing={airing} />
+              &nbsp;
+              <VideoExportModal airing={airing} />
+              &nbsp;
+              <TabloVideoPlayer airing={airing} />
+              &nbsp;
+              <AiringDetailsModal airing={airing} />
+            </div>
+          ) : (
+            ''
+          )}
+        </Col>
+      </Row> //
     );
   }
 }

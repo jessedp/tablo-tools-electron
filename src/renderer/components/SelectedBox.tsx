@@ -14,19 +14,30 @@ import ConfirmDelete from './ConfirmDelete';
 import { StdObj } from '../constants/types';
 import ConfirmMarkAs from './ConfirmMarkAs';
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(
+    { ...ActionListActions, ...ExportListActions, ...SearchActions },
+    dispatch
+  );
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    records: state.actionList.records,
+  };
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 type State = Record<string, unknown>;
 
 class SelectedBox extends Component<
   RouteComponentProps & PropsFromRedux,
   State
 > {
-  setStateStore(...args: Array<Record<string, any>>) {
-    const values = args[0];
-    this.setState(values);
-    const cleanState = this.state;
-    window.electron.store.set('SelectLogoBoxState', JSON.stringify(cleanState));
-  }
-
   addAll = async () => {
     const { bulkAddAirings } = this.props;
     const recs = await window.db.findAsync('RecDb', {});
@@ -113,21 +124,5 @@ class SelectedBox extends Component<
     );
   }
 }
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(
-    { ...ActionListActions, ...ExportListActions, ...SearchActions },
-    dispatch
-  );
-};
-
-const mapStateToProps = (state: any) => {
-  return {
-    records: state.actionList.records,
-  };
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(SelectedBox));

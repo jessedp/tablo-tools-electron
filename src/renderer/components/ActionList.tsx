@@ -19,6 +19,21 @@ import { StdObj } from '../constants/types';
 import { EMPTY_SEARCHALERT } from '../constants/app';
 import ConfirmDelete from './ConfirmDelete';
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(SearchActions, dispatch);
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    records: state.actionList.records,
+  };
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 interface Props extends PropsFromRedux {
   history: any;
 }
@@ -172,18 +187,5 @@ class ActionList extends Component<Props & RouteComponentProps, State> {
     );
   }
 }
-
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(SearchActions, dispatch);
-};
-
-const mapStateToProps = (state: any) => {
-  return {
-    records: state.actionList.records,
-  };
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(withRouter(ActionList));
