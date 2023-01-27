@@ -35,7 +35,7 @@ import { setConfigItem } from '../utils/config';
 import { titleCase, asyncForEach } from '../utils/utils';
 import helpers from '../utils/templateHelpers';
 import Airing from '../utils/Airing';
-import DuplicateNames from './DuplicateNames';
+import DuplicateNamesWithActions from './DuplicateNamesWithActions';
 import NamingPreview from './NamingPreview';
 
 import { EmptyNamingTemplate, EmptyTemplateVars } from '../utils/factories';
@@ -163,7 +163,9 @@ class SettingsNaming extends Component<Props, State> {
     let duplicates;
 
     if (uniqueNames !== recs.length) {
-      duplicates = <DuplicateNames files={files} total={recs.length} />;
+      duplicates = (
+        <DuplicateNamesWithActions files={files} total={recs.length} />
+      );
     }
 
     this.setState({

@@ -5,13 +5,14 @@ import { Row, Col, Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
 import Airing from '../utils/Airing';
+import Filename from './Filename';
 
 type Props = {
   files: Record<string, any> | Array<string>;
   total: number;
   label?: any;
 };
-export default function DuplicateNames(props: Props) {
+export default function DuplicateNamesWithActions(props: Props) {
   const { files, total, label } = props;
   const [show, setShow] = useState(false);
 
@@ -55,7 +56,7 @@ export default function DuplicateNames(props: Props) {
     });
   }
   console.log('dupes', dupes);
-
+  // console.log('2', dupes);
   dupes.sort((a, b) => (a.airings?.length > b.airings?.length ? -1 : 1));
   return (
     <Modal show={show} scrollable onHide={() => setShow(false)} size="lg">
@@ -81,10 +82,7 @@ export default function DuplicateNames(props: Props) {
 
         {dupes.map((rec) => {
           return (
-            <ul>
-              <li>{rec.file}</li>
-            </ul>
-            // <Filename file={rec.file} airings={rec.airings} key={rec.file} />
+            <Filename file={rec.file} airings={rec.airings} key={rec.file} />
           );
         })}
       </Modal.Body>
@@ -96,4 +94,4 @@ export default function DuplicateNames(props: Props) {
     </Modal>
   );
 }
-DuplicateNames.defaultProps = { label: '' };
+DuplicateNamesWithActions.defaultProps = { label: '' };
