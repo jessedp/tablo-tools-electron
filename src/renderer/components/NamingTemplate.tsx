@@ -245,9 +245,13 @@ class SettingsNaming extends Component<Props, State> {
   updatePath = (path: string) => {
     if (!path) return;
     const { template } = this.state;
-    template.template = path || this.originalTemplate.template;
+
+    const nextTemplate = path || this.originalTemplate.template;
+
+    const updatedTemplate = { ...template, ...{ template: nextTemplate } };
+
     this.setState({
-      template,
+      template: updatedTemplate,
     });
     this.checkErrors();
   };
