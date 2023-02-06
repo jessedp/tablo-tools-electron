@@ -70,10 +70,14 @@ const setupSentry = (init: any) => {
 
         // TABLO-TOOLS-ELECTRON-EX
         if (
-          errorText.includes(
-            '503 "method: GET url: https://objects.githubusercontent.com/'
-          )
+          errorText.includes('503') &&
+          errorText.includes('method: GET url:') &&
+          errorText.includes('tablo-tools-electron/releases.atom')
         ) {
+          return ignoreError(event);
+        }
+        // more trying to catch TABLO-TOOLS-ELECTRON-EX
+        if (errorText.includes('Hello future GitHubber')) {
           return ignoreError(event);
         }
 
@@ -150,6 +154,14 @@ const setupSentry = (init: any) => {
         // #TABLO-TOOLS-ELECTRON-SS - the auto updater on Linux being funky
         if (
           errorText.includes('ENOENT: no such file or directory, chmod') &&
+          errorText.includes('tablo-tools-updater')
+        ) {
+          return ignoreError(event);
+        }
+
+        // #TABLO-TOOLS-ELECTRON-VC - the auto updater on Mac being funky
+        if (
+          errorText.includes('ENOENT: no such file or directory, rename') &&
           errorText.includes('tablo-tools-updater')
         ) {
           return ignoreError(event);
