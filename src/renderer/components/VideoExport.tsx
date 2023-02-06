@@ -165,7 +165,7 @@ const VideoExport = (WrappedComponent: any) => {
           const status = airing.isExportValid();
 
           if (status.valid) {
-            airing.delete();
+            await airing.delete();
           }
         }
 
