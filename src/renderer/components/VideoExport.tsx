@@ -66,29 +66,36 @@ const VideoExport = (WrappedComponent: any) => {
     }
 
     atOnceChange = async (event: React.SyntheticEvent<HTMLInputElement>) => {
-      await this.setState({
+      this.setState({
         atOnce: parseInt(event.currentTarget.value, 10),
       });
     };
 
     processVideo = async () => {
-      const { exportList } = this.props;
+      const { exportList, updateExportRecord } = this.props;
       const { atOnce, actionOnDuplicate } = this.state;
       global.EXPORTING = true;
       this.shouldCancel = false;
-      // if (exportState === EXP_DONE) return;
+
+      console.log('RESET EXPORT RECS...');
+      await asyncForEach(exportList, async (rec: ExportRecordType) => {
+        console.log(rec);
+        const newRec = { ...rec, ...{ state: EXP_WAITING } };
+        updateExportRecord(newRec);
+      });
+
       this.setState({
         exportState: EXP_WORKING,
       });
+
       // TODO: any to function def
       const actions: Array<any> = [];
-      await asyncForEach(exportList, async (rec) => {
+      await asyncForEach(exportList, async (rec: ExportRecordType) => {
         const airing = new Airing(rec.airing);
         actions.push(() => {
           const channel = `export-progress-${airing.object_id}`;
           if (!this.shouldCancel) {
             window.ipcRenderer.on(channel, (message: any) => {
-              // console.log(`${channel}`, message);
               this.updateProgress(airing.object_id, message);
             });
             return window.Airing.exportVideo(
@@ -158,7 +165,7 @@ const VideoExport = (WrappedComponent: any) => {
           const status = airing.isExportValid();
 
           if (status.valid) {
-            airing.delete();
+            await airing.delete();
           }
         }
 
@@ -227,9 +234,14 @@ const VideoExport = (WrappedComponent: any) => {
       if (exportList) {
         exportList.forEach((rec) => {
           console.log('cancelProcess - rec - state: ', rec.state, '\n', rec);
-
-          window.Airing.cancelExportVideo(rec.airing);
-          // }
+          // Cancelling will delete existing files - need to be careful in case someone
+          // is re-exporting, something happens, and cancel is clicked => existing files will be preserved
+          if (rec.state === EXP_WORKING || rec.state === EXP_CANCEL) {
+            console.log('Cancelling...');
+            window.Airing.cancelExportVideo(rec.airing);
+          } else {
+            console.log('Skipping...');
+          }
         });
       }
 

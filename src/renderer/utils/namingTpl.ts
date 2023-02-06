@@ -266,7 +266,7 @@ export function buildTemplateVars(
     case SERIES:
       typeVars = {
         episodePath,
-        showTitle: airing.showTitle,
+        showTitle: sanitize(airing.showTitle),
         stripShowTitle: stripSecondary(airing.showTitle),
         seasonNum: airing.seasonNum,
         episodeNum: airing.episodeNum,

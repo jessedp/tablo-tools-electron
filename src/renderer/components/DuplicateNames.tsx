@@ -81,7 +81,7 @@ export default function DuplicateNames(props: Props) {
 
         {dupes.map((rec) => {
           return (
-            <ul>
+            <ul key={atob(rec.file)}>
               <li>{rec.file}</li>
             </ul>
             // <Filename file={rec.file} airings={rec.airings} key={rec.file} />
