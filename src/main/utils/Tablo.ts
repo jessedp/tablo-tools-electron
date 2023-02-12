@@ -82,6 +82,11 @@ export const discover = async (): Promise<void> => {
         globalThis.Api.device = origDevice;
         deviceArray.push({ ...device, ...info });
       } else {
+        // this should have been fixed in setCurrentDevice
+        // also probably should've gone with serverid instead of server_id
+        // and done this change above and/or change the tablo-api-js pkg
+        device.server_id = device.serverid;
+        delete device.serverid;
         deviceArray.push(device);
       }
     });
