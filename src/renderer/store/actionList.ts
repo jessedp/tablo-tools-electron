@@ -28,9 +28,12 @@ const slice = createSlice({
     },
     bulkAddAirings: (state, action: PayloadAction<StdObj[]>) => {
       const airings = action.payload;
+      const objIds = state.records.map((rec) => rec.object_id);
       airings.forEach((item) => {
-        if (!state.records.find((rec) => rec.object_id === item.object_id)) {
+        if (!objIds.includes(item.object_id)) {
           state.records.push(item);
+
+          objIds.push(item.object_id);
         }
       });
     },
