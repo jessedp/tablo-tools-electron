@@ -93,15 +93,7 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
   }
 
   async componentDidMount() {
-    this.refresh();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { records } = this.props;
-
-    if (prevProps.records !== records) {
-      this.refresh();
-    }
+    await this.refresh();
   }
 
   handleClose() {
@@ -111,7 +103,8 @@ class ConfirmDelete extends Component<Props & RouteComponentProps, State> {
     });
   }
 
-  handleShow = () => {
+  handleShow = async () => {
+    await this.refresh();
     this.setState({
       show: true,
     });
