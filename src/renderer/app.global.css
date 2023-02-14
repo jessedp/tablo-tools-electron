@@ -436,6 +436,7 @@ body,
 #app > div {
   width: 100%;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .smaller {
