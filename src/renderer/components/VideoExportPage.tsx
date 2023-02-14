@@ -1,18 +1,23 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 
 import { connect, ConnectedProps } from 'react-redux';
 import { Prompt, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { DiskSpace } from 'check-disk-space';
 
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+
 import { asyncForEach } from 'renderer/utils/utils';
 import Airing from '../utils/Airing';
-import RecordingExport from './RecordingExport';
+
 import * as ExportListActions from '../store/exportList';
 import VideoExport from './VideoExport';
 import { ExportRecordType, StdObj } from '../constants/types';
 import { EXP_WORKING, EXP_WAITING } from '../constants/app';
 import { ExportRecord } from '../utils/factories';
+
+import RecordingExportRenderer from './RecordingExportRenderer';
 
 import routes from '../constants/routes.json';
 
@@ -67,50 +72,59 @@ class VideoExportPage extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { actionList, exportList, addExportRecord, remExportRecord } =
+    const { actionList, exportList, bulkAddExportRecords, remExportRecord } =
       this.props;
+
     const allDisks: any = {};
     // Since we aren't clearing the ExportList when the page exits, make sure nothing was removed
     // from the actionList while we were gone
+    console.time('cdm');
+    console.timeLog('cdm', 'check exp list');
+    const existingIds: number[] = [];
     await asyncForEach(exportList, async (rec: ExportRecordType) => {
       const test = actionList.find((airRec: StdObj) => {
         return airRec.object_id === rec.airing.object_id;
       });
       if (!test) {
         remExportRecord(rec);
+      } else {
+        existingIds.push(rec.airing.object_id);
       }
     });
-
+    console.timeLog('cdm', 'checked exp list');
+    console.timeLog('cdm', 'rebuild export list');
+    const newExportRecs: ExportRecordType[] = [];
     await asyncForEach(actionList, async (rec: StdObj) => {
-      const airing = new Airing(rec);
+      if (!existingIds.includes(rec.object_id)) {
+        const airing = new Airing(rec);
 
-      // Freeze the current Template when adding to Export List
-      airing.data.customTemplate = airing.template;
+        // Freeze the current Template when adding to Export List
+        airing.data.customTemplate = airing.template;
 
-      if (!airing.exportFile.startsWith('\\\\')) {
-        const diskStats: DiskSpace = await window.fs.checkDiskSpace(
-          airing.exportFile
-        );
+        if (!airing.exportFile.startsWith('\\\\')) {
+          const diskStats: DiskSpace = await window.fs.checkDiskSpace(
+            airing.exportFile
+          );
 
-        const pathKey = diskStats.diskPath;
-        allDisks[pathKey] = allDisks[pathKey]
-          ? allDisks[pathKey] + rec.video_details.size
-          : rec.video_details.size;
+          const pathKey = diskStats.diskPath;
+          allDisks[pathKey] = allDisks[pathKey]
+            ? allDisks[pathKey] + rec.video_details.size
+            : rec.video_details.size;
+        }
+
+        const newRec = ExportRecord(airing.data);
+        newExportRecs.push(newRec);
+        // addExportRecord(newRec);
       }
-
-      const newRec = ExportRecord(airing.data);
-      addExportRecord(newRec);
     });
+    bulkAddExportRecords(newExportRecs);
+    console.timeLog('cdm', 'built export list');
     this.setState({
       loaded: true,
       allDiskStats: allDisks,
     });
+    console.timeEnd('cdm');
   }
-
-  // componentWillUnmount() {
-  //   const { bulkRemExportRecord } = this.props;
-  //   bulkRemExportRecord();
-  // }
 
   render() {
     const { allDiskStats, loaded } = this.state;
@@ -126,7 +140,12 @@ class VideoExportPage extends Component<Props, State> {
       cancelProcess,
       processVideo,
     } = this.props;
-    if (!loaded) return <></>;
+
+    if (!loaded) {
+      console.log('render loading....');
+      return <>loading!!!!</>;
+    }
+    console.log('render real....');
 
     if (exportList.length === 0) {
       return <Redirect to={routes.SEARCH} />;
@@ -199,15 +218,30 @@ class VideoExportPage extends Component<Props, State> {
           })}
         </div>
 
-        {sortedExportList.map((rec: ExportRecordType) => {
-          return (
-            <RecordingExport
-              airing={new Airing(rec.airing)}
-              key={`RecordingExport-${rec.airing.object_id}`}
-              actionOnDuplicate={actionOnDuplicate}
-            />
-          );
-        })}
+        <div className="ExpList">
+          <AutoSizer>
+            {({ height, width }) => (
+              <List
+                itemData={{
+                  list: sortedExportList,
+                  actionOnDuplicate,
+                }}
+                className="List"
+                style={{ overflow: 'auto' }}
+                height={height}
+                itemCount={sortedExportList.length}
+                itemSize={100}
+                width={width}
+                itemKey={(
+                  index: number,
+                  data: { list: ExportRecordType[]; actionOnDuplicate: string }
+                ) => `RecordingExport-${data.list[index].airing.object_id}`}
+              >
+                {RecordingExportRenderer}
+              </List>
+            )}
+          </AutoSizer>
+        </div>
       </> //
     );
   }

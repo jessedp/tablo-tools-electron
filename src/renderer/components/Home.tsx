@@ -194,7 +194,7 @@ export default class Home extends Component<Props, State> {
     }
 
     return (
-      <div className="pr-2">
+      <div className="pr-2" style={{ overflowX: 'hidden', overflowY: 'auto' }}>
         <Row>
           <Col md="12">
             <Row>

@@ -84,26 +84,18 @@ class ConfirmMarkAs extends Component<Props & RouteComponentProps, State> {
   }
 
   async componentDidMount() {
-    this.refresh();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { records } = this.props;
-
-    if (prevProps.records !== records) {
-      this.refresh();
-    }
+    await this.refresh();
   }
 
   handleClose() {
-    // this.shouldCancel = true;
     this.setState({
       status: EXP_WAITING,
       show: false,
     });
   }
 
-  handleShow = () => {
+  handleShow = async () => {
+    await this.refresh();
     this.shouldCancel = false;
     this.setState({
       status: EXP_WAITING,

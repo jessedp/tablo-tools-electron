@@ -30,6 +30,29 @@ const slice = createSlice({
         state.records = [...state.records, exportRecord];
       }
     },
+    bulkAddExportRecords: (
+      state,
+      action: PayloadAction<ExportRecordType[]>
+    ) => {
+      const exportRecords = action.payload;
+
+      const objIds = state.records.map((rec) => rec.airing.object_id);
+
+      exportRecords.forEach((exportRecord) => {
+        if (exportRecord.airing.video_details?.state === 'recording') {
+          console.log(
+            'addExport - skipping recording in progress',
+            exportRecord
+          );
+          return;
+        }
+
+        if (!objIds.includes(exportRecord.airing.object_id)) {
+          state.records = [...state.records, exportRecord];
+          objIds.push(exportRecord.airing.object_id);
+        }
+      });
+    },
 
     remExportRecord: (state, action: PayloadAction<ExportRecordType>) => {
       const exportRecord = action.payload;
@@ -59,6 +82,7 @@ const slice = createSlice({
 export const {
   addExportRecord,
   remExportRecord,
+  bulkAddExportRecords,
   bulkRemExportRecord,
   updateExportRecord,
 } = slice.actions;
