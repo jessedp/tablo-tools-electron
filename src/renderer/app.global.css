@@ -629,3 +629,17 @@ body,
 .ffmpeg-details {
   font-size: 12px;
 }
+
+/** For ExportPage List, keeps react-window/autosizer in place **/
+
+.ExpList {
+  height: 50%;
+  min-height: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: visible;
+  width: 99%;
+
+  will-change: transform;
+  direction: ltr;
+}

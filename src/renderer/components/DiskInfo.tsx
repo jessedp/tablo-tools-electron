@@ -11,11 +11,12 @@ type Props = {
 export default function DiskInfo(props: Props) {
   const { displayPath, filename, videoSize } = props;
 
-  const [diskStats, setDiskStats] = useState<DiskSpace>({
+  const zeroDisk: DiskSpace = {
     diskPath: '',
     size: 0,
     free: 0,
-  });
+  };
+  const [diskStats, setDiskStats] = useState<DiskSpace>(zeroDisk);
 
   useEffect(() => {
     if (filename.startsWith('\\\\')) {
