@@ -7,8 +7,9 @@ import { DiskSpace } from 'check-disk-space';
 
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { Alert, Col, Row, Spinner } from 'react-bootstrap';
 
-import { asyncForEach } from 'renderer/utils/utils';
+import { asyncForEach, throttleActions } from 'renderer/utils/utils';
 import Airing from '../utils/Airing';
 
 import * as ExportListActions from '../store/exportList';
@@ -58,6 +59,7 @@ interface Props extends PropsFromRedux {
 }
 type State = {
   loaded: boolean;
+  disksChecked: boolean;
   allDiskStats: Record<string, number>;
 };
 
@@ -67,68 +69,83 @@ class VideoExportPage extends Component<Props, State> {
 
     this.state = {
       loaded: false,
+      disksChecked: false,
       allDiskStats: {},
     };
   }
 
   async componentDidMount() {
-    const { actionList, exportList, bulkAddExportRecords, remExportRecord } =
-      this.props;
+    const action = async () => {
+      const { actionList, exportList, bulkAddExportRecords, remExportRecord } =
+        this.props;
 
-    const allDisks: any = {};
-    // Since we aren't clearing the ExportList when the page exits, make sure nothing was removed
-    // from the actionList while we were gone
-    console.time('cdm');
-    console.timeLog('cdm', 'check exp list');
-    const existingIds: number[] = [];
-    await asyncForEach(exportList, async (rec: ExportRecordType) => {
-      const test = actionList.find((airRec: StdObj) => {
-        return airRec.object_id === rec.airing.object_id;
+      const allDisks: any = {};
+      // Since we aren't clearing the ExportList when the page exits, make sure nothing was removed
+      // from the actionList while we were gone
+      console.time('cdm');
+      console.timeLog('cdm', 'check exp list');
+      const existingIds: number[] = [];
+      await asyncForEach(exportList, async (rec: ExportRecordType) => {
+        const test = actionList.find((airRec: StdObj) => {
+          return airRec.object_id === rec.airing.object_id;
+        });
+        if (!test) {
+          remExportRecord(rec);
+        } else {
+          existingIds.push(rec.airing.object_id);
+        }
       });
-      if (!test) {
-        remExportRecord(rec);
-      } else {
-        existingIds.push(rec.airing.object_id);
-      }
-    });
-    console.timeLog('cdm', 'checked exp list');
-    console.timeLog('cdm', 'rebuild export list');
-    const newExportRecs: ExportRecordType[] = [];
-    await asyncForEach(actionList, async (rec: StdObj) => {
-      if (!existingIds.includes(rec.object_id)) {
+      console.timeLog('cdm', 'checked exp list');
+      console.timeLog('cdm', 'rebuild export list');
+      const newExportRecs: ExportRecordType[] = [];
+      const diskChecks: (() => void)[] = []; // Function[]
+      await asyncForEach(actionList, async (rec: StdObj) => {
+        console.timeLog('cdm', '.');
+
         const airing = new Airing(rec);
 
         // Freeze the current Template when adding to Export List
         airing.data.customTemplate = airing.template;
+        diskChecks.push(async () => {
+          if (!airing.exportFile.startsWith('\\\\')) {
+            const diskStats: DiskSpace = await window.fs.checkDiskSpace(
+              airing.exportFile
+            );
 
-        if (!airing.exportFile.startsWith('\\\\')) {
-          const diskStats: DiskSpace = await window.fs.checkDiskSpace(
-            airing.exportFile
-          );
-
-          const pathKey = diskStats.diskPath;
-          allDisks[pathKey] = allDisks[pathKey]
-            ? allDisks[pathKey] + rec.video_details.size
-            : rec.video_details.size;
+            const pathKey = diskStats.diskPath;
+            allDisks[pathKey] = allDisks[pathKey]
+              ? allDisks[pathKey] + rec.video_details.size
+              : rec.video_details.size;
+          }
+        });
+        if (!existingIds.includes(rec.object_id)) {
+          const newRec = ExportRecord(airing.data);
+          newExportRecs.push(newRec);
+          // addExportRecord(newRec);
         }
+      });
+      bulkAddExportRecords(newExportRecs);
 
-        const newRec = ExportRecord(airing.data);
-        newExportRecs.push(newRec);
-        // addExportRecord(newRec);
-      }
-    });
-    bulkAddExportRecords(newExportRecs);
-    console.timeLog('cdm', 'built export list');
-    this.setState({
-      loaded: true,
-      allDiskStats: allDisks,
-    });
-    console.timeEnd('cdm');
+      throttleActions(diskChecks, 10)
+        .then(() =>
+          this.setState({ disksChecked: true, allDiskStats: allDisks })
+        )
+        .catch((e) => console.log(e, 'throttle diskChecks'));
+
+      console.timeLog('cdm', 'built export list');
+      this.setState({
+        loaded: true,
+        allDiskStats: allDisks,
+      });
+      console.timeEnd('cdm');
+    };
+    setTimeout(action, 25);
   }
 
   render() {
-    const { allDiskStats, loaded } = this.state;
+    const { disksChecked, allDiskStats, loaded } = this.state;
     const {
+      actionList,
       exportList,
       exportState,
       atOnce,
@@ -142,8 +159,24 @@ class VideoExportPage extends Component<Props, State> {
     } = this.props;
 
     if (!loaded) {
-      console.log('render loading....');
-      return <>loading!!!!</>;
+      console.log('render loading....', actionList.length);
+      return (
+        <>
+          <Alert variant="primary" className="mt-5 mr-2">
+            <Row
+              className="pt-3 pb-3 justify-content-center"
+              style={{ width: '100%' }}
+            >
+              <Col md={5}>
+                <Spinner animation="border" variant="white" />
+                <span className=" pl-3" style={{ fontSize: '24px' }}>
+                  Building the Export Queue...
+                </span>
+              </Col>
+            </Row>
+          </Alert>
+        </>
+      );
     }
     console.log('render real....');
 
@@ -203,21 +236,28 @@ class VideoExportPage extends Component<Props, State> {
           setActionOnDuplicate={setActionOnDuplicate}
         />
         <ExportStatus state={exportState} />
-
         <div className="mt-2 mb-2 ml-5">
-          {Object.keys(allDiskStats).map((path) => {
-            return (
-              <div key={path}>
-                <DiskInfo
-                  displayPath
-                  filename={path}
-                  videoSize={allDiskStats[path]}
-                />
-              </div>
-            );
-          })}
+          {disksChecked ? (
+            Object.keys(allDiskStats).map((path) => {
+              return (
+                <div key={path}>
+                  <DiskInfo
+                    displayPath
+                    filename={path}
+                    videoSize={allDiskStats[path]}
+                  />
+                </div>
+              );
+            })
+          ) : (
+            <div>
+              <Spinner animation="border" variant="info" />
+              <span className=" pl-3" style={{ fontSize: '16px' }}>
+                Checking disk space...
+              </span>
+            </div>
+          )}
         </div>
-
         <div className="ExpList">
           <AutoSizer>
             {({ height, width }) => (
