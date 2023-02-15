@@ -227,10 +227,9 @@ class VideoExportPage extends Component<Props, State> {
                   actionOnDuplicate,
                 }}
                 className="List"
-                style={{ overflow: 'auto' }}
                 height={height}
                 itemCount={sortedExportList.length}
-                itemSize={100}
+                itemSize={120}
                 width={width}
                 itemKey={(
                   index: number,
