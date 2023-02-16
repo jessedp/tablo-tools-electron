@@ -16,6 +16,7 @@ export default function DiskInfo(props: Props) {
     size: 0,
     free: 0,
   };
+  const [checked, setChecked] = useState(false);
   const [diskStats, setDiskStats] = useState<DiskSpace>(zeroDisk);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function DiskInfo(props: Props) {
     const getDiskStats = async (file: string) => {
       const stats = await window.fs.checkDiskSpace(file);
       setDiskStats(stats);
+      setChecked(true);
     };
     getDiskStats(filename).catch(console.error);
   }, [filename]);
@@ -33,7 +35,7 @@ export default function DiskInfo(props: Props) {
   const percentSpaceLeft = spaceLeft / diskStats.free;
 
   const icon = 'fas pr-1';
-  if (percentSpaceLeft >= 0.05) return <></>;
+  if (!checked || percentSpaceLeft >= 0.05) return <></>;
   if (filename.startsWith('\\\\'))
     return (
       <span className="text-warning ">
