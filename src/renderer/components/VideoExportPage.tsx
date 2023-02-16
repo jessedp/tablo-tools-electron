@@ -82,8 +82,8 @@ class VideoExportPage extends Component<Props, State> {
       const allDisks: any = {};
       // Since we aren't clearing the ExportList when the page exits, make sure nothing was removed
       // from the actionList while we were gone
-      console.time('cdm');
-      console.timeLog('cdm', 'check exp list');
+      // console.time('cdm');
+      // console.timeLog('cdm', 'check exp list');
       const existingIds: number[] = [];
       await asyncForEach(exportList, async (rec: ExportRecordType) => {
         const test = actionList.find((airRec: StdObj) => {
@@ -95,8 +95,8 @@ class VideoExportPage extends Component<Props, State> {
           existingIds.push(rec.airing.object_id);
         }
       });
-      console.timeLog('cdm', 'checked exp list');
-      console.timeLog('cdm', 'rebuild export list');
+      // console.timeLog('cdm', 'checked exp list');
+      // console.timeLog('cdm', 'rebuild export list');
       const newExportRecs: ExportRecordType[] = [];
       const diskChecks: (() => void)[] = []; // Function[]
       await asyncForEach(actionList, async (rec: StdObj) => {
@@ -130,14 +130,13 @@ class VideoExportPage extends Component<Props, State> {
         .then(() =>
           this.setState({ disksChecked: true, allDiskStats: allDisks })
         )
-        .catch((e) => console.log(e, 'throttle diskChecks'));
+        .catch((e) => console.log('throttle diskChecks', e));
 
-      console.timeLog('cdm', 'built export list');
+      // console.timeLog('cdm', 'built export list');
       this.setState({
         loaded: true,
-        allDiskStats: allDisks,
       });
-      console.timeEnd('cdm');
+      // console.timeEnd('cdm');
     };
     setTimeout(action, 25);
   }
@@ -145,7 +144,6 @@ class VideoExportPage extends Component<Props, State> {
   render() {
     const { disksChecked, allDiskStats, loaded } = this.state;
     const {
-      actionList,
       exportList,
       exportState,
       atOnce,
@@ -159,7 +157,7 @@ class VideoExportPage extends Component<Props, State> {
     } = this.props;
 
     if (!loaded) {
-      console.log('render loading....', actionList.length);
+      // console.log('render loading....', actionList.length);
       return (
         <>
           <Alert variant="primary" className="mt-5 mr-2">
@@ -178,7 +176,7 @@ class VideoExportPage extends Component<Props, State> {
         </>
       );
     }
-    console.log('render real....');
+    // console.log('render real....');
 
     if (exportList.length === 0) {
       return <Redirect to={routes.SEARCH} />;

@@ -44,7 +44,6 @@ export default function DiskInfo(props: Props) {
       </span>
     );
   if (spaceLeft < 0) {
-    console.log('spaceLeft', spaceLeft);
     return (
       <span className="text-danger ">
         {displayPath ? (

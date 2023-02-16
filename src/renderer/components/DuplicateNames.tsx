@@ -54,7 +54,6 @@ export default function DuplicateNames(props: Props) {
       }
     });
   }
-  console.log('dupes', dupes);
 
   dupes.sort((a, b) => (a.airings?.length > b.airings?.length ? -1 : 1));
   return (
@@ -81,7 +80,7 @@ export default function DuplicateNames(props: Props) {
 
         {dupes.map((rec) => {
           return (
-            <ul key={atob(rec.file)}>
+            <ul key={btoa(rec.file)}>
               <li>{rec.file}</li>
             </ul>
             // <Filename file={rec.file} airings={rec.airings} key={rec.file} />
