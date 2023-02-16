@@ -144,6 +144,7 @@ class VideoExportPage extends Component<Props, State> {
   render() {
     const { disksChecked, allDiskStats, loaded } = this.state;
     const {
+      actionList,
       exportList,
       exportState,
       atOnce,
@@ -157,6 +158,7 @@ class VideoExportPage extends Component<Props, State> {
     } = this.props;
 
     if (!loaded) {
+      if (actionList.length < 10) return <></>;
       // console.log('render loading....', actionList.length);
       return (
         <>
@@ -249,7 +251,7 @@ class VideoExportPage extends Component<Props, State> {
             })
           ) : (
             <div>
-              <Spinner animation="border" variant="info" />
+              <Spinner animation="border" size="sm" variant="secondary" />
               <span className=" pl-3" style={{ fontSize: '16px' }}>
                 Checking disk space...
               </span>
