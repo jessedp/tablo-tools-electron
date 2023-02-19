@@ -1,4 +1,4 @@
-![Build/release](https://github.com/jessedp/tablo-tools-electron/workflows/Build/release/badge.svg)
+[![Publish](https://github.com/jessedp/tablo-tools-electron/actions/workflows/publish.yml/badge.svg)](https://github.com/jessedp/tablo-tools-electron/actions/workflows/publish.yml)
 
 <br/>
 
