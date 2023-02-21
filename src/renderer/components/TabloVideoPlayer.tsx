@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import ReactHlsPlayer from '@panelist/react-hls-player';
 
 import { sendFlash } from 'renderer/store/flash';
-import { Alert } from 'react-bootstrap';
+import { Alert, Col, Row, Spinner } from 'react-bootstrap';
 import Airing from '../utils/Airing';
 
 type Props = {
@@ -30,17 +30,24 @@ export default class TabloVideoPlayer extends Component<Props, State> {
     let { url } = this.state;
 
     if (!opened) {
-      const watch = await airing.watch();
-      if (watch) url = watch.playlist_url;
-      console.log('toggle - url', url);
+      setTimeout(async () => {
+        const watch = await airing.watch();
+        if (watch && !url) url = watch.playlist_url;
+        console.log('toggle - url', url);
+        if (!url) {
+          sendFlash({
+            message: 'Unable to start playback',
+            type: 'danger',
+          });
+        }
+        this.setState({
+          opened: !opened,
+          url,
+        });
+      }, 10);
+    } else {
+      url = '';
     }
-    if (!url) {
-      sendFlash({
-        message: 'Unable to start playback',
-        type: 'danger',
-      });
-    }
-
     this.setState({
       opened: !opened,
       url,
@@ -74,7 +81,17 @@ export default class TabloVideoPlayer extends Component<Props, State> {
           </Modal.Header>
           <Modal.Body>
             {!airing.cachedWatch ? (
-              <div>Loading...</div>
+              <Row
+                className="pt-3 pb-3 justify-content-center"
+                style={{ width: '100%' }}
+              >
+                <Col md={5}>
+                  <Spinner animation="border" size="sm" variant="secondary" />
+                  <span className=" pl-3" style={{ fontSize: '16px' }}>
+                    Loading...
+                  </span>
+                </Col>
+              </Row>
             ) : (
               <Alert variant="danger">Unable to load video!</Alert>
             )}
