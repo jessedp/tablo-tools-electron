@@ -123,6 +123,10 @@ class AppUpdater {
       mainWindow?.webContents.send('update-downloaded');
     });
 
+    ipcMain.on('search-issues', () => {
+      mainWindow?.webContents.send('search-issues');
+    });
+
     ipcMain.on('set-autoupdate-check', () => {
       const autoUpdateOption = getConfig().autoUpdate;
 
