@@ -19,10 +19,13 @@ export default function AiringDetailsModal(props: Props) {
   const [watchUrl, setWatchUrl] = useState('');
 
   const loadExportDetails = async () => {
-    const info = await airing.getExportDetails();
-    if (info) setExportDetails(info);
-    const url = await airing.watch();
-    if (url) setWatchUrl(url.playlist_url);
+    // hide the awaited calls behind an almost immediate setTimeout
+    setTimeout(async () => {
+      const info = await airing.getExportDetails();
+      if (info) setExportDetails(info);
+      const url = await airing.watch();
+      if (url) setWatchUrl(url.playlist_url);
+    }, 10);
   };
 
   if (!show) {
@@ -82,7 +85,7 @@ export default function AiringDetailsModal(props: Props) {
         <RecordingOverview airing={airing} />
         <div className="text-lowercase text-info ml-2 pl-1 pt-0 d-block">
           <span className="fa fa-tv pr-2" />
-          {watchUrl}
+          {watchUrl || 'Loading...'}
         </div>
         <div className="text-black-50 smaller ml-5">
           Watch URLs will change on every load
