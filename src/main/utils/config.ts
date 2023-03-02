@@ -8,6 +8,7 @@ import {
   DUPE_INC,
   DUPE_OVERWRITE,
   DUPE_SKIP,
+  FFMPEG_DEFAULT_PROFILE,
 } from '../../renderer/constants/app';
 import { ConfigType } from '../../renderer/constants/types_config';
 
@@ -81,6 +82,7 @@ export const defaultConfig: ConfigType = {
   eventTemplate: 'tablo-tools',
   programTemplate: 'tablo-tools',
   actionOnDuplicate: DUPE_INC,
+  ffmpegProfile: FFMPEG_DEFAULT_PROFILE,
   saveData: [],
 };
 

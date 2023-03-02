@@ -19,6 +19,7 @@ export type ConfigType = {
   programTemplate: string;
   // TODO: enum
   actionOnDuplicate: string;
+  ffmpegProfile: string;
   // TODO: these are residual from Settings b/c I haven't done the config properly
   saveState?: number;
   saveData: Array<string>;

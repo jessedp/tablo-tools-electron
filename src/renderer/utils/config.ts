@@ -1,4 +1,6 @@
-export default function getConfig() {
+import { ConfigType } from 'renderer/constants/types_config';
+
+export default function getConfig(): ConfigType {
   if (typeof window === 'undefined') {
     return globalThis.config;
   }
