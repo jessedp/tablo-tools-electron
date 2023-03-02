@@ -180,6 +180,7 @@ ipcMain.on(
         params,
         options
       );
+      // await globalThis.dbs[dbName].compactDatafileAsync();
       event.returnValue = recs;
     } catch (e) {
       debug('db-update', e);
