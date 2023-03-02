@@ -67,3 +67,8 @@ export type ShowStatRowType = {
   first: Date;
   last: Date;
 };
+
+export type Option = {
+  value: string;
+  label: string;
+};

@@ -65,6 +65,7 @@ export default function Routes() {
             routes.FILENAMETPLs,
             routes.ADVSETTINGS,
             routes.EXPSETTINGS,
+            routes.FFMPEGSETTINGS,
           ]}
           component={SettingsPage}
         />

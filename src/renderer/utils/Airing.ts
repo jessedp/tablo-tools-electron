@@ -436,7 +436,6 @@ export default class Airing {
   }
 
   async watch() {
-    console.log('watch A - this.cachedWatch ', this.cachedWatch);
     if (!this.cachedWatch) {
       const watchPath = `${this.path}/watch`;
 

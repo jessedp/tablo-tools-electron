@@ -641,3 +641,13 @@ body,
   width: 99%;
   padding-bottom: 100px;
 }
+
+.cmd-head {
+  margin: 0px 5px 5px 5px;
+  padding-top: 5px;
+}
+.filter-head {
+  margin: 5px;
+  padding-top: 1rem;
+  border-bottom: 1px solid #ddd;
+}
