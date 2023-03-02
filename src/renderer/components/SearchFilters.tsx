@@ -4,12 +4,8 @@ import TabloImage from './TabloImage';
 import SelectStyles from './SelectStyles';
 import MatchesToBadges from './SearchFilterMatches';
 import { VIEW_GRID, VIEW_LIST } from '../constants/app';
+import { Option } from '../constants/types';
 import Show from '../utils/Show';
-
-export type Option = {
-  value: string;
-  label: string;
-};
 
 type FullFilterProps = {
   name: string;

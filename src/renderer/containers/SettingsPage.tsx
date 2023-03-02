@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
 import { Container } from 'react-bootstrap';
+import SettingsFfmpeg from 'renderer/components/SettingsFfmpeg';
 import routes from '../constants/routes.json';
 import SettingsGeneral from '../components/SettingsGeneral';
 import SettingsAdvanced from '../components/SettingsAdvanced';
@@ -33,6 +34,9 @@ function SettingsPage(props: Props) {
     case routes.EXPSETTINGS:
       content = <SettingsExport />;
       break;
+    case routes.FFMPEGSETTINGS:
+      content = <SettingsFfmpeg />;
+      break;
 
     default:
   }
@@ -52,19 +56,6 @@ function SettingsPage(props: Props) {
                     General
                   </Button>
                 </LinkContainer>
-                <LinkContainer activeClassName="active" to={routes.EXPSETTINGS}>
-                  <Button size="sm" variant="light" as="button" title="Export">
-                    Export
-                  </Button>
-                </LinkContainer>
-                <LinkContainer
-                  activeClassName="active"
-                  to={routes.FILENAMETPLs}
-                >
-                  <Button size="sm" variant="light" as="button" title="Naming">
-                    Naming
-                  </Button>
-                </LinkContainer>
                 <LinkContainer activeClassName="active" to={routes.ADVSETTINGS}>
                   <Button
                     size="sm"
@@ -73,6 +64,30 @@ function SettingsPage(props: Props) {
                     title="Advanced"
                   >
                     Advanced
+                  </Button>
+                </LinkContainer>
+                <Button size="sm" variant="dark" as="button" title="General">
+                  Export:
+                </Button>
+                <LinkContainer activeClassName="active" to={routes.EXPSETTINGS}>
+                  <Button size="sm" variant="light" as="button" title="Export">
+                    Existing Files
+                  </Button>
+                </LinkContainer>
+                <LinkContainer
+                  activeClassName="active"
+                  to={routes.FILENAMETPLs}
+                >
+                  <Button size="sm" variant="light" as="button" title="Naming">
+                    File Name Templates
+                  </Button>
+                </LinkContainer>
+                <LinkContainer
+                  activeClassName="active"
+                  to={routes.FFMPEGSETTINGS}
+                >
+                  <Button size="sm" variant="light" as="button" title="Ffmpeg">
+                    Ffmpeg Profiles
                   </Button>
                 </LinkContainer>
               </ButtonGroup>

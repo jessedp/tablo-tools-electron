@@ -1,10 +1,10 @@
 import { execSync } from 'child_process';
 import FfmpegCommand from 'fluent-ffmpeg';
 import log from 'electron-log';
+import merge from 'lodash/merge';
 import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
-// import Debug from 'debug';
 
 import Airing from 'renderer/utils/Airing';
 import { findFfmpegPath } from './utils';
@@ -17,7 +17,9 @@ import {
   DUPE_SKIP,
   DUPE_INC,
 } from '../../renderer/constants/app';
-
+import { buildFlagsForExport } from '../../renderer/components/FfmpegCmds/ffmpeg';
+import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
+import { presetData } from '../../renderer/components/FfmpegCmds/presets';
 import { mainDebug } from './logging';
 
 const debug = mainDebug.extend('exportVideo');
@@ -163,6 +165,7 @@ export const exportVideo = async (
   if (userDebug) log.info('env', process.env.NODE_ENV);
   // FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
   FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
+
   let watchPath: Record<string, any> | undefined;
   let input = '';
 
@@ -172,10 +175,16 @@ export const exportVideo = async (
       throw new Error('watchPath undefined after calling watch()');
 
     input = watchPath.playlist_url;
-  } catch (err) {
+  } catch (err: any) {
+    let msg = `${airing.object_id} Unable to load watch path! (${err?.response?.status})`;
+    if (err?.response?.status === 404) {
+      msg =
+        'Recording not found! Please reload your recordings and make sure it exists before trying again.';
+    }
+
     progressCb(airing.object_id, {
       failed: true,
-      failedMsg: err,
+      failedMsg: msg,
     });
 
     debug('Unable to load watch path!', err);
@@ -236,14 +245,28 @@ export const exportVideo = async (
     }
   }
 
-  const ffmpegOpts = [
-    '-c copy',
-    '-y', // overwrite existing files
-  ];
+  // const ffmpegOpts = ['-c copy'];
+  let ffmpegOpts: string[] = [];
 
   if (process.env.NODE_ENV !== 'production') {
     ffmpegOpts.push('-v 40');
   }
+
+  const { ffmpegProfile } = getConfig();
+  debug('ffmpegProfile Config setting: %s', ffmpegProfile);
+  let ffmpegFlags;
+  if (ffmpegProfile.startsWith('custom')) {
+    ffmpegFlags = await globalThis.dbs.FfmpegDb.findOneAsync({
+      id: ffmpegProfile,
+    });
+  } else {
+    ffmpegFlags = buildFlagsForExport(
+      merge({}, defaultOpts, presetData[ffmpegProfile])
+    );
+  }
+
+  debug('flags', ffmpegFlags);
+  ffmpegOpts = ffmpegOpts.concat(ffmpegFlags);
 
   airing.cmd = FfmpegCommand();
   globalThis.exportProcs[airing.object_id] = { cmd: airing.cmd, outFile };
@@ -256,6 +279,9 @@ export const exportVideo = async (
       .input(input)
       .output(outFile)
       .addOutputOptions(ffmpegOpts)
+      .on('start', (commandLine: string) => {
+        log.info(`Spawned Ffmpeg with command: ${commandLine}`);
+      })
       .on('end', () => {
         log.info('Finished processing');
 
@@ -270,7 +296,7 @@ export const exportVideo = async (
       })
       .on('error', (err: any) => {
         const errMsg = `An error occurred: ${err}`;
-        log.info(errMsg);
+        debug(errMsg);
         ffmpegLog.push(errMsg);
 
         if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {

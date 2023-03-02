@@ -17,6 +17,7 @@
   "FILENAMETPLs": "/settings/filename-templates",
   "ADVSETTINGS": "/settings/advanced",
   "EXPSETTINGS": "/settings/export",
+  "FFMPEGSETTINGS": "/settings/ffmpeg",
   "EXPORT": "/export",
   "DELETE": "/delete",
   "SELECTED": "/selected",

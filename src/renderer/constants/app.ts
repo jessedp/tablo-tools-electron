@@ -23,6 +23,8 @@ export const DUPE_SKIP = 'SKIP';
 export const DUPE_INC = 'INCREMENT';
 export const DUPE_ADDID = 'ADDID';
 
+export const FFMPEG_DEFAULT_PROFILE = 'basic';
+
 export const beginTimemark = '00:00 / 00:00';
 
 export const EMPTY_SEARCHALERT: SearchAlert = {
