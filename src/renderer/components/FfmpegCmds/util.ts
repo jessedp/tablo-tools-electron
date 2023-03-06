@@ -1,6 +1,7 @@
 import { find } from 'lodash';
 import codecMap from './codecs';
 import defaultOptions from './form';
+import { Option } from '../../constants/types';
 
 // Transforms the form options to ffmpeg build options.
 function transform(formData: any) {
@@ -268,7 +269,10 @@ function extname(filename: string) {
   return i < 0 ? '' : filename.substring(i);
 }
 
-export const getSelectOpts = (key: keyof typeof defaultOptions) => {
+export const getSelectOpts = (
+  key: keyof typeof defaultOptions,
+  filter?: string
+) => {
   const options = defaultOptions[key];
   // console.log(key, options);
   const newOpts: any[] = [];
@@ -289,12 +293,41 @@ export const getSelectOpts = (key: keyof typeof defaultOptions) => {
       });
       newOpts.push({ label: `${optKey} ${key}`, options: subOpts });
     });
+  } else if (filter) {
+    const filteredOpts = options.filter(
+      (o: any) => !o.supported || o.supported.includes(filter)
+    );
+    console.log('filter', filter);
+    console.log('options', options);
+    console.log('filteredOpts', filteredOpts);
+    filteredOpts.forEach((item: any) => {
+      newOpts.push({ label: item['name'], value: item['value'] });
+    });
   } else {
     options.forEach((item: any) => {
       newOpts.push({ label: item['name'], value: item['value'] });
     });
   }
   // console.log('newOpts', newOpts);
+  return newOpts;
+};
+
+export const getCodecSelectOpts = (
+  key: keyof typeof defaultOptions.codecs,
+  container: string
+) => {
+  let options = defaultOptions.codecs[key];
+  console.log(options);
+  if (container) {
+    options = options.filter(
+      (o) => !o.supported || o.supported.includes(container)
+    );
+  }
+  const newOpts: Option[] = [];
+  options.forEach((item: any) => {
+    newOpts.push({ label: item['name'], value: item['value'] });
+  });
+  console.log('newOpts', newOpts);
   return newOpts;
 };
 
@@ -322,7 +355,7 @@ export const getLabel = (selectOpts: any, value: any) => {
     return false;
   });
   if (found) return found.label;
-  return '??';
+  return '';
 };
 
 export default {

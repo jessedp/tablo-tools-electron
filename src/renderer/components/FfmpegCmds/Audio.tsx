@@ -1,12 +1,16 @@
 import { Col, Form, Row } from 'react-bootstrap';
 import Select, { ActionMeta } from 'react-select';
 import { Option } from 'renderer/constants/types';
-import { getLabel, getSelectOpts } from './util';
+import { getLabel, getCodecSelectOpts, getSelectOpts } from './util';
 
-type Props = { options: any; updateOptions: (...args: Array<any>) => any };
+type Props = {
+  options: any;
+  container: string;
+  updateOptions: (...args: Array<any>) => any;
+};
 
 function Audio(props: Props) {
-  const { options, updateOptions } = props;
+  const { options, container, updateOptions } = props;
 
   const selectOnChange = (event: Option, meta: typeof ActionMeta) => {
     updateOptions(meta.name, event.value);
@@ -16,7 +20,7 @@ function Audio(props: Props) {
     updateOptions(meta.target.name, meta.target.value);
   };
 
-  const codecSelectOpts = getSelectOpts('codecs');
+  const codecSelectOpts = getCodecSelectOpts('audio', container);
   const codecLabel = getLabel(codecSelectOpts, options.codec);
 
   const channelOpts = getSelectOpts('audioChannels');

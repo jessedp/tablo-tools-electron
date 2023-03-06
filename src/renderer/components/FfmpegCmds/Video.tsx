@@ -1,13 +1,17 @@
 import { Col, Form, Row } from 'react-bootstrap';
 import Select, { ActionMeta } from 'react-select';
 import { Option } from 'renderer/constants/types';
-import { getLabel, getSelectOpts } from './util';
+import { getCodecSelectOpts, getLabel, getSelectOpts } from './util';
 // import getSelectOpts from './util';
 
-type Props = { options: any; updateOptions: (...args: Array<any>) => any };
+type Props = {
+  options: any;
+  container: string;
+  updateOptions: (...args: Array<any>) => any;
+};
 
 function Video(props: Props) {
-  const { options, updateOptions } = props;
+  const { options, container, updateOptions } = props;
 
   const selectOnChange = (event: Option, meta: typeof ActionMeta) => {
     updateOptions(meta.name, event.value);
@@ -17,10 +21,10 @@ function Video(props: Props) {
     updateOptions(meta.target.name, meta.target.value);
   };
 
-  const codecSelectOpts = getSelectOpts('codecs');
+  const codecSelectOpts = getCodecSelectOpts('video', container);
   const codecLabel = getLabel(codecSelectOpts, options.codec);
 
-  const presetSelectOpts = getSelectOpts('presets');
+  const presetSelectOpts = getSelectOpts('presets', options.codec);
   const presetLabel = getLabel(presetSelectOpts, options.preset);
 
   const passOpts = getSelectOpts('passOptions');
@@ -147,19 +151,21 @@ function Video(props: Props) {
             onChange={formOnChange}
           />
         </Col>
-        <Col>
-          <div className="cmd-head">GOP Size:</div>
-          <Form.Control
-            type="text"
-            value={options.gopsize}
-            name="video.gopsize"
-            placeholder="GOP Size"
-            style={{
-              maxWidth: '350px',
-            }}
-            onChange={formOnChange}
-          />
-        </Col>
+        {['x264', 'vp9'].includes(options.codec) ? (
+          <Col>
+            <div className="cmd-head">GOP Size:</div>
+            <Form.Control
+              type="text"
+              value={options.gopsize}
+              name="video.gopsize"
+              placeholder="GOP Size"
+              style={{
+                maxWidth: '350px',
+              }}
+              onChange={formOnChange}
+            />
+          </Col>
+        ) : null}
       </Row>
       <hr />
       <Row>
