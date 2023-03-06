@@ -4,7 +4,6 @@ import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import merge from 'lodash/merge';
 import set from 'lodash/set';
 
-import { build } from './ffmpeg';
 import util from './util';
 
 import Format from './Format';
@@ -15,6 +14,7 @@ import Presets from './Presets';
 import { defaultOpts } from './defaults';
 import { defaultPresetOptions, presetData, PresetOptions } from './presets';
 import Custom from './Custom';
+import Command from './Command';
 
 function Builder() {
   const [options, setOptions] = useState({ ...defaultOpts });
@@ -85,9 +85,7 @@ function Builder() {
       </Row>
       <Row className="pt-2">
         <Col md={12}>
-          <div className="name-preview border p-2">
-            {build(util.transform(options))}
-          </div>
+          <Command options={options} />
         </Col>
       </Row>
       <Row className="pt-2">
@@ -97,10 +95,18 @@ function Builder() {
               <Format options={options.format} updateOptions={updateOptions} />
             </Tab>
             <Tab eventKey="video" title="Video">
-              <Video options={options.video} updateOptions={updateOptions} />
+              <Video
+                options={options.video}
+                container={options.format.container}
+                updateOptions={updateOptions}
+              />
             </Tab>
             <Tab eventKey="audio" title="Audio">
-              <Audio options={options.audio} updateOptions={updateOptions} />
+              <Audio
+                options={options.audio}
+                container={options.format.container}
+                updateOptions={updateOptions}
+              />
             </Tab>
 
             <Tab eventKey="filter" title="Filters">

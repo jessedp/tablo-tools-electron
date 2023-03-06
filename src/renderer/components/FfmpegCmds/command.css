@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap');
+
+.command-box {
+  background-color: #000;
+  border: 1px solid #aaa;
+  color: #fff;
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Source Code Pro', monospace;
+  margin-top: 10px;
+  padding: 8px;
+  overflow: visible;
+}
+
+/* .tips {
+  display: inline-block;
+} */
+
+span.fragment {
+  display: inline-block;
+  margin-right: 1ch;
+}
+
+span.fragment:hover {
+  background: #444;
+}
+
+span.fragment.filter:hover {
+  background: #38863c;
+}
+/*
+.tooltip {
+  top: -8px !important;
+}
+ */

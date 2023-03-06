@@ -72,3 +72,9 @@ export type Option = {
   value: string;
   label: string;
 };
+
+export type CmdFragment = {
+  value: string;
+  description: string;
+  filters?: Array<CmdFragment>;
+};
