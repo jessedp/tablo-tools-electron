@@ -297,9 +297,6 @@ export const getSelectOpts = (
     const filteredOpts = options.filter(
       (o: any) => !o.supported || o.supported.includes(filter)
     );
-    console.log('filter', filter);
-    console.log('options', options);
-    console.log('filteredOpts', filteredOpts);
     filteredOpts.forEach((item: any) => {
       newOpts.push({ label: item['name'], value: item['value'] });
     });
@@ -317,7 +314,6 @@ export const getCodecSelectOpts = (
   container: string
 ) => {
   let options = defaultOptions.codecs[key];
-  console.log(options);
   if (container) {
     options = options.filter(
       (o) => !o.supported || o.supported.includes(container)
@@ -327,7 +323,6 @@ export const getCodecSelectOpts = (
   options.forEach((item: any) => {
     newOpts.push({ label: item['name'], value: item['value'] });
   });
-  console.log('newOpts', newOpts);
   return newOpts;
 };
 
