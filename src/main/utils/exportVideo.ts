@@ -19,7 +19,7 @@ import {
 } from '../../renderer/constants/app';
 import { buildFlagsForExport } from '../../renderer/components/FfmpegCmds/ffmpeg';
 import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
-import { presetData } from '../../renderer/components/FfmpegCmds/presets';
+import { presetData } from '../../renderer/components/FfmpegCmds/presetData';
 import { mainDebug } from './logging';
 
 const debug = mainDebug.extend('exportVideo');

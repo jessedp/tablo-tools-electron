@@ -13,7 +13,7 @@ import Audio from './Audio';
 import Filter from './Filter';
 import Presets from './Presets';
 import { defaultOpts } from './defaults';
-import { defaultPresetOptions, presetData, PresetOptions } from './presets';
+import { defaultPresetOptions, presetData, PresetOptions } from './presetData';
 import Custom from './Custom';
 
 function Builder() {

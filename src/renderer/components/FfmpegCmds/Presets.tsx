@@ -4,9 +4,9 @@ import { useDispatch } from 'react-redux';
 import { Button, Col, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import { Option } from 'renderer/constants/types';
-import getConfig, { setConfigItem } from 'renderer/utils/config';
+import getConfig, { setConfigItem } from '../../utils/config';
 import { sendFlash } from '../../store/flash';
-import { presetOptions, PresetOptions } from './presets';
+import { presetOptions, PresetOptions } from './presetData';
 
 const getPresetOptions = async (presets: PresetOptions[]) => {
   const options: any = [];
