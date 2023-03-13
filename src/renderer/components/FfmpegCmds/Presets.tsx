@@ -6,9 +6,9 @@ import Select from 'react-select';
 import { Option } from 'renderer/constants/types';
 import getConfig, { setConfigItem } from 'renderer/utils/config';
 import { sendFlash } from '../../store/flash';
-import { presetOptions, PresetOptions } from './presets';
+import { presetOptions, IPresetOptions } from './presets';
 
-const getPresetOptions = async (presets: PresetOptions[]) => {
+const getPresetOptions = async (presets: IPresetOptions[]) => {
   const options: any = [];
 
   const recs = await window.db.findAsync('FfmpegDb', {}, [
@@ -50,8 +50,8 @@ const getPresetOptions = async (presets: PresetOptions[]) => {
 };
 
 type Props = {
-  options: PresetOptions;
-  updatePresets: (data: PresetOptions) => any;
+  options: IPresetOptions;
+  updatePresets: (data: IPresetOptions) => any;
 };
 
 function Presets(props: Props) {
@@ -93,7 +93,6 @@ function Presets(props: Props) {
     label = options.name;
   }
 
-  console.log('render', value, label);
   return (
     <Row>
       <Col md={10}>

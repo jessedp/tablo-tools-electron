@@ -74,6 +74,7 @@ export type Option = {
 };
 
 export type CmdFragment = {
+  id: string;
   value: string;
   description: string;
   filters?: Array<CmdFragment>;

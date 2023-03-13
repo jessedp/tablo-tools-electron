@@ -26,6 +26,7 @@ function Command(props: Props) {
       if (skip === i) return;
 
       const fragmentObj: CmdFragment = {
+        id: `${el}-${i}`,
         value: el,
         description: '',
         filters: [],
@@ -41,6 +42,7 @@ function Command(props: Props) {
         const filters = cmd[i + 1].split(',');
         filters.forEach((filter) => {
           const f: CmdFragment = {
+            id: `${el}-${filter}-${i}`,
             value: filter,
             description: '',
           };
@@ -60,8 +62,8 @@ function Command(props: Props) {
 
   return (
     <code className="command-box">
-      {fragments.map((el) => {
-        return <CommandFragment fragment={el} />;
+      {fragments.map((el: CmdFragment) => {
+        return <CommandFragment fragment={el} key={el.id} />;
       })}
     </code>
   );
