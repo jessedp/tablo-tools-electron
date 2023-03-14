@@ -59,7 +59,6 @@ function Builder() {
             general.data.find((x) => x.value === ffmpegProfile)?.name || '';
         }
       }
-      name = `${name} (default)`;
       const newOpts = merge({}, defaultOpts, ffmpegFlags);
       const output = fixOutput(newOpts);
       if (output) {

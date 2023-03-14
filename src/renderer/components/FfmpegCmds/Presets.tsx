@@ -92,6 +92,7 @@ function Presets(props: Props) {
     value = options.id;
     label = options.name;
   }
+  if (isDefault) label = `${label} (default)`;
 
   return (
     <Row>
