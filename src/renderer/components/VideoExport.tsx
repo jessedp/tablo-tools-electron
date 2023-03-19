@@ -190,7 +190,7 @@ const VideoExport = (WrappedComponent: any) => {
         record.progress = {
           exportInc: 0,
           exportLabel: 'Failed',
-          log: progress.failedMsg.toString(),
+          log: progress.failedMsg,
         };
         this.logRecord.status = EXP_FAIL;
         dumpLog = true;
