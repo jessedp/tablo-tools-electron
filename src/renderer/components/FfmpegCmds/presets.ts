@@ -6,18 +6,18 @@ export interface DataEntity {
   value: string;
 }
 
-export interface PresetOptions {
+export interface IPresetOptions {
   id: string;
   name: string;
   data?: DataEntity[] | null;
 }
 
-export const defaultPresetOptions: PresetOptions = {
+export const defaultPresetOptions: IPresetOptions = {
   id: FFMPEG_DEFAULT_PROFILE,
   name: 'Basic',
 };
 
-export const presetOptions: PresetOptions[] = [
+export const presetOptions: IPresetOptions[] = [
   {
     id: 'general',
     name: 'General',

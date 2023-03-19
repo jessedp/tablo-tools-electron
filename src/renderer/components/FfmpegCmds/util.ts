@@ -1,6 +1,12 @@
+import Debug from 'debug';
 import { find } from 'lodash';
-import codecMap from './codecs';
+
+import { Option } from '../../constants/types';
 import defaultOptions from './form';
+import codecMap from './codecs';
+import { buildFlags } from './ffmpeg';
+
+const debug = Debug('tablo-tools:FfmpegCmds/util.ts');
 
 // Transforms the form options to ffmpeg build options.
 function transform(formData: any) {
@@ -268,7 +274,10 @@ function extname(filename: string) {
   return i < 0 ? '' : filename.substring(i);
 }
 
-export const getSelectOpts = (key: keyof typeof defaultOptions) => {
+export const getSelectOpts = (
+  key: keyof typeof defaultOptions,
+  filter?: string
+) => {
   const options = defaultOptions[key];
   // console.log(key, options);
   const newOpts: any[] = [];
@@ -289,12 +298,36 @@ export const getSelectOpts = (key: keyof typeof defaultOptions) => {
       });
       newOpts.push({ label: `${optKey} ${key}`, options: subOpts });
     });
+  } else if (filter) {
+    const filteredOpts = options.filter(
+      (o: any) => !o.supported || o.supported.includes(filter)
+    );
+    filteredOpts.forEach((item: any) => {
+      newOpts.push({ label: item['name'], value: item['value'] });
+    });
   } else {
     options.forEach((item: any) => {
       newOpts.push({ label: item['name'], value: item['value'] });
     });
   }
   // console.log('newOpts', newOpts);
+  return newOpts;
+};
+
+export const getCodecSelectOpts = (
+  key: keyof typeof defaultOptions.codecs,
+  container: string
+) => {
+  let options = defaultOptions.codecs[key];
+  if (container) {
+    options = options.filter(
+      (o) => !o.supported || o.supported.includes(container)
+    );
+  }
+  const newOpts: Option[] = [];
+  options.forEach((item: any) => {
+    newOpts.push({ label: item['name'], value: item['value'] });
+  });
   return newOpts;
 };
 
@@ -322,8 +355,20 @@ export const getLabel = (selectOpts: any, value: any) => {
     return false;
   });
   if (found) return found.label;
-  return '??';
+  return '';
 };
+
+export function buildFlagsForExport(opt: any) {
+  debug('opt', opt);
+  debug('util.transform(opt)', transform(opt));
+  const flags = buildFlags(transform(opt), true);
+  debug('flags', flags);
+  return flags;
+}
+
+export function build(opt: string[]) {
+  return buildFlags(opt).join(' ');
+}
 
 export default {
   transform,

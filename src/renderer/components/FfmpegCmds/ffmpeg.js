@@ -1,7 +1,3 @@
-import util from './util';
-
-// const util = require('./util');
-
 const formatOptionsMap = {
   startTime: '-ss',
   stopTime: '-to',
@@ -346,16 +342,4 @@ function buildFlags(opt, forExport = false) {
   return flags;
 }
 
-function buildFlagsForExport(opt) {
-  console.log('opt', opt);
-  console.log('util.transform(opt)', util.transform(opt));
-  const flags = buildFlags(util.transform(opt), true);
-  console.log('flags', flags);
-  return flags;
-}
-
-function build(opt) {
-  return buildFlags(opt).join(' ');
-}
-
-export { build, buildFlags, buildFlagsForExport };
+export { formatOptionsMap, buildFlags };

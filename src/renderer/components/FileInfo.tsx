@@ -30,8 +30,14 @@ export default function FileInfo(props: FileInfoProps) {
   const { airing, actionOnDuplicate, exportState, updateTemplate } = props;
 
   const [dedupedExportFile, setDedupedExportFile] = useState('');
+  const [multiExist, setMultiExist] = useState([]);
+
   const exists = window.fs.existsSync(airing.exportFile);
-  const multiExist = window.ipcRenderer.sendSync('glob', airing.exportFile);
+
+  useEffect(() => {
+    const mExists = window.ipcRenderer.sendSync('glob', airing.exportFile);
+    setMultiExist(mExists);
+  }, [airing.exportFile]);
 
   useEffect(() => {
     const filename = window.Airing.dedupedExportFile(

@@ -37,6 +37,8 @@ declare var config: any;
 
 declare var dbs: any;
 
+declare var ffmpegProfile: any;
+
 declare var LoadedTemplates: any;
 
 declare var exportProcs: any;

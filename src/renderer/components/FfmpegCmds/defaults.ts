@@ -11,7 +11,7 @@ export const defaultOpts = {
     stopTime: '',
   },
   video: {
-    codec: 'x264',
+    codec: 'copy',
     preset: 'none',
     pass: '1',
     crf: 23,

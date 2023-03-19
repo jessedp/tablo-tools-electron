@@ -8,6 +8,7 @@ import { history, configuredStore } from './store';
 import './app.global.css';
 
 import { loadTemplates } from './utils/namingTpl';
+import { ConfigType } from './constants/types_config';
 
 setupSentry(init);
 
@@ -29,7 +30,7 @@ declare global {
     fs: any;
     os: any;
     path: any;
-    config: any;
+    config: ConfigType;
     electron: {
       ipcRenderer: any;
 

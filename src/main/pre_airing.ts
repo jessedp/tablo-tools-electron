@@ -46,8 +46,7 @@ ipcMain.on('airing-getExportDetails', (event: any, airing: Airing) => {
 ipcMain.handle(
   'airing-cancelExportVideo',
   async (_event: any, airing: Airing) => {
-    console.log("ipcMain.handle('airing-cancelExportVideo') ", airing);
-
+    debug('airing-cancelExportVideo %O', airing);
     return cancelExportProcess(airing);
   }
 );

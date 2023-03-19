@@ -5,11 +5,6 @@ import { getSelectOpts } from './util';
 
 type Props = { options: any; updateOptions: (...args: Array<any>) => any };
 
-export type Option = {
-  value: string;
-  label: string;
-};
-
 function Format(props: Props) {
   const { options, updateOptions } = props;
 

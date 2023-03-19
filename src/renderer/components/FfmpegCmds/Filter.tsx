@@ -60,7 +60,7 @@ function Filter(props: Props) {
         <Col md={2}>
           <div className="cmd-head">Deshake:</div>
           <Select
-            name="filters.deshape"
+            name="filters.deshake"
             options={deshakeOpts}
             value={{ label: deshakeLabel, value: options.deshake }}
             onChange={selectOnChange}
