@@ -6,7 +6,12 @@ import Store from 'electron-store';
 
 import pathToFfmpeg from 'ffmpeg-static';
 
+import { merge } from 'lodash';
+
 import { mainDebug } from './logging';
+
+import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
+import { presetData } from '../../renderer/components/FfmpegCmds/presets';
 
 const debug = mainDebug.extend('utils');
 globalThis.debugInstances.push(debug);
@@ -392,3 +397,29 @@ export const throttle = <F extends (...args: any[]) => any>(
       }
     });
 };
+
+export async function getFfmpegProfile() {
+  const { ffmpegProfile } = globalThis.config;
+  debug('ffmpegProfile Config setting: %s', ffmpegProfile);
+  let ffmpegFlags;
+  if (ffmpegProfile.startsWith('custom')) {
+    let rec;
+    if (typeof window === 'undefined') {
+      rec = await global.dbs.FfmpegDb.findOneAsync({
+        id: ffmpegProfile,
+      });
+    } else {
+      rec = window.db.findOneAsync('FfmpegDb', {
+        id: ffmpegProfile,
+      });
+    }
+    ffmpegFlags = rec.options;
+  } else {
+    ffmpegFlags = presetData[ffmpegProfile];
+  }
+  // debug('ffmpegFlags', ffmpegFlags);
+  ffmpegFlags = merge({}, defaultOpts, ffmpegFlags);
+  // debug('ffmpegFlags-merged', ffmpegFlags);
+  globalThis.ffmpegProfile = ffmpegFlags;
+  return ffmpegFlags;
+}

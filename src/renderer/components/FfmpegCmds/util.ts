@@ -1,7 +1,12 @@
+import Debug from 'debug';
 import { find } from 'lodash';
-import codecMap from './codecs';
-import defaultOptions from './form';
+
 import { Option } from '../../constants/types';
+import defaultOptions from './form';
+import codecMap from './codecs';
+import { buildFlags } from './ffmpeg';
+
+const debug = Debug('tablo-tools:FfmpegCmds/util.ts');
 
 // Transforms the form options to ffmpeg build options.
 function transform(formData: any) {
@@ -352,6 +357,18 @@ export const getLabel = (selectOpts: any, value: any) => {
   if (found) return found.label;
   return '';
 };
+
+export function buildFlagsForExport(opt: any) {
+  debug('opt', opt);
+  debug('util.transform(opt)', transform(opt));
+  const flags = buildFlags(transform(opt), true);
+  debug('flags', flags);
+  return flags;
+}
+
+export function build(opt: string[]) {
+  return buildFlags(opt).join(' ');
+}
 
 export default {
   transform,

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { build } from './ffmpeg';
-import util from './util';
+import util, { build } from './util';
 import tooltips from './tooltips';
 import './command.css';
 import { CmdFragment } from '../../constants/types';

@@ -3,13 +3,12 @@ import Handlebars from 'handlebars';
 import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
+import form from '../components/FfmpegCmds/form';
 import getConfig, { setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import { NamingTemplateType } from '../constants/types';
 import helpers from './templateHelpers';
-
-import { ConfigType } from '../constants/types_config';
 
 import * as fsPath from './path';
 
@@ -54,9 +53,7 @@ export function getDefaultTemplateSlug() {
   return 'tablo-tools';
 }
 export function getDefaultRoot(type: string): string {
-  // const { episodePath, moviePath, eventPath, programPath } = getConfig();
-  const { episodePath, moviePath, eventPath, programPath } =
-    window.ipcRenderer.sendSync('get-config');
+  const { episodePath, moviePath, eventPath, programPath } = getConfig();
 
   switch (type) {
     case SERIES:
@@ -227,15 +224,20 @@ export type TemplateVarsType = {
   shortcuts: Record<string, any>;
 };
 
+function getFfmpegProfile() {
+  let ffmpegProfile;
+  if (typeof window === 'undefined') {
+    ffmpegProfile = globalThis.ffmpegProfile;
+  } else {
+    ffmpegProfile = window.ipcRenderer.sendSync('get-ffmpeg-profile');
+  }
+  return ffmpegProfile;
+}
+
 export function buildTemplateVars(
   airing: Record<string, any>
 ): TemplateVarsType {
-  let config: ConfigType;
-  if (typeof window === 'undefined') {
-    config = getConfig();
-  } else {
-    config = window.ipcRenderer.sendSync('get-config');
-  }
+  const config = getConfig();
 
   const { episodePath, moviePath, eventPath, programPath } = config;
 
@@ -251,8 +253,11 @@ export function buildTemplateVars(
   const dateNat = format(date, 'MM-dd-yyyy');
   const time12 = format(date, 'hh-mm-a');
   const time24 = format(date, 'HH-mm');
+
+  const ffmpegProfile = getFfmpegProfile();
+
   const globalVars = {
-    EXT: 'mp4',
+    EXT: ffmpegProfile.format.container,
     dateSort,
     dateNat,
     time12,
@@ -383,10 +388,14 @@ export function fillTemplate(
 
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep()));
 
-  debug('filledPath after sanitze: %s', filledPath);
-  const validExtensions = ['.mp4', '.mkv', '.avi', '.mov'];
-  const ext = filledPath.substring(filledPath.lastIndexOf('.'));
-  if (!validExtensions.includes(ext)) filledPath += '.mp4';
+  console.debug('filledPath after sanitze: %s', filledPath);
+
+  const validExtensions = form.containers.video.map((c: any) => c.value);
+  const ext = filledPath.substring(filledPath.lastIndexOf('.') + 1);
+  const ffmpegProfile = getFfmpegProfile();
+
+  if (!validExtensions.includes(ext))
+    filledPath += `.${ffmpegProfile.format.container}`;
 
   return filledPath;
 }
