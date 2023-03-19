@@ -103,10 +103,13 @@ export function isDefaultTemplate(template: NamingTemplateType): boolean {
 }
 
 const stripSecondary = (piece: string) => {
-  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
-  let newPiece = piece;
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '\\[', ']', '&', ';'];
+  let newPiece = sanitize(piece);
+  console.log('newPiece', newPiece);
   secondaryReplacements.forEach((rep) => {
-    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+    // replace all instances of the replacement character with nothing
+    const regEx = new RegExp(rep, 'g');
+    newPiece = newPiece.replace(regEx, '');
   });
   return newPiece;
 };
