@@ -164,7 +164,7 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
-    "@sentry/cli": "^2.12.0",
+    "@sentry/cli": "^2.15.2",
     "@sentry/webpack-plugin": "^1.20.0",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
     "@testing-library/jest-dom": "^5.16.4",
@@ -273,7 +273,7 @@
     "@redux-devtools/extension": "^3.2.3",
     "@reduxjs/toolkit": "^1.6.2",
     "@seald-io/nedb": "^3.1.0",
-    "@sentry/electron": "^4.2.0",
+    "@sentry/electron": "^4.3.0",
     "axios": "^0.24.0",
     "bootstrap": "^4.3.1",
     "byte-data": "^16.0.3",
