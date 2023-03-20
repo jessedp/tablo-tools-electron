@@ -10,7 +10,7 @@ const ignoreError = (event: any) => {
 };
 
 const setupSentry = (init: any) => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     init({
       dsn: 'https://a19dbdc56dc54776a48d2acce4c99ddc@o381395.ingest.sentry.io/5208692',
       release: version,
