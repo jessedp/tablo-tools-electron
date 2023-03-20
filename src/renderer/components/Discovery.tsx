@@ -83,7 +83,7 @@ function DiscoveryTitle(prop: Record<string, any>) {
   let checked;
   if (window.Tablo.CONNECTED()) {
     if (state === STATE_MULTI) return <></>;
-    checked = device.inserted ? new Date(device.inserted) : '';
+    checked = device?.inserted ? new Date(device.inserted) : '';
     return (
       <>
         {checked ? (
