@@ -104,6 +104,11 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        // TABLO-TOOLS-ELECTRON-RB
+        if (errorText.includes("'GPU' process exited with")) {
+          return ignoreError(event);
+        }
+
         // TABLO-TOOLS-ELECTRON-ST
         if (
           errorText.includes(
