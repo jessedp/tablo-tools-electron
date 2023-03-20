@@ -94,6 +94,10 @@ const setupSentry = (init: any) => {
         if (errorText.includes('Fatal Error: SIGBUS')) {
           return ignoreError(event);
         }
+        // TABLO-TOOLS-ELECTRON-Z8
+        if (errorText.includes('Fatal Error: DUMP_REQUESTED')) {
+          return ignoreError(event);
+        }
 
         // TABLO-TOOLS-ELECTRON-CR
         if (errorText.includes('ResizeObserver loop limit exceeded')) {
