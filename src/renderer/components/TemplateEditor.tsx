@@ -86,21 +86,22 @@ class TemplateEditor extends Component<Props, State> {
     const { updateValue } = this.props;
     const { position } = this.state;
     const { workingValue } = this.state;
-    let path = node.name;
+    const updatedWorkingValue = { ...workingValue };
+    let nodePath = node.name;
 
     if (node.namespace.length) {
       const start = node.namespace.join('.');
-      path = `${start}.${path}`;
+      nodePath = `${start}.${nodePath}`;
     }
 
-    const tag = `{{${path}}}`;
-    const p1 = workingValue.template.slice(0, position.column);
-    const p3 = workingValue.template.slice(position.column);
-    workingValue.template = `${p1}${tag}${p3}`;
+    const tag = `{{${nodePath}}}`;
+    const p1 = updatedWorkingValue.template.slice(0, position.column);
+    const p3 = updatedWorkingValue.template.slice(position.column);
+    updatedWorkingValue.template = `${p1}${tag}${p3}`;
     this.setState({
-      workingValue,
+      workingValue: updatedWorkingValue,
     });
-    updateValue(workingValue.template);
+    updateValue(updatedWorkingValue.template);
     this.editorRef.current.editor.focus();
   }
 
