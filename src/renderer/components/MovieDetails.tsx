@@ -113,6 +113,7 @@ class MovieDetails extends Component<Props, State> {
     }
 
     const { show } = movie;
+
     return (
       <div className="section overflow-hidden">
         <img
@@ -155,13 +156,17 @@ class MovieDetails extends Component<Props, State> {
                   <h2 className="text-primary">{show.title}</h2>
                 </Col>
                 <Col>
-                  <Badge
-                    pill
-                    className="mt-1 ml-1 mr-1 text-uppercase"
-                    variant="light"
-                  >
-                    {show.movie.film_rating}
-                  </Badge>
+                  {show.movie.film_rating ? (
+                    <Badge
+                      pill
+                      className="mt-1 ml-1 mr-1 text-uppercase"
+                      variant="light"
+                    >
+                      {show.movie.film_rating}
+                    </Badge>
+                  ) : (
+                    ''
+                  )}
                   <Badge pill className="mt-1 ml-1 mr-1" variant="light">
                     {readableDuration(show.movie.original_runtime)}
                   </Badge>
