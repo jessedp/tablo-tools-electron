@@ -50,9 +50,9 @@ import {
   SORT_REC_DSC,
   SORT_SIZE_ASC,
   SORT_SIZE_DSC,
-  Option,
   Season,
 } from './SearchFilters';
+import { Option } from '../constants/types';
 
 type OwnProps = Record<string, any>;
 type StateProps = Record<string, any>;

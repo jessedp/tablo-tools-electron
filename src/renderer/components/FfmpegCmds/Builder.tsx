@@ -21,6 +21,7 @@ import {
 } from './presets';
 import Custom from './Custom';
 import Command from './Command';
+import { presetKey } from './defaultOptionsType';
 
 function Builder() {
   const [options, setOptions] = useState({ ...defaultOpts });
@@ -40,6 +41,8 @@ function Builder() {
     return null;
   };
 
+  console.log(defaultOpts);
+
   useEffect(() => {
     const loadOptions = async () => {
       const { ffmpegProfile } = getConfig();
@@ -52,7 +55,7 @@ function Builder() {
         name = rec.name;
         ffmpegFlags = rec.options;
       } else {
-        ffmpegFlags = presetData[ffmpegProfile];
+        ffmpegFlags = presetData[ffmpegProfile as presetKey];
         const general = presetOptions[0];
         if (general.data) {
           name =
@@ -76,7 +79,7 @@ function Builder() {
     const newOpts = merge({}, options, obj);
 
     const output = fixOutput(newOpts);
-    if (output) {
+    if (newOpts.io && output) {
       newOpts.io.output = output;
     }
     if (!presets.id.startsWith('custom')) {
@@ -90,7 +93,7 @@ function Builder() {
     setPresets(data);
     let newOpts = { ...defaultOpts };
     if (!data.id.startsWith('custom')) {
-      newOpts = merge({}, defaultOpts, presetData[data.id]);
+      newOpts = merge({}, defaultOpts, presetData[data.id as presetKey]);
     } else if (data.id.startsWith('custom')) {
       const rec = await window.db.findOneAsync('FfmpegDb', { id: data.id });
       console.log('here!', rec);
@@ -98,7 +101,7 @@ function Builder() {
     }
 
     const output = fixOutput(newOpts);
-    if (output) {
+    if (newOpts.io && output) {
       newOpts.io.output = output;
     }
 
@@ -134,14 +137,18 @@ function Builder() {
             <Tab eventKey="video" title="Video">
               <Video
                 options={options.video}
-                container={options.format.container}
+                container={
+                  options.format.container || defaultOpts.format.container
+                }
                 updateOptions={updateOptions}
               />
             </Tab>
             <Tab eventKey="audio" title="Audio">
               <Audio
                 options={options.audio}
-                container={options.format.container}
+                container={
+                  options.format.container || defaultOpts.format.container
+                }
                 updateOptions={updateOptions}
               />
             </Tab>

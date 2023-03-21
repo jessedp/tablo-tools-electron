@@ -19,7 +19,7 @@ export const defaultOpts = {
     minrate: '',
     maxrate: '',
     bufsize: '',
-    gopsize: '',
+    gopsize: undefined,
     pixel_format: 'auto',
     frame_rate: 'auto',
     speed: 'auto',
