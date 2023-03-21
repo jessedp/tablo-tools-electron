@@ -1,5 +1,6 @@
 import { FFMPEG_DEFAULT_PROFILE } from '../../constants/app';
 import { defaultOpts } from './defaults';
+import { IPresetData } from './defaultOptionsType';
 
 export interface DataEntity {
   name: string;
@@ -56,7 +57,7 @@ export const presetOptions: IPresetOptions[] = [
   },
 ];
 
-export const presetData = {
+export const presetData: IPresetData = {
   default: defaultOpts,
 
   'h264-very-fast-1080p30': {
@@ -231,7 +232,7 @@ export const presetData = {
     },
     video: {
       codec: 'vp9',
-      profile: 0,
+      profile: 'none',
       gopsize: 72,
       size: '1920',
       bitrate: '3000k',
@@ -246,7 +247,7 @@ export const presetData = {
     },
     video: {
       codec: 'vp9',
-      profile: 0,
+      profile: 'none',
       gopsize: 72,
       size: '1280',
       bitrate: '1500k',
