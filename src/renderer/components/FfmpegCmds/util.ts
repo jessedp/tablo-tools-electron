@@ -282,16 +282,15 @@ export const getSelectOpts = (
   // console.log(key, options);
   const newOpts: any[] = [];
   if (!Array.isArray(options)) {
-    const optKeys = Object.keys(options);
-    type optKeyType = typeof optKeys[number];
+    type OptKeyType = keyof typeof options;
+    const optKeys = Object.keys(options) as OptKeyType[];
 
-    optKeys.forEach((optKey: optKeyType) => {
+    optKeys.forEach((optKey: OptKeyType) => {
       const subOpts: any = [];
       // console.log(key, Object.keys(key));
       const subOptKeys = Object.keys(options[optKey]);
-      type subOptKeyType = typeof subOptKeys[number];
 
-      subOptKeys.forEach((subKey: subOptKeyType) => {
+      subOptKeys.forEach((subKey) => {
         const opt = options[optKey][subKey];
         // console.log(subKey, options[key][subKey]);
         subOpts.push({ label: opt['name'], value: opt['value'] });
