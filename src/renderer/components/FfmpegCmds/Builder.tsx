@@ -41,8 +41,6 @@ function Builder() {
     return null;
   };
 
-  console.log(defaultOpts);
-
   useEffect(() => {
     const loadOptions = async () => {
       const { ffmpegProfile } = getConfig();
@@ -92,11 +90,10 @@ function Builder() {
   const updatePresets = async (data: IPresetOptions) => {
     setPresets(data);
     let newOpts = { ...defaultOpts };
-    if (!data.id.startsWith('custom')) {
+    if (data.id === 'custom' || !data.id.startsWith('custom')) {
       newOpts = merge({}, defaultOpts, presetData[data.id as presetKey]);
     } else if (data.id.startsWith('custom')) {
       const rec = await window.db.findOneAsync('FfmpegDb', { id: data.id });
-      console.log('here!', rec);
       newOpts = merge({}, defaultOpts, rec.options);
     }
 
