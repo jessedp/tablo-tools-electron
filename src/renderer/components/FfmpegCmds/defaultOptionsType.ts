@@ -88,6 +88,56 @@ const allTypes = {
   'vp9-1500-720p': true,
 };
 
-export type presetKey = keyof typeof allTypes;
+export type PresetKeyType = keyof typeof allTypes;
 
-export type IPresetData = Record<presetKey, IDefaultOption>;
+export type IPresetData = Record<PresetKeyType, IDefaultOption>;
+
+export interface IBuildOptions {
+  input?: string;
+  output?: string;
+  container?: string;
+  clip?: boolean;
+  startTime?: string;
+  stopTime?: string;
+  vcodec?: string;
+  preset?: string;
+  pass?: string;
+  crf?: number;
+  bitrate?: string;
+  minrate?: string;
+  maxrate?: string;
+  bufsize?: string;
+  gopsize?: number | undefined;
+  pixel_format?: string;
+  frame_rate?: string;
+  speed?: string;
+  tune?: string;
+  profile?: string;
+  level?: string;
+  faststart?: boolean;
+  size?: string;
+  width?: string;
+  height?: string;
+  format?: string;
+  aspect?: string;
+  scaling?: string;
+  codec_options?: string;
+  acodec?: string;
+  channel?: string;
+  quality?: string;
+  sampleRate?: string;
+  volume?: number;
+  deband?: boolean;
+  deshake?: boolean;
+  deflicker?: boolean;
+  dejudder?: boolean;
+  denoise?: string;
+  deinterlace?: string;
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  gamma?: number;
+  acontrast?: number;
+  extra?: any[];
+  loglevel?: string;
+}

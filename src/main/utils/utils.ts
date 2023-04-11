@@ -12,6 +12,7 @@ import { mainDebug } from './logging';
 
 import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
 import { presetData } from '../../renderer/components/FfmpegCmds/presets';
+import { IDefaultOption } from '../../renderer/components/FfmpegCmds/defaultOptionsType';
 
 const debug = mainDebug.extend('utils');
 globalThis.debugInstances.push(debug);
@@ -398,8 +399,11 @@ export const throttle = <F extends (...args: any[]) => any>(
     });
 };
 
-export async function getFfmpegProfile() {
-  const { ffmpegProfile } = globalThis.config;
+export async function getFfmpegProfile(
+  profileId?: string
+): Promise<IDefaultOption> {
+  const ffmpegProfile = profileId || globalThis.config.ffmpegProfile;
+
   debug('ffmpegProfile Config setting: %s', ffmpegProfile);
   let ffmpegFlags;
   if (ffmpegProfile.startsWith('custom')) {
@@ -417,7 +421,7 @@ export async function getFfmpegProfile() {
   } else {
     ffmpegFlags = presetData[ffmpegProfile];
   }
-  // debug('ffmpegFlags', ffmpegFlags);
+  debug('ffmpegFlags', ffmpegFlags);
   ffmpegFlags = merge({}, defaultOpts, ffmpegFlags);
   // debug('ffmpegFlags-merged', ffmpegFlags);
   globalThis.ffmpegProfile = ffmpegFlags;

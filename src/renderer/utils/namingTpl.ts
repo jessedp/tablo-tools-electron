@@ -3,17 +3,22 @@ import Handlebars from 'handlebars';
 import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
+
+import { merge } from 'lodash';
+
+import helpers from './templateHelpers';
+
 import form from '../components/FfmpegCmds/form';
-import getConfig, { setConfigItem } from './config';
+import { defaultOpts } from '../components/FfmpegCmds/defaults';
+
+import getConfig, { getFfmpegProfile, setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import { NamingTemplateType } from '../constants/types';
-import helpers from './templateHelpers';
 
 import * as fsPath from './path';
 
 const debug = Debug('tablo-tools:namingTpl');
-// import sanitize from 'sanitize-filename';
 
 Handlebars.registerHelper(helpers);
 
@@ -227,23 +232,12 @@ export type TemplateVarsType = {
   shortcuts: Record<string, any>;
 };
 
-function getFfmpegProfile() {
-  let ffmpegProfile;
-  if (typeof window === 'undefined') {
-    ffmpegProfile = globalThis.ffmpegProfile;
-  } else {
-    ffmpegProfile = window.ipcRenderer.sendSync('get-ffmpeg-profile');
-  }
-  return ffmpegProfile;
-}
-
 export function buildTemplateVars(
   airing: Record<string, any>
 ): TemplateVarsType {
   const config = getConfig();
 
   const { episodePath, moviePath, eventPath, programPath } = config;
-
   const recData = airing.data;
 
   if (!recData || !recData.airing_details || !recData.airing_details.datetime) {
@@ -257,10 +251,18 @@ export function buildTemplateVars(
   const time12 = format(date, 'hh-mm-a');
   const time24 = format(date, 'HH-mm');
 
-  const ffmpegProfile = getFfmpegProfile();
+  let fileExt = '.invalid';
+
+  if (!airing.customFfmpegProfile) {
+    const ffmpegProfile = getFfmpegProfile();
+    fileExt = ffmpegProfile.format?.container || fileExt;
+  } else {
+    const options = merge({}, defaultOpts, airing.customFfmpegProfile);
+    fileExt = options.format.container;
+  }
 
   const globalVars = {
-    EXT: ffmpegProfile.format.container,
+    EXT: fileExt,
     dateSort,
     dateNat,
     time12,
@@ -398,7 +400,7 @@ export function fillTemplate(
   const ffmpegProfile = getFfmpegProfile();
 
   if (!validExtensions.includes(ext))
-    filledPath += `.${ffmpegProfile.format.container}`;
+    filledPath += `.${ffmpegProfile.format?.container || ext}`;
 
   return filledPath;
 }

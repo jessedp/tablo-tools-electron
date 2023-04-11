@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { NamingTemplateType } from '../constants/types';
+import { UpdateExportRecordType } from '../constants/types';
 import {
   EXP_WAITING,
   EXP_WORKING,
@@ -23,11 +23,11 @@ type FileInfoProps = {
   airing: Airing;
   exportState: number;
   actionOnDuplicate: string;
-  updateTemplate: (template: NamingTemplateType) => void;
+  updateRecord: (arg0: UpdateExportRecordType) => void;
 };
 
 export default function FileInfo(props: FileInfoProps) {
-  const { airing, actionOnDuplicate, exportState, updateTemplate } = props;
+  const { airing, actionOnDuplicate, exportState, updateRecord } = props;
 
   const [dedupedExportFile, setDedupedExportFile] = useState('');
   const [multiExist, setMultiExist] = useState([]);
@@ -72,7 +72,7 @@ export default function FileInfo(props: FileInfoProps) {
         {window.path.normalize(airing.exportFile)}
         {exportState === EXP_WAITING ? (
           <>
-            <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+            <FilenameEditor airing={airing} updateRecord={updateRecord} />
             <OpenDirectory path={airing.exportFile} />
           </> //
         ) : (
@@ -131,7 +131,7 @@ export default function FileInfo(props: FileInfoProps) {
       <span className={icon} />
       <span className="">{dedupedExportFile}</span>
       {exportState === EXP_WAITING ? (
-        <FilenameEditor airing={airing} updateTemplate={updateTemplate} />
+        <FilenameEditor airing={airing} updateRecord={updateRecord} />
       ) : (
         <span className="ml-1 mr-1" />
       )}

@@ -22,11 +22,8 @@ const debug = require('debug')('tablo-tools:VideoExport-tsx');
 
 type Props = {
   airing: Airing;
-  // airingList: Array<Airing>;
   exportList: Array<ExportRecordType>;
-  // addExportRecord: (record: ExportRecordType) => void;
   updateExportRecord: (record: ExportRecordType) => void;
-  // bulkRemExportRecord: (arg0: Array<ExportRecordType>) => void;
 };
 type State = {
   exportState: number;
@@ -53,7 +50,7 @@ const VideoExport = (WrappedComponent: any) => {
       };
       this.shouldCancel = false;
       this.timings = {};
-      // this.logRecord = ExportLogRecord();
+
       (this as any).processVideo = this.processVideo.bind(this);
       (this as any).cancelProcess = this.cancelProcess.bind(this);
     }
@@ -92,24 +89,22 @@ const VideoExport = (WrappedComponent: any) => {
       const actions: Array<any> = [];
       await asyncForEach(exportList, async (rec: ExportRecordType) => {
         const airing = new Airing(rec.airing);
+
         actions.push(() => {
           const channel = `export-progress-${airing.object_id}`;
           if (!this.shouldCancel) {
             window.ipcRenderer.on(channel, (message: any) => {
               this.updateProgress(airing.object_id, message);
             });
-            return window.Airing.exportVideo(
-              airing.object_id,
-              actionOnDuplicate,
-              airing.template
-            );
+
+            return window.Airing.exportVideo(airing.data, actionOnDuplicate);
           }
           return new Promise((resolve) => {
             resolve(`Canceled ${airing.object_id}`);
           });
         });
       });
-      console.log('VideoExport - async actions - ', actions);
+
       await throttleActions(actions, atOnce).then((results) => {
         return results;
       });

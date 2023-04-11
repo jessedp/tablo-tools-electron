@@ -14,7 +14,6 @@ function Command(props: Props) {
   const [fragments, setFragments] = useState([]);
 
   useEffect(() => {
-    // getToolTips(commandsStr) {
     const commandsStr = build(util.transform(options));
     const cmd = commandsStr.split(' ');
     const output: any = [];
@@ -25,7 +24,7 @@ function Command(props: Props) {
       if (skip === i) return;
 
       const fragmentObj: CmdFragment = {
-        id: `${el}-${i}`,
+        id: crypto.randomUUID(),
         value: el,
         description: '',
         filters: [],
@@ -41,7 +40,7 @@ function Command(props: Props) {
         const filters = cmd[i + 1].split(',');
         filters.forEach((filter) => {
           const f: CmdFragment = {
-            id: `${el}-${filter}-${i}`,
+            id: crypto.randomUUID(),
             value: filter,
             description: '',
           };

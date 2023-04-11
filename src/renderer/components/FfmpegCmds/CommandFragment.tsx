@@ -19,9 +19,11 @@ function CommandFragment(props: Props) {
     const subFragments: JSX.Element[] = [];
     fragment.filters.forEach((f: any, i: number) => {
       if (!fragment.filters) return;
-      if (i === 0) subFragments.push(<>&quot;</>);
+      if (i === 0)
+        subFragments.push(<span key={crypto.randomUUID()}>&quot;</span>);
       subFragments.push(
         <OverlayTrigger
+          key={crypto.randomUUID()}
           trigger={['hover', 'focus']}
           placement="top"
           overlay={
@@ -31,15 +33,26 @@ function CommandFragment(props: Props) {
             </Popover>
           }
         >
-          <span className="fragment">{f.value}</span>
+          <span className="fragment" key={crypto.randomUUID()}>
+            {f.value}
+          </span>
         </OverlayTrigger>
       );
       if (fragment.filters.length > 1 && i < fragment.filters.length - 1)
-        subFragments.push(<span style={{ marginLeft: '-1ch' }}>, </span>);
+        subFragments.push(
+          <span style={{ marginLeft: '-1ch' }} key={crypto.randomUUID()}>
+            ,{' '}
+          </span>
+        );
 
       if (i === fragment.filters.length - 1)
         subFragments.push(
-          <span style={{ marginLeft: '-1ch', marginRight: '1ch' }}>&quot;</span>
+          <span
+            style={{ marginLeft: '-1ch', marginRight: '1ch' }}
+            key={crypto.randomUUID()}
+          >
+            &quot;
+          </span>
         );
     });
 
@@ -55,7 +68,9 @@ function CommandFragment(props: Props) {
             </Popover>
           }
         >
-          <span className="fragment">{fragment.value}</span>
+          <span className="fragment" key={crypto.randomUUID()}>
+            {fragment.value}
+          </span>
         </OverlayTrigger>
 
         {subFragments.map((el) => el)}

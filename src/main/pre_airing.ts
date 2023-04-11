@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import path from 'path';
+import { StdObj } from 'renderer/constants/types';
 
 import Airing from '../renderer/utils/Airing';
 
@@ -53,28 +54,19 @@ ipcMain.handle(
 
 ipcMain.handle(
   'airing-export',
-  async (
-    _event: any,
-    airingId: string,
-    actionOnDuplicate: string,
-    template: any
-  ) => {
+  async (_event: any, airingData: StdObj, actionOnDuplicate: string) => {
     try {
-      const data = await global.dbs.RecDb.findOneAsync({
-        object_id: airingId,
-      });
-      const airing = await Airing.create(data);
-      airing.template = template;
       const channel = `export-progress`;
 
-      return await exportVideo(airing, actionOnDuplicate, (...args: any) => {
-        ipcMain.emit(channel, ...args);
-        // debug(`${channel} - progress - `, airing.id, args);
-      });
+      return await exportVideo(
+        airingData,
+        actionOnDuplicate,
+        (...args: any) => {
+          ipcMain.emit(channel, ...args);
+        }
+      );
     } catch (e) {
       debug('ERROR in airing-export: ', e);
-      // console.error('airing-export', e);
-      // return cancelExportProcess(airing);
       return new Promise((resolve) => {
         resolve(`ERR: airing-export - ${e}`);
       });
