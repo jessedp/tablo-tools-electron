@@ -124,7 +124,7 @@ class DbStatus extends Component<DbStatusProps, State> {
     //   this.autoRebuildInterval
     // );
     if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
-      if (window.Tablo.CONNECTED()) startBuild();
+      if (window.Tablo.isConnected()) startBuild();
       clearInterval(this.timer);
       this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
     }

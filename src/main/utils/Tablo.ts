@@ -156,7 +156,7 @@ export async function checkConnection(): Promise<boolean> {
 
   return new Promise((resolve) => {
     client.on('close', () => {
-      global.CONNECTED = status;
+      global.isConnected = status;
       resolve(status);
     });
   });
@@ -165,7 +165,7 @@ export async function checkConnection(): Promise<boolean> {
 export const comskipAvailable = (): boolean => {
   const currentDevice: any = store.get('CurrentDevice');
 
-  if (!global.CONNECTED) return false;
+  if (!global.isConnected) return false;
   if (!currentDevice.server_version) return false;
   const testVersion = currentDevice.server_version.match(/[\d.]*/)[0];
   const supportedVersion = '2.2.26';
@@ -191,7 +191,7 @@ export const comskipAvailable = (): boolean => {
 export async function setupApi(): Promise<void> {
   debug('Calling setupApi');
   globalThis.Api = new Tablo();
-  global.CONNECTED = false;
+  global.isConnected = false;
   debug('Calling discover');
   await discover();
   debug('Discover finished');

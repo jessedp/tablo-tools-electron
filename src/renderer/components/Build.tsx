@@ -92,7 +92,7 @@ class Build extends Component<BuildProps, State> {
       return;
     }
 
-    if (!window.Tablo.CONNECTED()) {
+    if (!window.Tablo.isConnected()) {
       console.log('Not connected, not bulding...');
       return;
     }

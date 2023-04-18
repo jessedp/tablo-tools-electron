@@ -106,7 +106,7 @@ contextBridge.exposeInMainWorld('Tablo', {
   checkConnection: () => ipcRenderer.sendSync('tablo-checkConnection'),
   comskipAvailable: () => ipcRenderer.sendSync('tablo-comskipAvailable'),
   hasDevice: () => ipcRenderer.sendSync('tablo-has-device'),
-  CONNECTED: () => ipcRenderer.sendSync('tablo-CONNECTED'),
+  isConnected: () => ipcRenderer.sendSync('tablo-isConnected'),
   device: () => ipcRenderer.sendSync('tablo-device'),
   discoveredDevices: () => ipcRenderer.sendSync('tablo-discoveredDevices'),
   getRecordingsCount: () => ipcRenderer.sendSync('tablo-getRecordingsCount'),
