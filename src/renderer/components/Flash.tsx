@@ -23,6 +23,10 @@ class Flash extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const { message } = this.props;
+    if (!message.message) {
+      console.warn('Flash: no message received');
+      return;
+    }
 
     if (prevProps.message !== message) {
       this.receive();

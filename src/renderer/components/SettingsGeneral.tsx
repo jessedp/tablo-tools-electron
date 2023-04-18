@@ -101,7 +101,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 
     this.setState(item);
     setConfigItem(item);
-    sendFlash(message);
+    if (!message) sendFlash(message);
   };
 
   toggleAutoRebuild = () => {
@@ -120,8 +120,12 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
   };
 
   setAutoRebuildMinutes = (minutes: number | null) => {
+    const { autoRebuild } = this.state;
     if (!minutes) return;
-    const message = `DB Rebuild will happen every ${minutes} minutes`;
+    let message = '';
+    if (autoRebuild)
+      message = `DB Rebuild will happen every ${minutes} minutes`;
+
     this.saveConfigItem(
       {
         autoRebuildMinutes: minutes,
