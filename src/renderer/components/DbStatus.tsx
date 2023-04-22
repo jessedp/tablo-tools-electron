@@ -40,6 +40,7 @@ class DbStatus extends Component<DbStatusProps, State> {
 
   job: Cron;
 
+  // eslint-disable-next-line
   rerender: Cron;
 
   constructor(props: DbStatusProps) {
@@ -54,9 +55,12 @@ class DbStatus extends Component<DbStatusProps, State> {
 
     // cron syntax that runs 2 minutes and 32 minutes after the hour
     this.job = Cron('2,32 * * * *', { maxRuns: 1 });
+
+    // eslint-disable-next-line
     this.rerender = Cron('* * * * *', {}, () => {
       this.updateTime();
     });
+
     this.forceBuild = this.forceBuild.bind(this);
   }
 
@@ -72,11 +76,7 @@ class DbStatus extends Component<DbStatusProps, State> {
       this.job.trigger();
     }
 
-    if (!this.rerender) {
-      this.rerender = Cron('* * * * *', {}, () => {
-        this.updateTime();
-      });
-    }
+    this.updateTime();
     this.psToken = PubSub.subscribe('DB_CHANGE', () => this.updateTime());
   }
 
