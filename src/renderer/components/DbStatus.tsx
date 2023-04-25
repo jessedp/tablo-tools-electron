@@ -190,7 +190,7 @@ class DbStatus extends Component<DbStatusProps, State> {
                 cursor: 'pointer',
               }}
               onClick={this.forceBuild}
-              onKeyDown={this.forceBuild}
+              onKeyDown={() => {}}
               role="button"
               tabIndex={0}
               className="pl-0 btn btn-xs smaller pr-0"
