@@ -115,7 +115,8 @@ class DbStatus extends Component<DbStatusProps, State> {
   }
 
   componentWillUnmount(): void {
-    // this.job.stop();
+    this.job.stop();
+    this.rerender.stop();
     PubSub.unsubscribe(this.psToken);
   }
 
