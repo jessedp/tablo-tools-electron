@@ -103,7 +103,7 @@ class DbStatus extends Component<DbStatusProps, State> {
 
   componentDidUpdate(prevProps: DbStatusProps) {
     const { config } = this.props;
-    console.log(config);
+
     if (config.autoRebuild !== prevProps.config.autoRebuild) {
       if (config.autoRebuild) {
         this.buildIfOutdated();
