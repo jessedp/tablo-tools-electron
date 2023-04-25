@@ -4,72 +4,31 @@ import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import merge from 'lodash/merge';
 import set from 'lodash/set';
 
-import getConfig from 'renderer/utils/config';
-import util from './util';
+import { fixOutput, loadFfmpegProfleOptions } from './util';
 
 import Format from './Format';
 import Video from './Video';
 import Audio from './Audio';
 import Filter from './Filter';
 import Presets from './Presets';
-import { defaultOpts } from './defaults';
-import {
-  defaultPresetOptions,
-  presetOptions,
-  presetData,
-  IPresetOptions,
-} from './presets';
 import Custom from './Custom';
 import Command from './Command';
-import { presetKey } from './defaultOptionsType';
+
+import { defaultOpts } from './defaults';
+import { defaultPresetOption, presetData, IPresetOption } from './presets';
+
+import { PresetKeyType } from './defaultOptionsType';
 
 function Builder() {
   const [options, setOptions] = useState({ ...defaultOpts });
-  const [presets, setPresets] = useState(defaultPresetOptions);
-
-  const fixOutput = (newOpts: any) => {
-    const { format, io } = newOpts;
-
-    // jankily fix the file name
-    const ext = util.extname(io.output);
-    if (ext) {
-      newOpts.io.output = `${newOpts.io.output.replace(
-        ext,
-        `.${format.container}`
-      )}`;
-    }
-    return null;
-  };
-
-  console.log(defaultOpts);
+  const [presets, setPresets] = useState(defaultPresetOption);
 
   useEffect(() => {
     const loadOptions = async () => {
-      const { ffmpegProfile } = getConfig();
-      let ffmpegFlags;
-      let name = '';
-      if (ffmpegProfile.startsWith('custom')) {
-        const rec = await window.db.findOneAsync('FfmpegDb', {
-          id: ffmpegProfile,
-        });
-        name = rec.name;
-        ffmpegFlags = rec.options;
-      } else {
-        ffmpegFlags = presetData[ffmpegProfile as presetKey];
-        const general = presetOptions[0];
-        if (general.data) {
-          name =
-            general.data.find((x) => x.value === ffmpegProfile)?.name || '';
-        }
-      }
-      const newOpts = merge({}, defaultOpts, ffmpegFlags);
-      const output = fixOutput(newOpts);
-      if (output) {
-        newOpts.io.output = output;
-      }
-
-      setOptions(newOpts);
-      setPresets({ id: ffmpegProfile, name });
+      const { presetKey, options: newOptions } =
+        await loadFfmpegProfleOptions();
+      setOptions(newOptions);
+      setPresets(presetKey);
     };
     loadOptions();
   }, []);
@@ -89,14 +48,13 @@ function Builder() {
     setOptions({ ...newOpts });
   };
 
-  const updatePresets = async (data: IPresetOptions) => {
+  const updatePresets = async (data: IPresetOption) => {
     setPresets(data);
     let newOpts = { ...defaultOpts };
-    if (!data.id.startsWith('custom')) {
-      newOpts = merge({}, defaultOpts, presetData[data.id as presetKey]);
+    if (data.id === 'custom' || !data.id.startsWith('custom')) {
+      newOpts = merge({}, defaultOpts, presetData[data.id as PresetKeyType]);
     } else if (data.id.startsWith('custom')) {
       const rec = await window.db.findOneAsync('FfmpegDb', { id: data.id });
-      console.log('here!', rec);
       newOpts = merge({}, defaultOpts, rec.options);
     }
 
@@ -113,7 +71,11 @@ function Builder() {
       <Row>
         <Col md={6}>
           Presets:
-          <Presets options={presets} updatePresets={updatePresets} />
+          <Presets
+            options={presets}
+            updatePresets={updatePresets}
+            includeCustom
+          />
         </Col>
         <Col md={6}>
           <Custom

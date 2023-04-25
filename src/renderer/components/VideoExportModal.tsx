@@ -55,9 +55,6 @@ interface Props extends PropsFromRedux {
   processVideo: () => void;
 }
 
-/**
- * @return {string}
- */
 function ExportButton(prop: any) {
   const {
     state,
@@ -133,7 +130,7 @@ class VideoExportModal extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    // this.props = props;
+
     this.state = {
       opened: false,
       existing: false,
@@ -166,8 +163,7 @@ class VideoExportModal extends Component<Props, State> {
     }
 
     // canceling will cause an existing file to be deleted - there are times that is bad
-    const doNotCancelStates = [EXP_WAITING, EXP_WORKING, EXP_DONE];
-
+    const doNotCancelStates = [EXP_WAITING, EXP_DONE];
     if (!doNotCancelStates.includes(exportState)) {
       window.Airing.cancelExportVideo(expRec.airing);
     }
@@ -186,16 +182,13 @@ class VideoExportModal extends Component<Props, State> {
   show() {
     const { airing, exportList, addExportRecord, updateExportRecord } =
       this.props;
-    // bulkRemExportRecord();
+
     let newRec = exportList.find(
       (rec: ExportRecordType) => rec.airing.object_id === airing.object_id
     );
     let existing = false;
     if (newRec) {
-      console.log('FOUND', newRec);
       newRec = { ...newRec, isBulk: false };
-      // newRec.isBulk = false;
-      console.log(newRec);
       existing = true;
       updateExportRecord(newRec);
     } else {
@@ -233,10 +226,9 @@ class VideoExportModal extends Component<Props, State> {
 
     if (!exportList) {
       console.log('missing exportList!');
-      return <></>; //
+      return <></>;
     }
 
-    // const airingList = exportList.map((rec: ExportRecordType) => rec.airing);
     let airingList = [];
 
     if (exportList.length > 0) {

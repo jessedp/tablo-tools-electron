@@ -1,3 +1,5 @@
+import { IPresetOption } from 'renderer/components/FfmpegCmds/presets';
+
 export type StdObj = Record<string, any>;
 
 export type ExportRecordType = {
@@ -78,4 +80,9 @@ export type CmdFragment = {
   value: string;
   description: string;
   filters?: Array<CmdFragment>;
+};
+
+export type UpdateExportRecordType = {
+  template: NamingTemplateType;
+  ffmpegOption: IPresetOption;
 };

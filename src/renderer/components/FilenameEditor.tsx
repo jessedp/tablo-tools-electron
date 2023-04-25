@@ -3,25 +3,37 @@ import { useDispatch } from 'react-redux';
 
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import { titleCase } from 'renderer/utils/utils';
-import { sendFlash } from 'renderer/store/flash';
+import { Col, InputGroup, Row } from 'react-bootstrap';
 
-import { NamingTemplateType } from '../constants/types';
+import { getFfmpegProfile } from '../utils/config';
+import { titleCase } from '../utils/utils';
+import { sendFlash } from '../store/flash';
+
+import { NamingTemplateType, UpdateExportRecordType } from '../constants/types';
+
 import Airing from '../utils/Airing';
+
 import TemplateEditor from './TemplateEditor';
 import { buildTemplateVars, setDefaultTemplate } from '../utils/namingTpl';
 import NamingTemplateOptions from './NamingTemplateOptions';
 
+import Presets from './FfmpegCmds/Presets';
+import { defaultPresetOption, IPresetOption } from './FfmpegCmds/presets';
+
+import { loadFfmpegProfleOptions } from './FfmpegCmds/util';
+
 type Props = {
   airing: Airing;
-  updateTemplate: (arg0: NamingTemplateType) => void;
+  updateRecord: (arg0: UpdateExportRecordType) => void;
 };
 
 export default function FilenameEditor(props: Props) {
-  const { airing, updateTemplate } = props;
+  const { airing, updateRecord } = props;
   const [show, setShow] = useState(false);
   const [workingAiring, setWorkingAiring] = useState(new Airing({}, false));
   const [workingTemplate, setTemplate] = useState({ ...airing.template });
+  const [presetOption, setPresets] = useState(defaultPresetOption);
+  const [ffmpegProfileOpts, setFfmpegProfileOpts] = useState({});
 
   useEffect(() => {
     const copyAiring = async () => {
@@ -30,6 +42,20 @@ export default function FilenameEditor(props: Props) {
     };
     copyAiring();
   }, [airing.data]);
+
+  useEffect(() => {
+    const loadPresetKey = async () => {
+      const { presetKey } = await loadFfmpegProfleOptions();
+      setPresets(presetKey);
+    };
+    loadPresetKey();
+  }, []);
+
+  const updatePresets = (newOpts: IPresetOption) => {
+    setPresets(newOpts);
+    const profileOpts = getFfmpegProfile(newOpts.id);
+    setFfmpegProfileOpts(profileOpts);
+  };
 
   const dispatch = useDispatch();
 
@@ -48,6 +74,7 @@ export default function FilenameEditor(props: Props) {
   };
 
   workingAiring.template = { ...workingTemplate };
+  workingAiring.customFfmpegProfile = { ...ffmpegProfileOpts };
 
   if (!show) {
     return (
@@ -64,7 +91,6 @@ export default function FilenameEditor(props: Props) {
   }
 
   const templateVars = buildTemplateVars(workingAiring);
-  // const updateTemplate = (t)=>{console.log(t)}
   return (
     <Modal
       show={show}
@@ -76,17 +102,44 @@ export default function FilenameEditor(props: Props) {
       size="lg"
     >
       <Modal.Body>
-        <NamingTemplateOptions
-          type={airing.type}
-          slug=""
-          updateTemplate={setTemplate}
-          setDefaultTemplate={setDefaultTemplateLocal}
-        />
-
+        <Row className="pb-1">
+          <Col md="auto">
+            <InputGroup size="sm">
+              <InputGroup.Prepend>
+                <InputGroup.Text title="Naming Template">
+                  File Name:
+                </InputGroup.Text>
+              </InputGroup.Prepend>
+            </InputGroup>
+          </Col>
+          <Col md="auto">
+            <NamingTemplateOptions
+              type={airing.type}
+              slug=""
+              updateTemplate={setTemplate}
+              setDefaultTemplate={setDefaultTemplateLocal}
+            />
+          </Col>
+          <Col md="auto">
+            <InputGroup size="sm">
+              <InputGroup.Prepend>
+                <InputGroup.Text title="Naming Template">
+                  Ffmpeg Profile:
+                </InputGroup.Text>
+              </InputGroup.Prepend>
+            </InputGroup>
+          </Col>
+          <Col>
+            <Presets
+              options={presetOption}
+              updatePresets={updatePresets}
+              includeCustom={false}
+            />
+          </Col>
+        </Row>
         <div className="name-preview border p-2">
           {workingAiring.exportFile}
         </div>
-
         <TemplateEditor
           template={workingAiring.template}
           record={templateVars.full}
@@ -110,7 +163,10 @@ export default function FilenameEditor(props: Props) {
         <Button
           variant="success"
           onClick={() => {
-            updateTemplate(workingAiring.template);
+            updateRecord({
+              template: workingAiring.template,
+              ffmpegOption: presetOption,
+            });
             setShow(false);
           }}
         >

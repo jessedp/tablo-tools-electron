@@ -11,12 +11,12 @@ import slugify from 'slugify';
 import { sendFlash } from '../../store/flash';
 
 import { defaultOpts } from './defaults';
-import { defaultPresetOptions, IPresetOptions } from './presets';
+import { defaultPresetOption, IPresetOption } from './presets';
 
 type Props = {
   options: any;
-  presets: IPresetOptions;
-  updatePresets: (data: IPresetOptions) => any;
+  presets: IPresetOption;
+  updatePresets: (data: IPresetOption) => any;
 };
 
 function Custom(props: Props) {
@@ -117,7 +117,7 @@ function Custom(props: Props) {
         type: 'success',
       })
     );
-    updatePresets(defaultPresetOptions);
+    updatePresets(defaultPresetOption);
   };
 
   if (presets.id.startsWith('custom')) {

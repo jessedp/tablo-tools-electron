@@ -67,7 +67,6 @@ ipcMain.on('glob', (event: any, arg: any) => {
 });
 
 ipcMain.on('get-ffmpeg-profile', async (event: any, arg: any) => {
-  const profile = await getFfmpegProfile();
-  // debug('get-ffmpeg-profile', profile);
+  const profile = await getFfmpegProfile(arg);
   event.returnValue = profile;
 });

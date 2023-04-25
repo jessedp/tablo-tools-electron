@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Button, Col, Row } from 'react-bootstrap';
@@ -6,9 +6,13 @@ import Select from 'react-select';
 import { Option } from 'renderer/constants/types';
 import getConfig, { setConfigItem } from '../../utils/config';
 import { sendFlash } from '../../store/flash';
-import { presetOptions, IPresetOptions } from './presets';
+import { IPresetOption, presetOptions } from './presets';
+import SelectStyles from '../SelectStyles';
 
-const getPresetOptions = async (presets: IPresetOptions[]) => {
+const getPresetOptions = async (
+  presets: IPresetOption[],
+  includeCustom = true
+) => {
   const options: any = [];
 
   const recs = await window.db.findAsync('FfmpegDb', {}, [
@@ -35,6 +39,8 @@ const getPresetOptions = async (presets: IPresetOptions[]) => {
     const subOptions: Option[] = [];
     if (presetOption.data) {
       presetOption.data.forEach((preset) => {
+        if (!includeCustom && preset['value'] === 'custom') return;
+
         let label = preset['name'];
         if (preset['value'] === getConfig().ffmpegProfile) {
           label = `${label} (default)`;
@@ -50,22 +56,23 @@ const getPresetOptions = async (presets: IPresetOptions[]) => {
 };
 
 type Props = {
-  options: IPresetOptions;
-  updatePresets: (data: IPresetOptions) => any;
+  options: IPresetOption;
+  updatePresets: (data: IPresetOption) => any;
+  includeCustom: boolean;
 };
 
 function Presets(props: Props) {
-  const { options, updatePresets } = props;
+  const { options, updatePresets, includeCustom } = props;
   const dispatch = useDispatch();
-  const [presets, setPresets] = useState({});
+  const [presets, setPresets] = useState([]);
 
-  useEffect(() => {
+  useMemo(() => {
     const getOpts = async () => {
-      const opts = await getPresetOptions(presetOptions);
+      const opts = await getPresetOptions(presetOptions, includeCustom);
       setPresets(opts);
     };
     getOpts();
-  }, [options, setPresets]);
+  }, [includeCustom]);
 
   const handleChange = (e: any) => {
     updatePresets({ id: e.value, name: e.label });
@@ -88,10 +95,12 @@ function Presets(props: Props) {
 
   let value = 'custom';
   let label = 'Custom';
+
   if (options.name && options.name !== 'Custom') {
     value = options.id;
     label = options.name;
   }
+
   if (isDefault) label = `${label} (default)`;
 
   return (
@@ -101,10 +110,11 @@ function Presets(props: Props) {
           options={presets}
           value={{ value, label }}
           onChange={handleChange}
+          styles={SelectStyles('30px', 200)}
         />
       </Col>
       <Col md={2}>
-        {!isDefault ? (
+        {!isDefault && includeCustom ? (
           <Button
             size={'xs' as any}
             variant="outline-success"

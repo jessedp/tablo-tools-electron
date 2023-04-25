@@ -1,80 +1,89 @@
 import Debug from 'debug';
-import { find } from 'lodash';
+import { merge, find } from 'lodash';
 
+import getConfig from '../../utils/config';
 import { Option } from '../../constants/types';
 import defaultOptions from './form';
 import codecMap from './codecs';
 import { buildFlags } from './ffmpeg';
+import { presetOptions, presetData, IPresetOption } from './presets';
+import { defaultOpts } from './defaults';
+import {
+  IBuildOptions,
+  IDefaultOption,
+  PresetKeyType,
+} from './defaultOptionsType';
 
 const debug = Debug('tablo-tools:FfmpegCmds/util.ts');
 
 // Transforms the form options to ffmpeg build options.
-function transform(formData: any) {
+function transform(formData: IDefaultOption): IBuildOptions {
   const { io, format, video, audio, filters, options } = formData;
 
-  const vcodec = video.codec as keyof typeof codecMap;
-  const acodec = audio.codec as keyof typeof codecMap;
+  const vcodec = video?.codec as keyof typeof codecMap;
+  const acodec = audio?.codec as keyof typeof codecMap;
 
   const opt = {
-    input: io.input,
-    output: io.output,
+    input: io?.input,
+    output: io?.output,
 
     // Format.
-    container: format.container,
-    clip: format.clip,
-    startTime: format.startTime,
-    stopTime: format.stopTime,
+    container: format?.container,
+    clip: format?.clip,
+    startTime: format?.startTime,
+    stopTime: format?.stopTime,
 
     // Video.
     vcodec: codecMap[vcodec],
-    preset: video.preset,
-    pass: video.pass,
-    crf: video.crf,
-    bitrate: video.bitrate,
-    minrate: video.minrate,
-    maxrate: video.maxrate,
-    bufsize: video.bufsize,
-    gopsize: video.gopsize,
-    pixelFormat: video.pixel_format,
-    frameRate: video.frame_rate,
-    speed: video.speed,
-    tune: video.tune,
-    profile: video.profile,
-    level: video.level,
-    faststart: video.faststart,
-    size: video.size,
-    width: video.width,
-    height: video.height,
-    format: video.format,
-    aspect: video.aspect,
-    scaling: video.scaling,
-    codecOptions: video.codec_options,
+    preset: video?.preset,
+    pass: video?.pass,
+    crf: video?.crf,
+    bitrate: video?.bitrate,
+    minrate: video?.minrate,
+    maxrate: video?.maxrate,
+    bufsize: video?.bufsize,
+    gopsize: video?.gopsize,
+    pixelFormat: video?.pixel_format,
+    frameRate: video?.frame_rate,
+    speed: video?.speed,
+    tune: video?.tune,
+    profile: video?.profile,
+    level: video?.level,
+    faststart: video?.faststart,
+    size: video?.size,
+    width: video?.width,
+    height: video?.height,
+    format: video?.format,
+    aspect: video?.aspect,
+    scaling: video?.scaling,
+    codecOptions: video?.codec_options,
 
     // Audio.
     acodec: codecMap[acodec],
-    channel: audio.channel,
-    quality: audio.quality,
-    audioBitrate: audio.bitrate,
-    sampleRate: audio.sampleRate,
-    volume: audio.volume,
+    channel: audio?.channel,
+    quality: audio?.quality,
+    // audioBitrate: audio?.bitrate,
+    sampleRate: audio?.sampleRate,
+    volume: audio?.volume,
 
     // Filters.
-    deband: filters.deband,
-    deshake: filters.deshake,
-    deflicker: filters.deflicker,
-    dejudder: filters.dejudder,
-    denoise: filters.denoise,
-    deinterlace: filters.deinterlace,
-    brightness: filters.brightness,
-    contrast: filters.contrast,
-    saturation: filters.saturation,
-    gamma: filters.gamma,
-    acontrast: filters.acontrast,
+    deband: filters?.deband,
+    deshake: filters?.deshake,
+    deflicker: filters?.deflicker,
+    dejudder: filters?.dejudder,
+    denoise: filters?.denoise,
+    deinterlace: filters?.deinterlace,
+    brightness: filters?.brightness,
+    contrast: filters?.contrast,
+    saturation: filters?.saturation,
+    gamma: filters?.gamma,
+    acontrast: filters?.acontrast,
 
     // Options.
-    extra: options.extra,
-    loglevel: options.loglevel,
+    extra: options?.extra,
+    loglevel: options?.loglevel,
   };
+
   return opt;
 }
 
@@ -357,7 +366,7 @@ export const getLabel = (selectOpts: any, value: any) => {
   return '';
 };
 
-export function buildFlagsForExport(opt: any) {
+export function buildFlagsForExport(opt: IDefaultOption) {
   debug('opt', opt);
   debug('util.transform(opt)', transform(opt));
   const flags = buildFlags(transform(opt), true);
@@ -365,8 +374,49 @@ export function buildFlagsForExport(opt: any) {
   return flags;
 }
 
-export function build(opt: string[]) {
+export function build(opt: IBuildOptions) {
   return buildFlags(opt).join(' ');
+}
+
+export function fixOutput(newOpts: any) {
+  const { format, io } = newOpts;
+
+  // jankily fix the file name
+  const ext = extname(io.output);
+  if (ext) {
+    newOpts.io.output = `${newOpts.io.output.replace(
+      ext,
+      `.${format.container}`
+    )}`;
+  }
+  return null;
+}
+
+export async function loadFfmpegProfleOptions() {
+  const { ffmpegProfile } = getConfig();
+  let ffmpegFlags;
+  let name = '';
+  if (ffmpegProfile.startsWith('custom')) {
+    const rec = await window.db.findOneAsync('FfmpegDb', {
+      id: ffmpegProfile,
+    });
+    name = rec.name;
+    ffmpegFlags = rec.options;
+  } else {
+    ffmpegFlags = presetData[ffmpegProfile as PresetKeyType];
+    const general = presetOptions[0];
+    if (general.data) {
+      name = general.data.find((x) => x.value === ffmpegProfile)?.name || '';
+    }
+  }
+  const newOpts = merge({}, defaultOpts, ffmpegFlags);
+  const output = fixOutput(newOpts);
+  if (output) {
+    newOpts.io.output = output;
+  }
+  const presetKey: IPresetOption = { id: ffmpegProfile, name };
+  console.log('newOpts', newOpts);
+  return { presetKey, options: newOpts };
 }
 
 export default {

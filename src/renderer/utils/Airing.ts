@@ -3,6 +3,7 @@ import Debug from 'debug';
 import sanitize from 'sanitize-filename';
 
 import Device from 'tablo-api/dist/src/Device';
+import { IDefaultOption } from '../components/FfmpegCmds/defaultOptionsType';
 import {
   asyncForEach,
   readableDuration,
@@ -17,6 +18,7 @@ import { EVENT, MOVIE, PROGRAM, SERIES } from '../constants/app';
 import { NamingTemplateType } from '../constants/types';
 
 import { buildTemplateVars, getTemplate, fillTemplate } from './namingTpl';
+import { getFfmpegProfile } from './config';
 
 const debug = Debug('tablo-tools:Airing');
 export default class Airing {
@@ -82,6 +84,8 @@ export default class Airing {
 
   customTemplate?: NamingTemplateType;
 
+  customFfmpegProfile?: IDefaultOption;
+
   constructor(data: Record<string, any>, retainData = true) {
     // this.cmd = FfmpegCommand();
 
@@ -112,38 +116,6 @@ export default class Airing {
   }
 
   static async find(id: number): Promise<Airing> {
-    // const { promisify } = require('util');
-
-    // let data: any;
-    // const count = promisify(global.RecDb.count);
-    // console.log('Count/promisify  =', await count({}));
-
-    // console.log({}, (err: any, res: any) => {
-    //   if (err) console.log('err: ', err);
-    //   console.log('count: ', res);
-    //   data = res;
-    //   return res;
-    // });
-    // console.log('COUNT: ', data);
-    // global.RecDb.findOne(
-    //   {
-    //     object_id: id,
-    //   },
-    //   (err: any, res: any) => {
-    //     if (err) console.log('err: ', err);
-    //     console.log('data: ', res);
-    //     data = res;
-    //     return res;
-    //   }
-    // );
-
-    // console.log('data: - ', data);
-    // return Airing.create(
-    //   data
-    //   // await window.db.findOneAsync('RecDb', {
-    //   //   object_id: id,
-    //   // })
-    // );
     let data = {};
     if (typeof window === 'undefined') {
       data = await global.dbs.RecDb.findOneAsync({
@@ -156,10 +128,6 @@ export default class Airing {
     }
 
     return Airing.create(data);
-    // await window.db.findOneAsync('RecDb', {
-    //   object_id: id,
-    // })
-    // );
   }
 
   static async create(
@@ -415,6 +383,17 @@ export default class Airing {
 
   set template(template: NamingTemplateType) {
     this.customTemplate = template;
+    this.cachedExportFile = '';
+  }
+
+  get ffmpegProfile() {
+    return this.customFfmpegProfile
+      ? this.customFfmpegProfile
+      : getFfmpegProfile();
+  }
+
+  set ffmpegProfile(profile: IDefaultOption) {
+    this.customFfmpegProfile = profile;
     this.cachedExportFile = '';
   }
 

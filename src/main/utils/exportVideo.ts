@@ -6,7 +6,8 @@ import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
 
-import Airing from 'renderer/utils/Airing';
+import Airing from '../../renderer/utils/Airing';
+import { StdObj } from '../../renderer/constants/types';
 import { findFfmpegPath, getFfmpegProfile } from './utils';
 import getConfig from './config';
 
@@ -18,8 +19,7 @@ import {
   DUPE_INC,
 } from '../../renderer/constants/app';
 import { buildFlagsForExport } from '../../renderer/components/FfmpegCmds/util';
-// import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
-// import { presetData } from '../../renderer/components/FfmpegCmds/presets';
+
 import { mainDebug } from './logging';
 
 const debug = mainDebug.extend('exportVideo');
@@ -133,13 +133,13 @@ export const getExportDetails = (airing: Airing) => {
 /** take an airing, dupe action, use ffmpeg to export it somewhere   */
 
 export const exportVideo = async (
-  airing: Airing,
+  airingData: StdObj,
   actionOnDuplicate: string,
   progressCallback: (...args: Array<any>) => any
 ) => {
-  debug('exportVideo - actionOnDuplicate %s', actionOnDuplicate);
-  // noop it so we don't spread the typeof check everywhere
+  const airing = await Airing.create(airingData);
 
+  // noop it so we don't spread the typeof check everywhere
   let progressCb = (..._args: Array<any>) => {};
   if (typeof progressCallback === 'function') {
     progressCb = progressCallback;
@@ -163,7 +163,7 @@ export const exportVideo = async (
 
   if (userDebug) log.info('start processVideo', new Date());
   if (userDebug) log.info('env', process.env.NODE_ENV);
-  // FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
+
   FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
 
   let watchPath: Record<string, any> | undefined;
@@ -194,10 +194,20 @@ export const exportVideo = async (
     });
   }
 
+  let ffmpegFlags;
+  if (airing.customFfmpegProfile) {
+    ffmpegFlags = airing.customFfmpegProfile;
+  } else if (globalThis.ffmpegProfile) {
+    ffmpegFlags = globalThis.ffmpegProfile;
+  } else {
+    ffmpegFlags = await getFfmpegProfile();
+  }
+
   // CHEATING!!! this is a hack to get the ffmpegProfile stuck in globlaThis
   // b/c dedupedExportFile is going to call non-async renderer code that loads it
   // directly using a 'sync' call to the main process
-  let ffmpegFlags = await getFfmpegProfile();
+  globalThis.ffmpegProfile = ffmpegFlags;
+
   ffmpegFlags = buildFlagsForExport(ffmpegFlags);
 
   let outFile = '';
