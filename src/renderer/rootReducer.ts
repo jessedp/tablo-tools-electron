@@ -7,6 +7,7 @@ import { History } from 'history';
 
 // import { sendFlash } from './reducers/flash';
 import buildReducer from './store/build';
+import configReducer from './store/config';
 import flashReducer from './store/flash';
 import searchReducer from './store/search';
 import actionListReducer from './store/actionList';
@@ -20,5 +21,6 @@ export default function createRootReducer(history: History) {
     search: searchReducer,
     flash: flashReducer,
     build: buildReducer,
+    config: configReducer,
   });
 }
