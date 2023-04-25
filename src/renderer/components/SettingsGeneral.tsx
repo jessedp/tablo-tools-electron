@@ -349,7 +349,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     }
 
     return (
-      <div>
+      <div className="pl-1">
         <div className="mt-3">
           <div>
             <Checkbox
@@ -357,6 +357,14 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
               checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
               label="Enable automatically rebuilding local database?"
             />
+            <div className="pl-4 smaller">
+              When enabled, the local recording database will automatically
+              reload:
+              <ul>
+                <li>On startup if outdated</li>
+                <li>2 and 32 minutes after the hour.</li>
+              </ul>
+            </div>
             {/* <DurationPicker
               value={autoRebuildMinutes}
               updateValue={this.setAutoRebuildMinutes}
