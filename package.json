@@ -281,6 +281,7 @@
     "check-disk-space": "^3.3.1",
     "compare-versions": "^5.0.3",
     "connected-react-router": "^6.9.2",
+    "croner": "^6.0.3",
     "date-fns": "^2.8.1",
     "debug": "^4.3.4",
     "deep-object-diff": "^1.1.9",

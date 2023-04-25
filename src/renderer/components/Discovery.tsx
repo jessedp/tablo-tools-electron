@@ -81,7 +81,7 @@ function DiscoveryStatus(prop: Record<string, any>) {
 function DiscoveryTitle(prop: Record<string, any>) {
   const { device, localDiscover, state } = prop;
   let checked;
-  if (window.Tablo.CONNECTED()) {
+  if (window.Tablo.isConnected()) {
     if (state === STATE_MULTI) return <></>;
     checked = device.inserted ? new Date(device.inserted) : '';
     return (

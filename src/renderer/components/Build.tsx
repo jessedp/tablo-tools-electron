@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { writeToFile } from '../utils/utils';
 import getConfig from '../utils/config';
 
-import { dbCreatedKey, recDbCreated } from '../utils/db';
+import { dbCreatedKey } from '../utils/db';
 
 import * as BuildActions from '../store/build';
 import { DbSliceState } from '../store/build';
@@ -49,35 +49,9 @@ class Build extends Component<BuildProps, State> {
     this.build = this.build.bind(this);
   }
 
-  async componentDidMount() {
-    let created = recDbCreated();
-
-    // TODO: some const export?
-    if (!created) {
-      let i = 0;
-
-      const autoBuild = async () => {
-        created = recDbCreated();
-
-        if (!window.Tablo.device() && !created) {
-          if (i > 0) return;
-          i += 1;
-          setTimeout(autoBuild, 5000);
-        }
-
-        if (window.Tablo.device() && !created) this.build();
-      };
-
-      autoBuild();
-    }
-  }
-
   componentDidUpdate(prevProps: BuildProps) {
     const { progress } = this.props;
-    if (
-      prevProps.progress.loading !== progress.loading &&
-      progress.loading === STATE_START
-    ) {
+    if (progress.loading === STATE_START) {
       this.build();
     }
   }
@@ -88,17 +62,18 @@ class Build extends Component<BuildProps, State> {
     if (!window.Tablo.device()) return;
 
     if (this.building) {
-      console.log('trying to double build');
+      console.warn('trying to double build');
       return;
     }
+    this.building = true;
 
-    if (!window.Tablo.CONNECTED()) {
-      console.log('Not connected, not bulding...');
+    if (!window.Tablo.isConnected()) {
+      console.warn('Not connected, not bulding...');
       return;
     }
 
     if (global.EXPORTING) {
-      console.log('Exporting, not bulding...');
+      console.warn('Exporting, not building...');
       return;
     }
 

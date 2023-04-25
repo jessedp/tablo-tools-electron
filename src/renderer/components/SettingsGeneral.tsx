@@ -6,15 +6,19 @@ import { bindActionCreators } from 'redux';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import * as FlashActions from '../store/flash';
+import * as ConfigActions from '../store/config';
 import type { FlashRecordType } from '../constants/types';
 import { isValidIp } from '../utils/utils';
 import { discover } from '../utils/Tablo';
 // these next 2 are gross and from not cleaning up the main/render split
-import getConfig, { getPath, setConfigItem } from '../utils/config';
+import getConfig, {
+  getPath,
+  setConfigItem as setConfigItemFs,
+} from '../utils/config';
 import { ConfigType } from '../constants/types_config';
 
 import Checkbox, { CHECKBOX_OFF, CHECKBOX_ON } from './Checkbox';
-import DurationPicker from './DurationPicker';
+// import DurationPicker from './DurationPicker';
 import Directory from './Directory';
 
 type OwnProps = Record<string, never>;
@@ -22,6 +26,7 @@ type StateProps = Record<string, never>;
 
 type DispatchProps = {
   sendFlash: (message: FlashRecordType) => void;
+  setConfigItem: (item: Record<string, any>) => void;
 };
 
 type SettingsGeneralProps = OwnProps & StateProps & DispatchProps;
@@ -97,9 +102,10 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 
   /** This does the real work... */
   saveConfigItem = (item: any, message: FlashRecordType) => {
-    const { sendFlash } = this.props;
+    const { sendFlash, setConfigItem } = this.props;
 
     this.setState(item);
+    setConfigItemFs(item);
     setConfigItem(item);
     if (!message) sendFlash(message);
   };
@@ -323,7 +329,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
   render() {
     const {
       autoRebuild,
-      autoRebuildMinutes,
+      // autoRebuildMinutes,
       autoUpdate,
       notifyBeta,
       allowErrorReport,
@@ -343,7 +349,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
     }
 
     return (
-      <div>
+      <div className="pl-1">
         <div className="mt-3">
           <div>
             <Checkbox
@@ -351,11 +357,19 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
               checked={autoRebuild ? CHECKBOX_ON : CHECKBOX_OFF}
               label="Enable automatically rebuilding local database?"
             />
-            <DurationPicker
+            <div className="pl-4 smaller">
+              When enabled, the local recording database will automatically
+              reload:
+              <ul>
+                <li>On startup if outdated</li>
+                <li>2 and 32 minutes after the hour.</li>
+              </ul>
+            </div>
+            {/* <DurationPicker
               value={autoRebuildMinutes}
               updateValue={this.setAutoRebuildMinutes}
               disabled={!autoRebuild}
-            />
+            /> */}
           </div>
         </div>
         <Row className="mt-3">
@@ -439,7 +453,7 @@ class SettingsGeneral extends Component<SettingsGeneralProps, ConfigType> {
 }
 
 const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(FlashActions, dispatch);
+  return bindActionCreators({ ...FlashActions, ...ConfigActions }, dispatch);
 };
 
 export default connect<StateProps, DispatchProps, OwnProps>(

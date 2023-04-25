@@ -35,7 +35,7 @@ export default class ServerInfoTable extends Component<Props, State> {
   }
 
   refresh = async () => {
-    if (window.Tablo.CONNECTED()) {
+    if (window.Tablo.isConnected()) {
       try {
         const serverInfo = window.Tablo.getServerInfo();
         this.setState({

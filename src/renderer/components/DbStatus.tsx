@@ -1,140 +1,162 @@
 import { Component } from 'react';
 
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import PubSub from 'pubsub-js';
+
+import { Cron } from 'croner';
+
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+
+import getConfig from 'renderer/utils/config';
 import * as BuildActions from '../store/build';
 
 import { recDbCreated } from '../utils/db';
 
 import RelativeDate from './RelativeDate';
-import getConfig from '../utils/config';
+
 import { hasDevice } from '../utils/Tablo';
 import DbLoadingSpinner from './DbLoadingSpinner';
 
+/** BEGIN Redux setup */
+const mapDispatchToProps = (dispatch: any) => {
+  return bindActionCreators(BuildActions, dispatch);
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    config: state.config,
+  };
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+/** END Redux setup */
+
 type OwnProps = Record<string, never>;
 
-type StateProps = Record<string, any>;
+// type StateProps = Record<string, any>;
 
 type DispatchProps = {
   startBuild: () => void;
 };
 
-// type DbStatusProps = OwnProps & StateProps & DispatchProps;
-type DbStatusProps = OwnProps & DispatchProps;
+type DbStatusProps = OwnProps & DispatchProps & PropsFromRedux;
 
 type State = {
   dbAge: number;
 };
 
 class DbStatus extends Component<DbStatusProps, State> {
-  // timer: number;
-  timer: NodeJS.Timer;
-  // timer: ReturnType<typeof setInterval>;
-
-  // whether we're using short-poll because the db doesn't exit
-  shortTimer: boolean;
-
-  emptyPollInterval: number;
-
-  rebuildPollInterval: number;
-
-  autoRebuildInterval: number;
-
   psToken: string;
+
+  job: Cron;
+
+  // eslint-disable-next-line
+  rerender: Cron;
 
   constructor(props: DbStatusProps) {
     super(props);
     this.state = {
       dbAge: -1,
     };
-    // this.timer = 0;
-    this.timer = setTimeout(() => undefined, 0);
 
     this.psToken = '';
 
-    this.shortTimer = true;
-    this.emptyPollInterval = 5000; // 1 second
+    // cron syntax that runs 2 minutes and 32 minutes after the hour
+    this.job = Cron('2,32 * * * *', {
+      maxRuns: 1,
+      protect: true,
+      paused: getConfig().autoRebuild,
+    });
 
-    this.rebuildPollInterval = 30000; // 30 seconds
-
-    this.autoRebuildInterval = 30; // 30 minutes
+    // eslint-disable-next-line
+    this.rerender = Cron('0 * * * * *', { protect: true });
 
     this.forceBuild = this.forceBuild.bind(this);
   }
 
-  async componentDidMount(): Promise<void> {
-    const created = recDbCreated();
-    if (!created)
-      this.timer = setInterval(this.checkAge, this.emptyPollInterval);
-    else this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
-    this.psToken = PubSub.subscribe('DB_CHANGE', () => this.checkAge(false));
-  }
-
-  componentWillUnmount(): void {
-    clearInterval(this.timer);
-    PubSub.unsubscribe(this.psToken);
-  }
-
-  checkAge = async (forceBuild?: boolean): Promise<void> => {
+  componentDidMount(): void {
     const { startBuild } = this.props;
     const created = recDbCreated();
 
-    if (!created && !forceBuild) {
-      // if we're coming back through after 1st build,
-      if (!this.shortTimer) {
-        clearInterval(this.timer);
-        this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
+    this.rerender.schedule(() => this.updateTime());
+
+    // If function is omitted in constructor, it can be scheduled later
+    this.job.schedule(() => startBuild());
+
+    if (!getConfig().autoRebuild) {
+      this.job.pause();
+    }
+
+    if (!created) {
+      console.log('DB does not exist, triggering build');
+      this.job.trigger();
+    } else {
+      this.buildIfOutdated();
+    }
+
+    this.psToken = PubSub.subscribe('DB_CHANGE', () => this.updateTime());
+  }
+
+  componentDidUpdate(prevProps: DbStatusProps) {
+    const { config } = this.props;
+
+    if (config.autoRebuild !== prevProps.config.autoRebuild) {
+      if (config.autoRebuild) {
+        this.buildIfOutdated();
+        this.job.resume();
+      } else {
+        this.job.pause();
       }
-
-      return;
     }
+  }
 
-    if (this.shortTimer) {
-      this.shortTimer = false;
-      clearInterval(this.timer);
-      this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
+  componentWillUnmount(): void {
+    this.job.stop();
+    this.rerender.stop();
+    PubSub.unsubscribe(this.psToken);
+  }
+
+  buildIfOutdated = () => {
+    const created = recDbCreated();
+    const dbAge = this.updateTime();
+
+    const nextRunInMs = this.job.msToNext();
+    const nextRunInMinutes = nextRunInMs ? nextRunInMs / 60 / 1000 : 0;
+
+    console.log(`Next scheduled db build in ${nextRunInMinutes} minutes`);
+    if (
+      getConfig().autoRebuild &&
+      created &&
+      dbAge >= 5 &&
+      nextRunInMinutes >= 2
+    ) {
+      console.log(
+        `DB outdated and next run not for ${nextRunInMinutes}, triggering build`
+      );
+      this.job.trigger();
     }
-    let diff = 0;
-    if (created) {
-      const dbTime = new Date(created).getTime();
-      diff = (Date.now() - dbTime) / 60 / 1000;
-    }
+  };
 
-    this.setState({
-      dbAge: diff,
-    });
+  updateTime = () => {
+    const created = recDbCreated();
+    const dbTime = new Date(created).getTime();
 
-    const config = getConfig();
-    let autoRebuild = true;
+    const dbAgeInMinutes = (Date.now() - dbTime) / 60 / 1000;
+    console.log(`DB age: ${dbAgeInMinutes} minutes`);
 
-    if (config && Object.prototype.hasOwnProperty.call(config, 'autoRebuild')) {
-      autoRebuild = config.autoRebuild;
-    }
-
-    // console.log(
-    //   'checkAge() - autoRebuild =',
-    //   autoRebuild,
-    //   'diff (min) =',
-    //   diff,
-    //   'this.autoRebuildInterval (min) =',
-    //   this.autoRebuildInterval
-    // );
-    if ((autoRebuild && diff > this.autoRebuildInterval) || forceBuild) {
-      if (window.Tablo.CONNECTED()) startBuild();
-      clearInterval(this.timer);
-      this.timer = setInterval(this.checkAge, this.rebuildPollInterval);
-    }
+    this.setState({ dbAge: dbAgeInMinutes });
+    return dbAgeInMinutes;
   };
 
   forceBuild = () => {
-    this.checkAge(true);
+    this.job.trigger();
   };
 
-  render(): JSX.Element {
+  render() {
     const { dbAge } = this.state;
     if (!hasDevice()) return <></>;
     const created = recDbCreated();
@@ -169,7 +191,7 @@ class DbStatus extends Component<DbStatusProps, State> {
                 cursor: 'pointer',
               }}
               onClick={this.forceBuild}
-              onKeyDown={this.forceBuild}
+              onKeyDown={() => {}}
               role="button"
               tabIndex={0}
               className="pl-0 btn btn-xs smaller pr-0"
@@ -185,11 +207,4 @@ class DbStatus extends Component<DbStatusProps, State> {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return bindActionCreators(BuildActions, dispatch);
-};
-
-export default connect<StateProps, DispatchProps, OwnProps>(
-  null,
-  mapDispatchToProps
-)(DbStatus);
+export default connector(DbStatus);

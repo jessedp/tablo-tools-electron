@@ -9,7 +9,7 @@ declare var navigator: Navigator;
 
 declare var discoveredDevices: Array<any>;
 
-declare var CONNECTED: boolean;
+declare var isConnected: boolean;
 
 declare var EXPORTING: boolean;
 
