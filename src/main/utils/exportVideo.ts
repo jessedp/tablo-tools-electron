@@ -225,18 +225,22 @@ export const exportVideo = async (
       resolve(`${airing.object_id} Unable to export file name!`);
     });
   }
-
+  let outPath = '';
   try {
-    const outPath = fsPath.dirname(outFile);
+    outPath = fsPath.dirname(outFile);
     if (userDebug) log.info('exporting to path:', outPath);
     if (userDebug) log.info('exporting to file:', outFile);
     fs.mkdirSync(outPath, {
       recursive: true,
     });
   } catch (err) {
+    let errorMsg = `${err}`;
+    if (outPath && errorMsg.includes('EACCES: permission denied, mkdir')) {
+      errorMsg = `Unable to create output directory! ${outPath}`;
+    }
     progressCb(airing.object_id, {
       failed: true,
-      failedMsg: err,
+      failedMsg: errorMsg,
     });
 
     debug('exportVideo - create output dirs for: %s ', outFile, err);

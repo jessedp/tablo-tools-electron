@@ -107,7 +107,7 @@ export function isDefaultTemplate(template: NamingTemplateType): boolean {
 const stripSecondary = (piece: string) => {
   const secondaryReplacements = [`'`, `’`, ',', ':', '!', '\\[', ']', '&', ';'];
   let newPiece = sanitize(piece);
-  console.log('newPiece', newPiece);
+  // console.log('newPiece', newPiece);
   secondaryReplacements.forEach((rep) => {
     // replace all instances of the replacement character with nothing
     const regEx = new RegExp(rep, 'g');
