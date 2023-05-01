@@ -65,7 +65,6 @@ class Build extends Component<BuildProps, State> {
       console.warn('trying to double build');
       return;
     }
-    this.building = true;
 
     if (!window.Tablo.isConnected()) {
       console.warn('Not connected, not bulding...');

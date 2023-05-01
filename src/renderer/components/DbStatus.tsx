@@ -82,7 +82,7 @@ class DbStatus extends Component<DbStatusProps, State> {
     const { startBuild } = this.props;
     const created = recDbCreated();
 
-    this.rerender.schedule(() => this.updateTime());
+    this.rerender.schedule(() => this.buildIfOutdated());
 
     // If function is omitted in constructor, it can be scheduled later
     this.job.schedule(() => startBuild());
