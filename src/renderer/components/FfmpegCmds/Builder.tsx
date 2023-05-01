@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
+import { Alert, Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 
 import merge from 'lodash/merge';
 import set from 'lodash/set';
@@ -68,6 +68,11 @@ function Builder() {
 
   return (
     <Container>
+      <Alert variant="light" className="mt-0 mb-0">
+        <strong>These are Advanced settings, use with caution.</strong> <br />
+        Anything besides the default <strong>Basic</strong> preset option will
+        usually cause a large spike in CPU usage.
+      </Alert>
       <Row>
         <Col md={6}>
           Presets:
