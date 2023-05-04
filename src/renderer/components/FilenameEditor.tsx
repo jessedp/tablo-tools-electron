@@ -18,7 +18,8 @@ import { buildTemplateVars, setDefaultTemplate } from '../utils/namingTpl';
 import NamingTemplateOptions from './NamingTemplateOptions';
 
 import Presets from './FfmpegCmds/Presets';
-import { defaultPresetOption, IPresetOption } from './FfmpegCmds/presets_data';
+import { IPresetOption } from './FfmpegCmds/presets_types';
+import { defaultPresetOption } from './FfmpegCmds/presets_data';
 
 import { loadFfmpegProfleOptions } from './FfmpegCmds/util';
 

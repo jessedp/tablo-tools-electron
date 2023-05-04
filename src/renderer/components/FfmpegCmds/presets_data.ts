@@ -1,17 +1,7 @@
 import { FFMPEG_DEFAULT_PROFILE } from '../../constants/app';
 import { defaultOpts } from './defaults';
 import { IPresetData } from './defaultOptionsType';
-
-export interface DataEntity {
-  name: string;
-  value: string;
-}
-
-export interface IPresetOption {
-  id: string;
-  name: string;
-  data?: DataEntity[] | null;
-}
+import { IPresetOption } from './presets_types';
 
 export const defaultPresetOption: IPresetOption = {
   id: FFMPEG_DEFAULT_PROFILE,

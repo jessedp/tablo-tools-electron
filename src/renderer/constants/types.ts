@@ -1,4 +1,4 @@
-import { IPresetOption } from 'renderer/components/FfmpegCmds/presets_data';
+import { IPresetOption } from 'renderer/components/FfmpegCmds/presets_types';
 
 export type StdObj = Record<string, any>;
 

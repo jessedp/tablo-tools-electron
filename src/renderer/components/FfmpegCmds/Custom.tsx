@@ -11,7 +11,8 @@ import slugify from 'slugify';
 import { sendFlash } from '../../store/flash';
 
 import { defaultOpts } from './defaults';
-import { defaultPresetOption, IPresetOption } from './presets_data';
+import { defaultPresetOption } from './presets_data';
+import { IPresetOption } from './presets_types';
 
 type Props = {
   options: any;
