@@ -60,6 +60,7 @@ function Release(prop: any) {
           disallowedElements={['script']}
           remarkPlugins={[remarkGfm]}
           linkTarget="_blank"
+          className="version-markdown"
         >
           {data.body}
         </ReactMarkdown>

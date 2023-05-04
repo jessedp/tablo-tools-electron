@@ -642,10 +642,19 @@ body,
   padding-bottom: 100px;
 }
 
+.version-markdown a {
+  color: forestgreen;
+  text-decoration: underline;
+}
+
+.version-markdown h3 {
+  color: firebrick;
+
 .cmd-head {
   margin: 0px 5px 5px 5px;
   padding-top: 5px;
 }
+
 .filter-head {
   margin: 5px;
   padding-top: 1rem;

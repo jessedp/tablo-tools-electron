@@ -48,7 +48,7 @@ export default class IssueSearch extends Component<Props, State> {
     const url = `https://github.com/jessedp/tablo-tools-electron/issues?q=is%3Aissue+is%3Aopen+${encodeURI(
       searchTerm
     )}`;
-    window.electron.shell.openExternall(url);
+    window.electron.shell.openExternal(url);
   }
 
   searchAll() {
@@ -56,7 +56,7 @@ export default class IssueSearch extends Component<Props, State> {
     const url = `https://github.com/jessedp/tablo-tools-electron/issues?q=${encodeURI(
       searchTerm
     )}`;
-    window.electron.shell.openExternall(url);
+    window.electron.shell.openExternal(url);
   }
 
   render() {
