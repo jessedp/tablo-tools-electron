@@ -65,6 +65,11 @@ const setupSentry = (init: any) => {
           return ignoreError(event);
         }
 
+        // TABLO-TOOLS-ELECTRON-FC
+        if (errorText.includes('net::ERR_ADDRESS_UNREACHABLE')) {
+          return ignoreError(event);
+        }
+
         // TABLO-TOOLS-ELECTRON-V4
         if (
           errorText.includes('Error: Unable to find latest version on GitHub')
