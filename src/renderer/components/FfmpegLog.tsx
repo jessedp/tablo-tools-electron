@@ -17,7 +17,9 @@ export default function FfmpegLog(props: { log: string[] }) {
   if (!log || log.length === 0) return <i>No log</i>;
   let logData = [];
   if (!Array.isArray(log)) {
-    if (`${log}`.includes('status code 404')) {
+    if (typeof log === 'object') {
+      logData = [`${log}`];
+    } else if (`${log}`.includes('status code 404')) {
       const newLog = `MISSING RECORDING, PLEASE TRY RELOADING (${log})`;
       logData = [newLog];
     } else {

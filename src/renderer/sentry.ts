@@ -60,6 +60,15 @@ const setupSentry = (init: any) => {
         if (errorText.includes('net::ERR_CERT_AUTHORITY_INVALID')) {
           return ignoreError(event);
         }
+        // TABLO-TOOLS-ELECTRON-FC (hi, sentry, these are not the same/a regression)
+        if (errorText.includes('net::ERR_FAILED')) {
+          return ignoreError(event);
+        }
+
+        // TABLO-TOOLS-ELECTRON-FC
+        if (errorText.includes('net::ERR_ADDRESS_UNREACHABLE')) {
+          return ignoreError(event);
+        }
 
         // TABLO-TOOLS-ELECTRON-V4
         if (

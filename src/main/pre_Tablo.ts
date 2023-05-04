@@ -58,11 +58,11 @@ ipcMain.on('tablo-setCurrentDevice', async (event: any, device: any) => {
   }
 });
 
-ipcMain.on('tablo-CONNECTED', async (event: any) => {
+ipcMain.on('tablo-isConnected', async (event: any) => {
   try {
-    event.returnValue = global.CONNECTED;
+    event.returnValue = global.isConnected;
   } catch (e) {
-    console.error('tablo-CONNECTED', e);
+    console.error('tablo-isConnected', e);
     event.returnValue = false;
   }
 });

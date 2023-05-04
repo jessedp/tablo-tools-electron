@@ -17,7 +17,7 @@ export default class DurationPicker extends Component<Props, State> {
     this.state = {
       hours: 0,
       minutes: 30,
-      disabled: false,
+      disabled: props.disabled,
     };
     this.setMinutes = this.setMinutes.bind(this);
     this.setHours = this.setHours.bind(this);
@@ -89,6 +89,7 @@ export default class DurationPicker extends Component<Props, State> {
 
   render() {
     const { hours, minutes, disabled } = this.state;
+
     return (
       <div className="pl-4 smaller">
         <div className="d-flex flex-row">

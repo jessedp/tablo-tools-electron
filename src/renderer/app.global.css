@@ -649,4 +649,14 @@ body,
 
 .version-markdown h3 {
   color: firebrick;
+
+.cmd-head {
+  margin: 0px 5px 5px 5px;
+  padding-top: 5px;
+}
+
+.filter-head {
+  margin: 5px;
+  padding-top: 1rem;
+  border-bottom: 1px solid #ddd;
 }

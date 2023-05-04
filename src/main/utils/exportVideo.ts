@@ -1,13 +1,14 @@
 import { execSync } from 'child_process';
 import FfmpegCommand from 'fluent-ffmpeg';
 import log from 'electron-log';
+
 import sanitize from 'sanitize-filename';
 import * as fsPath from 'path';
 import * as fs from 'fs';
-// import Debug from 'debug';
 
-import Airing from 'renderer/utils/Airing';
-import { findFfmpegPath } from './utils';
+import Airing from '../../renderer/utils/Airing';
+import { StdObj } from '../../renderer/constants/types';
+import { findFfmpegPath, getFfmpegProfile } from './utils';
 import getConfig from './config';
 
 import {
@@ -17,6 +18,7 @@ import {
   DUPE_SKIP,
   DUPE_INC,
 } from '../../renderer/constants/app';
+import { buildFlagsForExport } from '../../renderer/components/FfmpegCmds/util';
 
 import { mainDebug } from './logging';
 
@@ -27,10 +29,10 @@ globalThis.exportProcs = {};
 
 export const cancelExportProcess = (airing: Airing) => {
   debug(
-    'cancelExportProcess',
-    airing,
+    'cancelExportProcess [%s] [object_id: %s] %O',
+    globalThis.exportProcs[airing.object_id] ? 'has ffMpeg' : 'no ffMpeg!',
     airing.object_id,
-    globalThis.exportProcs[airing.object_id] ? 'has ffMpeg' : 'no ffMpeg!'
+    airing
   );
 
   // this is to be clean while Mac doesn't work
@@ -131,13 +133,13 @@ export const getExportDetails = (airing: Airing) => {
 /** take an airing, dupe action, use ffmpeg to export it somewhere   */
 
 export const exportVideo = async (
-  airing: Airing,
+  airingData: StdObj,
   actionOnDuplicate: string,
   progressCallback: (...args: Array<any>) => any
 ) => {
-  debug('exportVideo - actionOnDuplicate %s', actionOnDuplicate);
-  // noop it so we don't spread the typeof check everywhere
+  const airing = await Airing.create(airingData);
 
+  // noop it so we don't spread the typeof check everywhere
   let progressCb = (..._args: Array<any>) => {};
   if (typeof progressCallback === 'function') {
     progressCb = progressCallback;
@@ -161,8 +163,9 @@ export const exportVideo = async (
 
   if (userDebug) log.info('start processVideo', new Date());
   if (userDebug) log.info('env', process.env.NODE_ENV);
-  // FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
+
   FfmpegCommand.setFfmpegPath(findFfmpegPath(userDebug, log));
+
   let watchPath: Record<string, any> | undefined;
   let input = '';
 
@@ -172,10 +175,16 @@ export const exportVideo = async (
       throw new Error('watchPath undefined after calling watch()');
 
     input = watchPath.playlist_url;
-  } catch (err) {
+  } catch (err: any) {
+    let msg = `${airing.object_id} Unable to load watch path! (${err?.response?.status})`;
+    if (err?.response?.status === 404) {
+      msg =
+        'Recording not found! Please reload your recordings and make sure it exists before trying again.';
+    }
+
     progressCb(airing.object_id, {
       failed: true,
-      failedMsg: err,
+      failedMsg: msg,
     });
 
     debug('Unable to load watch path!', err);
@@ -184,6 +193,23 @@ export const exportVideo = async (
       resolve(`${airing.object_id} Unable to load watch path!`);
     });
   }
+
+  let ffmpegFlags;
+  if (airing.customFfmpegProfile) {
+    ffmpegFlags = airing.customFfmpegProfile;
+  } else if (globalThis.ffmpegProfile) {
+    ffmpegFlags = globalThis.ffmpegProfile;
+  } else {
+    ffmpegFlags = await getFfmpegProfile();
+  }
+
+  // CHEATING!!! this is a hack to get the ffmpegProfile stuck in globlaThis
+  // b/c dedupedExportFile is going to call non-async renderer code that loads it
+  // directly using a 'sync' call to the main process
+  globalThis.ffmpegProfile = ffmpegFlags;
+
+  ffmpegFlags = buildFlagsForExport(ffmpegFlags);
+
   let outFile = '';
   try {
     outFile = dedupedExportFile(airing, actionOnDuplicate);
@@ -199,18 +225,22 @@ export const exportVideo = async (
       resolve(`${airing.object_id} Unable to export file name!`);
     });
   }
-
+  let outPath = '';
   try {
-    const outPath = fsPath.dirname(outFile);
+    outPath = fsPath.dirname(outFile);
     if (userDebug) log.info('exporting to path:', outPath);
     if (userDebug) log.info('exporting to file:', outFile);
     fs.mkdirSync(outPath, {
       recursive: true,
     });
   } catch (err) {
+    let errorMsg = `${err}`;
+    if (outPath && errorMsg.includes('EACCES: permission denied, mkdir')) {
+      errorMsg = `Unable to create output directory! ${outPath}`;
+    }
     progressCb(airing.object_id, {
       failed: true,
-      failedMsg: err,
+      failedMsg: errorMsg,
     });
 
     debug('exportVideo - create output dirs for: %s ', outFile, err);
@@ -236,14 +266,15 @@ export const exportVideo = async (
     }
   }
 
-  const ffmpegOpts = [
-    '-c copy',
-    '-y', // overwrite existing files
-  ];
+  // const ffmpegOpts = ['-c copy'];
+  let ffmpegOpts: string[] = [];
 
   if (process.env.NODE_ENV !== 'production') {
     ffmpegOpts.push('-v 40');
   }
+
+  debug('flags', ffmpegFlags);
+  ffmpegOpts = ffmpegOpts.concat(ffmpegFlags);
 
   airing.cmd = FfmpegCommand();
   globalThis.exportProcs[airing.object_id] = { cmd: airing.cmd, outFile };
@@ -251,11 +282,15 @@ export const exportVideo = async (
   return new Promise((resolve) => {
     const ffmpegLog: Array<string> = [];
     let record = true;
-
+    let cmdline = '';
     airing.cmd
       .input(input)
       .output(outFile)
       .addOutputOptions(ffmpegOpts)
+      .on('start', (commandLine: string) => {
+        cmdline = commandLine;
+        log.info(`Spawned Ffmpeg with command: ${commandLine}`);
+      })
       .on('end', () => {
         log.info('Finished processing');
 
@@ -270,8 +305,10 @@ export const exportVideo = async (
       })
       .on('error', (err: any) => {
         const errMsg = `An error occurred: ${err}`;
-        log.info(errMsg);
+        debug(errMsg);
         ffmpegLog.push(errMsg);
+        ffmpegLog.push(`Command Line was:`);
+        ffmpegLog.push(`\t${cmdline}`);
 
         if (`${err}`.includes('ffmpeg was killed with signal SIGKILL')) {
           progressCb(airing.object_id, {
@@ -281,7 +318,7 @@ export const exportVideo = async (
         } else {
           progressCb(airing.object_id, {
             failed: true,
-            failedMsg: err,
+            failedMsg: ffmpegLog,
           });
         }
 
@@ -295,7 +332,8 @@ export const exportVideo = async (
           !stderrLine.includes('tcp @') &&
           !stderrLine.includes('AVIOContext') &&
           !stderrLine.includes('Non-monotonous DTS') &&
-          !stderrLine.includes('frame=')
+          !stderrLine.includes('frame=') &&
+          !stderrLine.includes('dropping frame')
         ) {
           // record from start until airing...
           if (stderrLine.includes('Press [q] to stop, [?] for help')) {
@@ -311,6 +349,7 @@ export const exportVideo = async (
           }
 
           if (record) ffmpegLog.push(stderrLine);
+          // ffmpegLog.push(stderrLine);
           if (userDebug) log.info(`Stderr output: ${stderrLine}`);
         }
       })

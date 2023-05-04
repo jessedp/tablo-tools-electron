@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+import { getFfmpegProfile } from 'renderer/utils/config';
 import * as ActionListActions from '../store/actionList';
 import * as ExportListActions from '../store/exportList';
 
@@ -14,9 +15,9 @@ import Airing from '../utils/Airing';
 import TabloImage from './TabloImage';
 import { EXP_WORKING, EXP_DONE } from '../constants/app';
 import {
-  NamingTemplateType,
   ExportRecordType,
   StdObj,
+  UpdateExportRecordType,
 } from '../constants/types';
 import ExportProgress from './ExportProgress';
 import FileInfo from './FileInfo';
@@ -70,18 +71,24 @@ class RecordingExport extends Component<Props, State> {
     remExportRecord(record);
   };
 
-  updateTemplate = (template: NamingTemplateType) => {
+  updateRecord = (args: UpdateExportRecordType) => {
     const { record, updateExportRecord } = this.props;
     const { airing } = this.state;
+    const { template, ffmpegOption } = args;
 
     const updateRec = JSON.parse(JSON.stringify(record));
 
     updateRec.airing.template = template;
 
+    const profileOpts = getFfmpegProfile(ffmpegOption.id);
+    updateRec.airing.ffmpegProfile = profileOpts;
+
     if (airing) {
       airing.template = template;
+      airing.ffmpegProfile = profileOpts;
       this.setState({ airing });
     }
+
     updateExportRecord(updateRec);
   };
 
@@ -93,7 +100,7 @@ class RecordingExport extends Component<Props, State> {
     const classes = `border pb-1 mb-2 pt-1`;
 
     if (!airing) return <></>;
-
+    console.log('airing.exportFile', airing.exportFile);
     return (
       <Container className={classes}>
         <Row>
@@ -124,7 +131,7 @@ class RecordingExport extends Component<Props, State> {
                   airing={airing}
                   actionOnDuplicate={actionOnDuplicate}
                   exportState={exportState}
-                  updateTemplate={this.updateTemplate}
+                  updateRecord={this.updateRecord}
                 />
               </Col>
               {exportState !== EXP_WORKING &&

@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import checkDiskSpace, { Dependencies } from 'check-disk-space';
+import { StdObj } from '../renderer/constants/types';
 
 // Future me: don't try to use this again - preload is essentially in the Renderer proc
 // import { mainDebug } from './utils/logging';
@@ -106,7 +107,7 @@ contextBridge.exposeInMainWorld('Tablo', {
   checkConnection: () => ipcRenderer.sendSync('tablo-checkConnection'),
   comskipAvailable: () => ipcRenderer.sendSync('tablo-comskipAvailable'),
   hasDevice: () => ipcRenderer.sendSync('tablo-has-device'),
-  CONNECTED: () => ipcRenderer.sendSync('tablo-CONNECTED'),
+  isConnected: () => ipcRenderer.sendSync('tablo-isConnected'),
   device: () => ipcRenderer.sendSync('tablo-device'),
   discoveredDevices: () => ipcRenderer.sendSync('tablo-discoveredDevices'),
   getRecordingsCount: () => ipcRenderer.sendSync('tablo-getRecordingsCount'),
@@ -124,8 +125,8 @@ contextBridge.exposeInMainWorld('Tablo', {
 });
 
 contextBridge.exposeInMainWorld('Airing', {
-  exportVideo: (airingId: string, actionOnDuplicate: string, template: any) =>
-    ipcRenderer.invoke('airing-export', airingId, actionOnDuplicate, template),
+  exportVideo: (airingData: StdObj) =>
+    ipcRenderer.invoke('airing-export', airingData),
   dedupedExportFile: (airing: any, actionOnDuplicate: string, template: any) =>
     ipcRenderer.sendSync(
       'airing-dedupedExportFile',

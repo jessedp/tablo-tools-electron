@@ -1,3 +1,5 @@
+import { IPresetOption } from 'renderer/components/FfmpegCmds/presets_types';
+
 export type StdObj = Record<string, any>;
 
 export type ExportRecordType = {
@@ -66,4 +68,21 @@ export type ShowStatRowType = {
   size: number;
   first: Date;
   last: Date;
+};
+
+export type Option = {
+  value: string;
+  label: string;
+};
+
+export type CmdFragment = {
+  id: string;
+  value: string;
+  description: string;
+  filters?: Array<CmdFragment>;
+};
+
+export type UpdateExportRecordType = {
+  template: NamingTemplateType;
+  ffmpegOption: IPresetOption;
 };

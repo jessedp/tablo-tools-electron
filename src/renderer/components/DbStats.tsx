@@ -35,7 +35,6 @@ export default class DbStats extends Component<Props, State> {
   }
 
   async refresh() {
-    // const { RecDb } = global;
     const recTotal = window.db.countAsync('RecDb', {});
 
     /** Watched * */

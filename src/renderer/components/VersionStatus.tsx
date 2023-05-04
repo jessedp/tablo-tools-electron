@@ -114,9 +114,10 @@ class VersionStatus extends Component<Props, State> {
     }
 
     let notify: Record<string, any> = {};
+    const notifyBeta = getConfig()?.notifyBeta || false;
     data.forEach((rec: Record<string, any>) => {
       if (compare(appVersion, rec.tag_name, '<')) {
-        if (rec.prerelease && getConfig().notifyBeta) {
+        if (rec.prerelease && notifyBeta) {
           if (Object.keys(notify).length === 0) notify = rec;
         }
 

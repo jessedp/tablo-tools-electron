@@ -3,18 +3,22 @@ import Handlebars from 'handlebars';
 import Debug from 'debug';
 
 import sanitize from 'sanitize-filename';
-import getConfig, { setConfigItem } from './config';
+
+import { merge } from 'lodash';
+
+import helpers from './templateHelpers';
+
+import form from '../components/FfmpegCmds/form';
+import { defaultOpts } from '../components/FfmpegCmds/defaults';
+
+import getConfig, { getFfmpegProfile, setConfigItem } from './config';
 import deepFilter from './deepFilter';
 import { SERIES, PROGRAM, MOVIE, EVENT } from '../constants/app';
 import { NamingTemplateType } from '../constants/types';
-import helpers from './templateHelpers';
-
-import { ConfigType } from '../constants/types_config';
 
 import * as fsPath from './path';
 
 const debug = Debug('tablo-tools:namingTpl');
-// import sanitize from 'sanitize-filename';
 
 Handlebars.registerHelper(helpers);
 
@@ -54,9 +58,7 @@ export function getDefaultTemplateSlug() {
   return 'tablo-tools';
 }
 export function getDefaultRoot(type: string): string {
-  // const { episodePath, moviePath, eventPath, programPath } = getConfig();
-  const { episodePath, moviePath, eventPath, programPath } =
-    window.ipcRenderer.sendSync('get-config');
+  const { episodePath, moviePath, eventPath, programPath } = getConfig();
 
   switch (type) {
     case SERIES:
@@ -103,10 +105,13 @@ export function isDefaultTemplate(template: NamingTemplateType): boolean {
 }
 
 const stripSecondary = (piece: string) => {
-  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '[', '&', ';'];
-  let newPiece = piece;
+  const secondaryReplacements = [`'`, `’`, ',', ':', '!', '\\[', ']', '&', ';'];
+  let newPiece = sanitize(piece);
+  // console.log('newPiece', newPiece);
   secondaryReplacements.forEach((rep) => {
-    newPiece = newPiece.replace(rep, ''); // $& means the whole matched string
+    // replace all instances of the replacement character with nothing
+    const regEx = new RegExp(rep, 'g');
+    newPiece = newPiece.replace(regEx, '');
   });
   return newPiece;
 };
@@ -230,15 +235,9 @@ export type TemplateVarsType = {
 export function buildTemplateVars(
   airing: Record<string, any>
 ): TemplateVarsType {
-  let config: ConfigType;
-  if (typeof window === 'undefined') {
-    config = getConfig();
-  } else {
-    config = window.ipcRenderer.sendSync('get-config');
-  }
+  const config = getConfig();
 
   const { episodePath, moviePath, eventPath, programPath } = config;
-
   const recData = airing.data;
 
   if (!recData || !recData.airing_details || !recData.airing_details.datetime) {
@@ -251,8 +250,19 @@ export function buildTemplateVars(
   const dateNat = format(date, 'MM-dd-yyyy');
   const time12 = format(date, 'hh-mm-a');
   const time24 = format(date, 'HH-mm');
+
+  let fileExt = '.invalid';
+
+  if (!airing.customFfmpegProfile) {
+    const ffmpegProfile = getFfmpegProfile();
+    fileExt = ffmpegProfile.format?.container || fileExt;
+  } else {
+    const options = merge({}, defaultOpts, airing.customFfmpegProfile);
+    fileExt = options.format.container;
+  }
+
   const globalVars = {
-    EXT: 'mp4',
+    EXT: fileExt,
     dateSort,
     dateNat,
     time12,
@@ -383,10 +393,14 @@ export function fillTemplate(
 
   filledPath = fsPath.normalize(sanitizeParts.join(fsPath.sep()));
 
-  debug('filledPath after sanitze: %s', filledPath);
-  const validExtensions = ['.mp4', '.mkv', '.avi', '.mov'];
-  const ext = filledPath.substring(filledPath.lastIndexOf('.'));
-  if (!validExtensions.includes(ext)) filledPath += '.mp4';
+  console.debug('filledPath after sanitze: %s', filledPath);
+
+  const validExtensions = form.containers.video.map((c: any) => c.value);
+  const ext = filledPath.substring(filledPath.lastIndexOf('.') + 1);
+  const ffmpegProfile = getFfmpegProfile();
+
+  if (!validExtensions.includes(ext))
+    filledPath += `.${ffmpegProfile.format?.container || ext}`;
 
   return filledPath;
 }

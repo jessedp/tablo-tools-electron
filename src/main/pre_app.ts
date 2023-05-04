@@ -7,7 +7,7 @@ import getConfig, {
   setConfig,
   setConfigItem,
 } from './utils/config';
-import { writeToFile } from './utils/utils';
+import { getFfmpegProfile, writeToFile } from './utils/utils';
 import { mainDebug } from './utils/logging';
 
 const debug = mainDebug.extend('pre_app');
@@ -64,4 +64,9 @@ ipcMain.on('glob', (event: any, arg: any) => {
   const results = glob.sync(`${dir}${path.sep}${name}*`);
   debug('glob results', results);
   event.returnValue = results;
+});
+
+ipcMain.on('get-ffmpeg-profile', async (event: any, arg: any) => {
+  const profile = await getFfmpegProfile(arg);
+  event.returnValue = profile;
 });

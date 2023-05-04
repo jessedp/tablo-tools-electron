@@ -90,6 +90,21 @@ export const makeNamingDb = async () => {
   return db;
 };
 
+export const makeFfmpegProfileDb = async () => {
+  const device: any = store.get('CurrentDevice');
+  if (!device.server_id) return null;
+  const ffmpegDbName = `ffmpeg-profiles.db`;
+  const ffmpegFile = path.join(dataDir, ffmpegDbName);
+  debug('creating %s at %s', ffmpegDbName, ffmpegFile);
+  const db = new AsyncNedb({ filename: ffmpegFile });
+  try {
+    await db.loadDatabaseAsync();
+  } catch (e) {
+    console.error('makeFfmpegProfileDb - UNABLE TO db.loadDatabaseAsync', e);
+  }
+  return db;
+};
+
 export const makeExportLoggingDb = async () => {
   const device: any = store.get('CurrentDevice');
   if (!device.server_id) return null;
@@ -116,6 +131,7 @@ export const setupDb = async () => {
   global.dbs.ChannelDb = await makeChannelDb();
   global.dbs.SearchDb = await makeSearchDb();
   global.dbs.NamingDb = await makeNamingDb();
+  global.dbs.FfmpegDb = await makeFfmpegProfileDb();
   global.dbs.ExportLogDb = await makeExportLoggingDb();
   PubSub.publish('DB_CHANGE', true);
 };
