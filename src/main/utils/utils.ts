@@ -11,7 +11,7 @@ import { merge } from 'lodash';
 import { mainDebug } from './logging';
 
 import { defaultOpts } from '../../renderer/components/FfmpegCmds/defaults';
-import { presetData } from '../../renderer/components/FfmpegCmds/presets';
+import { presetData } from '../../renderer/components/FfmpegCmds/presets_data';
 import { IDefaultOption } from '../../renderer/components/FfmpegCmds/defaultOptionsType';
 
 const debug = mainDebug.extend('utils');

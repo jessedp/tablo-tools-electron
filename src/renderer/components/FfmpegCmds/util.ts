@@ -6,7 +6,7 @@ import { Option } from '../../constants/types';
 import defaultOptions from './form';
 import codecMap from './codecs';
 import { buildFlags } from './ffmpeg';
-import { presetOptions, presetData, IPresetOption } from './presets';
+import { presetOptions, presetData, IPresetOption } from './presets_data';
 import { defaultOpts } from './defaults';
 import {
   IBuildOptions,

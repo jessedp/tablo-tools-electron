@@ -6,7 +6,7 @@ import Select from 'react-select';
 import { Option } from 'renderer/constants/types';
 import getConfig, { setConfigItem } from '../../utils/config';
 import { sendFlash } from '../../store/flash';
-import { IPresetOption, presetOptions } from './presets';
+import { IPresetOption, presetOptions } from './presets_data';
 import SelectStyles from '../SelectStyles';
 
 const getPresetOptions = async (

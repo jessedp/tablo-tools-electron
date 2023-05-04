@@ -15,7 +15,7 @@ import Custom from './Custom';
 import Command from './Command';
 
 import { defaultOpts } from './defaults';
-import { defaultPresetOption, presetData, IPresetOption } from './presets';
+import { defaultPresetOption, presetData, IPresetOption } from './presets_data';
 
 import { PresetKeyType } from './defaultOptionsType';
 
