@@ -9,19 +9,20 @@ version: '0.3.14'
 <div class="header">
   <div class="container">
     <h1 class="logo">
-      <img
-        src="resources/tablo_tools_title_large.png"
-        alt="Tablo Tools"
-        height="75px"
-      />
+      <img src="resources/tablo_tools_title_large.png" alt="Tablo Tools" height="75px" />
     </h1>
+
+    <div style="background-color: #ffdddd; border: 1px solid #ff0000; padding: 20px; margin: 20px; text-align: center;">
+      <h2 style="color: #ff0000;">Warning: 4th Gen Tablo Devices Are Not Supported</h2>
+      <p style="color: #888888;">There's more info in various <a target="_new"
+          href="https://github.com/jessedp/tablo-tools-electron/issues?q=is%3Aissue+is%3Aclosed">issues</a></p>
+    </div>
+
     <div class="tagline">
       {{ page.tagline }}
     </div>
     <div class="cta">
-      <a href="#downloads" role="button"
-        ><i class="fa fa-download"></i> Download v{{page.version}}</a
-      >
+      <a href="#downloads" role="button"><i class="fa fa-download"></i> Download v{{page.version}}</a>
       <a href="{{page.projectUrl}}" role="button">
         <i class="fa fa-github"></i>
         View on GitHub
@@ -77,7 +78,7 @@ version: '0.3.14'
       </li>
       <li>
         <b>Stats</b> recording status counts, shows by channel, resolution by channel,
-	  size info and more info pretty graphs
+        size info and more info pretty graphs
       </li>
       <li>
         <b>Live TV</b> without the guide - handy if your internet goes out!
@@ -92,9 +93,7 @@ version: '0.3.14'
       <ul>
         <li>
           <span class="fa fa-windows" /><span class="os-label"> Win</span>
-          <span class="os-path"
-            >C:\Users\<i>&lt;username&gt;</i>\AppData\Roaming\tablo-tools</span
-          >
+          <span class="os-path">C:\Users\<i>&lt;username&gt;</i>\AppData\Roaming\tablo-tools</span>
         </li>
         <li>
           <span class="fa fa-apple" /><span class="os-label">Mac</span>
@@ -134,9 +133,7 @@ version: '0.3.14'
         </li>
         <li>
           Do whatever caused the problem until it happens again.
-          <span class="smaller"
-            >keep track of the steps (video below), record it, etc</span
-          >
+          <span class="smaller">keep track of the steps (video below), record it, etc</span>
         </li>
         <li>
           <code>Click <b>console</b></code> at the top of the new pane
@@ -147,8 +144,7 @@ version: '0.3.14'
         <li>
           <code>Upload</code> that file with your report on the issue.
           <br />
-          <span class="smaller"
-            >If you are unable to upload the file, you can also post the
+          <span class="smaller">If you are unable to upload the file, you can also post the
             contents to
             <a href="https://pastebin.com/" target="_blank">Pastebin</a> and
             send along that link.
@@ -159,22 +155,13 @@ version: '0.3.14'
 
       Here's a quick video of how (don't worry the app was purposefully broken
       for this)
-      <video
-        id="initial"
-        class="video-js vjs-big-play-centered"
-        controls
-        preload="auto"
-        width="600"
-        poster="resources/save_console-cropped-poster.png"
-        data-setup="{}"
-      >
+      <video id="initial" class="video-js vjs-big-play-centered" controls preload="auto" width="600"
+        poster="resources/save_console-cropped-poster.png" data-setup="{}">
         <source src="resources/save_console-cropped.mp4" type="video/mp4" />
         <p class="vjs-no-js">
           To view this video please enable JavaScript, and consider upgrading to
           a web browser that
-          <a href="https://videojs.com/html5-video-support/" target="_blank"
-            >supports HTML5 video</a
-          >
+          <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
         </p>
       </video>
     </div>
@@ -190,9 +177,7 @@ version: '0.3.14'
           <b>Issues, Problems :</b>
           If something has or is being worked on, you can find that listed in
           the
-          <a href="https://github.com/jessedp/tablo-tools-electron/issues"
-            >Issue Tracker</a
-          >
+          <a href="https://github.com/jessedp/tablo-tools-electron/issues">Issue Tracker</a>
           describing what's going on
         </li>
         <li>
@@ -200,16 +185,12 @@ version: '0.3.14'
           <ul>
             <li>
               Check the
-              <a href="https://github.com/jessedp/tablo-tools-electron/projects"
-                >Roadmap/Projects</a
-              >
+              <a href="https://github.com/jessedp/tablo-tools-electron/projects">Roadmap/Projects</a>
               to see if it's on there
             </li>
             <li>
               Submit a new one in the
-              <a href="https://github.com/jessedp/tablo-tools-electron/issues"
-                >Issue Tracker</a
-              >
+              <a href="https://github.com/jessedp/tablo-tools-electron/issues">Issue Tracker</a>
               and we'll talk about it
             </li>
           </ul>
