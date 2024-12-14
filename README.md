@@ -1,6 +1,6 @@
-[![Publish](https://github.com/jessedp/tablo-tools-electron/actions/workflows/publish.yml/badge.svg)](https://github.com/jessedp/tablo-tools-electron/actions/workflows/publish.yml)
+## 🚨 Warning: 4th Gen Tablo Devices Are Not Supported
 
-<br/>
+Unfortunately, it won't happen - there's more info in various [issues](https://github.com/jessedp/tablo-tools-electron/issues?q=is%3Aissue+is%3Aclosed)
 
 [<img src="https://jessedp.github.io/tablo-tools-electron/resources/tablo_title_350_trans.png"/>](https://jessedp.github.io/tablo-tools-electron/)
 
